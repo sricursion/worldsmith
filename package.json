@@ -1,0 +1,37 @@
+{
+  "name": "townforge",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config app/vite.config.ts",
+    "build": "tsc -p app/tsconfig.json --noEmit && vite build --config app/vite.config.ts",
+    "preview": "vite preview --config app/vite.config.ts",
+    "test": "vitest run",
+    "worker:dev": "wrangler dev --config worker/wrangler.toml",
+    "worker:deploy": "wrangler deploy --config worker/wrangler.toml",
+    "assets:fetch": "node scripts/fetch-assets.mjs",
+    "assets:optimize": "node scripts/optimize-assets.mjs",
+    "typecheck": "tsc -p app/tsconfig.json --noEmit && tsc -p worker/tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@recast-navigation/three": "0.43.1",
+    "fflate": "0.8.3",
+    "poisson-disk-sampling": "2.3.1",
+    "recast-navigation": "0.43.1",
+    "three": "0.186.1",
+    "three-mesh-bvh": "0.9.17",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20260702.1",
+    "@gltf-transform/cli": "4.5.1",
+    "@types/node": "22.19.0",
+    "@types/three": "0.186.0",
+    "typescript": "5.9.3",
+    "vite": "8.3.5",
+    "vitest": "4.1.4",
+    "wrangler": "4.154.0"
+  },
+  "engines": { "node": ">=22" }
+}

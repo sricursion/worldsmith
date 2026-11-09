@@ -2,7 +2,7 @@
 // Owns the lifecycle of one town at a time and tears everything down before building the next.
 
 import * as THREE from 'three';
-import type { WorldSpec, WorldState, NpcSpec, RuleSpec, ThemeId } from './world/spec';
+import type { WorldSpec, WorldState, NpcSpec, RuleSpec, ThemeId, SkyPreset } from './world/spec';
 import { makeRng, seedFromPrompt, type Rng } from './world/rng';
 import { validateSpec, normalizeSpec } from './world/schema';
 import { FIXTURES, nearestTheme } from './world/fixtures';
@@ -27,6 +27,8 @@ import { encodeShare, decodeShare } from './share';
 
 const TICK_SECONDS = 20;
 const TALK_DISTANCE = 3.2;
+const PLAYER_BASE = 'rogue_hooded' as const;
+const NAV_MARGIN = 18; // metres of walkable ground around the town bounds
 
 interface NpcRuntime {
   spec: NpcSpec;
@@ -35,7 +37,6 @@ interface NpcRuntime {
   place: string;        // where the brain thinks they are or are heading
   targetPlace: string;
   lastReason: string;
-  idleUntil: number;
 }
 
 interface Town {
@@ -44,11 +45,13 @@ interface Town {
   layout: TownLayout;
   objects: TownObjects;
   nav: NavWorld;
+  navGround: THREE.Mesh;
   player: Player;
   npcs: Map<string, NpcRuntime>;
   rng: Rng;
   elapsed: number;
   nextTickAt: number;
+  tickInFlight: boolean;
   dialogue: DialogueSession | null;
   dialogueNpc: string | null;
   handle: DialogueHandle | null;
@@ -60,6 +63,17 @@ export interface GameDeps {
   input: Input;
   ui: UI;
   api: Api;
+}
+
+/** Turns transport and model error codes into one line a player can act on. */
+export function friendlyError(code: string): string {
+  if (code === 'resting' || code === 'rate_limited') return 'The town is resting for a moment';
+  if (code === 'refusal') return 'That prompt could not be built as written';
+  if (code === 'timeout' || code === 'network' || code === 'stream_ended' || code === 'upstream' || /^http_5/.test(code)) {
+    return 'The town forge could not be reached';
+  }
+  if (code === 'bad_spec' || code === 'invalid_spec_json' || code === 'truncated') return 'The world came back malformed';
+  return 'Something went wrong';
 }
 
 export class Game {
@@ -84,27 +98,52 @@ export class Game {
     deps.ui.onHud({
       rules: () => this.openRules(),
       why: () => this.showWhy(),
-      share: () => void this.share().then((url) => this.copyLink(url)),
+      share: () => void this.share().then((r) => this.copyLink(r)),
+      talk: () => this.tryTalk(),
+      newTown: () => this.newTown(),
     });
   }
 
-  private async copyLink(url: string): Promise<void> {
+  private async copyLink(r: { url: string; short: boolean }): Promise<void> {
     try {
-      await navigator.clipboard.writeText(url);
-      this.deps.ui.toast('Share link copied. The whole town travels in the URL.');
+      await navigator.clipboard.writeText(r.url);
+      this.deps.ui.toast(r.short ? 'Share link copied.' : 'Share link copied. The whole town travels in the URL.');
     } catch {
-      this.deps.ui.toast(url);
+      this.deps.ui.toast('Could not copy automatically. The link is in the address bar.', 'warn');
     }
   }
 
   /** Entry point: show the landing card, or load a shared town from the URL hash. */
   async start(): Promise<void> {
-    const shared = location.hash.length > 1 ? await this.loadShared(location.hash.slice(1)) : null;
-    if (shared) {
-      await this.playSpec(shared);
-      return;
+    if (location.hash.length > 1) {
+      this.deps.ui.showCompiling('Opening shared town…');
+      const shared = await this.loadShared(location.hash.slice(1));
+      if (shared) {
+        try {
+          await this.playSpec(shared);
+          return;
+        } catch (err) {
+          this.failBuild(err);
+          return;
+        }
+      }
+      this.deps.ui.toast('That link did not hold a town. Start a new one.', 'warn');
+      this.clearHash();
     }
     this.showLanding();
+  }
+
+  /** Back to the prompt: aborts an in-flight compile, tears the town down, clears the URL. */
+  newTown(): void {
+    this.compiling?.abort();
+    this.compiling = null;
+    this.teardown();
+    this.clearHash();
+    this.showLanding();
+  }
+
+  private clearHash(): void {
+    history.replaceState(null, '', location.pathname + location.search);
   }
 
   private showLanding(): void {
@@ -120,7 +159,7 @@ export class Game {
   private async loadShared(hash: string): Promise<WorldSpec | null> {
     const local = decodeShare(hash);
     if (local) return local;
-    if (/^[A-Za-z0-9_-]{8,12}$/.test(hash)) {
+    if (/^[0-9a-f]{10,32}$/.test(hash)) {
       const r = await this.deps.api.load(hash);
       if (r.ok) {
         const v = validateSpec(r.spec);
@@ -128,6 +167,16 @@ export class Game {
       }
     }
     return null;
+  }
+
+  private failBuild(err: unknown): void {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn('town build failed:', message);
+    this.teardown();
+    this.deps.ui.showError('Could not build that town. Try the prompt again or pick an example.', () => {
+      this.clearHash();
+      this.showLanding();
+    });
   }
 
   async buildFromPrompt(prompt: string): Promise<void> {
@@ -138,34 +187,38 @@ export class Game {
     const seed = seedFromPrompt(prompt);
     const theme = nearestTheme(prompt);
 
-    // Start the heavy loads now so the town appears the moment the spec lands.
-    const kitPromise = this.ensureKit(theme);
-    const charPromise = Promise.all((['knight', 'barbarian', 'mage', 'rogue', 'rogue_hooded'] as const).map(loadCharacterBase));
-    ui.showCompiling('Thinking about your town…');
+    try {
+      // Start the heavy loads now so the town appears the moment the spec lands.
+      const kitPromise = this.ensureKit(theme);
+      const charPromise = Promise.all((['knight', 'barbarian', 'mage', 'rogue', 'rogue_hooded'] as const).map(loadCharacterBase));
+      ui.showCompiling('Thinking about your town…');
 
-    const result = await api.compile(prompt, seed, (partial) => ui.showCompiling('Writing the world…', partial), ctl.signal);
-    if (ctl.signal.aborted) return;
-    let spec: WorldSpec;
-    if (!result.ok) {
-      if (result.error === 'resting') {
-        ui.toast('The town is resting. Showing a saved town instead.', 'warn');
-      } else {
-        ui.toast(`Compile failed (${result.error}). Showing a saved town instead.`, 'warn');
-      }
-      spec = { ...FIXTURES[theme], prompt, seed };
-    } else {
-      const v = validateSpec(result.spec);
-      if (!v.ok) {
-        ui.toast('The model returned an invalid world; repaired with a saved town.', 'warn');
+      const result = await api.compile(prompt, seed, (partial) => ui.showCompiling('Writing the world…', partial), ctl.signal);
+      if (ctl.signal.aborted) return;
+      let spec: WorldSpec;
+      if (!result.ok) {
+        ui.toast(`${friendlyError(result.error)}. Showing a saved town instead.`, 'warn');
         spec = { ...FIXTURES[theme], prompt, seed };
       } else {
-        spec = v.value;
+        const v = validateSpec(result.spec);
+        if (!v.ok) {
+          ui.toast('The world came back malformed; showing a saved town instead.', 'warn');
+          spec = { ...FIXTURES[theme], prompt, seed };
+        } else {
+          spec = v.value;
+        }
       }
+      spec = normalizeSpec({ ...spec, prompt, seed });
+      ui.showCompiling('Laying out streets…');
+      await Promise.all([kitPromise, charPromise]);
+      if (ctl.signal.aborted) return;
+      await this.playSpec(spec);
+    } catch (err) {
+      if (ctl.signal.aborted) return;
+      this.failBuild(err);
+    } finally {
+      if (this.compiling === ctl) this.compiling = null;
     }
-    spec = normalizeSpec({ ...spec, prompt, seed });
-    ui.showCompiling('Laying out streets…');
-    await Promise.all([kitPromise, charPromise]);
-    await this.playSpec(spec);
   }
 
   private async ensureKit(theme: ThemeId): Promise<LoadedKit> {
@@ -182,43 +235,94 @@ export class Game {
     const verified = verifyQuest(repaired);
     const spec = repaired;
     const kit = await this.ensureKit(spec.theme);
-    await Promise.all(spec.npcs.map((n) => loadCharacterBase(n.appearance.base)));
+    await Promise.all([loadCharacterBase(PLAYER_BASE), ...spec.npcs.map((n) => loadCharacterBase(n.appearance.base))]);
 
-    const rng = makeRng(spec.seed, 'game');
-    const layout = generateLayout(spec);
-    const objects = buildTown(layout, spec, kit, viewport.scene);
-    const ground = objects.statics.find((m) => m.name === 'ground') ?? objects.statics[0];
-    if (!ground) throw new Error('town has no ground mesh');
-    const nav = await buildNav(objects.statics, ground);
+    // Everything created below is registered here so a failure half-way cannot orphan it in the scene.
+    const created: { objects?: TownObjects; nav?: NavWorld; navGround?: THREE.Mesh; rigs: CharacterRig[]; agents: NavAgent[]; player?: Player } = { rigs: [], agents: [] };
+    try {
+      const rng = makeRng(spec.seed, 'game');
+      const layout = generateLayout(spec);
+      const objects = buildTown(layout, spec, kit, viewport.scene);
+      created.objects = objects;
 
-    const playerRig = createCharacter('ranger');
-    playerRig.setPalette(0, spec.theme);
-    viewport.scene.add(playerRig.root);
-    const player = createPlayer(playerRig, nav, viewport.camera, this.deps.input, objects.statics);
-    player.teleport(new THREE.Vector3(layout.spawn.x, 0, layout.spawn.z), layout.spawn.rotY);
+      // The navmesh covers the town plus a margin, not the 400 m visual ground: a fraction of the voxels.
+      const b = layout.bounds;
+      const navGround = new THREE.Mesh(
+        new THREE.PlaneGeometry(b.maxX - b.minX + 2 * NAV_MARGIN, b.maxZ - b.minZ + 2 * NAV_MARGIN).rotateX(-Math.PI / 2),
+        new THREE.MeshBasicMaterial({ visible: false }),
+      );
+      navGround.name = 'navground';
+      navGround.position.set((b.minX + b.maxX) / 2, 0, (b.minZ + b.maxZ) / 2);
+      navGround.updateMatrixWorld(true);
+      created.navGround = navGround;
+      const nav = await buildNav(objects.statics.filter((m) => m.name !== 'ground'), navGround);
+      created.nav = nav;
 
-    const state = createState(spec);
-    const npcs = new Map<string, NpcRuntime>();
-    for (const n of spec.npcs) {
-      const rig = createCharacter(n.appearance.base);
-      rig.setPalette(n.appearance.palette, spec.theme);
-      viewport.scene.add(rig.root);
-      const start = this.placeToPoint(layout, objects, state.npcPlaces[n.id] ?? n.home, nav, rng);
-      const agent = nav.addAgent(start, { radius: 0.4, speed: 1.6 + rng.range(-0.2, 0.3) });
-      rig.root.position.copy(start);
-      npcs.set(n.id, { spec: n, rig, agent, place: state.npcPlaces[n.id] ?? n.home, targetPlace: '', lastReason: 'starting the day', idleUntil: 0 });
+      const playerRig = createCharacter(PLAYER_BASE);
+      playerRig.setPalette(0, spec.theme);
+      viewport.scene.add(playerRig.root);
+      created.rigs.push(playerRig);
+      const player = createPlayer(playerRig, nav, viewport.camera, this.deps.input, objects.statics);
+      created.player = player;
+      player.teleport(new THREE.Vector3(layout.spawn.x, 0, layout.spawn.z), layout.spawn.rotY);
+
+      const state = createState(spec);
+      const npcs = new Map<string, NpcRuntime>();
+      for (const n of spec.npcs) {
+        const rig = createCharacter(n.appearance.base);
+        rig.setPalette(n.appearance.palette, spec.theme);
+        viewport.scene.add(rig.root);
+        created.rigs.push(rig);
+        const place = state.npcPlaces[n.id] ?? n.home;
+        const start = this.placeToPoint(layout, objects, place, nav, rng);
+        const agent = nav.addAgent(start, { radius: 0.4, speed: 1.6 + rng.range(-0.2, 0.3) });
+        created.agents.push(agent);
+        rig.root.position.copy(start);
+        npcs.set(n.id, { spec: n, rig, agent, place, targetPlace: '', lastReason: 'starting the day' });
+      }
+
+      this.town = {
+        spec, state, layout, objects, nav, navGround, player, npcs, rng,
+        elapsed: 0, nextTickAt: 2, tickInFlight: false, dialogue: null, dialogueNpc: null, handle: null, verified,
+      };
+    } catch (err) {
+      for (const a of created.agents) a.remove();
+      for (const r of created.rigs) {
+        viewport.scene.remove(r.root);
+        r.dispose();
+      }
+      created.player?.dispose();
+      created.nav?.dispose();
+      created.navGround?.geometry.dispose();
+      created.objects?.dispose();
+      throw err;
     }
 
-    this.town = { spec, state, layout, objects, nav, player, npcs, rng, elapsed: 0, nextTickAt: 2, dialogue: null, dialogueNpc: null, handle: null, verified };
-    this.sky.setPreset(spec.palette.sky, spec.palette.fog);
-    this.sky.setHour(state.hour);
+    this.applyWeather();
+    this.sky.setHour(this.town.state.hour);
     document.documentElement.style.setProperty('--accent', spec.palette.accent);
     ui.showHud(spec);
     ui.setBadge(verified.winnable ? `quest verified · ${verified.order.length} steps` : 'quest unverified');
     ui.setObjective(this.currentObjective());
     ui.toast(verified.winnable ? `Quest verified: ${verified.order.length} steps, ${spec.quest.endings.length} endings` : 'Quest could not be fully verified', verified.winnable ? 'info' : 'warn');
-    this.pushLog('world', `${spec.title} wakes at ${this.fmtHour(state.hour)}`);
-    history.replaceState(null, '', '#' + encodeShare(spec));
+    this.pushLog('world', `${spec.title} wakes at ${this.fmtHour(this.town.state.hour)}`);
+    const hash = encodeShare(spec);
+    if (hash.length < 4000) history.replaceState(null, '', '#' + hash);
+  }
+
+  /** The newest weather rule wins; with none, the spec's palette applies. */
+  private applyWeather(): void {
+    const t = this.town;
+    if (!t) return;
+    let sky: SkyPreset = t.spec.palette.sky;
+    let fog = t.spec.palette.fog;
+    for (const r of t.state.rules) {
+      if (r.effect.type === 'weather') {
+        sky = r.effect.sky;
+        fog = r.effect.fog;
+      }
+    }
+    this.sky.setPreset(sky, fog);
   }
 
   /** Called by main.ts every frame. */
@@ -226,16 +330,13 @@ export class Game {
     const t = this.town;
     if (!t) return;
     t.elapsed += dt;
-    const dtHours = (dt * t.spec.time.minutesPerRealSecond) / 60;
     const scaleRule = t.state.rules.find((r) => r.effect.type === 'time_scale');
     const minutesPerSecond = scaleRule && scaleRule.effect.type === 'time_scale' ? scaleRule.effect.minutesPerRealSecond : t.spec.time.minutesPerRealSecond;
-    const res = applyEvent(t.spec, t.state, { type: 'tick', dtHours: (dt * minutesPerSecond) / 60 });
-    void dtHours;
-    t.state = res.state;
+    t.state = applyEvent(t.spec, t.state, { type: 'tick', dtHours: (dt * minutesPerSecond) / 60 }).state;
     this.sky.setHour(t.state.hour);
     this.deps.ui.setClock(t.state.hour, t.state.day);
 
-    t.player.update(dt);
+    t.player.update(dt); // also advances the player's rig
     t.nav.update(dt);
 
     for (const n of t.npcs.values()) {
@@ -254,16 +355,15 @@ export class Game {
       n.rig.lookAt(t.dialogueNpc === n.spec.id || p.distanceTo(t.player.position) < 4 ? t.player.position.clone().setY(1.6) : null);
       n.rig.update(dt);
     }
-    t.player.rig.update(dt);
 
     const near = this.nearestNpcId();
     this.deps.ui.setPrompt(near && !t.dialogue ? `E · talk to ${t.npcs.get(near)?.spec.name ?? ''}` : null);
 
-    if (t.elapsed >= t.nextTickAt && !t.dialogue) {
+    if (t.elapsed >= t.nextTickAt && !t.dialogue && !t.tickInFlight) {
       t.nextTickAt = t.elapsed + TICK_SECONDS;
       void this.tick();
     }
-    this.checkVisits();
+    this.checkProximity();
   }
 
   private playerPlace(): string {
@@ -287,27 +387,33 @@ export class Game {
   private async tick(): Promise<void> {
     const t = this.town;
     if (!t) return;
-    t.state = { ...t.state, flags: { ...t.state.flags, player_place: this.playerPlace() } };
-    const intents = planTick(t.spec, t.state);
-    const near = this.nearestNpcId();
-    const questions = buildQuestions(t.spec, t.state, intents, near);
-    const stateSummary = this.summarizeForDecisions(intents);
-    let probs: number[][] = [];
+    t.tickInFlight = true;
     try {
-      const r = await this.deps.api.tick({ sessionId: this.sessionId, stateSummary, questions: questions.map((q) => ({ npcId: q.npcId, question: q.question, options: q.options.map((o) => o.label) })) });
-      if (r.ok) probs = r.probs;
-    } catch {
-      probs = [];
+      t.state = { ...t.state, flags: { ...t.state.flags, player_place: this.playerPlace() } };
+      const intents = planTick(t.spec, t.state);
+      const near = this.nearestNpcId();
+      const questions = buildQuestions(t.spec, t.state, intents, near);
+      const stateSummary = this.summarizeForDecisions(intents);
+      let probs: number[][] = [];
+      try {
+        const r = await this.deps.api.tick({ sessionId: this.sessionId, stateSummary, questions: questions.map((q) => ({ npcId: q.npcId, question: q.question, options: q.options.map((o) => o.label) })) });
+        if (r.ok) probs = r.probs;
+      } catch {
+        probs = [];
+      }
+      if (this.town !== t) return; // town changed while waiting
+      questions.forEach((q, i) => {
+        const n = t.npcs.get(q.npcId);
+        if (!n) return;
+        if (t.dialogueNpc === q.npcId) return; // never walk away from a conversation
+        const p = probs[i];
+        const action = p && p.length === q.options.length ? sampleAction(p, q.options, n.spec, t.rng) : localFallback(q, n.spec, t.rng);
+        const intent = intents.find((it) => it.npcId === q.npcId);
+        this.applyAction(n, action.id, action.target, action.reason, intent);
+      });
+    } finally {
+      t.tickInFlight = false;
     }
-    if (this.town !== t) return; // town changed while waiting
-    questions.forEach((q, i) => {
-      const n = t.npcs.get(q.npcId);
-      if (!n) return;
-      const p = probs[i];
-      const action = p && p.length === q.options.length ? sampleAction(p, q.options, n.spec, t.rng) : localFallback(q, n.spec, t.rng);
-      const intent = intents.find((it) => it.npcId === q.npcId);
-      this.applyAction(n, action.id, action.target, action.reason, intent);
-    });
   }
 
   private applyAction(n: NpcRuntime, id: string, target: string | undefined, reason: string, intent: NpcIntent | undefined): void {
@@ -331,6 +437,7 @@ export class Game {
       case 'investigate':
         n.agent.setTarget(t.nav.randomPointNear(t.player.position, 2.5));
         n.lastReason = reason;
+        n.targetPlace = ''; // so the next schedule intent re-routes them
         this.pushLog(n.spec.id, `${n.spec.name} heads toward you: ${reason}`);
         return;
       case 'flee':
@@ -340,6 +447,7 @@ export class Game {
       default:
         n.agent.setTarget(t.nav.randomPointNear(n.agent.position(), 3));
         n.lastReason = reason;
+        n.targetPlace = '';
         return;
     }
     if (place !== n.targetPlace) {
@@ -387,13 +495,15 @@ export class Game {
     const n = t.npcs.get(id);
     if (!n) return;
     n.agent.stop();
-    const session = openDialogue(t.spec, t.state, id, this.deps.api);
+    n.targetPlace = '';
+    // The talk event lands before the session opens, so the greeting already sees the advanced quest state.
+    const res = applyEvent(t.spec, t.state, { type: 'talk', npcId: id });
+    t.state = res.state;
+    const session = openDialogue(t.spec, () => this.town?.state ?? t.state, id, this.deps.api);
     t.dialogue = session;
     t.dialogueNpc = id;
     const handle = this.deps.ui.openDialogue(n.spec, (text) => void this.send(text), () => this.closeDialogue());
     t.handle = handle;
-    const res = applyEvent(t.spec, t.state, { type: 'talk', npcId: id });
-    t.state = res.state;
     this.afterEvent(res.completed);
     this.offerItemActions(n, handle);
     void session.say('(walks up)', (partial) => handle.stream(partial)).then((r) => {
@@ -424,7 +534,10 @@ export class Game {
     const t = this.town;
     if (!t) return;
     h.clearActions();
-    // Items this NPC holds that an unlocked fetch step wants.
+    const after = (completed: string[]): void => {
+      this.afterEvent(completed);
+      if (t.handle === h) this.offerItemActions(n, h); // follow-up buttons appear at once
+    };
     for (const stepId of t.state.unlockedSteps) {
       const step = t.spec.quest.steps.find((s) => s.id === stepId);
       if (!step || t.state.completedSteps.includes(stepId)) continue;
@@ -433,22 +546,23 @@ export class Game {
         h.addAction(`Take ${item?.name ?? step.target}`, () => {
           const res = applyEvent(t.spec, t.state, { type: 'pickup', item: step.target });
           t.state = res.state;
-          this.afterEvent(res.completed);
+          after(res.completed);
         });
       }
       if (step.kind === 'deliver' && step.target === n.spec.id && step.item && t.state.inventory.includes(step.item)) {
         const item = t.spec.items.find((i) => i.id === step.item);
-        h.addAction(`Give ${item?.name ?? step.item}`, () => {
-          const res = applyEvent(t.spec, t.state, { type: 'give', item: step.item!, to: n.spec.id });
+        const itemId = step.item;
+        h.addAction(`Give ${item?.name ?? itemId}`, () => {
+          const res = applyEvent(t.spec, t.state, { type: 'give', item: itemId, to: n.spec.id });
           t.state = res.state;
-          this.afterEvent(res.completed);
+          after(res.completed);
         });
       }
       if (step.kind === 'choose' && step.target === n.spec.id && step.choices) {
         step.choices.forEach((c, idx) => h.addAction(c.label, () => {
           const res = applyEvent(t.spec, t.state, { type: 'choose', stepId: step.id, choice: idx });
           t.state = res.state;
-          this.afterEvent(res.completed);
+          after(res.completed);
         }));
       }
     }
@@ -465,18 +579,31 @@ export class Game {
     t.nextTickAt = Math.min(t.nextTickAt, t.elapsed + 2);
   }
 
-  private checkVisits(): void {
+  /** Visit steps complete at a building's door; items left in a building are picked up there too. */
+  private checkProximity(): void {
     const t = this.town;
     if (!t) return;
     for (const stepId of t.state.unlockedSteps) {
       if (t.state.completedSteps.includes(stepId)) continue;
       const step = t.spec.quest.steps.find((s) => s.id === stepId);
-      if (!step || step.kind !== 'visit') continue;
-      const door = t.objects.doors.get(step.target);
-      if (door && door.distanceTo(t.player.position) < 2.5) {
-        const res = applyEvent(t.spec, t.state, { type: 'visit', buildingId: step.target });
-        t.state = res.state;
-        this.afterEvent(res.completed);
+      if (!step) continue;
+      if (step.kind === 'visit') {
+        const door = t.objects.doors.get(step.target);
+        if (door && door.distanceTo(t.player.position) < 2.5) {
+          const res = applyEvent(t.spec, t.state, { type: 'visit', buildingId: step.target });
+          t.state = res.state;
+          this.afterEvent(res.completed);
+        }
+      } else if (step.kind === 'fetch') {
+        const holder = t.state.itemHolders[step.target];
+        const door = holder ? t.objects.doors.get(holder) : undefined;
+        if (door && door.distanceTo(t.player.position) < 2.5) {
+          const item = t.spec.items.find((i) => i.id === step.target);
+          const res = applyEvent(t.spec, t.state, { type: 'pickup', item: step.target });
+          t.state = res.state;
+          if (res.completed.length === 0) this.deps.ui.toast(`Picked up ${item?.name ?? step.target}`);
+          this.afterEvent(res.completed);
+        }
       }
     }
   }
@@ -508,28 +635,22 @@ export class Game {
   private openRules(): void {
     const t = this.town;
     if (!t) return;
-    this.deps.ui.openRules(
-      t.state.rules,
-      (text) => void this.addRule(text),
-      (id) => {
-        t.state = applyEvent(t.spec, t.state, { type: 'rule_remove', ruleId: id }).state;
-        this.pushLog('world', `rule removed: ${id}`);
-        this.deps.ui.openRules(t.state.rules, (x) => void this.addRule(x), (y) => this.removeRule(y));
-        t.nextTickAt = t.elapsed + 1;
-      },
-    );
+    this.deps.ui.openRules(t.state.rules, (text) => this.addRule(text), (id) => this.removeRule(id));
   }
 
   private removeRule(id: string): void {
     const t = this.town;
     if (!t) return;
     t.state = applyEvent(t.spec, t.state, { type: 'rule_remove', ruleId: id }).state;
+    this.pushLog('world', `rule removed: ${id}`);
+    this.applyWeather();
+    this.openRules();
     t.nextTickAt = t.elapsed + 1;
   }
 
-  private async addRule(text: string): Promise<void> {
+  private async addRule(text: string): Promise<boolean> {
     const t = this.town;
-    if (!t) return;
+    if (!t) return false;
     const summary = [
       'buildings: ' + t.spec.buildings.map((b) => `${b.id}(${b.role})`).join(', '),
       'npcs: ' + t.spec.npcs.map((n) => `${n.id}(${n.role})`).join(', '),
@@ -537,21 +658,21 @@ export class Game {
       'rules: ' + t.state.rules.map((r) => r.text).join(' | '),
     ].join('\n');
     const r = await this.deps.api.patchRules({ sessionId: this.sessionId, ruleText: text, summary });
-    if (this.town !== t) return;
+    if (this.town !== t) return false;
     if (!r.ok) {
-      this.deps.ui.toast(`Could not interpret that rule (${r.error})`, 'warn');
-      return;
+      this.deps.ui.toast(`${friendlyError(r.error)}. The rule was not applied.`, 'warn');
+      return false;
     }
     for (const rule of r.rules) {
       const stamped: RuleSpec = { ...rule, source: 'player' };
-      const res = applyEvent(t.spec, t.state, { type: 'rule_add', rule: stamped });
-      t.state = res.state;
-      if (stamped.effect.type === 'weather') this.sky.setPreset(stamped.effect.sky, stamped.effect.fog);
+      t.state = applyEvent(t.spec, t.state, { type: 'rule_add', rule: stamped }).state;
       this.pushLog('world', `new rule: ${stamped.text}`);
     }
+    this.applyWeather();
     this.deps.ui.toast(`${r.rules.length} rule${r.rules.length === 1 ? '' : 's'} now in force`);
-    this.deps.ui.openRules(t.state.rules, (x) => void this.addRule(x), (y) => this.removeRule(y));
+    this.openRules();
     t.nextTickAt = t.elapsed + 0.5;
+    return true;
   }
 
   // ---- why, share, misc -----------------------------------------------------------------------
@@ -563,19 +684,22 @@ export class Game {
     this.deps.ui.showWhy(lines.length ? lines : ['Nothing has happened yet.']);
   }
 
-  async share(): Promise<string> {
+  async share(): Promise<{ url: string; short: boolean }> {
     const t = this.town;
-    if (!t) return location.href;
+    if (!t) return { url: location.href, short: false };
     const hash = encodeShare(t.spec);
     if (hash.length < 4000) {
       history.replaceState(null, '', '#' + hash);
-      return location.href;
+      return { url: location.href, short: false };
     }
     const r = await this.deps.api.share(t.spec);
     if (r.ok) {
       history.replaceState(null, '', '#' + r.id);
+    } else {
+      this.deps.ui.toast('The share service is unavailable right now; the long link below still works.', 'warn');
+      history.replaceState(null, '', '#' + hash);
     }
-    return location.href;
+    return { url: location.href, short: r.ok };
   }
 
   private pushLog(who: string, what: string): void {
@@ -604,6 +728,8 @@ export class Game {
     t.player.dispose();
     t.player.rig.dispose();
     t.nav.dispose();
+    t.navGround.geometry.dispose();
+    (t.navGround.material as THREE.Material).dispose();
     t.objects.dispose();
     this.town = null;
   }

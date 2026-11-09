@@ -97,6 +97,7 @@ export function createPlayer(
   const bvh = bvhGeometry ? new MeshBVH(bvhGeometry) : null;
 
   const onWheel = (e: WheelEvent): void => {
+    if (e.target instanceof Element && e.target.closest('.tf-panel')) return;
     camDist = THREE.MathUtils.clamp(camDist + Math.sign(e.deltaY) * 0.5, DIST_MIN, DIST_MAX);
   };
   const hasWindow = typeof window !== 'undefined';

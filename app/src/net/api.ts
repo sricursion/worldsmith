@@ -16,6 +16,7 @@ export interface Api {
 export const COMPILE_IDLE_MS = 20_000;
 export const NPC_IDLE_MS = 8_000;
 export const JSON_TIMEOUT_MS = 6_000;
+export const PATCH_TIMEOUT_MS = 25_000;
 
 class ApiFailure extends Error {}
 
@@ -112,8 +113,12 @@ export function createApi(base = '/api'): Api {
     body: JSON.stringify(body),
   });
 
-  async function requestJson(path: string, init: RequestInit): Promise<{ ok: true; data: unknown } | { ok: false; error: string }> {
-    const guard = createGuard(JSON_TIMEOUT_MS);
+  async function requestJson(
+    path: string,
+    init: RequestInit,
+    timeoutMs: number = JSON_TIMEOUT_MS,
+  ): Promise<{ ok: true; data: unknown } | { ok: false; error: string }> {
+    const guard = createGuard(timeoutMs);
     try {
       const res = await guardedFetch(path, init, guard);
       if (!res.ok) return { ok: false, error: await httpError(res) };
@@ -144,6 +149,7 @@ export function createApi(base = '/api'): Api {
         let acc = '';
         for await (const ev of parseSse(res.body, guard.signal)) {
           guard.reset();
+          if (ev.event === 'ping') continue; // keepalive: resets the idle guard only
           const data = parseData(ev.data);
           if (ev.event === 'partial') {
             if (isRecord(data) && typeof data['text'] === 'string') {
@@ -175,6 +181,7 @@ export function createApi(base = '/api'): Api {
         const parts: string[] = [];
         for await (const ev of parseSse(res.body, guard.signal)) {
           guard.reset();
+          if (ev.event === 'ping') continue; // keepalive: resets the idle guard only
           const data = parseData(ev.data);
           if (ev.event === 'token') {
             const tok = isRecord(data) ? (typeof data['text'] === 'string' ? data['text'] : typeof data['t'] === 'string' ? data['t'] : null) : null;
@@ -208,7 +215,7 @@ export function createApi(base = '/api'): Api {
     },
 
     async patchRules(body) {
-      const r = await requestJson('/rules/patch', postInit(body, false));
+      const r = await requestJson('/rules/patch', postInit(body, false), PATCH_TIMEOUT_MS);
       if (!r.ok) return r;
       const rules = isRecord(r.data) ? r.data['rules'] : undefined;
       if (!Array.isArray(rules)) return { ok: false, error: 'bad_response' };

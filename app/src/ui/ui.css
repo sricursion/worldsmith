@@ -204,6 +204,7 @@ canvas {
   pointer-events: auto;
   width: 100%;
   font: inherit;
+  font-size: 16px;
   color: var(--tf-fg);
   background: var(--tf-field);
   border: 1px solid var(--tf-border);
@@ -451,7 +452,11 @@ canvas {
 .tf-prompt {
   grid-column: 2;
   justify-self: center;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
   padding: 8px 16px;
   border-radius: 999px;
   background: var(--tf-bg);
@@ -460,6 +465,27 @@ canvas {
   border: 1px solid var(--tf-border);
   font-weight: 600;
   text-align: center;
+}
+
+.tf-controls-hint {
+  grid-column: 1 / -1;
+  justify-self: center;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 14px;
+  font-size: 13px;
+  color: var(--tf-fg-dim);
+}
+
+.tf-controls-hint[hidden] {
+  display: none;
+}
+
+.tf-count {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
 }
 
 .tf-hud-buttons {
@@ -685,6 +711,10 @@ canvas {
   box-shadow: var(--tf-shadow);
   text-align: center;
   cursor: pointer;
+  overflow-wrap: anywhere;
+  max-height: 30vh;
+  overflow-y: auto;
+  max-width: 100%;
   animation: tf-rise 0.2s ease-out;
 }
 
@@ -773,7 +803,7 @@ canvas {
   }
 
   .tf-hud-title {
-    max-width: calc(100% - 2 * var(--tf-gutter) - 130px);
+    max-width: calc(100% - 2 * var(--tf-gutter) - 210px);
   }
 
   .tf-rules {

@@ -29,6 +29,25 @@ function num(v: unknown): number | null {
   return typeof v === 'number' && Number.isFinite(v) ? v : null;
 }
 
+/** Model-generated text can run long; keep the first maxLen characters instead of failing the request. */
+function clip(v: unknown, min: number, max: number): string | null {
+  if (typeof v !== 'string') return null;
+  const t = v.trim().slice(0, max).trim();
+  return t.length >= min ? t : null;
+}
+
+/** Wrong type is a rejection; extra entries are cut (the oldest first for newest-last lists) and long strings clipped. */
+function clipArr(v: unknown, maxItems: number, maxLen: number, keep: 'first' | 'last' = 'first'): string[] | null {
+  if (!Array.isArray(v)) return null;
+  const items = keep === 'first' ? v.slice(0, maxItems) : v.slice(-maxItems);
+  const out: string[] = [];
+  for (const x of items) {
+    if (typeof x !== 'string') return null;
+    out.push(x.slice(0, maxLen));
+  }
+  return out;
+}
+
 const fail = (error: string): { ok: false; error: string } => ({ ok: false, error });
 
 export function validateCompile(body: unknown): Checked<CompileRequest> {
@@ -50,46 +69,46 @@ export function validateNpcSay(body: unknown): Checked<NpcSayRequest> {
   const n = body.npc;
   if (!isRecord(n)) return fail('npc missing');
   const id = str(n.id, 1, 80);
-  const name = str(n.name, 1, 80);
-  const role = str(n.role, 1, 80);
-  const persona = str(n.persona, 1, 1200);
-  const place = str(n.place, 1, 80);
-  const knowledge = strArr(n.knowledge, 24, 400);
-  const revealed = strArr(n.revealed, 24, 400);
+  const name = clip(n.name, 1, 80);
+  const role = clip(n.role, 1, 80);
+  const persona = clip(n.persona, 1, 1200);
+  const place = clip(n.place, 1, 80);
+  const knowledge = clipArr(n.knowledge, 24, 400);
+  const revealed = clipArr(n.revealed, 24, 400);
   const mood = MOODS.find((m) => m === n.mood);
   if (!id || !name || !role || !persona || !place || !knowledge || !revealed || !mood) return fail('npc fields invalid');
 
   const c = body.context;
   if (!isRecord(c)) return fail('context missing');
-  const title = str(c.title, 1, 160);
-  const era = str(c.era, 1, 160);
+  const title = clip(c.title, 1, 160);
+  const era = clip(c.era, 1, 160);
   const theme = THEMES.find((t) => t === c.theme);
-  const lexicon = strArr(c.lexicon, 40, 120);
+  const lexicon = clipArr(c.lexicon, 40, 120);
   const hour = num(c.hour);
   const day = num(c.day);
-  const rules = strArr(c.rules, 20, 300);
-  const recentLog = strArr(c.recentLog, 20, 300);
+  const rules = clipArr(c.rules, 20, 300, 'last');
+  const recentLog = clipArr(c.recentLog, 20, 300, 'last');
   if (!title || !era || !theme || !lexicon || hour === null || day === null || !rules || !recentLog) {
     return fail('context fields invalid');
   }
-  if (!Array.isArray(c.activeBeats) || c.activeBeats.length > 8) return fail('activeBeats invalid');
+  if (!Array.isArray(c.activeBeats)) return fail('activeBeats invalid');
   const activeBeats: NpcSayRequest['context']['activeBeats'] = [];
-  for (const b of c.activeBeats) {
+  for (const b of c.activeBeats.slice(0, 8)) {
     if (!isRecord(b)) return fail('activeBeats invalid');
     const stepId = str(b.stepId, 1, 80);
-    const objective = str(b.objective, 1, 400);
-    const beat = str(b.beat, 1, 600);
+    const objective = clip(b.objective, 1, 400);
+    const beat = clip(b.beat, 1, 600);
     if (!stepId || !objective || !beat) return fail('activeBeats invalid');
     activeBeats.push({ stepId, objective, beat });
   }
 
-  if (!Array.isArray(body.history) || body.history.length > 24) return fail('history invalid');
+  if (!Array.isArray(body.history)) return fail('history invalid');
   const history: NpcSayRequest['history'] = [];
-  for (const t of body.history) {
-    if (!isRecord(t) || (t.speaker !== 'player' && t.speaker !== 'npc') || typeof t.text !== 'string' || t.text.length > 800) {
+  for (const t of body.history.slice(-24)) {
+    if (!isRecord(t) || (t.speaker !== 'player' && t.speaker !== 'npc') || typeof t.text !== 'string') {
       return fail('history invalid');
     }
-    history.push({ speaker: t.speaker, text: t.text });
+    history.push({ speaker: t.speaker, text: t.text.slice(0, 800) });
   }
 
   return {

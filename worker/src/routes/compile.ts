@@ -5,7 +5,7 @@
 import { anthropicEvents, anthropicFetch, SONNET } from '../lib/anthropic';
 import type { Env } from '../lib/env';
 import { isMock } from '../lib/env';
-import { chargeBudget, guardBudget, guardEarly, sessionFromRequest } from '../lib/guard';
+import { budgetScope, chargeBudget, guardBudget, guardEarly, sessionFromRequest, type BudgetScope } from '../lib/guard';
 import { errorJson, isRecord, readJson, sleep } from '../lib/http';
 import { createSse, type SseWriter } from '../lib/sse';
 import { FIXTURES, nearestTheme, worldSpecJsonSchema } from '../lib/shared';
@@ -14,6 +14,7 @@ import { compileSystemPrompt, compileUserMessage } from '../prompts/compile';
 
 const MOCK_CHUNKS = 12;
 const MOCK_GAP_MS = 80;
+const PING_EVERY_MS = 4000;
 
 async function runMock(sse: SseWriter, prompt: string, seed: number): Promise<void> {
   const spec = { ...FIXTURES[nearestTheme(prompt)], prompt, seed };
@@ -26,7 +27,7 @@ async function runMock(sse: SseWriter, prompt: string, seed: number): Promise<vo
   await sse.send('spec', spec);
 }
 
-async function runReal(sse: SseWriter, env: Env, prompt: string, seed: number, session: string): Promise<void> {
+async function runReal(sse: SseWriter, env: Env, prompt: string, seed: number, scope: BudgetScope): Promise<void> {
   let res: Response;
   try {
     res = await anthropicFetch(env, {
@@ -50,20 +51,36 @@ async function runReal(sse: SseWriter, env: Env, prompt: string, seed: number, s
   let acc = '';
   let stop: string | null = null;
   let tokens = 0;
-  for await (const ev of anthropicEvents(res)) {
-    if (ev.kind === 'text') {
-      acc += ev.text;
-      await sse.send('partial', { text: ev.text });
-    } else if (ev.kind === 'stop') {
-      stop = ev.reason;
-      tokens = ev.outputTokens;
-    } else {
-      await sse.send('error', { error: 'upstream', reason: 'upstream' });
-      await chargeBudget(env, session, tokens);
-      return;
+  let lastSent = Date.now();
+  // Thinking and grammar compilation produce frames that map to no client event; a ping keeps the client's idle guard quiet.
+  const onIdle = (): void => {
+    if (Date.now() - lastSent < PING_EVERY_MS) return;
+    lastSent = Date.now();
+    void sse.send('ping', {});
+  };
+  let failed = false;
+  try {
+    for await (const ev of anthropicEvents(res, onIdle)) {
+      if (ev.kind === 'text') {
+        acc += ev.text;
+        lastSent = Date.now();
+        await sse.send('partial', { text: ev.text });
+      } else if (ev.kind === 'stop') {
+        stop = ev.reason;
+        tokens = ev.outputTokens;
+      } else {
+        failed = true;
+        break;
+      }
     }
+  } finally {
+    // Charged once however the stream ended: normal stop, error event or a thrown read.
+    await chargeBudget(env, scope, tokens > 0 ? tokens : Math.ceil(acc.length / 3));
   }
-  await chargeBudget(env, session, tokens);
+  if (failed) {
+    await sse.send('error', { error: 'upstream', reason: 'upstream' });
+    return;
+  }
 
   if (stop === 'refusal') {
     await sse.send('error', { error: 'refusal', reason: 'refusal' });
@@ -88,15 +105,15 @@ async function runReal(sse: SseWriter, env: Env, prompt: string, seed: number, s
 }
 
 export async function handleCompile(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-  const early = await guardEarly(req, env, { turnstile: true });
+  const early = await guardEarly(req, env);
   if (early) return early;
   const body = await readJson(req, 4096);
   if (!body.ok) return body.res;
   const v = validateCompile(body.value);
   if (!v.ok) return errorJson(400, v.error, 'bad_request');
 
-  const session = sessionFromRequest(req);
-  const gate = await guardBudget(env, session);
+  const scope = budgetScope(req, sessionFromRequest(req));
+  const gate = await guardBudget(env, scope);
   if (!gate.ok) return gate.res;
 
   const sse = createSse();
@@ -104,7 +121,7 @@ export async function handleCompile(req: Request, env: Env, ctx: ExecutionContex
     (async () => {
       try {
         if (isMock(env)) await runMock(sse, v.value.prompt, v.value.seed);
-        else await runReal(sse, env, v.value.prompt, v.value.seed, session);
+        else await runReal(sse, env, v.value.prompt, v.value.seed, scope);
       } catch {
         await sse.send('error', { error: 'internal', reason: 'upstream' });
       } finally {

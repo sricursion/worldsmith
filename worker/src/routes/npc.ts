@@ -1,11 +1,12 @@
 // POST /api/npc/say: one NPC line, streamed.
 // SSE events:  token {text}      a text delta
-//              done {refusal}    always the last event
-// Anthropic (Haiku) first; on a 5xx/429 before any text arrived, one retry on Groq when keyed.
+//              done {refusal}    the last event of a reply
+//              error {error, reason}  instead of done when no vendor produced any text
+// Anthropic (Haiku) first; on any vendor failure before text arrived, one retry on Groq when keyed.
 import { anthropicEvents, anthropicFetch, HAIKU } from '../lib/anthropic';
 import type { Env } from '../lib/env';
 import { isMock } from '../lib/env';
-import { chargeBudget, guardBudget, guardEarly } from '../lib/guard';
+import { budgetScope, chargeBudget, guardBudget, guardEarly, type BudgetScope } from '../lib/guard';
 import { errorJson, isRecord, readJson, sleep } from '../lib/http';
 import { createSse, readSseFrames, type SseWriter } from '../lib/sse';
 import { validateNpcSay } from '../lib/validate';
@@ -24,9 +25,9 @@ async function runMock(sse: SseWriter, req: NpcSayRequest): Promise<void> {
   await sse.send('done', { refusal: false });
 }
 
-/** Streams a Groq completion; returns true when at least one token was forwarded. */
-async function groqFallback(sse: SseWriter, env: Env, req: NpcSayRequest): Promise<boolean> {
-  let emitted = false;
+/** Streams a Groq completion; returns the number of characters forwarded (0 means nothing was sent). */
+async function groqFallback(sse: SseWriter, env: Env, req: NpcSayRequest): Promise<number> {
+  let emitted = 0;
   try {
     const res = await fetch(GROQ_URL, {
       method: 'POST',
@@ -42,7 +43,7 @@ async function groqFallback(sse: SseWriter, env: Env, req: NpcSayRequest): Promi
         ],
       }),
     });
-    if (!res.ok) return false;
+    if (!res.ok) return 0;
     for await (const frame of readSseFrames(res)) {
       if (frame.data === '[DONE]') break;
       let d: unknown;
@@ -54,7 +55,7 @@ async function groqFallback(sse: SseWriter, env: Env, req: NpcSayRequest): Promi
       const choice = isRecord(d) && Array.isArray(d.choices) ? d.choices[0] : undefined;
       const delta = isRecord(choice) && isRecord(choice.delta) ? choice.delta : undefined;
       if (delta && typeof delta.content === 'string' && delta.content.length > 0) {
-        emitted = true;
+        emitted += delta.content.length;
         await sse.send('token', { text: delta.content });
       }
     }
@@ -64,61 +65,73 @@ async function groqFallback(sse: SseWriter, env: Env, req: NpcSayRequest): Promi
   return emitted;
 }
 
-async function runReal(sse: SseWriter, env: Env, req: NpcSayRequest): Promise<void> {
+async function runReal(sse: SseWriter, env: Env, req: NpcSayRequest, scope: BudgetScope): Promise<void> {
   let vendorFailure = false;
-  let emitted = false;
+  let chars = 0;
   let stop: string | null = null;
   let tokens = 0;
 
   try {
-    const res = await anthropicFetch(env, {
-      model: HAIKU,
-      max_tokens: 220,
-      stream: true,
-      thinking: { type: 'disabled' },
-      output_config: { effort: 'low' },
-      system: npcSystemBlocks(req),
-      messages: [{ role: 'user', content: npcUserMessage(req) }],
-    });
-    if (!res.ok) {
-      vendorFailure = res.status === 429 || res.status >= 500;
-    } else {
-      for await (const ev of anthropicEvents(res)) {
-        if (ev.kind === 'text') {
-          emitted = true;
-          await sse.send('token', { text: ev.text });
-        } else if (ev.kind === 'stop') {
-          stop = ev.reason;
-          tokens = ev.outputTokens;
-        } else {
-          vendorFailure = true;
-          break;
+    try {
+      const res = await anthropicFetch(env, {
+        model: HAIKU,
+        max_tokens: 220,
+        stream: true,
+        thinking: { type: 'disabled' },
+        output_config: { effort: 'low' },
+        system: npcSystemBlocks(req),
+        messages: [{ role: 'user', content: npcUserMessage(req) }],
+      });
+      if (!res.ok) {
+        // Any non-ok status (credit exhausted, bad key, bad model) means the vendor path is dead: try Groq.
+        vendorFailure = true;
+        console.error(`[npc] anthropic status ${res.status}`);
+      } else {
+        for await (const ev of anthropicEvents(res)) {
+          if (ev.kind === 'text') {
+            chars += ev.text.length;
+            await sse.send('token', { text: ev.text });
+          } else if (ev.kind === 'stop') {
+            stop = ev.reason;
+            tokens = ev.outputTokens;
+          } else {
+            vendorFailure = true;
+            break;
+          }
         }
       }
+    } catch {
+      vendorFailure = true;
     }
-  } catch {
-    vendorFailure = true;
-  }
 
-  await chargeBudget(env, req.sessionId, tokens);
-
-  if (stop === 'refusal') {
-    await sse.send('done', { refusal: true });
-    return;
+    if (stop === 'refusal') {
+      await sse.send('done', { refusal: true });
+      return;
+    }
+    if (vendorFailure && chars === 0) {
+      if (env.GROQ_API_KEY) chars = await groqFallback(sse, env, req);
+      if (chars === 0) {
+        await sse.send('error', { error: 'upstream', reason: 'upstream' });
+        return;
+      }
+    }
+    await sse.send('done', { refusal: false });
+  } finally {
+    // Charged once on every exit; reported tokens when present, otherwise an estimate from the text sent (Groq included).
+    await chargeBudget(env, scope, tokens > 0 ? tokens : Math.ceil(chars / 3));
   }
-  if (vendorFailure && !emitted && env.GROQ_API_KEY) await groqFallback(sse, env, req);
-  await sse.send('done', { refusal: false });
 }
 
 export async function handleNpcSay(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-  const early = await guardEarly(request, env, { turnstile: false });
+  const early = await guardEarly(request, env);
   if (early) return early;
   const body = await readJson(request, 32_768);
   if (!body.ok) return body.res;
   const v = validateNpcSay(body.value);
   if (!v.ok) return errorJson(400, v.error, 'bad_request');
 
-  const gate = await guardBudget(env, v.value.sessionId);
+  const scope = budgetScope(request, v.value.sessionId);
+  const gate = await guardBudget(env, scope);
   if (!gate.ok) return gate.res;
 
   const sse = createSse();
@@ -126,7 +139,7 @@ export async function handleNpcSay(request: Request, env: Env, ctx: ExecutionCon
     (async () => {
       try {
         if (isMock(env)) await runMock(sse, v.value);
-        else await runReal(sse, env, v.value);
+        else await runReal(sse, env, v.value, scope);
       } catch {
         await sse.send('done', { refusal: false });
       } finally {

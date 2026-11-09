@@ -85,6 +85,15 @@ export function createDialogue(layer: HTMLElement, root: HTMLElement): DialogueV
     root.classList.add('tf-has-dialogue');
     active = a;
 
+    let waiting = true; // the greeting is pending until the first done()
+    send.disabled = true;
+    input.disabled = true;
+    const setWaiting = (on: boolean): void => {
+      waiting = on;
+      input.disabled = on;
+      send.disabled = on;
+      if (!on) focusSoon(input);
+    };
     let line: { box: HTMLElement; text: HTMLElement; value: string } | null = null;
     const scroll = (): void => {
       log.scrollTop = log.scrollHeight;
@@ -114,7 +123,8 @@ export function createDialogue(layer: HTMLElement, root: HTMLElement): DialogueV
     bag.on(form, 'submit', (e) => {
       e.preventDefault();
       const text = input.value.trim();
-      if (text === '') return;
+      if (text === '' || waiting) return;
+      setWaiting(true);
       finish();
       addLine('player', text);
       line = addLine('npc', '');
@@ -141,7 +151,9 @@ export function createDialogue(layer: HTMLElement, root: HTMLElement): DialogueV
         scroll();
       },
       done() {
-        if (!a.closed) finish();
+        if (a.closed) return;
+        finish();
+        setWaiting(false);
       },
       addAction(label, cb) {
         const b = button('tf-btn tf-action', label);

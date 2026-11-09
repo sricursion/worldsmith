@@ -4,7 +4,7 @@ vi.mock('../../app/src/world/state', () => ({
   activeRules: (state: { rules: unknown[] }) => state.rules,
 }));
 
-import { planTick, scheduleEntryAt, whereShouldBe } from '../../app/src/npc/brain';
+import { effectiveMood, planTick, scheduleEntryAt, whereShouldBe } from '../../app/src/npc/brain';
 import { mkNpc, mkSpec, mkState, rule } from './fixtures';
 
 describe('schedule lookup', () => {
@@ -40,14 +40,36 @@ describe('rule overrides', () => {
     expect(i.place).toBe('saloon_1');
   });
   it('schedule_override wins over curfew', () => {
-    const o = rule('o1', { type: 'schedule_override', who: 'cole', entry: { hour: 0, place: 'plaza', activity: 'guard' } });
+    const o = rule('o1', { type: 'schedule_override', who: 'cole', entry: { hour: 8, place: 'plaza', activity: 'guard' } });
     const c = rule('c1', { type: 'curfew', fromHour: 0, toHour: 23, exemptRoles: [] });
     const i = whereShouldBe(npc, 12, [c, o]);
     expect(i).toMatchObject({ place: 'plaza', activity: 'guard' });
     expect(i.reason).toContain('o1');
   });
+  it('schedule_override holds only until the next scheduled entry', () => {
+    const o = rule('o1', { type: 'schedule_override', who: 'cole', entry: { hour: 8, place: 'plaza', activity: 'guard' } });
+    expect(whereShouldBe(npc, 8, [o]).place).toBe('plaza');
+    expect(whereShouldBe(npc, 17.9, [o]).place).toBe('plaza');
+    expect(whereShouldBe(npc, 18, [o]).place).toBe('saloon_1');
+    expect(whereShouldBe(npc, 7, [o]).reason).toBe('schedule');
+  });
+  it('schedule_override wraps past midnight', () => {
+    const o = rule('o1', { type: 'schedule_override', who: 'cole', entry: { hour: 22, place: 'plaza', activity: 'guard' } });
+    expect(whereShouldBe(npc, 23, [o]).place).toBe('plaza');
+    expect(whereShouldBe(npc, 3, [o]).place).toBe('plaza');
+    expect(whereShouldBe(npc, 6, [o]).place).toBe('house_1');
+    expect(whereShouldBe(npc, 12, [o]).place).toBe('jail_1');
+  });
+  it('effectiveMood applies the latest mood rule for the NPC or everyone', () => {
+    const a = rule('m1', { type: 'mood', who: 'all', mood: 'tense' });
+    const b = rule('m2', { type: 'mood', who: 'cole', mood: 'angry' });
+    expect(effectiveMood(npc, [])).toBe('calm');
+    expect(effectiveMood(npc, [a])).toBe('tense');
+    expect(effectiveMood(npc, [a, b])).toBe('angry');
+    expect(effectiveMood(mkNpc({ id: 'mae' }), [a, b])).toBe('tense');
+  });
   it('schedule_override for someone else is ignored', () => {
-    const o = rule('o1', { type: 'schedule_override', who: 'mae', entry: { hour: 0, place: 'plaza', activity: 'guard' } });
+    const o = rule('o1', { type: 'schedule_override', who: 'mae', entry: { hour: 8, place: 'plaza', activity: 'guard' } });
     expect(whereShouldBe(npc, 12, [o]).place).toBe('jail_1');
   });
   it('ban on alcohol turns away a drinker at the named place', () => {

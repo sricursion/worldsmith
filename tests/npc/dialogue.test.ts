@@ -119,7 +119,7 @@ describe('openDialogue', () => {
       onToken('Howdy there.');
       return { ok: true, text: '"Howdy there."' };
     });
-    const s = openDialogue(spec, state, 'cole', api);
+    const s = openDialogue(spec, () => state, 'cole', api);
     const partials: string[] = [];
     const r = await s.say('Hello', (p) => partials.push(p));
     expect(r).toEqual({ text: 'Howdy there.', source: 'model' });
@@ -134,13 +134,41 @@ describe('openDialogue', () => {
     expect(req?.playerText).toBe('Hello');
   });
 
+  it('reads the live state on every say and in the fallback', async () => {
+    let current = state;
+    const bodies: NpcSayRequest[] = [];
+    const api = fakeApi(async (body) => {
+      bodies.push(body);
+      return bodies.length === 1 ? { ok: true, text: 'Fine.' } : { ok: false as const, error: 'x' };
+    });
+    const s = openDialogue(spec, () => current, 'cole', api);
+    await s.say('one', () => undefined);
+    expect(bodies[0]?.npc.revealed).toEqual(['Cole saw the thief.']);
+    current = { ...state, flags: { ...state.flags, 'revealed:cole:0': true }, npcMoods: { cole: 'afraid' } };
+    const r = await s.say('two', () => undefined);
+    expect(bodies[1]?.npc.revealed).toEqual(['Cole owes the saloon money.', 'Cole saw the thief.']);
+    expect(bodies[1]?.npc.mood).toBe('afraid');
+    expect(r.source).toBe('fallback');
+  });
+
+  it('applies mood rules to the mood sent to the model', async () => {
+    const withRule = { ...state, rules: [rule('m1', { type: 'mood', who: 'all', mood: 'angry' }, 'Everyone is angry.')] };
+    let seen: NpcSayRequest | null = null;
+    const api = fakeApi(async (body) => {
+      seen = body;
+      return { ok: true, text: 'Hmph.' };
+    });
+    await openDialogue(spec, () => withRule, 'cole', api).say('Hi', () => undefined);
+    expect((seen as NpcSayRequest | null)?.npc.mood).toBe('angry');
+  });
+
   it('keeps only the last 8 turns', async () => {
     const bodies: NpcSayRequest[] = [];
     const api = fakeApi(async (body) => {
       bodies.push(body);
       return { ok: true, text: 'Fine.' };
     });
-    const s = openDialogue(spec, state, 'cole', api);
+    const s = openDialogue(spec, () => state, 'cole', api);
     for (let i = 0; i < 7; i++) await s.say(`q${i}`, () => undefined);
     expect(s.history.length).toBe(8);
     expect(bodies[6]?.history.length).toBe(8);
@@ -154,7 +182,7 @@ describe('openDialogue', () => {
       onToken(' what to say.');
       return { ok: true, text: 'Howdy. Let me think about what to say.' };
     });
-    const s = openDialogue(spec, state, 'cole', api);
+    const s = openDialogue(spec, () => state, 'cole', api);
     const partials: string[] = [];
     const r = await s.say('Hi', (p) => partials.push(p));
     expect(r.source).toBe('fallback');
@@ -171,7 +199,7 @@ describe('openDialogue', () => {
         throw new Error('network');
       },
     ]) {
-      const s = openDialogue(spec, state, 'cole', fakeApi(impl));
+      const s = openDialogue(spec, () => state, 'cole', fakeApi(impl));
       const r = await s.say('Hi', () => undefined);
       expect(r.source).toBe('fallback');
       expect(r.text.length).toBeGreaterThan(0);
@@ -185,7 +213,7 @@ describe('openDialogue', () => {
       signal = sig;
       return { ok: true, text: 'ok.' };
     });
-    const s = openDialogue(spec, state, 'cole', api);
+    const s = openDialogue(spec, () => state, 'cole', api);
     await s.say('Hi', () => undefined);
     s.close();
     expect(signal?.aborted).toBe(true);

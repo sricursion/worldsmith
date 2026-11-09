@@ -8,7 +8,7 @@ import { decideTick, mockProbs } from '../lib/typesafe';
 import { validateTick } from '../lib/validate';
 
 export async function handleTick(req: Request, env: Env, url: URL): Promise<Response> {
-  const early = await guardEarly(req, env, { turnstile: false });
+  const early = await guardEarly(req, env);
   if (early) return early;
   const body = await readJson(req, 32_768);
   if (!body.ok) return body.res;

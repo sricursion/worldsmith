@@ -5,7 +5,10 @@ export interface Env {
   ANTHROPIC_API_KEY?: string;
   GROQ_API_KEY?: string;
   TYPESAFE_API_KEY?: string;
-  TURNSTILE_SECRET?: string;
+  /** Daily output-token ceilings; wrangler vars, strings. See budget.ts for defaults. */
+  BUDGET_SESSION_TOKENS?: string;
+  BUDGET_IP_TOKENS?: string;
+  BUDGET_GLOBAL_TOKENS?: string;
   MOCK?: string;
   TOWNS?: KVNamespace;
   AI?: Ai;

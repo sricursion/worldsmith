@@ -46,7 +46,7 @@ export function preflight(req: Request): Response {
   const headers = new Headers({
     'access-control-allow-origin': req.headers.get('origin') ?? '',
     'access-control-allow-methods': 'GET, POST, OPTIONS',
-    'access-control-allow-headers': 'content-type, cf-turnstile-token, x-session-id',
+    'access-control-allow-headers': 'content-type, x-session-id',
     'access-control-max-age': '600',
     vary: 'Origin',
   });
@@ -55,20 +55,38 @@ export function preflight(req: Request): Response {
 
 export type BodyResult = { ok: true; value: unknown } | { ok: false; res: Response };
 
-/** Read a JSON body with a hard byte cap. */
+/** Read a JSON body with a hard byte cap, stopping as soon as the running total passes it. */
 export async function readJson(req: Request, maxBytes: number): Promise<BodyResult> {
   const declared = Number(req.headers.get('content-length') ?? '0');
   if (Number.isFinite(declared) && declared > maxBytes) {
     return { ok: false, res: errorJson(413, 'too_large', 'bad_request') };
   }
-  let text: string;
+  let text = '';
   try {
-    text = await req.text();
+    if (req.body) {
+      const reader = req.body.getReader();
+      const chunks: Uint8Array[] = [];
+      let total = 0;
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        total += value.byteLength;
+        if (total > maxBytes) {
+          await reader.cancel().catch(() => undefined);
+          return { ok: false, res: errorJson(413, 'too_large', 'bad_request') };
+        }
+        chunks.push(value);
+      }
+      const all = new Uint8Array(total);
+      let off = 0;
+      for (const c of chunks) {
+        all.set(c, off);
+        off += c.byteLength;
+      }
+      text = new TextDecoder().decode(all);
+    }
   } catch {
     return { ok: false, res: errorJson(400, 'unreadable_body', 'bad_request') };
-  }
-  if (new TextEncoder().encode(text).length > maxBytes) {
-    return { ok: false, res: errorJson(413, 'too_large', 'bad_request') };
   }
   try {
     return { ok: true, value: JSON.parse(text) as unknown };

@@ -2,6 +2,7 @@
 // line through validateLine so reasoning leaks never reach the player.
 import type { Api } from '../net/api';
 import type { DialogueContext, NpcSayRequest } from '../net/types';
+import { effectiveMood } from './brain';
 import { hash32, makeRng, type Rng } from '../world/rng';
 import type { Mood, NpcSpec, WorldSpec, WorldState } from '../world/spec';
 import { activeRules } from '../world/state';
@@ -192,17 +193,23 @@ function revealedSecrets(state: WorldState, npc: NpcSpec): string[] {
   return out;
 }
 
-export function openDialogue(spec: WorldSpec, state: WorldState, npcId: string, api: Api): DialogueSession {
+/** Mood shown in dialogue: the NPC's live mood with active mood rules applied. */
+function moodNow(npc: NpcSpec, state: WorldState): Mood {
+  return effectiveMood({ ...npc, mood: state.npcMoods[npc.id] ?? npc.mood }, activeRules(state, state.hour));
+}
+
+export function openDialogue(spec: WorldSpec, getState: () => WorldState, npcId: string, api: Api): DialogueSession {
+  const state0 = getState();
   const npc = spec.npcs.find((n) => n.id === npcId);
   const history: DialogueTurn[] = [];
   const abort = new AbortController();
-  const sessionId = `${hash32(`${spec.seed}|${npcId}|${state.day}|${state.hour}`).toString(36)}-${npcId}`;
+  const sessionId = `${hash32(`${spec.seed}|${npcId}|${state0.day}|${state0.hour}`).toString(36)}-${npcId}`;
   let closed = false;
   let turn = 0;
 
   const fallbackFor = (): string => {
     if (!npc) return 'Not now, friend.';
-    const mood = state.npcMoods[npc.id] ?? npc.mood;
+    const mood = moodNow(npc, getState());
     return cannedLine(npc, mood, makeRng(spec.seed, `dialogue:${npcId}:${turn}`));
   };
 
@@ -227,6 +234,7 @@ export function openDialogue(spec: WorldSpec, state: WorldState, npcId: string, 
         return finish(line, 'fallback');
       }
 
+      const state = getState();
       const req: NpcSayRequest = {
         sessionId,
         npc: {
@@ -236,7 +244,7 @@ export function openDialogue(spec: WorldSpec, state: WorldState, npcId: string, 
           persona: npc.persona,
           knowledge: npc.knowledge,
           revealed: revealedSecrets(state, npc),
-          mood: state.npcMoods[npc.id] ?? npc.mood,
+          mood: moodNow(npc, state),
           place: state.npcPlaces[npc.id] ?? npc.home,
         },
         context: buildContext(spec, state, npc),

@@ -308,6 +308,9 @@ export function createCharacter(base: CharacterBase): CharacterRig {
       restoreMaterials();
       for (const mat of clones.values()) mat.dispose(); // shared textures stay in the cache
       clones.clear();
+      model.traverse((o) => {
+        if (isSkinned(o)) o.skeleton.dispose();
+      });
       root.removeFromParent();
       current = null;
       lookTarget = null;

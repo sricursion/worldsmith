@@ -48,6 +48,11 @@ function isTypingTarget(el: Element | null): boolean {
   return el instanceof HTMLElement && el.isContentEditable;
 }
 
+function isInteractiveTarget(el: Element | null): boolean {
+  if (!(el instanceof HTMLElement)) return false;
+  return el.tagName === 'BUTTON' || el.tagName === 'A' || el.getAttribute('role') === 'button';
+}
+
 interface TouchState {
   id: number;
   mode: 'joystick' | 'orbit';
@@ -73,8 +78,11 @@ export function createInput(target: HTMLElement): Input {
 
   const onKeyDown = (e: KeyboardEvent): void => {
     if (typing()) return;
-    if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault();
+    const onControl = isInteractiveTarget(document.activeElement);
+    if ((e.code.startsWith('Arrow') || e.code === 'Space') && !onControl) e.preventDefault();
     if (e.repeat) return;
+    // A focused button keeps Space and the arrows for itself; the game does not also act on them.
+    if (onControl && (e.code.startsWith('Arrow') || e.code === 'Space')) return;
     keys.add(e.code);
     const set = handlers.get(e.code);
     if (set !== undefined) for (const cb of [...set]) cb();
@@ -101,7 +109,8 @@ export function createInput(target: HTMLElement): Input {
       }
       return;
     }
-    if (e.button !== 0 || typing()) return;
+    if (e.button !== 0) return;
+    if (typing() && document.activeElement instanceof HTMLElement) document.activeElement.blur();
     mouseId = e.pointerId;
     mouseLx = e.clientX;
     mouseLy = e.clientY;

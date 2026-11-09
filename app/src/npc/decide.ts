@@ -3,7 +3,7 @@
 import { hash32, type Rng } from '../world/rng';
 import type { Mood, NpcAction, NpcActionId, NpcSpec, RuleSpec, ScheduleEntry, WorldSpec, WorldState } from '../world/spec';
 import { activeRules } from '../world/state';
-import { banBlocks, scheduleEntryAt, type NpcIntent } from './brain';
+import { banBlocks, effectiveMood, scheduleEntryAt, type NpcIntent } from './brain';
 
 export interface ChoiceOption {
   id: NpcActionId;
@@ -57,8 +57,8 @@ function continueReason(spec: WorldSpec, npc: NpcSpec, intent: NpcIntent, hour: 
   return `it is ${h} and ${npc.name} is due to ${ACTIVITY_VERB[intent.activity]} at ${label}`;
 }
 
-function moodOf(npc: NpcSpec, state: WorldState): Mood {
-  return state.npcMoods[npc.id] ?? npc.mood;
+function moodOf(npc: NpcSpec, state: WorldState, rules: RuleSpec[]): Mood {
+  return effectiveMood({ ...npc, mood: state.npcMoods[npc.id] ?? npc.mood }, rules);
 }
 
 function playerPlace(state: WorldState): string | null {
@@ -111,7 +111,7 @@ export function buildQuestions(spec: WorldSpec, state: WorldState, intents: NpcI
     const npc = spec.npcs.find((n) => n.id === intent.npcId);
     if (!npc) continue;
     const here = state.npcPlaces[npc.id] ?? intent.place;
-    const mood = moodOf(npc, state);
+    const mood = moodOf(npc, state, rules);
     const opts: ChoiceOption[] = [];
 
     opts.push({

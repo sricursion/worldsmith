@@ -171,4 +171,42 @@ describe('plain JSON endpoints', () => {
     await vi.advanceTimersByTimeAsync(6_001);
     expect(await pending).toEqual({ ok: false, error: 'timeout' });
   });
+
+  it('gives patchRules 25 s while other JSON calls keep 6 s', async () => {
+    vi.useFakeTimers();
+    fetchMock.mockReturnValue(new Promise<Response>(() => undefined));
+    const pending = createApi().patchRules({ sessionId: 's', ruleText: 'r', summary: '' });
+    let settled = false;
+    void pending.then(() => {
+      settled = true;
+    });
+    await vi.advanceTimersByTimeAsync(24_000);
+    expect(settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(1_500);
+    expect(await pending).toEqual({ ok: false, error: 'timeout' });
+  });
+
+  it('ignores ping events and unknown events on a compile stream', async () => {
+    fetchMock.mockResolvedValue(
+      sseResponse(['event: ping\ndata: {}\n\n', 'event: whatever\ndata: x\n\n', 'event: spec\ndata: {"title":"T"}\n\n']),
+    );
+    expect(await createApi().compile('x', 1, () => undefined)).toEqual({ ok: true, spec: { title: 'T' } });
+  });
+
+  it('pings keep a silent compile alive past the idle limit', async () => {
+    vi.useFakeTimers();
+    let ctl!: ReadableStreamDefaultController<Uint8Array>;
+    const body = new ReadableStream<Uint8Array>({
+      start(c) {
+        ctl = c;
+      },
+    });
+    fetchMock.mockResolvedValue(new Response(body, { status: 200 }));
+    const pending = createApi().compile('x', 1, () => undefined);
+    await vi.advanceTimersByTimeAsync(15_000);
+    ctl.enqueue(enc.encode('event: ping\ndata: {}\n\n'));
+    await vi.advanceTimersByTimeAsync(15_000);
+    ctl.enqueue(enc.encode('event: spec\ndata: {"title":"T"}\n\n'));
+    expect(await pending).toEqual({ ok: true, spec: { title: 'T' } });
+  });
 });

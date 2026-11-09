@@ -74,7 +74,6 @@ For real models, set these secrets with `wrangler secret put` or in a gitignored
 - `ANTHROPIC_API_KEY`
 - `GROQ_API_KEY`
 - `TYPESAFE_API_KEY`
-- `TURNSTILE_SECRET`
 
 Other scripts: `npm test`, `npm run typecheck`, `npm run build`, `npm run worker:deploy`,
 `npm run assets:fetch`, `npm run assets:optimize`.

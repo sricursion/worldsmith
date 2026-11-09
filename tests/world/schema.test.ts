@@ -69,6 +69,16 @@ describe('slugify', () => {
 });
 
 describe('normalizeSpec', () => {
+  it('resolves a choose step aimed at a building to the NPC who works or lives there', () => {
+    const w = structuredClone(FIXTURES.western);
+    const keeper = w.npcs.find((n) => n.work === 'church')?.id;
+    expect(keeper).toBeDefined();
+    w.quest.steps.find((x) => x.id === 'decide')!.target = 'church';
+    expect(normalizeSpec(w).quest.steps.find((x) => x.id === 'decide')?.target).toBe(keeper);
+    w.quest.steps.find((x) => x.id === 'decide')!.target = 'nowhere';
+    expect(normalizeSpec(w).quest.steps.find((x) => x.id === 'decide')?.target).toBe(w.quest.giver);
+  });
+
   it('is idempotent', () => {
     const once = normalizeSpec(FIXTURES.scifi);
     expect(normalizeSpec(once)).toEqual(once);

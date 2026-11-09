@@ -94,6 +94,8 @@ export function parseTypesafe(raw: unknown, questions: Question[]): number[][] |
   return out;
 }
 
+const JEV_TIMEOUT_MS = 2500;
+const CLEF_TIMEOUT_MS = 2000;
 let warnedShape = false;
 
 async function callJev(env: Env, req: TickRequest, dev: boolean): Promise<number[][] | null> {
@@ -103,6 +105,7 @@ async function callJev(env: Env, req: TickRequest, dev: boolean): Promise<number
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${env.TYPESAFE_API_KEY}` },
       body: JSON.stringify(buildTypesafeBody(req)),
+      signal: AbortSignal.timeout(JEV_TIMEOUT_MS),
     });
     if (!res.ok) return null;
     const raw = (await res.json()) as unknown;
@@ -128,7 +131,14 @@ async function callClef(env: Env, req: TickRequest): Promise<number[][] | null> 
     'Reply with JSON only: {"probs":[[...],[...]]} with one array per question.\n\n' +
     req.questions.map((q, i) => `Q${i + 1} (${q.npcId}): ${q.question}\nOptions: ${q.options.join(' | ')}`).join('\n\n');
   try {
-    const out = await (env.AI as unknown as AiRunner).run(CLEF_MODEL, { prompt, max_tokens: 400 });
+    // Jev (2.5 s) plus Clef (2 s) keeps the tick under about 4.5 s, inside the client's 6 s limit.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error('clef timeout')), CLEF_TIMEOUT_MS);
+    });
+    const out = await Promise.race([(env.AI as unknown as AiRunner).run(CLEF_MODEL, { prompt, max_tokens: 400 }), timeout]).finally(() =>
+      clearTimeout(timer ?? null),
+    );
     const text = isRecord(out) && typeof out.response === 'string' ? out.response : '';
     const m = /\{[\s\S]*\}/.exec(text);
     if (!m) return null;

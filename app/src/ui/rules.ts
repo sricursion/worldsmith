@@ -4,7 +4,7 @@ import { Bag, button, closeButton, el, focusSoon } from './dom';
 import { effectLabel } from './text';
 
 export interface RulesView {
-  open(rules: RuleSpec[], onAdd: (text: string) => void, onRemove: (id: string) => void): void;
+  open(rules: RuleSpec[], onAdd: (text: string) => void | Promise<boolean>, onRemove: (id: string) => void): void;
   close(): void;
   isOpen(): boolean;
   dispose(): void;
@@ -32,7 +32,7 @@ export function createRules(layer: HTMLElement): RulesView {
   apply.type = 'submit';
   form.append(label, input, apply);
 
-  let onAdd: (text: string) => void = () => undefined;
+  let onAdd: (text: string) => void | Promise<boolean> = () => undefined;
   let onRemove: (id: string) => void = () => undefined;
   let open = false;
 
@@ -44,11 +44,33 @@ export function createRules(layer: HTMLElement): RulesView {
   panel.append(head, list, form);
   layer.append(panel);
 
+  let pending = false;
+  const setPending = (on: boolean): void => {
+    pending = on;
+    apply.disabled = on;
+    input.disabled = on;
+    apply.textContent = on ? 'Interpreting…' : 'Apply';
+  };
   const submit = (): void => {
     const text = input.value.trim();
-    if (text === '') return;
-    input.value = '';
-    onAdd(text);
+    if (text === '' || pending) return;
+    const result = onAdd(text);
+    if (result === undefined) {
+      input.value = '';
+      return;
+    }
+    setPending(true);
+    void Promise.resolve(result).then(
+      (ok) => {
+        if (ok === true) input.value = '';
+        setPending(false);
+        if (open) focusSoon(input);
+      },
+      () => {
+        setPending(false);
+        if (open) focusSoon(input);
+      },
+    );
   };
   bag.on(form, 'submit', (e) => {
     e.preventDefault();

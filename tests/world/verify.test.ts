@@ -80,6 +80,26 @@ describe('verifyQuest', () => {
     expect(r2.winnable).toBe(false);
   });
 
+  it('fails a choose step whose target is not an NPC', () => {
+    const s = western();
+    s.quest.steps.find((x) => x.id === 'decide')!.target = 'bank';
+    const rep = verifyQuest(s);
+    expect(rep.problems.join('\n')).toMatch(/step "decide": target "bank" is not an NPC/);
+    expect(rep.winnable).toBe(false);
+  });
+
+  it('allows exclusive endings to share one fetch but not a repeat delivery', () => {
+    expect(verifyQuest(western()).problems).toEqual([]);
+    const s = western();
+    s.quest.steps.push({
+      id: 'again', kind: 'deliver', target: 'banker_pike', item: 'payroll_chest', requires: ['end_law'],
+      objective: 'Hand the chest over a second time.', beat: 'Again.',
+    });
+    const rep = verifyQuest(s);
+    expect(rep.problems.join('\n')).toMatch(/step "again": "payroll_chest" is delivered again/);
+    expect(rep.unreachable).toContain('again');
+  });
+
   it('does not treat a curfew as a blocker', () => {
     const s = western();
     s.rules.push({ id: 'total', text: 'Everyone inside.', effect: { type: 'curfew', fromHour: 0, toHour: 23, exemptRoles: [] }, source: 'player' });
@@ -137,6 +157,49 @@ describe('repairQuest', () => {
     const fixed = repairQuest(s);
     expect(verifyQuest(fixed).winnable).toBe(true);
     expect(fixed.quest.steps[0]!.target).toBe('widow_marsh');
+  });
+
+  it('hands a choose step aimed at a building to the NPC who works or lives there', () => {
+    const s = western();
+    const decide = s.quest.steps.find((x) => x.id === 'decide')!;
+    decide.target = 'church';
+    const keeper = s.npcs.find((n) => n.work === 'church' || n.home === 'church')?.id ?? s.quest.giver;
+    const fixed = repairQuest(s);
+    expect(fixed.quest.steps.find((x) => x.id === 'decide')?.target).toBe(keeper);
+    expect(verifyQuest(fixed).winnable).toBe(true);
+    expect(verifyQuest(fixed).problems).toEqual([]);
+  });
+
+  it('rewrites dependants of a dropped step so endings cannot unlock early', () => {
+    const s = western();
+    s.quest.steps.find((x) => x.id === 'confront_pike')!.target = 'ghost';
+    const fixed = repairQuest(s);
+    const by = (id: string) => fixed.quest.steps.find((x) => x.id === id);
+    expect(by('confront_pike')).toBeUndefined();
+    expect(by('decide')?.requires).toEqual(['find_chest']);
+    expect(by('end_law')?.requires).toEqual(['decide']);
+    expect(verifyQuest(fixed).problems).toEqual([]);
+  });
+
+  it('inherits requires through a chain of dropped steps', () => {
+    const s = western();
+    s.quest.steps.find((x) => x.id === 'stable_tip')!.target = 'ghost';
+    s.quest.steps.find((x) => x.id === 'find_chest')!.target = 'ghost_item';
+    const fixed = repairQuest(s);
+    expect(fixed.quest.steps.find((x) => x.id === 'confront_pike')?.requires).toContain('report');
+    expect(fixed.quest.steps.find((x) => x.id === 'confront_pike')?.requires).not.toContain('find_chest');
+  });
+
+  it('drops a repeat delivery with no separate fetch and keeps what hung behind it', () => {
+    const s = western();
+    s.quest.steps.push(
+      { id: 'again', kind: 'deliver', target: 'banker_pike', item: 'payroll_chest', requires: ['end_law'], objective: 'Again.', beat: 'Again.' },
+      { id: 'epilogue', kind: 'talk', target: 'sheriff_cole', requires: ['again'], objective: 'Wrap up.', beat: 'Done.' },
+    );
+    const fixed = repairQuest(s);
+    expect(fixed.quest.steps.some((x) => x.id === 'again')).toBe(false);
+    expect(fixed.quest.steps.find((x) => x.id === 'epilogue')?.requires).toEqual(['end_law']);
+    expect(verifyQuest(fixed).problems).toEqual([]);
   });
 
   it('does not mutate its input', () => {

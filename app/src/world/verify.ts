@@ -72,6 +72,63 @@ function ancestorsOf(id: string, byId: Map<string, QuestStep>): Set<string> {
   return out;
 }
 
+/** Steps reachable from each choice of a choose step: what it unlocks plus everything behind those. */
+function branchSets(steps: QuestStep[], byId: Map<string, QuestStep>): Set<string>[][] {
+  const out: Set<string>[][] = [];
+  for (const c of steps) {
+    if (c.kind !== 'choose' || !c.choices) continue;
+    out.push(c.choices.map((ch) => {
+      const set = new Set(ch.unlocks);
+      for (const x of steps) {
+        const anc = ancestorsOf(x.id, byId);
+        if (ch.unlocks.some((u) => anc.has(u))) set.add(x.id);
+      }
+      return set;
+    }));
+  }
+  return out;
+}
+
+/** Two steps are exclusive when they sit in different branches of one choose step, or both close the quest as separate endings. */
+function exclusive(branches: Set<string>[][], endings: Set<string>, a: string, b: string): boolean {
+  if (endings.has(a) && endings.has(b)) return true;
+  return branches.some((group) => {
+    const ia = group.flatMap((set, i) => (set.has(a) ? [i] : []));
+    const ib = group.flatMap((set, i) => (set.has(b) ? [i] : []));
+    return ia.length > 0 && ib.length > 0 && !ia.some((i) => ib.includes(i));
+  });
+}
+
+interface SupplierPlan {
+  supplier: Map<string, string>;
+  /** Deliver steps with no usable fetch; `repeat` means a fetch exists but another delivery already uses it. */
+  missing: { id: string; repeat: boolean }[];
+}
+
+/** Pairs each deliver with its own earlier fetch. A delivery consumes the item, so non-exclusive deliveries need separate fetches. */
+function supplierPlan(spec: WorldSpec, byId: Map<string, QuestStep>, bad: Set<string>): SupplierPlan {
+  const steps = spec.quest.steps;
+  const items = new Map(spec.items.map((i) => [i.id, i]));
+  const branches = branchSets(steps, byId);
+  const endings = new Set(spec.quest.endings.map((e) => e.stepId));
+  const supplier = new Map<string, string>();
+  const missing: SupplierPlan['missing'] = [];
+  const earlier = new Map<string, string[]>();
+  for (const s of steps) {
+    if (s.kind !== 'deliver' || s.item === undefined || !items.has(s.item) || bad.has(s.id)) continue;
+    const prior = (earlier.get(s.item) ?? []).filter((d) => !exclusive(branches, endings, d, s.id));
+    earlier.set(s.item, [...(earlier.get(s.item) ?? []), s.id]);
+    if (items.get(s.item)?.holder === 'player' && prior.length === 0) continue;
+    const after = new Set(steps.filter((x) => ancestorsOf(x.id, byId).has(s.id)).map((x) => x.id));
+    const taken = new Set(prior.map((d) => supplier.get(d)));
+    const fetches = steps.filter((f) => f.kind === 'fetch' && f.target === s.item && f.id !== s.id && !after.has(f.id));
+    const fetch = fetches.find((f) => !taken.has(f.id));
+    if (fetch) supplier.set(s.id, fetch.id);
+    else missing.push({ id: s.id, repeat: fetches.length > 0 });
+  }
+  return { supplier, missing };
+}
+
 export function verifyQuest(spec: WorldSpec): QuestReport {
   const problems: string[] = [];
   const q = spec.quest;
@@ -97,12 +154,10 @@ export function verifyQuest(spec: WorldSpec): QuestReport {
       if (r === s.id) fail('requires itself');
       else if (!byId.has(r)) fail(`requires unknown step "${r}"`);
     }
-    if (NPC_KINDS.has(s.kind) || (s.kind === 'choose' && npcs.has(s.target))) {
+    if (NPC_KINDS.has(s.kind) || s.kind === 'choose') {
       const npc = npcs.get(s.target);
       if (!npc) fail(`target "${s.target}" is not an NPC`);
       else if (npcAvailableHours(spec.rules).length === 0) fail(`${npc.name} cannot be spoken to at any hour (town-wide talking ban)`);
-    } else if (s.kind === 'choose' && !buildings.has(s.target)) {
-      fail(`choose target "${s.target}" is neither an NPC nor a building`);
     } else if (s.kind === 'visit') {
       if (!buildings.has(s.target)) fail(`target "${s.target}" is not a building`);
       else if (visitBanned(spec.rules, s.target)) fail(`entering "${s.target}" is banned`);
@@ -136,20 +191,15 @@ export function verifyQuest(spec: WorldSpec): QuestReport {
   if (loops.size > 0) problems.push(`requires cycle involving: ${[...loops].join(', ')}`);
   for (const id of loops) bad.add(id);
 
-  // Deliver steps need an earlier supplier for their item.
-  const descendants = (id: string): Set<string> =>
-    new Set(steps.filter((s) => ancestorsOf(s.id, byId).has(id)).map((s) => s.id));
-  const supplier = new Map<string, string>();
-  for (const s of steps) {
-    if (s.kind !== 'deliver' || s.item === undefined || !items.has(s.item) || bad.has(s.id)) continue;
-    if (items.get(s.item)?.holder === 'player') continue;
-    const after = descendants(s.id);
-    const fetch = steps.find((f) => f.kind === 'fetch' && f.target === s.item && f.id !== s.id && !after.has(f.id));
-    if (fetch) supplier.set(s.id, fetch.id);
-    else {
-      problems.push(`step "${s.id}": nothing fetches "${s.item}" before it is delivered`);
-      bad.add(s.id);
-    }
+  // Deliver steps need an earlier supplier for their item, and one supplier serves one delivery.
+  const plan = supplierPlan(spec, byId, bad);
+  const supplier = plan.supplier;
+  for (const m of plan.missing) {
+    const d = byId.get(m.id) as QuestStep;
+    problems.push(m.repeat
+      ? `step "${d.id}": "${d.item}" is delivered again and no separate step fetches it a second time`
+      : `step "${d.id}": nothing fetches "${d.item}" before it is delivered`);
+    bad.add(d.id);
   }
 
   // Giver.
@@ -209,6 +259,26 @@ function uniqueId(base: string, taken: Set<string>): string {
   return id;
 }
 
+/**
+ * Keep only the steps `keep` accepts. Each surviving step that required a dropped step inherits that step's own
+ * requires (transitively), so whatever sat behind the dropped step stays behind what it was waiting on.
+ */
+function dropSteps(q: QuestSpec, keep: (s: QuestStep) => boolean): void {
+  const kept = q.steps.filter(keep);
+  const keptIds = new Set(kept.map((s) => s.id));
+  const dropped = new Map(q.steps.filter((s) => !keptIds.has(s.id)).map((s) => [s.id, s]));
+  const inherit = (requires: string[], visited: Set<string>): string[] =>
+    requires.flatMap((r) => {
+      const d = dropped.get(r);
+      if (!d) return [r];
+      if (visited.has(r)) return [];
+      visited.add(r);
+      return inherit(d.requires, visited);
+    });
+  for (const s of kept) s.requires = [...new Set(inherit(s.requires, new Set()))];
+  q.steps = kept;
+}
+
 /** Drop dangling references and break cycles by cutting requires edges that point inside a cycle. */
 function prune(q: QuestSpec): void {
   const ids = new Set(q.steps.map((s) => s.id));
@@ -247,9 +317,13 @@ export function repairQuest(input: WorldSpec): WorldSpec {
 
   if (!npcIds.has(q.giver)) q.giver = spec.npcs[0]?.id ?? q.giver;
 
-  // 1. Drop steps with duplicate ids or unknown targets.
+  // 1. Drop steps with duplicate ids or unknown targets. A choose step aimed at a building goes to the NPC
+  // who works or lives there (else the giver), since only an NPC can offer the choice.
+  const npcAt = (b: string): string =>
+    (spec.npcs.find((n) => n.work === b) ?? spec.npcs.find((n) => n.home === b))?.id ?? q.giver;
+  for (const s of q.steps) if (s.kind === 'choose' && !npcIds.has(s.target) && buildingIds.has(s.target)) s.target = npcAt(s.target);
   const seen = new Set<string>();
-  q.steps = q.steps.filter((s) => {
+  const keep = (s: QuestStep): boolean => {
     if (seen.has(s.id)) return false;
     seen.add(s.id);
     switch (s.kind) {
@@ -263,9 +337,10 @@ export function repairQuest(input: WorldSpec): WorldSpec {
       case 'fetch':
         return itemIds.has(s.target);
       case 'choose':
-        return npcIds.has(s.target) || buildingIds.has(s.target);
+        return npcIds.has(s.target);
     }
-  });
+  };
+  dropSteps(q, keep);
 
   // 2. Fetch items held by someone absent are held by the giver instead.
   const holderOk = (h: string): boolean => h === 'player' || npcIds.has(h) || buildingIds.has(h);
@@ -297,11 +372,19 @@ export function repairQuest(input: WorldSpec): WorldSpec {
     d.requires = [...d.requires, id];
   }
 
+  // A later delivery of an item with no separate fetch for it cannot be completed: drop it.
+  const repeats = new Set(supplierPlan(spec, new Map(q.steps.map((s) => [s.id, s])), new Set()).missing
+    .filter((m) => m.repeat).map((m) => m.id));
+  if (repeats.size > 0) {
+    dropSteps(q, (s) => !repeats.has(s.id));
+    prune(q);
+  }
+
   // 4. Drop anything the verifier still calls unreachable, a few passes deep.
   for (let pass = 0; pass < 4; pass++) {
     const dead = new Set(verifyQuest(spec).unreachable);
     if (dead.size === 0) break;
-    q.steps = q.steps.filter((s) => !dead.has(s.id));
+    dropSteps(q, (s) => !dead.has(s.id));
     prune(q);
   }
 

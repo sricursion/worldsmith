@@ -80,10 +80,12 @@ export function eventFromFrame(frame: SseFrame): UpstreamEvent | null {
   }
 }
 
-export async function* anthropicEvents(res: Response): AsyncGenerator<UpstreamEvent> {
+/** onIdle runs for every upstream frame that maps to no event (thinking, pings), so callers can keep a client stream alive. */
+export async function* anthropicEvents(res: Response, onIdle?: () => void): AsyncGenerator<UpstreamEvent> {
   for await (const frame of readSseFrames(res)) {
     const ev = eventFromFrame(frame);
     if (ev) yield ev;
+    else onIdle?.();
   }
 }
 

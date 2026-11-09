@@ -1,9 +1,14 @@
 // Always-on heads-up display: title, clock, badge, objective, prompt hint and the button row.
 import type { WorldSpec } from '../world/spec';
-import { Bag, button, el } from './dom';
-import { formatClock, normalizeHex, readableOn } from './text';
+import { Bag, button, closeButton, el } from './dom';
+import { controlsHint, formatClock, normalizeHex, promptLabel, readableOn } from './text';
+
+const HINT_MS = 15_000;
+const MOVE_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 
 export interface HudHandlers {
+  newTown?: () => void;
+  talk?: () => void;
   rules?: () => void;
   why?: () => void;
   share?: () => void;
@@ -23,6 +28,8 @@ export interface HudView {
 export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
   const bag = new Bag();
   let handlers: HudHandlers = {};
+  const coarse = (): boolean => typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
+  let hintTimer: ReturnType<typeof setTimeout> | undefined;
 
   const hud = el('div', 'tf-hud');
   hud.hidden = true;
@@ -44,9 +51,24 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
   const objectiveText = el('span', 'tf-objective-text');
   objective.append(el('span', 'tf-label', 'Objective'), objectiveText);
 
-  const prompt = el('div', 'tf-prompt');
+  const hint = el('p', 'tf-controls-hint tf-panel');
+  hint.hidden = true;
+  const hideHint = (): void => {
+    hint.hidden = true;
+    if (hintTimer !== undefined) clearTimeout(hintTimer);
+    hintTimer = undefined;
+  };
+  const dismiss = closeButton('Dismiss controls hint', bag, hideHint);
+  const hintText = el('span', 'tf-controls-text');
+  hint.append(hintText, dismiss);
+  bag.on(document, 'keydown', (e) => {
+    if (!hint.hidden && MOVE_KEYS.has(e.code)) hideHint();
+  });
+  bag.add(hideHint);
+
+  const prompt = button('tf-prompt', '');
   prompt.hidden = true;
-  prompt.setAttribute('role', 'status');
+  bag.on(prompt, 'click', () => handlers.talk?.());
 
   const buttons = el('div', 'tf-hud-buttons');
   const mk = (text: string, key: string | null, aria: string, pick: () => (() => void) | undefined): void => {
@@ -56,11 +78,12 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
     bag.on(b, 'click', () => pick()?.());
     buttons.append(b);
   };
+  mk('New town', null, 'Start over with a new town description', () => handlers.newTown);
   mk('Rules', 'R', 'Open the rules (R)', () => handlers.rules);
   mk('Why', '?', 'Why did they do that? (?)', () => handlers.why);
   mk('Share', null, 'Share this town', () => handlers.share);
 
-  bottom.append(objective, prompt, buttons);
+  bottom.append(hint, objective, prompt, buttons);
   hud.append(titleBox, topRight, bottom);
   layer.append(hud);
   bag.add(() => hud.remove());
@@ -76,9 +99,14 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
         root.style.setProperty('--on-accent', readableOn(accent));
       }
       hud.hidden = false;
+      hintText.textContent = controlsHint(coarse());
+      hint.hidden = false;
+      if (hintTimer !== undefined) clearTimeout(hintTimer);
+      hintTimer = setTimeout(hideHint, HINT_MS);
     },
     hide() {
       hud.hidden = true;
+      hideHint();
     },
     setClock(hour, day) {
       const text = formatClock(hour, day);
@@ -94,7 +122,7 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
     },
     setPrompt(label) {
       prompt.hidden = label === null || label === '';
-      prompt.textContent = label ?? '';
+      prompt.textContent = label === null ? '' : promptLabel(label, coarse());
     },
     setHandlers(next) {
       handlers = next;

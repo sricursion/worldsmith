@@ -21,12 +21,12 @@ export interface UI {
   setObjective(text: string): void;
   toast(text: string, kind?: 'info' | 'warn'): void;
   openDialogue(npc: NpcSpec, onSend: (text: string) => void, onClose: () => void): DialogueHandle;
-  openRules(rules: RuleSpec[], onAdd: (text: string) => void, onRemove: (id: string) => void): void;
+  openRules(rules: RuleSpec[], onAdd: (text: string) => void | Promise<boolean>, onRemove: (id: string) => void): void;
   closeRules(): void;
   showWhy(lines: string[]): void;
   setPrompt(label: string | null): void;
   showError(text: string, retry?: () => void): void;
-  /** Addition: wires the HUD buttons (Rules, Why, Share) to the game. */
+  /** Addition: wires the HUD buttons (New town, Rules, Why, Share) and the talk pill to the game. */
   onHud(handlers: HudHandlers): void;
   /** Addition: text for the verified badge next to the clock, or null to hide it. */
   setBadge(text: string | null): void;
@@ -60,6 +60,9 @@ export function createUI(root: HTMLElement): UI {
   return {
     showLanding: (examples, onSubmit) => {
       hud.hide();
+      dialogue.close();
+      rules.close();
+      why.close();
       landing.showLanding(examples, onSubmit);
     },
     showCompiling: (status, partial) => landing.showCompiling(status, partial),

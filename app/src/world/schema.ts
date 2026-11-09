@@ -400,7 +400,13 @@ export function normalizeSpec(input: WorldSpec): WorldSpec {
       const b = bMap.resolve(s.target);
       const npc = npcs.find((n) => n.id === nMap.resolve(s.target));
       target = b ?? (npc && npc.work !== 'street' && npc.work !== 'plaza' ? npc.work : undefined) ?? buildings[0]?.id ?? s.target;
-    } else target = nMap.resolve(s.target) ?? bMap.resolve(s.target) ?? giver;
+    } else {
+      // choose: only an NPC can offer the choice, so a building resolves to whoever works or lives there.
+      const direct = nMap.resolve(s.target);
+      const b = direct ? undefined : bMap.resolve(s.target);
+      const keeper = b ? (npcs.find((n) => n.work === b) ?? npcs.find((n) => n.home === b))?.id : undefined;
+      target = direct ?? keeper ?? asNpc();
+    }
     if (s.kind === 'fetch') item = target;
     else if (s.kind === 'deliver') item = itemId(s.item);
 

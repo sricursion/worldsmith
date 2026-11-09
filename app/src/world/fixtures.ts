@@ -18,13 +18,16 @@ const THEME_KEYWORDS: Record<ThemeId, RegExp[]> = {
   ],
   medieval: [
     /\bcastle/, /\bknight/, /\bking\b/, /\bkingdom/, /\btavern/, /\bvillage/, /\bdragon/, /\bblacksmith/,
-    /\bmarket/, /\bmonaster/, /\bviking/, /\bpirate/,
+    /\bmarket/, /\bmonaster/, /\bviking/, /\bpirate/, /\bmedieval/, /\bfantasy/, /\bwizard/, /\belf\b/,
+    /\belves\b/, /\bmagic/, /\bmage\b/, /\bwitch/, /\bmiddle ages/, /\bvictorian/,
   ],
   scifi: [
     /\bspace/, /\bmars\b/, /\bmoon\b/, /\bstation/, /\bcolon(y|ies)/, /\bcyber/, /\bneon/, /\brobot/, /\balien/,
-    /\bfuture/, /\bfuturistic/, /\b(20[3-9]\d|2[1-9]\d\d)\b/,
+    /\bfuture/, /\bfuturistic/, /\bsci-?fi\b/, /\bsteampunk/, /\bandroid/, /\bgalactic/, /\bstarship/,
+    /\borbital/, /\b(20[3-9]\d|2[1-9]\d\d)\b/,
   ],
   modern: [
+    /\bmodern/, /\bcontemporary/, /\bseaside/, /\bharbou?r town/, /\bdowntown/, /\bnoir/,
     /\btoday/, /\bcity/, /\bsuburb/, /\bcafe/, /\bcafé/, /\boffice/, /\bschool/, /\bbeach/, /\bcoastal/,
     /\b19[5-9]\d\b/, /\b20[0-2]\d\b/,
   ],

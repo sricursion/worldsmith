@@ -4,6 +4,7 @@ import { tailLines } from './text';
 
 const WINDOW_LINES = 4;
 const WINDOW_WIDTH = 96;
+const MAX_PROMPT = 600;
 
 export interface LandingView {
   showLanding(examples: string[], onSubmit: (prompt: string) => void): void;
@@ -26,13 +27,14 @@ export function createLanding(layer: HTMLElement): LandingView {
   input.id = 'tf-prompt-input';
   label.htmlFor = input.id;
   input.rows = 3;
-  input.maxLength = 500;
+  input.maxLength = MAX_PROMPT;
   input.placeholder = 'A sleepy frontier town where the sheriff is hiding something…';
   input.spellcheck = true;
   const row = el('div', 'tf-landing-row');
   const hint = el('span', 'tf-hint', 'Ctrl/Cmd + Enter to build');
+  const count = el('span', 'tf-hint tf-count', `0/${MAX_PROMPT}`);
   const build = button('tf-btn tf-btn-primary', 'Build');
-  row.append(hint, build);
+  row.append(hint, count, build);
   const chipsLabel = el('p', 'tf-chips-label', 'Or try one');
   const chips = el('div', 'tf-chips');
   card.append(title, promise, label, input, row, chipsLabel, chips);
@@ -57,6 +59,7 @@ export function createLanding(layer: HTMLElement): LandingView {
 
   const sync = (): void => {
     build.disabled = submitted || input.value.trim() === '';
+    count.textContent = `${input.value.length}/${MAX_PROMPT}`;
   };
   const submit = (): void => {
     const text = input.value.trim();

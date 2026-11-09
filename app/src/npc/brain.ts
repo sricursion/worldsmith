@@ -1,4 +1,11 @@
 // Schedule lookup and rule overrides. Pure: no DOM, no three.
+//
+// Where each RuleEffect type takes effect:
+//  - curfew, ban, schedule_override: whereShouldBe below (movement).
+//  - mood: effectiveMood below, used by whereShouldBe, decide.ts (decision questions) and dialogue.ts.
+//  - time_scale and weather: applied in game.ts when a rule is added or removed.
+//  - price and relationship: no mechanical consumer. They reach the dialogue model only as rule text
+//    in the dialogue context, so canned and mock dialogue ignore them.
 import type { NpcSpec, RuleSpec, ScheduleEntry, WorldSpec, WorldState, Mood } from '../world/spec';
 import { activeRules } from '../world/state';
 
@@ -97,7 +104,8 @@ function roleExempt(role: string, exempt: string[]): boolean {
   });
 }
 
-function effectiveMood(npc: NpcSpec, rules: RuleSpec[]): Mood {
+/** The mood an NPC shows right now: the latest mood rule aimed at them (or at everyone) over their own mood. */
+export function effectiveMood(npc: NpcSpec, rules: RuleSpec[]): Mood {
   let mood = npc.mood;
   for (const r of rules) {
     if (r.effect.type === 'mood' && (r.effect.who === npc.id || r.effect.who === 'all')) mood = r.effect.mood;
@@ -108,6 +116,16 @@ function effectiveMood(npc: NpcSpec, rules: RuleSpec[]): Mood {
 function sleepOrRest(hour: number): Activity {
   const h = normHour(hour);
   return h >= 22 || h < DAWN_HOUR ? 'sleep' : 'rest';
+}
+
+/** Hours an override entry stays in force: from entry.hour up to the NPC's next scheduled entry, wrapping midnight. */
+function overrideActive(npc: NpcSpec, entry: ScheduleEntry, hour: number): boolean {
+  const hours = npc.schedule.map((e) => normHour(e.hour));
+  const start = normHour(entry.hour);
+  const later = hours.filter((h) => h > start);
+  const earliest = hours.length > 0 ? Math.min(...hours) : start;
+  const end = later.length > 0 ? Math.min(...later) : earliest + 24;
+  return inHourWindow(hour, start, end > start ? end : start + 24);
 }
 
 export function whereShouldBe(npc: NpcSpec, hour: number, rules: RuleSpec[]): NpcIntent {
@@ -123,7 +141,9 @@ export function whereShouldBe(npc: NpcSpec, hour: number, rules: RuleSpec[]): Np
   }
   if (override && override.effect.type === 'schedule_override') {
     const e = override.effect.entry;
-    return { npcId: npc.id, place: e.place, activity: e.activity, reason: `override: ${override.id}` };
+    if (overrideActive(npc, e, hour)) {
+      return { npcId: npc.id, place: e.place, activity: e.activity, reason: `override: ${override.id}` };
+    }
   }
 
   // 2. Curfew sends everyone but the exempt roles home to sleep.

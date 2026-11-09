@@ -3,14 +3,14 @@ import type { PatchResponse } from '../../../app/src/net/types';
 import { anthropicJson, SONNET } from '../lib/anthropic';
 import type { Env } from '../lib/env';
 import { isMock } from '../lib/env';
-import { chargeBudget, guardBudget, guardEarly } from '../lib/guard';
+import { budgetScope, chargeBudget, guardBudget, guardEarly } from '../lib/guard';
 import { errorJson, json, readJson } from '../lib/http';
 import { mockRules } from '../lib/mockrules';
 import { validatePatch } from '../lib/validate';
 import { RULES_SYSTEM, rulesJsonSchema, rulesUserMessage, sanitizeRules } from '../prompts/rules';
 
 export async function handleRulesPatch(req: Request, env: Env): Promise<Response> {
-  const early = await guardEarly(req, env, { turnstile: true });
+  const early = await guardEarly(req, env);
   if (early) return early;
   const body = await readJson(req, 16_384);
   if (!body.ok) return body.res;
@@ -23,7 +23,8 @@ export async function handleRulesPatch(req: Request, env: Env): Promise<Response
     return json(res);
   }
 
-  const gate = await guardBudget(env, sessionId);
+  const scope = budgetScope(req, sessionId);
+  const gate = await guardBudget(env, scope);
   if (!gate.ok) return gate.res;
 
   const out = await anthropicJson(env, {
@@ -35,7 +36,7 @@ export async function handleRulesPatch(req: Request, env: Env): Promise<Response
     messages: [{ role: 'user', content: rulesUserMessage(ruleText, summary) }],
   });
   if (!out.ok) return errorJson(502, out.error, 'upstream');
-  await chargeBudget(env, sessionId, out.outputTokens);
+  await chargeBudget(env, scope, out.outputTokens);
   if (out.stopReason === 'refusal') return errorJson(422, 'refusal', 'refusal');
 
   let parsed: unknown;

@@ -69,3 +69,16 @@ export function readableOn(hex: string): string {
 export function effectLabel(type: string): string {
   return type.replace(/_/g, ' ');
 }
+
+export const CONTROLS_HINT_DESKTOP = 'WASD move · drag to look · Shift run · E talk';
+export const CONTROLS_HINT_TOUCH = 'Left half: move · right half: look · tap the pill to talk';
+
+/** Controls hint text for the given pointer type. */
+export function controlsHint(coarse: boolean): string {
+  return coarse ? CONTROLS_HINT_TOUCH : CONTROLS_HINT_DESKTOP;
+}
+
+/** On touch devices the key hint 'E · ' in a prompt label becomes 'Tap · '. */
+export function promptLabel(label: string, coarse: boolean): string {
+  return coarse && label.startsWith('E · ') ? `Tap · ${label.slice(4)}` : label;
+}

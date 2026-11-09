@@ -24,7 +24,11 @@ function boot(): void {
   viewport.start((dt) => game.update(dt));
   void game.start().catch((err: unknown) => {
     const message = err instanceof Error ? err.message : String(err);
-    ui.showError(`Something broke while building the town: ${message}`, () => location.reload());
+    console.warn('boot failed:', message);
+    ui.showError('Something broke while starting. Reload to try again.', () => {
+      history.replaceState(null, '', location.pathname + location.search);
+      location.reload();
+    });
   });
 
   // Debug hook for scripted checks; harmless in production.

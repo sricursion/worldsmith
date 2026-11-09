@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { effectLabel, formatClock, normalizeHex, readableOn, splitSentencesForTypewriter, tailLines } from '../../app/src/ui/text';
+import { controlsHint, effectLabel, promptLabel, formatClock, normalizeHex, readableOn, splitSentencesForTypewriter, tailLines } from '../../app/src/ui/text';
 
 describe('formatClock', () => {
   it('formats fractional hours', () => {
@@ -54,5 +54,17 @@ describe('colour helpers', () => {
   });
   it('labels effect types', () => {
     expect(effectLabel('schedule_override')).toBe('schedule override');
+  });
+});
+
+describe('touch labels', () => {
+  it('swaps the E key hint for Tap on coarse pointers only', () => {
+    expect(promptLabel('E · talk to Ada', true)).toBe('Tap · talk to Ada');
+    expect(promptLabel('E · talk to Ada', false)).toBe('E · talk to Ada');
+    expect(promptLabel('Take the key', true)).toBe('Take the key');
+  });
+  it('picks the controls hint by pointer type', () => {
+    expect(controlsHint(false)).toContain('WASD');
+    expect(controlsHint(true)).toContain('tap the pill');
   });
 });

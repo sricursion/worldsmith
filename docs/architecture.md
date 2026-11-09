@@ -167,7 +167,7 @@ export function localFallback(q: ChoiceQuestion, npc: NpcSpec, rng: Rng): NpcAct
 // dialogue.ts
 export interface DialogueTurn { speaker: 'player' | 'npc'; text: string }
 export interface DialogueSession { say(playerText: string, onToken: (partial: string) => void): Promise<{ text: string; source: 'model' | 'fallback' }>; history: DialogueTurn[]; close(): void }
-export function openDialogue(spec: WorldSpec, state: WorldState, npcId: string, api: Api): DialogueSession;
+export function openDialogue(spec: WorldSpec, getState: () => WorldState, npcId: string, api: Api): DialogueSession; // reads live state on every say()
 export function validateLine(text: string): { ok: boolean; cleaned: string; reason?: string }; // rejects reasoning leaks ("Let me think", "As an AI", bracketed stage directions longer than 40 chars, empty)
 export function cannedLine(npc: NpcSpec, mood: Mood, rng: Rng): string;
 // speech.ts
@@ -200,11 +200,13 @@ export interface UI {
   showLanding(examples: string[], onSubmit: (prompt: string) => void): void;
   showCompiling(status: string, partial?: string): void;   // skeleton town is already visible behind it
   showHud(spec: WorldSpec): void; setClock(hour: number, day: number): void; setObjective(text: string): void; toast(text: string, kind?: 'info' | 'warn'): void;
-  openDialogue(npc: NpcSpec, onSend: (text: string) => void, onClose: () => void): { stream(partial: string): void; done(): void };
-  openRules(rules: RuleSpec[], onAdd: (text: string) => void, onRemove: (id: string) => void): void; closeRules(): void;
+  openDialogue(npc: NpcSpec, onSend: (text: string) => void, onClose: () => void): DialogueHandle; // { stream, done, addAction(label, cb) => remove, clearActions }
+  openRules(rules: RuleSpec[], onAdd: (text: string) => void | Promise<boolean>, onRemove: (id: string) => void): void; closeRules(): void; // a pending promise disables Apply; true clears the box
   showWhy(lines: string[]): void;                           // the "why did they do that?" overlay from state.log
   setPrompt(label: string | null): void;                   // bottom-centre hint: "E · talk to Sheriff Cole"
   showError(text: string, retry?: () => void): void;
+  onHud(handlers: { newTown?: () => void; talk?: () => void; rules?: () => void; why?: () => void; share?: () => void }): void; // HUD buttons and the talk pill
+  setBadge(text: string | null): void;                     // the verified badge next to the clock
   dispose(): void;
 }
 export function createUI(root: HTMLElement): UI;
@@ -217,19 +219,20 @@ Routes, all under `/api`, JSON in, JSON or SSE out, CORS same-origin only:
 
 | Route | Body | Returns | Model |
 |---|---|---|---|
-| `POST /api/compile` | `{ prompt, seed }` | SSE: `partial` text events, then `spec` event with the parsed object | Sonnet 5.5, structured outputs, `thinking: {type:"between_tools"}`, effort low |
-| `POST /api/npc/say` | `NpcSayRequest` (system bible, persona, trimmed state, history, player line) | SSE text deltas, then `done` with `{refusal?: boolean}` | Haiku 5.5, thinking disabled; Sonnet retry on refusal; Groq gpt-oss-120b on vendor error |
+| `POST /api/compile` | `{ prompt, seed }` | SSE: `partial {text}` deltas (plus `ping {}` keepalives while the model thinks), then `spec` with the parsed object, or `error {error, reason}` | Sonnet 5.5, structured outputs, `thinking: {type:"between_tools"}`, effort low |
+| `POST /api/npc/say` | `NpcSayRequest` (system bible, persona, trimmed state, history, player line) | SSE `token {text}` deltas, then `done {refusal}` or `error` | Haiku 5.5, thinking disabled; Sonnet retry on refusal; Groq gpt-oss-120b on vendor error |
 | `POST /api/tick` | `TickRequest` (questions) | `{ probs: number[][] }` | Jev `jev-1.14.0` via TypeSafe; Workers AI Clef-flash fallback; `{probs: []}` on total failure |
 | `POST /api/rules/patch` | `PatchRequest` (rule text, spec summary) | `{ rules: RuleSpec[] }` | Sonnet 5.5, structured output of `RuleSpec[]` |
-| `POST /api/share` | `WorldSpec` | `{ id }` | KV, 30-day TTL |
+| `POST /api/share` | `WorldSpec` | `{ id }` (24 hex chars of the SHA-256; existing ids are never overwritten) | KV, 30-day TTL |
 | `GET /api/load/:id` | | spec | KV |
 | `GET /api/health` | | `{ ok, mock }` | |
 
 `MOCK=1` (or any missing key) makes the Worker answer from `app/src/world/fixtures` so the whole
 app runs with zero credentials. Secrets: `ANTHROPIC_API_KEY`, `GROQ_API_KEY`, `TYPESAFE_API_KEY`,
-`TURNSTILE_SECRET`, via `wrangler secret put` and a gitignored `.dev.vars`. Rate Limiting binding
-per IP on the three model routes; a per-session token budget in KV with a `429 { reason: "resting" }`
-response the UI turns into a "the town is resting" state. SSE bodies pass through untouched.
+via `wrangler secret put` and a gitignored `.dev.vars`. Rate Limiting binding per IP on the model
+routes; per-session, per-IP and global daily token budgets in KV (ceilings are Worker vars) with a
+`429 { reason: "resting" }` response the UI turns into a "the town is resting" state. Turnstile is not
+used: the client has no widget, so a server check would lock everyone out. SSE bodies pass through untouched.
 
 ## Game flow (game.ts)
 
@@ -238,7 +241,8 @@ response the UI turns into a "the town is resting" state. SSE bodies pass throug
 2. `api.compile` streams. Partial text updates the compiling panel. On the `spec` event:
    `validateSpec` → `normalizeSpec` → `repairQuest` → `verifyQuest` (report shown in the HUD as a
    badge: "quest verified, 6 steps").
-3. `generateLayout(spec)` → `buildTown` → `buildNav` → spawn player at `layout.spawn`, spawn one
+3. `generateLayout(spec)` → `buildTown` → `buildNav` over an invisible ground plane the size of
+   `layout.bounds` plus 18 m (not the 400 m visual ground) → spawn player at `layout.spawn`, spawn one
    `CharacterRig` + `NavAgent` per NPC at `whereShouldBe(npc, startHour)`.
 4. Loop at 60 Hz: input → player → crowd → rigs. Town clock advances by
    `minutesPerRealSecond`. Every 20 real seconds (or when the player approaches an NPC):

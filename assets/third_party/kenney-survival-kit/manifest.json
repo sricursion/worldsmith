@@ -1,0 +1,501 @@
+{
+  "pack": "kenney-survival-kit",
+  "sourceUrl": "https://kenney.nl/assets/survival-kit",
+  "sourceFile": "kenney-survival-kit.zip",
+  "license": "CC0-1.0",
+  "fetchedAt": "2026-10-29T21:14:46.763Z",
+  "files": [
+    {
+      "path": "barrel-open.glb",
+      "sha256": "8416a5677fe4cecfd03282dc301f59eb2379897dce141fb18fa74cc582dc590a",
+      "bytes": 7596
+    },
+    {
+      "path": "barrel.glb",
+      "sha256": "9a464a76c2b8ec2c54d03094e80ded76e0aec25382c5443325d2bc158723b511",
+      "bytes": 7896
+    },
+    {
+      "path": "bedroll-frame.glb",
+      "sha256": "919ea50720776e8ae654e1e40679c64cdd988c6d8c1283027f4a2c849f47a4b1",
+      "bytes": 5044
+    },
+    {
+      "path": "bedroll-packed.glb",
+      "sha256": "83bbce278de545dac726d4ec204ac796f5052768adbb8cdec445ea4ad88966db",
+      "bytes": 5496
+    },
+    {
+      "path": "bedroll.glb",
+      "sha256": "b3613bbb06f9fc053ac94f76eefd22228385e147b7c454a30033facea816c664",
+      "bytes": 5228
+    },
+    {
+      "path": "bottle-large.glb",
+      "sha256": "8ee1c1c6267e7c19622848ab401d500b704bd29ae07e34a61ef807a45f4735a3",
+      "bytes": 5256
+    },
+    {
+      "path": "bottle.glb",
+      "sha256": "e63d7fbbb0f9d831b2d99656b94bae779c785d24e8a680ba500959c43d65147f",
+      "bytes": 5152
+    },
+    {
+      "path": "box-large-open.glb",
+      "sha256": "5e0caf32bf40ce0b8f22bb10f122f9aa4af133fa82434f3de473c48fa6d6424e",
+      "bytes": 6244
+    },
+    {
+      "path": "box-large.glb",
+      "sha256": "9d96c0828a237c946ed1d0cb17e27e0ca88cf70ca858efe3554b3118bc078573",
+      "bytes": 5716
+    },
+    {
+      "path": "box-open.glb",
+      "sha256": "00865db2dbeca25d7cc1032444dde05227720be2835e56ac58427c76c4bf45a5",
+      "bytes": 6384
+    },
+    {
+      "path": "box.glb",
+      "sha256": "ddb61435ed6f76cfb66e632e88c2c6f77178754cd0458073b439eb19e38338b4",
+      "bytes": 5772
+    },
+    {
+      "path": "bucket.glb",
+      "sha256": "40c89736c8bb197e733e0fd53c3ae4b2112295236db6429163b9bac86565ff5e",
+      "bytes": 4528
+    },
+    {
+      "path": "campfire-fishing-stand.glb",
+      "sha256": "3f0c726245a3e0a1c4373d8dc60032968010d6156cd47aee424da589ffe6415e",
+      "bytes": 5096
+    },
+    {
+      "path": "campfire-pit.glb",
+      "sha256": "6737b247e67cce1e4dac2d26cbebf6b927141f6dd5e0e032f4ed3699f2cae6bb",
+      "bytes": 7660
+    },
+    {
+      "path": "campfire-stand.glb",
+      "sha256": "c65017907896b2f4fe14053b0f2decde980c6a5a8f81dee3c8d1ac9b226e4339",
+      "bytes": 4696
+    },
+    {
+      "path": "chest.glb",
+      "sha256": "cfcb528e572d7a8dc1dc6a4ed9e726d570dc8ff887864fd7fe98cacbf35dcabf",
+      "bytes": 11096
+    },
+    {
+      "path": "fence-doorway.glb",
+      "sha256": "26197592e23fee54901cff044e588847fb8d8ef9302a02081c8942cc609fd514",
+      "bytes": 5368
+    },
+    {
+      "path": "fence-fortified.glb",
+      "sha256": "b6df56de7913ca49bf53e426e6b7e5b0661d27d567f6202c6af5c98f391776e6",
+      "bytes": 5588
+    },
+    {
+      "path": "fence.glb",
+      "sha256": "a4647802acc887cc6dc86aa57dd71fa54909881075aa38df0899685b8dabbdf9",
+      "bytes": 4300
+    },
+    {
+      "path": "fish-large.glb",
+      "sha256": "26198c6defa13d2343bef60e8a2ea851521d9e3cac66a7a78154b6db020332fe",
+      "bytes": 9320
+    },
+    {
+      "path": "fish.glb",
+      "sha256": "b05398bafc8deb6ded3533e799f378cbeb3145dc2445732a2e2a92c83c50b670",
+      "bytes": 9288
+    },
+    {
+      "path": "floor-hole.glb",
+      "sha256": "185d2fbfc4b8ffe0e4182eb9b8a6b396f6eb69c54814601a9a12a994e0a4c24f",
+      "bytes": 5648
+    },
+    {
+      "path": "floor-old.glb",
+      "sha256": "3756f7291ad3f4a5a94a4f4811097d1860c5154ea842e3f2352cca0198393ebc",
+      "bytes": 4736
+    },
+    {
+      "path": "floor.glb",
+      "sha256": "b6f28c5d11b0e783483f64014de287b4c2d4178f428dea7d1b1c2fc39bea44c1",
+      "bytes": 4700
+    },
+    {
+      "path": "grass-large.glb",
+      "sha256": "c649a516af6d975811a6b88aaa4fada3669a7ac9c017dee4f7dc42d8b857c507",
+      "bytes": 6272
+    },
+    {
+      "path": "grass.glb",
+      "sha256": "acf650ef51e0987d8dcbc5acd93a539deee63b669c9c5ebc6f10e4ac6f054e58",
+      "bytes": 4248
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "62c8356876481204fa4d40dc59183dfed777adf987d7f2a1390fffe8a699f3ff",
+      "bytes": 715
+    },
+    {
+      "path": "metal-panel-narrow.glb",
+      "sha256": "358e060ab08951925132b28c6784600e383e0c86cc1254f8fc054cacdecf8531",
+      "bytes": 5228
+    },
+    {
+      "path": "metal-panel-screws-half.glb",
+      "sha256": "d09a379172bd2c72c19b9cf43106d11022c0391a48e90819f13fcd55b6dc8979",
+      "bytes": 7484
+    },
+    {
+      "path": "metal-panel-screws-narrow.glb",
+      "sha256": "d2206bd30c36f26d97646ea26456f5c425273e353cfe229afebecf5dc07b88c8",
+      "bytes": 5988
+    },
+    {
+      "path": "metal-panel-screws.glb",
+      "sha256": "39e13178ba0e4af9b370011c63956a9f66a73d1e3450ab65c842c47fa13b6247",
+      "bytes": 7256
+    },
+    {
+      "path": "metal-panel.glb",
+      "sha256": "e4bf871ca06a6c8fa3eeca62ada130dc7670c912d10b969105fb80147e57a553",
+      "bytes": 6508
+    },
+    {
+      "path": "patch-grass-large.glb",
+      "sha256": "97d7b22cc0c786b51cc675592e0105d480c2af56d9b1c9495f164c0f2faf2df7",
+      "bytes": 3692
+    },
+    {
+      "path": "patch-grass.glb",
+      "sha256": "acbd559f0b370606923eb513d73e9f4e150034f047b6e52cc03e20549d94631a",
+      "bytes": 3656
+    },
+    {
+      "path": "resource-planks.glb",
+      "sha256": "37f0ce78605e901548a95cb50f2b7d5f528e6476a9f495ea1d398d94b223d547",
+      "bytes": 4784
+    },
+    {
+      "path": "resource-stone-large.glb",
+      "sha256": "0e773f3ab38b8e607f48c864fc4b0d01dfaf4a4ebca99d42869a28f00694d5e5",
+      "bytes": 5688
+    },
+    {
+      "path": "resource-stone.glb",
+      "sha256": "9258284a5e0f8cbf3422fa847f95f0b7ccb2def535f0839d43f9aac81c2e8ca5",
+      "bytes": 4268
+    },
+    {
+      "path": "resource-wood.glb",
+      "sha256": "8dabc46d447da4c15dbc75143cefc3f04583a69b890666a19436e2c92776b051",
+      "bytes": 4492
+    },
+    {
+      "path": "rock-a.glb",
+      "sha256": "e6fa8d6661ddeddba304afb7081e2f21986495d68d3c5db5b4808df6222b6593",
+      "bytes": 5160
+    },
+    {
+      "path": "rock-b.glb",
+      "sha256": "bc18e267e2e2db6fe9367cb2e241acf6ed2b1c62fdc98012175b9cf1cf76803b",
+      "bytes": 5896
+    },
+    {
+      "path": "rock-c.glb",
+      "sha256": "a533b4dc2b95a9cc61ae614f0ad6e6aaccd86cbda6816815ba1b17335b8a9e2a",
+      "bytes": 5380
+    },
+    {
+      "path": "rock-flat-grass.glb",
+      "sha256": "a0c79cfbd8afbcd3db99118405122a443684a62e5cad9fa7ebbb3a26a75431e7",
+      "bytes": 14568
+    },
+    {
+      "path": "rock-flat.glb",
+      "sha256": "f4a4f3500a8a700d6f920cf0daafcf150f5d6efa9c9f7727db05b66586edc92c",
+      "bytes": 7376
+    },
+    {
+      "path": "rock-sand-a.glb",
+      "sha256": "e1cc3dbfdb64c22cffbce278ffe81f7281066336da085fa318c82fe55725774d",
+      "bytes": 4976
+    },
+    {
+      "path": "rock-sand-b.glb",
+      "sha256": "65923d1bccd90b76dd16f09eecd2b7e90e7af9f6337f813843fbc1b0afc84231",
+      "bytes": 6308
+    },
+    {
+      "path": "rock-sand-c.glb",
+      "sha256": "beff42adc05fc6f02b807b6e2c953ba3bcf1828c97068c2aff175c72f3a403ba",
+      "bytes": 5784
+    },
+    {
+      "path": "signpost-single.glb",
+      "sha256": "4d8a24e5fe34f99a9d89a76b767148b1197a1fa63a69864e89068a4467d6e316",
+      "bytes": 4080
+    },
+    {
+      "path": "signpost.glb",
+      "sha256": "da388bea0edaed1e5cb28807a1bb3e98591099a02441f5b2ddee3e2b9c84f7a7",
+      "bytes": 4344
+    },
+    {
+      "path": "structure-canvas.glb",
+      "sha256": "7448c310f13afdec9d5a49563e627892435ce69f56fd1b5a1ae4e7e900e0f2dc",
+      "bytes": 5060
+    },
+    {
+      "path": "structure-floor.glb",
+      "sha256": "62a06525c6fe20080756a3aa17b3d9018576442afdf468039c81f87b655c58f9",
+      "bytes": 6260
+    },
+    {
+      "path": "structure-metal-doorway.glb",
+      "sha256": "4c6449b91f4e0763e4a3a856e595c558957d811617be33cfc9f9797088075b37",
+      "bytes": 6156
+    },
+    {
+      "path": "structure-metal-floor.glb",
+      "sha256": "1a1e7d4576df98b142ce00c517fbd334604b8cfac72dbfa0e8d5718dff886d9c",
+      "bytes": 8592
+    },
+    {
+      "path": "structure-metal-roof.glb",
+      "sha256": "b91ba6ebbab4de0811be61523d59d3d863cb845b0123478fe783da1791d9f1c6",
+      "bytes": 10180
+    },
+    {
+      "path": "structure-metal-wall.glb",
+      "sha256": "e146c3a03225b763268aec50fd4b365aeb3bdcc23dfe263d141eb1fa5a232ec9",
+      "bytes": 5040
+    },
+    {
+      "path": "structure-metal.glb",
+      "sha256": "88d528cdc4d285adfc6a617385604c5e3300bfaa69a868f279d157ce29c8ada1",
+      "bytes": 6432
+    },
+    {
+      "path": "structure-roof.glb",
+      "sha256": "ace0459a9e23b9af6586f422010ce86986f438d7a12dc7bd2ac436f60cd8c9ae",
+      "bytes": 6808
+    },
+    {
+      "path": "structure.glb",
+      "sha256": "784883728d77300e4de05766891e6aa4f06b655d3e36d6a080a16faab28b1450",
+      "bytes": 4796
+    },
+    {
+      "path": "tent-canvas-half.glb",
+      "sha256": "af26136442aca55cb97d52d6f6eee73fda8367309a2eeae119c737fd84982ec3",
+      "bytes": 5688
+    },
+    {
+      "path": "tent-canvas.glb",
+      "sha256": "a67d513473605b2b1709fd2485ea7a6853cae9cf04850b9ba6553fde3d35b71f",
+      "bytes": 5796
+    },
+    {
+      "path": "tent.glb",
+      "sha256": "0e2ec4b357eb8b6082236f6c15a5e4e6d197c07371a60d7e828d9086d421008a",
+      "bytes": 5460
+    },
+    {
+      "path": "Textures/colormap.png",
+      "sha256": "6ca023be9f12e8c2358fcf94320c8a894b4c05a3dd0bad1f5c268312053caca1",
+      "bytes": 7440
+    },
+    {
+      "path": "tool-axe-upgraded.glb",
+      "sha256": "209b63fc182b560fc3589442b664a7fd5938d79c9ef91b11687a08e3d5246bde",
+      "bytes": 5324
+    },
+    {
+      "path": "tool-axe.glb",
+      "sha256": "8707c4b0b796bb9802435e1bdfe54faabd0d57ddc912f0a7d00605ad4ff1435d",
+      "bytes": 4668
+    },
+    {
+      "path": "tool-hammer-upgraded.glb",
+      "sha256": "bda3d6c5111f3c53739fbecd236173499906ec2e3406ae624ccce0d4f81afb5d",
+      "bytes": 4716
+    },
+    {
+      "path": "tool-hammer.glb",
+      "sha256": "1c6d9171be229a3febd38aa6cb9913831a2c81efee7cef9970c020ce89c7624e",
+      "bytes": 4276
+    },
+    {
+      "path": "tool-hoe-upgraded.glb",
+      "sha256": "14ce2b4e99b2bc90aa752eeebf3d2709e5db9daa43c6a4b1948cd2a0ba2496a3",
+      "bytes": 5112
+    },
+    {
+      "path": "tool-hoe.glb",
+      "sha256": "f25d279ab55cc68babf5d63dd353417dab7659037c096b3136781a0731f9e3fb",
+      "bytes": 4356
+    },
+    {
+      "path": "tool-pickaxe-upgraded.glb",
+      "sha256": "ff4647f57293324f0c27e484fb596411f3afca1e288f3b25277f9c61bafec7e5",
+      "bytes": 5188
+    },
+    {
+      "path": "tool-pickaxe.glb",
+      "sha256": "2bf56db01bd7c735a637feda005aa23e81ba0abef288f35873b5e69a25954708",
+      "bytes": 4624
+    },
+    {
+      "path": "tool-shovel-upgraded.glb",
+      "sha256": "82c99adcf89c47d3327ab0c55d657a498d4a1e9b11de63437d72b6d23954ed38",
+      "bytes": 5788
+    },
+    {
+      "path": "tool-shovel.glb",
+      "sha256": "2f13a9b86ee142e3f1ce056c91c74fdf2dff5008d798d45e5ba57791e5f0a65e",
+      "bytes": 5016
+    },
+    {
+      "path": "tree-autumn-tall.glb",
+      "sha256": "6da35b7ca7e58e9da4234cd38690fd0605ae2302a979d9ab6cbcf012a9dbdc87",
+      "bytes": 7064
+    },
+    {
+      "path": "tree-autumn-trunk.glb",
+      "sha256": "963ada9478dc09c7dfdd96a045fe10c412c667b4450b516c5b02445b84a344c1",
+      "bytes": 4528
+    },
+    {
+      "path": "tree-autumn.glb",
+      "sha256": "29fab68b3f8f9474597e48dfebedb1fe477aa8acb6684a3574a15a06ab433519",
+      "bytes": 7100
+    },
+    {
+      "path": "tree-log-small.glb",
+      "sha256": "dab03ec634c34fa92cece8c85f6681afefa662b008198898da36ba950968a265",
+      "bytes": 4988
+    },
+    {
+      "path": "tree-log.glb",
+      "sha256": "9f2e3a3368df85cfed153f2e4bc3e4badb5c0fa75e28f42be687f7e79d075f0a",
+      "bytes": 4900
+    },
+    {
+      "path": "tree-tall.glb",
+      "sha256": "dfbc064f68440f159c30f03da6869c122249f5d3b743ca29fc20f3badc0ce8ac",
+      "bytes": 7920
+    },
+    {
+      "path": "tree-trunk.glb",
+      "sha256": "7b54de38cb0e5955f030637eee3cf7f6eef2da874ef9fb2d6af6a2c4a1fcc78f",
+      "bytes": 4508
+    },
+    {
+      "path": "tree.glb",
+      "sha256": "eecc14e43a856d3ab40228452344b83c025515b9166b6799a03bcff9482d2f7a",
+      "bytes": 7524
+    },
+    {
+      "path": "workbench-anvil.glb",
+      "sha256": "874fffa4a70618304f2e175b5904d965a88e3fa98d07479bc07b9567aa8f9423",
+      "bytes": 7920
+    },
+    {
+      "path": "workbench-grind.glb",
+      "sha256": "8b9aad8712c33a780f83a7654b35e5f4a84f2b7362a6b6c3ace51d4e182884b2",
+      "bytes": 6756
+    },
+    {
+      "path": "workbench.glb",
+      "sha256": "04f55374a70686484648dfb820e18c39d6781ed2bb7cef1564ef1b199030392c",
+      "bytes": 6896
+    }
+  ],
+  "optimized": {
+    "barrel-open.glb": "8416a5677fe4cecfd03282dc301f59eb2379897dce141fb18fa74cc582dc590a",
+    "barrel.glb": "9a464a76c2b8ec2c54d03094e80ded76e0aec25382c5443325d2bc158723b511",
+    "bedroll-frame.glb": "919ea50720776e8ae654e1e40679c64cdd988c6d8c1283027f4a2c849f47a4b1",
+    "bedroll-packed.glb": "83bbce278de545dac726d4ec204ac796f5052768adbb8cdec445ea4ad88966db",
+    "bedroll.glb": "b3613bbb06f9fc053ac94f76eefd22228385e147b7c454a30033facea816c664",
+    "bottle-large.glb": "8ee1c1c6267e7c19622848ab401d500b704bd29ae07e34a61ef807a45f4735a3",
+    "bottle.glb": "e63d7fbbb0f9d831b2d99656b94bae779c785d24e8a680ba500959c43d65147f",
+    "box-large-open.glb": "5e0caf32bf40ce0b8f22bb10f122f9aa4af133fa82434f3de473c48fa6d6424e",
+    "box-large.glb": "9d96c0828a237c946ed1d0cb17e27e0ca88cf70ca858efe3554b3118bc078573",
+    "box-open.glb": "00865db2dbeca25d7cc1032444dde05227720be2835e56ac58427c76c4bf45a5",
+    "box.glb": "ddb61435ed6f76cfb66e632e88c2c6f77178754cd0458073b439eb19e38338b4",
+    "bucket.glb": "40c89736c8bb197e733e0fd53c3ae4b2112295236db6429163b9bac86565ff5e",
+    "campfire-fishing-stand.glb": "3f0c726245a3e0a1c4373d8dc60032968010d6156cd47aee424da589ffe6415e",
+    "campfire-pit.glb": "6737b247e67cce1e4dac2d26cbebf6b927141f6dd5e0e032f4ed3699f2cae6bb",
+    "campfire-stand.glb": "c65017907896b2f4fe14053b0f2decde980c6a5a8f81dee3c8d1ac9b226e4339",
+    "chest.glb": "cfcb528e572d7a8dc1dc6a4ed9e726d570dc8ff887864fd7fe98cacbf35dcabf",
+    "fence-doorway.glb": "26197592e23fee54901cff044e588847fb8d8ef9302a02081c8942cc609fd514",
+    "fence-fortified.glb": "b6df56de7913ca49bf53e426e6b7e5b0661d27d567f6202c6af5c98f391776e6",
+    "fence.glb": "a4647802acc887cc6dc86aa57dd71fa54909881075aa38df0899685b8dabbdf9",
+    "fish-large.glb": "26198c6defa13d2343bef60e8a2ea851521d9e3cac66a7a78154b6db020332fe",
+    "fish.glb": "b05398bafc8deb6ded3533e799f378cbeb3145dc2445732a2e2a92c83c50b670",
+    "floor-hole.glb": "185d2fbfc4b8ffe0e4182eb9b8a6b396f6eb69c54814601a9a12a994e0a4c24f",
+    "floor-old.glb": "3756f7291ad3f4a5a94a4f4811097d1860c5154ea842e3f2352cca0198393ebc",
+    "floor.glb": "b6f28c5d11b0e783483f64014de287b4c2d4178f428dea7d1b1c2fc39bea44c1",
+    "grass-large.glb": "c649a516af6d975811a6b88aaa4fada3669a7ac9c017dee4f7dc42d8b857c507",
+    "grass.glb": "acf650ef51e0987d8dcbc5acd93a539deee63b669c9c5ebc6f10e4ac6f054e58",
+    "metal-panel-narrow.glb": "358e060ab08951925132b28c6784600e383e0c86cc1254f8fc054cacdecf8531",
+    "metal-panel-screws-half.glb": "d09a379172bd2c72c19b9cf43106d11022c0391a48e90819f13fcd55b6dc8979",
+    "metal-panel-screws-narrow.glb": "d2206bd30c36f26d97646ea26456f5c425273e353cfe229afebecf5dc07b88c8",
+    "metal-panel-screws.glb": "39e13178ba0e4af9b370011c63956a9f66a73d1e3450ab65c842c47fa13b6247",
+    "metal-panel.glb": "e4bf871ca06a6c8fa3eeca62ada130dc7670c912d10b969105fb80147e57a553",
+    "patch-grass-large.glb": "97d7b22cc0c786b51cc675592e0105d480c2af56d9b1c9495f164c0f2faf2df7",
+    "patch-grass.glb": "acbd559f0b370606923eb513d73e9f4e150034f047b6e52cc03e20549d94631a",
+    "resource-planks.glb": "37f0ce78605e901548a95cb50f2b7d5f528e6476a9f495ea1d398d94b223d547",
+    "resource-stone-large.glb": "0e773f3ab38b8e607f48c864fc4b0d01dfaf4a4ebca99d42869a28f00694d5e5",
+    "resource-stone.glb": "9258284a5e0f8cbf3422fa847f95f0b7ccb2def535f0839d43f9aac81c2e8ca5",
+    "resource-wood.glb": "8dabc46d447da4c15dbc75143cefc3f04583a69b890666a19436e2c92776b051",
+    "rock-a.glb": "e6fa8d6661ddeddba304afb7081e2f21986495d68d3c5db5b4808df6222b6593",
+    "rock-b.glb": "bc18e267e2e2db6fe9367cb2e241acf6ed2b1c62fdc98012175b9cf1cf76803b",
+    "rock-c.glb": "a533b4dc2b95a9cc61ae614f0ad6e6aaccd86cbda6816815ba1b17335b8a9e2a",
+    "rock-flat-grass.glb": "a0c79cfbd8afbcd3db99118405122a443684a62e5cad9fa7ebbb3a26a75431e7",
+    "rock-flat.glb": "f4a4f3500a8a700d6f920cf0daafcf150f5d6efa9c9f7727db05b66586edc92c",
+    "rock-sand-a.glb": "e1cc3dbfdb64c22cffbce278ffe81f7281066336da085fa318c82fe55725774d",
+    "rock-sand-b.glb": "65923d1bccd90b76dd16f09eecd2b7e90e7af9f6337f813843fbc1b0afc84231",
+    "rock-sand-c.glb": "beff42adc05fc6f02b807b6e2c953ba3bcf1828c97068c2aff175c72f3a403ba",
+    "signpost-single.glb": "4d8a24e5fe34f99a9d89a76b767148b1197a1fa63a69864e89068a4467d6e316",
+    "signpost.glb": "da388bea0edaed1e5cb28807a1bb3e98591099a02441f5b2ddee3e2b9c84f7a7",
+    "structure-canvas.glb": "7448c310f13afdec9d5a49563e627892435ce69f56fd1b5a1ae4e7e900e0f2dc",
+    "structure-floor.glb": "62a06525c6fe20080756a3aa17b3d9018576442afdf468039c81f87b655c58f9",
+    "structure-metal-doorway.glb": "4c6449b91f4e0763e4a3a856e595c558957d811617be33cfc9f9797088075b37",
+    "structure-metal-floor.glb": "1a1e7d4576df98b142ce00c517fbd334604b8cfac72dbfa0e8d5718dff886d9c",
+    "structure-metal-roof.glb": "b91ba6ebbab4de0811be61523d59d3d863cb845b0123478fe783da1791d9f1c6",
+    "structure-metal-wall.glb": "e146c3a03225b763268aec50fd4b365aeb3bdcc23dfe263d141eb1fa5a232ec9",
+    "structure-metal.glb": "88d528cdc4d285adfc6a617385604c5e3300bfaa69a868f279d157ce29c8ada1",
+    "structure-roof.glb": "ace0459a9e23b9af6586f422010ce86986f438d7a12dc7bd2ac436f60cd8c9ae",
+    "structure.glb": "784883728d77300e4de05766891e6aa4f06b655d3e36d6a080a16faab28b1450",
+    "tent-canvas-half.glb": "af26136442aca55cb97d52d6f6eee73fda8367309a2eeae119c737fd84982ec3",
+    "tent-canvas.glb": "a67d513473605b2b1709fd2485ea7a6853cae9cf04850b9ba6553fde3d35b71f",
+    "tent.glb": "0e2ec4b357eb8b6082236f6c15a5e4e6d197c07371a60d7e828d9086d421008a",
+    "tool-axe-upgraded.glb": "209b63fc182b560fc3589442b664a7fd5938d79c9ef91b11687a08e3d5246bde",
+    "tool-axe.glb": "8707c4b0b796bb9802435e1bdfe54faabd0d57ddc912f0a7d00605ad4ff1435d",
+    "tool-hammer-upgraded.glb": "bda3d6c5111f3c53739fbecd236173499906ec2e3406ae624ccce0d4f81afb5d",
+    "tool-hammer.glb": "1c6d9171be229a3febd38aa6cb9913831a2c81efee7cef9970c020ce89c7624e",
+    "tool-hoe-upgraded.glb": "14ce2b4e99b2bc90aa752eeebf3d2709e5db9daa43c6a4b1948cd2a0ba2496a3",
+    "tool-hoe.glb": "f25d279ab55cc68babf5d63dd353417dab7659037c096b3136781a0731f9e3fb",
+    "tool-pickaxe-upgraded.glb": "ff4647f57293324f0c27e484fb596411f3afca1e288f3b25277f9c61bafec7e5",
+    "tool-pickaxe.glb": "2bf56db01bd7c735a637feda005aa23e81ba0abef288f35873b5e69a25954708",
+    "tool-shovel-upgraded.glb": "82c99adcf89c47d3327ab0c55d657a498d4a1e9b11de63437d72b6d23954ed38",
+    "tool-shovel.glb": "2f13a9b86ee142e3f1ce056c91c74fdf2dff5008d798d45e5ba57791e5f0a65e",
+    "tree-autumn-tall.glb": "6da35b7ca7e58e9da4234cd38690fd0605ae2302a979d9ab6cbcf012a9dbdc87",
+    "tree-autumn-trunk.glb": "963ada9478dc09c7dfdd96a045fe10c412c667b4450b516c5b02445b84a344c1",
+    "tree-autumn.glb": "29fab68b3f8f9474597e48dfebedb1fe477aa8acb6684a3574a15a06ab433519",
+    "tree-log-small.glb": "dab03ec634c34fa92cece8c85f6681afefa662b008198898da36ba950968a265",
+    "tree-log.glb": "9f2e3a3368df85cfed153f2e4bc3e4badb5c0fa75e28f42be687f7e79d075f0a",
+    "tree-tall.glb": "dfbc064f68440f159c30f03da6869c122249f5d3b743ca29fc20f3badc0ce8ac",
+    "tree-trunk.glb": "7b54de38cb0e5955f030637eee3cf7f6eef2da874ef9fb2d6af6a2c4a1fcc78f",
+    "tree.glb": "eecc14e43a856d3ab40228452344b83c025515b9166b6799a03bcff9482d2f7a",
+    "workbench-anvil.glb": "874fffa4a70618304f2e175b5904d965a88e3fa98d07479bc07b9567aa8f9423",
+    "workbench-grind.glb": "8b9aad8712c33a780f83a7654b35e5f4a84f2b7362a6b6c3ace51d4e182884b2",
+    "workbench.glb": "04f55374a70686484648dfb820e18c39d6781ed2bb7cef1564ef1b199030392c"
+  }
+}

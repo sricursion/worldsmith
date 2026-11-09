@@ -1,0 +1,1990 @@
+{
+  "pack": "kenney-nature-kit",
+  "sourceUrl": "https://kenney.nl/assets/nature-kit",
+  "sourceFile": "kenney-nature-kit.zip",
+  "license": "CC0-1.0",
+  "fetchedAt": "2026-10-29T21:14:52.130Z",
+  "files": [
+    {
+      "path": "bed_floor.glb",
+      "sha256": "9a5cb331b77f5c6e81dcbe0f50f26b1e4893e7e36a2a07404ba60bd675edd80d",
+      "bytes": 5384
+    },
+    {
+      "path": "bed.glb",
+      "sha256": "a2f113fadb14db8d7acc60e381cf237a59a8f5595a9edfd59eb0b8a876cc7ceb",
+      "bytes": 6924
+    },
+    {
+      "path": "bridge_center_stone.glb",
+      "sha256": "7410703e7f95e5c8f5dc317a1543dc79b8e8d469f287707255bd8c14163367ea",
+      "bytes": 3388
+    },
+    {
+      "path": "bridge_center_stoneRound.glb",
+      "sha256": "2f32b08c7849c87369900f5f48aba4362e89ca09af3e4405fd774fbf51cf2008",
+      "bytes": 3372
+    },
+    {
+      "path": "bridge_center_wood.glb",
+      "sha256": "a2ae2c1b48191136e5562351c135af37ac16e70f3e18334bfb757ce066c7a6ff",
+      "bytes": 4416
+    },
+    {
+      "path": "bridge_center_woodRound.glb",
+      "sha256": "fe9bbdfecd72ead7c4e40bc4b2fa820c7ca71ee0cf42b940f6cd4f620a6a8f45",
+      "bytes": 5484
+    },
+    {
+      "path": "bridge_side_stone.glb",
+      "sha256": "60a9928eb34eb9e9c123d57c111a704a7776c51abab7769e70df284745b8c2be",
+      "bytes": 4620
+    },
+    {
+      "path": "bridge_side_stoneRound.glb",
+      "sha256": "2e35f74b9db22e2abf85e872dabc19073874083a63c3b6e60cd2c4dbc5fd1c49",
+      "bytes": 5032
+    },
+    {
+      "path": "bridge_side_wood.glb",
+      "sha256": "2286d1cdc9f285fad25efc8e78ae8d78b5ff3650d1d312f4c87112ad691aa27f",
+      "bytes": 5320
+    },
+    {
+      "path": "bridge_side_woodRound.glb",
+      "sha256": "03fe3990e45c01e5bb3d55037ef70e098ce5373659fca240475326e39e290a42",
+      "bytes": 6936
+    },
+    {
+      "path": "bridge_stone.glb",
+      "sha256": "13b661376a8d1f851f54391dee5e3c8d12267ff81d4b45083f79ac171297a9fb",
+      "bytes": 5608
+    },
+    {
+      "path": "bridge_stoneNarrow.glb",
+      "sha256": "ffb485258c997ec596ec33482340117804a33c76f3d18a49e7bde97dba9d14ea",
+      "bytes": 5608
+    },
+    {
+      "path": "bridge_stoneRound.glb",
+      "sha256": "21f30c74178019c1c29a37848d872e50bace193f29aa32b91b1df61d05badb89",
+      "bytes": 6484
+    },
+    {
+      "path": "bridge_stoneRoundNarrow.glb",
+      "sha256": "8875f072332d883eff05f137cefe30f951c3694e17a5b413e6ee6041d4235e44",
+      "bytes": 6488
+    },
+    {
+      "path": "bridge_wood.glb",
+      "sha256": "642baf0cef596ec89db213d31ebe501657c499c02e6fbea8905835468859d9e4",
+      "bytes": 6136
+    },
+    {
+      "path": "bridge_woodNarrow.glb",
+      "sha256": "22ff342fb3cc28fe3a2ac00030e39338eae99035f80ea865b14c1d94d263081a",
+      "bytes": 6156
+    },
+    {
+      "path": "bridge_woodRound.glb",
+      "sha256": "09455df336fce2144bc8c1ca52804a4d4fe1277f3355e8916bda147cee1d1739",
+      "bytes": 8140
+    },
+    {
+      "path": "bridge_woodRoundNarrow.glb",
+      "sha256": "2fa83358acb1585f257a680e44126d1c9d6546f1f882e8e02f0502afe0421730",
+      "bytes": 8144
+    },
+    {
+      "path": "cactus_short.glb",
+      "sha256": "1baab1d08f37afbc6a396581869cf51c0aa4f6fd169a0a04e604f49c9897e7aa",
+      "bytes": 3336
+    },
+    {
+      "path": "cactus_tall.glb",
+      "sha256": "104e452a531d4f2f89f2067106f51e1030937104eabe6039665feecf66bc886d",
+      "bytes": 3496
+    },
+    {
+      "path": "campfire_bricks.glb",
+      "sha256": "169dd761de5f416a1ec2fd78d2efc10f8f46576556733bf6fac774a6bdb60ef7",
+      "bytes": 3520
+    },
+    {
+      "path": "campfire_logs.glb",
+      "sha256": "420b73260e3257cae3808b20add4506993fd70167617db84c4333449306c3c94",
+      "bytes": 4296
+    },
+    {
+      "path": "campfire_planks.glb",
+      "sha256": "e1edef8e8b21921267d78337ed17169584c426ff93554c83ca53ef235ccc3536",
+      "bytes": 3060
+    },
+    {
+      "path": "campfire_stones.glb",
+      "sha256": "72d5369036cb23bb4b125242811fdfffea3bf307d2a437c69331f0fc37381717",
+      "bytes": 4812
+    },
+    {
+      "path": "canoe_paddle.glb",
+      "sha256": "13cc4e408dcf616b6f26a6cc98dd7303483943c35db7a21a8eb4214ef6abc7a8",
+      "bytes": 2388
+    },
+    {
+      "path": "canoe.glb",
+      "sha256": "18cfdf9ba0affed3b9503497e677cbf0dcd0d9f3fc13c3bf495f09145a265fff",
+      "bytes": 5520
+    },
+    {
+      "path": "cliff_block_rock.glb",
+      "sha256": "766a65b2e6edc4051d0f10dc155afac20919f8e9d81fb33a9dd54ab3503d1b86",
+      "bytes": 3000
+    },
+    {
+      "path": "cliff_block_stone.glb",
+      "sha256": "a511c90de247dd11545597c45d156fc7f9e94c95ca2213923f7e17761fb2ae2f",
+      "bytes": 3004
+    },
+    {
+      "path": "cliff_blockCave_rock.glb",
+      "sha256": "fba8d03ac422f9c94f6492e99798f8b008515a5a3cdbfe75a54cbe9e9a943d82",
+      "bytes": 3484
+    },
+    {
+      "path": "cliff_blockCave_stone.glb",
+      "sha256": "c462add5c211cda22daf6a337c52dc604afdf105ac2d01a019da996ce85c2e21",
+      "bytes": 3504
+    },
+    {
+      "path": "cliff_blockDiagonal_rock.glb",
+      "sha256": "2399bcf0e8859c20f9bccfe485d58094d6c0ce8550eca7dc3d5f7daf24dd0d71",
+      "bytes": 3032
+    },
+    {
+      "path": "cliff_blockDiagonal_stone.glb",
+      "sha256": "aab2c7d5c0c0c82ac62d8817ec0aee7ad34fc7dceb1bc41de07cc1176bb6e8ec",
+      "bytes": 3036
+    },
+    {
+      "path": "cliff_blockHalf_rock.glb",
+      "sha256": "0e08c76a83563b78daa6ce2cd62c41df0650acffbab473418fcfd4749a84d7e7",
+      "bytes": 3020
+    },
+    {
+      "path": "cliff_blockHalf_stone.glb",
+      "sha256": "956764e37c9fb8c312092c17ac17ad6795bf04105d5b7045bb358cdb834ceda2",
+      "bytes": 3024
+    },
+    {
+      "path": "cliff_blockQuarter_rock.glb",
+      "sha256": "e73d9721d77aebe5733a52fba5763c2d203034ab39a10f1bb3c609aa8efcfd25",
+      "bytes": 3024
+    },
+    {
+      "path": "cliff_blockQuarter_stone.glb",
+      "sha256": "f6856c94905be8250228b1e90bdbb14bb8242a916370034957fa7566dd043fa1",
+      "bytes": 3028
+    },
+    {
+      "path": "cliff_blockSlope_rock.glb",
+      "sha256": "dba672e2d55e8bbc9ac154802540fe6adfaafae04149bfc1685440ca73187fdf",
+      "bytes": 3892
+    },
+    {
+      "path": "cliff_blockSlope_stone.glb",
+      "sha256": "3baec8d231528c6341a329a3d6843441f1bc94b449b7ead5c00adcf7d155599f",
+      "bytes": 3896
+    },
+    {
+      "path": "cliff_blockSlopeHalfWalls_rock.glb",
+      "sha256": "2092e9a2b7b1e8b2861dccb0b2582a6bf00c1d25a8c7db60e9afe0b123667ca0",
+      "bytes": 4180
+    },
+    {
+      "path": "cliff_blockSlopeHalfWalls_stone.glb",
+      "sha256": "5138a28fd95c99073d4f942280c769678fae846f34ab276d70019ad7996bf2a7",
+      "bytes": 4188
+    },
+    {
+      "path": "cliff_blockSlopeWalls_rock.glb",
+      "sha256": "0c9c1046059f7d55cb4308a0ecb411a6839abb068faf5250a59182b2dca06911",
+      "bytes": 4136
+    },
+    {
+      "path": "cliff_blockSlopeWalls_stone.glb",
+      "sha256": "4d73a2fa52609296d5d8994f071d8aa7477d3683943e0d14f963033a93789ac4",
+      "bytes": 4140
+    },
+    {
+      "path": "cliff_cave_rock.glb",
+      "sha256": "719f390817d80bd83742bb9c14fe13b63592b052add2e518fd6d4c4ed6e58b8d",
+      "bytes": 2576
+    },
+    {
+      "path": "cliff_cave_stone.glb",
+      "sha256": "787be8d9546f9d892c84d74630d258c5444b5f53a8732155db5f6b8368221aac",
+      "bytes": 2580
+    },
+    {
+      "path": "cliff_corner_rock.glb",
+      "sha256": "b6b1131952e918b746ea1206ebd2fda3ba7723f0996dbcd7a3edbd5a95619621",
+      "bytes": 2036
+    },
+    {
+      "path": "cliff_corner_stone.glb",
+      "sha256": "6800b7d8234bf220309708c2abe99383a247c466ede85ebc5d4057f9171644f4",
+      "bytes": 2040
+    },
+    {
+      "path": "cliff_cornerInner_rock.glb",
+      "sha256": "8a32135b6030e43d129b46f2daf8a397ebc2eb7465c18cc6cd96f0fbb82a162c",
+      "bytes": 2424
+    },
+    {
+      "path": "cliff_cornerInner_stone.glb",
+      "sha256": "41f3aee39a551b34e487d8b7e6f6392413f84dfb86ca78a8f4dc2984a252536d",
+      "bytes": 2928
+    },
+    {
+      "path": "cliff_cornerInnerLarge_rock.glb",
+      "sha256": "359da2d7853184ee662db4e81d024716788d30e2b4aa17c40ff8a17e1f595d6e",
+      "bytes": 2328
+    },
+    {
+      "path": "cliff_cornerInnerLarge_stone.glb",
+      "sha256": "46aaf5a7af729a537d34aaa72e362485ca7acdf97eab253080c5b379bf26abcc",
+      "bytes": 2332
+    },
+    {
+      "path": "cliff_cornerInnerTop_rock.glb",
+      "sha256": "4ef7e36204d6dfe11cc38b649c2022eeeb6f5d8ccd51ff60382f088ccc6d271d",
+      "bytes": 3872
+    },
+    {
+      "path": "cliff_cornerInnerTop_stone.glb",
+      "sha256": "8a93713e9df586c8bcc0accb7ae4d651c349158b1f1a54a9a30178ea111ab9a1",
+      "bytes": 3876
+    },
+    {
+      "path": "cliff_cornerLarge_rock.glb",
+      "sha256": "4001c6570b4361f6093875d95c8e37197473b9b6906bba372ae7b6a020396541",
+      "bytes": 2048
+    },
+    {
+      "path": "cliff_cornerLarge_stone.glb",
+      "sha256": "186f2cfd6f33bcfb496b771c104567ffe1da72200360f5cd748e0e5b773f45a9",
+      "bytes": 2168
+    },
+    {
+      "path": "cliff_cornerTop_rock.glb",
+      "sha256": "1613dba0aa71ffc4178ad42b4bd745b9c0d451c7ed3983912e1af4914ddd279f",
+      "bytes": 3160
+    },
+    {
+      "path": "cliff_cornerTop_stone.glb",
+      "sha256": "56a2c8b194a8a8d189ac2ff791f5f920be61678a326912fbeaae718b5a78756e",
+      "bytes": 3164
+    },
+    {
+      "path": "cliff_diagonal_rock.glb",
+      "sha256": "090efd29db3ada4644db810232713efc4a146a36b39ed1db9d29124a38fcc7b3",
+      "bytes": 2452
+    },
+    {
+      "path": "cliff_diagonal_stone.glb",
+      "sha256": "b13f058e703b5691c49d83329a348167b3fc41f0c081786bf961f28aed6c29ac",
+      "bytes": 2448
+    },
+    {
+      "path": "cliff_half_rock.glb",
+      "sha256": "1596c2623bd05c2bfb1c2d9ef0b8b1b058167ad26c88d71f4dd2acaf6b191660",
+      "bytes": 3512
+    },
+    {
+      "path": "cliff_half_stone.glb",
+      "sha256": "1c3df879f3fb274610f62b4b5f4211277b752844af4c89ee42e49f19e46c9488",
+      "bytes": 3516
+    },
+    {
+      "path": "cliff_halfCorner_rock.glb",
+      "sha256": "c4304d9a9e5af6a7c625794094f96feef18aa1583c8ac3269304c619e48a0faa",
+      "bytes": 3204
+    },
+    {
+      "path": "cliff_halfCorner_stone.glb",
+      "sha256": "7d83e6856fc32a0076c67d8e1e8a66c23d943f46d5a49a0929a02b453ae83473",
+      "bytes": 3208
+    },
+    {
+      "path": "cliff_halfCornerInner_rock.glb",
+      "sha256": "9c41b83a18571c9d92e352dcff5600b55b1874bfbf67cc45e2dc810ea885c645",
+      "bytes": 4968
+    },
+    {
+      "path": "cliff_halfCornerInner_stone.glb",
+      "sha256": "fa2d183b18bae684cded2fd7a884c9a34bb4855cef1b3fd5c088618df569395c",
+      "bytes": 4972
+    },
+    {
+      "path": "cliff_large_rock.glb",
+      "sha256": "19c0ad71978807fc1539373535fba55167833a1067d1fb0ab6fc37fa1cf3cddb",
+      "bytes": 2204
+    },
+    {
+      "path": "cliff_large_stone.glb",
+      "sha256": "f29941f43bb0c1b62eb03a5486c90196262ab51939eaf1a71335d98125d23344",
+      "bytes": 2208
+    },
+    {
+      "path": "cliff_rock.glb",
+      "sha256": "3e1ffc7fe6e4f74e181b84f5e59103cde45f6e5a1d9f89653d2a3740d5f0f99f",
+      "bytes": 2252
+    },
+    {
+      "path": "cliff_steps_rock.glb",
+      "sha256": "7f0b85542049dcc233e605834756868ccde137d9ada1a44052a77fa5d3bbd601",
+      "bytes": 5464
+    },
+    {
+      "path": "cliff_steps_stone.glb",
+      "sha256": "178e90def0ba0ea7e7db2e58dea83ae1c7402dd6b144009d6a313d375c4323a4",
+      "bytes": 5468
+    },
+    {
+      "path": "cliff_stepsCorner_rock.glb",
+      "sha256": "b8cc4951afb7996005270755fc573eca9fabb4f42c56ed9ae927323b54bb7fc5",
+      "bytes": 5880
+    },
+    {
+      "path": "cliff_stepsCorner_stone.glb",
+      "sha256": "f828614aa7d7332e7a4153acab8bcc7d42363511b785f860ec3e28d249c48ff4",
+      "bytes": 5884
+    },
+    {
+      "path": "cliff_stepsCornerInner_rock.glb",
+      "sha256": "ec8b040915147f0966cbfad43a9000df42acfb9af4e43be8082c10c966c40cca",
+      "bytes": 5440
+    },
+    {
+      "path": "cliff_stepsCornerInner_stone.glb",
+      "sha256": "c2640ee05d2c8ba01c816c73ddd691dd2c3370a737e6c3293b798aba6061f204",
+      "bytes": 5444
+    },
+    {
+      "path": "cliff_stone.glb",
+      "sha256": "1fa910d69c09e979fd1285fc390f31dac2154bcc1aa3e0ecc31b87395daf6cf2",
+      "bytes": 2256
+    },
+    {
+      "path": "cliff_top_rock.glb",
+      "sha256": "7da812956dc231ff98d4d3c8f20d997180b92ef03618d67f118f21e012f57647",
+      "bytes": 3528
+    },
+    {
+      "path": "cliff_top_stone.glb",
+      "sha256": "c1edfdf57ad136a37775b5c0aa325e74d6000a3ef326c1e35702f37bdbfcd58e",
+      "bytes": 3532
+    },
+    {
+      "path": "cliff_topDiagonal_rock.glb",
+      "sha256": "3a784f688e5ef3c6018e879e29492022d2c0f104a09ed107f692e58114a3dbc1",
+      "bytes": 3768
+    },
+    {
+      "path": "cliff_topDiagonal_stone.glb",
+      "sha256": "4c9ef0daee9b5d74344f0d2f94d85f04a3fdcfd2a9c72ab8e49d122fbab209eb",
+      "bytes": 4548
+    },
+    {
+      "path": "cliff_waterfall_rock.glb",
+      "sha256": "06a11c95e16b10e9d3368e27cd0c88d2febb3a756a52af152a4ace5b72c45af4",
+      "bytes": 4272
+    },
+    {
+      "path": "cliff_waterfall_stone.glb",
+      "sha256": "16ff784cb2dc9fa5ce6bc67daa25dc61ad28f3798a5470c47f7b289661f68973",
+      "bytes": 3592
+    },
+    {
+      "path": "cliff_waterfallTop_rock.glb",
+      "sha256": "7c2951066a51970bb74dfb3d1c2cbadcce20c458068456fd4d9e9babb7484ff4",
+      "bytes": 3484
+    },
+    {
+      "path": "cliff_waterfallTop_stone.glb",
+      "sha256": "a7bcbbc11819f4b43bb553af74425f5b908e82be73ac2cb9ed0d5c36b00a3f20",
+      "bytes": 3496
+    },
+    {
+      "path": "crop_carrot.glb",
+      "sha256": "f4cb6c4b0ca4c7b1dc1587586b9a9ef2b0d126cf47d1bb77d7d5e049ddb36304",
+      "bytes": 5100
+    },
+    {
+      "path": "crop_melon.glb",
+      "sha256": "efb5788b7edeb5d7d212fdf2c8837baf684a118d17ff44c73a511b04e51a0e3b",
+      "bytes": 6432
+    },
+    {
+      "path": "crop_pumpkin.glb",
+      "sha256": "16cebb01dea6ae7d0176bcfe1b62366e6e339082e08358926533ad06abf05df8",
+      "bytes": 4756
+    },
+    {
+      "path": "crop_turnip.glb",
+      "sha256": "4646c6b8eddadb9b05bd7736c622df00b3067bcef22483b2f4ff0acb5c655045",
+      "bytes": 5372
+    },
+    {
+      "path": "crops_bambooStageA.glb",
+      "sha256": "0fb39b291b06cf7486d01e3eb5c48a8668d6d2e574fb4296e4bb069e9ec92e76",
+      "bytes": 6008
+    },
+    {
+      "path": "crops_bambooStageB.glb",
+      "sha256": "b2e0eb542f4609640c7a57f8846fcc61495ce0d999a7cea0cbdbbfabcc1dc58c",
+      "bytes": 9024
+    },
+    {
+      "path": "crops_cornStageA.glb",
+      "sha256": "d65dc636dba18f803c03adfa92922a5c3e37bd2773d5a347e43991e7526c830e",
+      "bytes": 3384
+    },
+    {
+      "path": "crops_cornStageB.glb",
+      "sha256": "d6ea841784f6df61ac9815b7a1faa2bbad3415f0e5465037e646757f7b79030f",
+      "bytes": 3436
+    },
+    {
+      "path": "crops_cornStageC.glb",
+      "sha256": "326a80c8f00d78a78ae2f80337950f9eaba5ca10e72a71e1b6d71ecdabfcd9a0",
+      "bytes": 3816
+    },
+    {
+      "path": "crops_cornStageD.glb",
+      "sha256": "b400aafd99fda023b591aebd53e7ce3f85a8688ba27e048642aba35a6bdb34c3",
+      "bytes": 7568
+    },
+    {
+      "path": "crops_dirtDoubleRow.glb",
+      "sha256": "0e9341905e0ca79c1ae8cdd7b891e94ed838c34b753bd0bb05b556656eaf9f8d",
+      "bytes": 3868
+    },
+    {
+      "path": "crops_dirtDoubleRowCorner.glb",
+      "sha256": "68f3b180194696629af08012577224eeaa136b804888d0b436f67e283d5f53d4",
+      "bytes": 3668
+    },
+    {
+      "path": "crops_dirtDoubleRowEnd.glb",
+      "sha256": "70a31612545f2025ec3f5cccc52c32de04700253462206eef440aeef948f3a74",
+      "bytes": 3784
+    },
+    {
+      "path": "crops_dirtRow.glb",
+      "sha256": "2440834165bf69e622142eeeb88698ca5a524491ce90252243f6067fe0fd7a95",
+      "bytes": 3400
+    },
+    {
+      "path": "crops_dirtRowCorner.glb",
+      "sha256": "d2ca431d57c835140d0d1b566f6c3d1a0e0a6b10c3fff56a28e14a1789dd7a09",
+      "bytes": 3260
+    },
+    {
+      "path": "crops_dirtRowEnd.glb",
+      "sha256": "3e7eb14a4c9404ef6d1d36f6c2f692f12deb9b95312dc920345dcdfbffa27b46",
+      "bytes": 3388
+    },
+    {
+      "path": "crops_dirtSingle.glb",
+      "sha256": "20a2c08c80a3e5252c82796ab9f869abc6426b897c1de6263e25066052d70086",
+      "bytes": 3316
+    },
+    {
+      "path": "crops_leafsStageA.glb",
+      "sha256": "ff60a8b9dd2f4373b460bdc4416af42729962e6af7448c37834e05af71aef879",
+      "bytes": 3044
+    },
+    {
+      "path": "crops_leafsStageB.glb",
+      "sha256": "516a420f3dc5deffaae6fd6780b9767fada63fdcace4313ac6c6e83689e3405a",
+      "bytes": 3156
+    },
+    {
+      "path": "crops_wheatStageA.glb",
+      "sha256": "425fbe565ecd14cba5edcb6c196e30ad9cde2f78b9b0584da57c927e7a702ab4",
+      "bytes": 12092
+    },
+    {
+      "path": "crops_wheatStageB.glb",
+      "sha256": "165964447d40b2efa8285be3fc756f5115fabbdd68564353a04fe097d76ef2da",
+      "bytes": 8280
+    },
+    {
+      "path": "fence_bend.glb",
+      "sha256": "851735c900d6f8e35482f4fbe5254a908442d93daf696798a68bfb90bcbd0c8e",
+      "bytes": 5432
+    },
+    {
+      "path": "fence_bendCenter.glb",
+      "sha256": "afeb164580bb9eb7a9c1bddebdc329c8eae88b0aef900efada814bf74b1abccb",
+      "bytes": 6976
+    },
+    {
+      "path": "fence_corner.glb",
+      "sha256": "45657cd6fb2463d0ca1e30ae31923c56134809db49fe9bcf4fffd13267c82558",
+      "bytes": 3996
+    },
+    {
+      "path": "fence_gate.glb",
+      "sha256": "dc81095ce1e092a03408510c0b41bc6f620c4947d815e559be32ef20aeb5b14f",
+      "bytes": 8164
+    },
+    {
+      "path": "fence_planks.glb",
+      "sha256": "1fd62efbefb2debbc8ee4a6fc1981e03a04c48b2108de72e80e65b87475bb7e1",
+      "bytes": 2812
+    },
+    {
+      "path": "fence_planksDouble.glb",
+      "sha256": "c4232492ee28e7a319cf6f9c7305933cf25a1d93c04f7b38d29b331c3b5008cc",
+      "bytes": 3336
+    },
+    {
+      "path": "fence_simple.glb",
+      "sha256": "715e0df3f4a4e2e76a315152a66de5286d3e0ae47918cb6d21b1215785f5edff",
+      "bytes": 3500
+    },
+    {
+      "path": "fence_simpleCenter.glb",
+      "sha256": "f8f95b86a8b6c06fba586d0873453018bf21dd69e95f8cff8c6efb7452e75c33",
+      "bytes": 3992
+    },
+    {
+      "path": "fence_simpleDiagonal.glb",
+      "sha256": "1eff6ffdc2bf0438149a17fbc6b523dbab11a880db867d6359c29bf4f30dcf95",
+      "bytes": 3668
+    },
+    {
+      "path": "fence_simpleDiagonalCenter.glb",
+      "sha256": "032639b9c35a23fd1438496e3e8bbcca1444b31328ea5adc6545d05da4c14c53",
+      "bytes": 5340
+    },
+    {
+      "path": "fence_simpleHigh.glb",
+      "sha256": "253ded88e79081f68251b4eed859d645f495184625c874b42ddef09ed72d5271",
+      "bytes": 2396
+    },
+    {
+      "path": "fence_simpleLow.glb",
+      "sha256": "4d56aca4e30840d323e939f909dd79f26b8b3e0af48a550a375d01da8e4d14a7",
+      "bytes": 2384
+    },
+    {
+      "path": "flower_purpleA.glb",
+      "sha256": "17f00ef9b10311c372ca46cb0b9156d710dbaa4b00cc54cb624ea49861011b93",
+      "bytes": 3928
+    },
+    {
+      "path": "flower_purpleB.glb",
+      "sha256": "ede5640e6d5d5f2bfeaf107723393a684d41ff301187f7b1765f848b1cb39f3f",
+      "bytes": 4044
+    },
+    {
+      "path": "flower_purpleC.glb",
+      "sha256": "0c65dea69cc4970a0a11086d004ce2a85c61990b94f8bb2a665a86fa072f52aa",
+      "bytes": 4968
+    },
+    {
+      "path": "flower_redA.glb",
+      "sha256": "2030cfb6933768994aa5693eb8084133de47be3b1b11e70a524de97df9185ae4",
+      "bytes": 3916
+    },
+    {
+      "path": "flower_redB.glb",
+      "sha256": "49387ccc23f2f431ceb93bf466e383a9c541162f5b0d75ebb0781947184004db",
+      "bytes": 4028
+    },
+    {
+      "path": "flower_redC.glb",
+      "sha256": "dd8040ef9e81bb8923d55daa13eb5d0556588ab60804e4f2c8edd150d48cb95e",
+      "bytes": 4960
+    },
+    {
+      "path": "flower_yellowA.glb",
+      "sha256": "58821dc805af4f905b2556c1b827c939ddf1ae65ad9aece1970c3252c6dc44b9",
+      "bytes": 3912
+    },
+    {
+      "path": "flower_yellowB.glb",
+      "sha256": "d6938ecf32fee1d1ecb8e23aeda63a6f1b6b54ff068f08bedd2586657313b3f2",
+      "bytes": 4608
+    },
+    {
+      "path": "flower_yellowC.glb",
+      "sha256": "6a6ae684c26143c171fdc13b378916ab234f21256bb9f09b0dc4af54f9e05346",
+      "bytes": 4972
+    },
+    {
+      "path": "grass_large.glb",
+      "sha256": "ab4587f0765ff0ff75d4f345f8fc7cfe760f0bb4a06c63f1d11a321ef9539976",
+      "bytes": 5244
+    },
+    {
+      "path": "grass_leafs.glb",
+      "sha256": "3d46b992694df6c83e65030cfbd7288fbf4ed864c28e0d2811d9ccbd54e22ac8",
+      "bytes": 2640
+    },
+    {
+      "path": "grass_leafsLarge.glb",
+      "sha256": "be518ff8578892da7ce61ffb6caa26c5a626e3d7092fc87371ba8ddb0d511844",
+      "bytes": 4636
+    },
+    {
+      "path": "grass.glb",
+      "sha256": "cf87bce676f317ed11252cc3d270650d4118f4777fa3795d9a584a7b0ad261bf",
+      "bytes": 3904
+    },
+    {
+      "path": "ground_grass.glb",
+      "sha256": "5149072905b9cf343dd8e0786c488256a9cd0075dddaceb6413d2977028b8c8f",
+      "bytes": 1844
+    },
+    {
+      "path": "ground_pathBend.glb",
+      "sha256": "9303ae658e1944f4b5240ee69add5c62eaaae4968619b2cf543dbe60d1a1dfc8",
+      "bytes": 4300
+    },
+    {
+      "path": "ground_pathBendBank.glb",
+      "sha256": "1e6fda2546a5e5aee3b9381c3b3b387bb107a0762af83289fc28f73cda40a701",
+      "bytes": 4332
+    },
+    {
+      "path": "ground_pathCorner.glb",
+      "sha256": "38d500c6e130c0042d99e76c9c888d8bcb54bd009867383db80d667080ddc705",
+      "bytes": 4164
+    },
+    {
+      "path": "ground_pathCornerSmall.glb",
+      "sha256": "a50c041bd8d8c4611fef99d0741136f8c636d1f865b8975f29cdddba78b2b5c0",
+      "bytes": 4132
+    },
+    {
+      "path": "ground_pathCross.glb",
+      "sha256": "79479edb6cacf9ac00860e178ad2b72dc938fdbcab9b0a5528d701fee408f833",
+      "bytes": 4612
+    },
+    {
+      "path": "ground_pathEnd.glb",
+      "sha256": "2ae02c29c4b1ee132a1455d23aba24b486e9f34096e65c9aa671b2d6ff0e08cb",
+      "bytes": 4372
+    },
+    {
+      "path": "ground_pathEndClosed.glb",
+      "sha256": "a4609e1ba3c7b1b277131cce30260cc4d56def467f9ce26632ffe61e8cd0da7c",
+      "bytes": 4572
+    },
+    {
+      "path": "ground_pathOpen.glb",
+      "sha256": "0d7670fd20f848c4791a1a2bbb881e599b4abc4b87dfa6526f304b2230f7207c",
+      "bytes": 160
+    },
+    {
+      "path": "ground_pathRocks.glb",
+      "sha256": "ddda06cab520286a826af4919415ed4001a3f1ec05cb25c04943b284d2c7e383",
+      "bytes": 4884
+    },
+    {
+      "path": "ground_pathSide.glb",
+      "sha256": "eb0cf86513b83267fc951d7e47ebdb0241d441b4a7f227f0fb515c7cc40064ce",
+      "bytes": 4236
+    },
+    {
+      "path": "ground_pathSideOpen.glb",
+      "sha256": "fa5c45f0d5c3dc0222a7716146aac3b06046b8539b3fa88c87524b7a92e1a4a1",
+      "bytes": 4328
+    },
+    {
+      "path": "ground_pathSplit.glb",
+      "sha256": "e9ca5aa3dac89a6a88071d5c02aeae335e0970428c6acb0aba82e7474c8dc85c",
+      "bytes": 4576
+    },
+    {
+      "path": "ground_pathStraight.glb",
+      "sha256": "da177acca724982025ad14b135f97d588e808cdf6875a08ebd1b2c9d3184431d",
+      "bytes": 4472
+    },
+    {
+      "path": "ground_pathTile.glb",
+      "sha256": "fbedf07799fcfabac8a9f1e4fb5e79c346292b03f7878ae2a35e2062e343039b",
+      "bytes": 4736
+    },
+    {
+      "path": "ground_riverBend.glb",
+      "sha256": "1acf3fc4c544e5977e299cb0c5a30586cbd8560f014daa69739230279e01583e",
+      "bytes": 5528
+    },
+    {
+      "path": "ground_riverBendBank.glb",
+      "sha256": "7a10b2ad6583cff38cb7b352a9ff7f6ac98ed942411e2f434dcb16e83844c4ae",
+      "bytes": 5532
+    },
+    {
+      "path": "ground_riverCorner.glb",
+      "sha256": "34e9f589b4234db589738526697b9841f3f9619e74f8725a42495d8b877af63d",
+      "bytes": 5364
+    },
+    {
+      "path": "ground_riverCornerSmall.glb",
+      "sha256": "8c85c9e41771a3a72b6fa5c7a00933d8a3e446fdbd84f20a349cd7e1d1798d39",
+      "bytes": 5196
+    },
+    {
+      "path": "ground_riverCross.glb",
+      "sha256": "db14d335bcad371d0f86b93b8fe1693128d4948f86e9b040fb9daaa515c02198",
+      "bytes": 5764
+    },
+    {
+      "path": "ground_riverEnd.glb",
+      "sha256": "61b08de24485da00d7aa646fb7f97b0271aa9b69102e63d29440e45a0ebc21ef",
+      "bytes": 5420
+    },
+    {
+      "path": "ground_riverEndClosed.glb",
+      "sha256": "bd7e4d17ded068ec3dcf8379c21cb7c1acf12443b0d97dac105037b2d10a5525",
+      "bytes": 5716
+    },
+    {
+      "path": "ground_riverOpen.glb",
+      "sha256": "0d7670fd20f848c4791a1a2bbb881e599b4abc4b87dfa6526f304b2230f7207c",
+      "bytes": 160
+    },
+    {
+      "path": "ground_riverRocks.glb",
+      "sha256": "fe9d599085bb216fdcdde60bdbefbcd392a082b9258827af8570d05f72e87134",
+      "bytes": 3756
+    },
+    {
+      "path": "ground_riverSide.glb",
+      "sha256": "d7a5201e8c81c81d9c6023ff91eec1c84cec3330a191529353606cd1abd14929",
+      "bytes": 5268
+    },
+    {
+      "path": "ground_riverSideOpen.glb",
+      "sha256": "208ec2b885c59714f465d6ab19d18c8d7bda1a1c4662873b80dc19e648dc649f",
+      "bytes": 5368
+    },
+    {
+      "path": "ground_riverSplit.glb",
+      "sha256": "29d7aa867f9ed2681f3eab82d913e60d359b9265d4875742e7f8252075c29f1d",
+      "bytes": 5280
+    },
+    {
+      "path": "ground_riverStraight.glb",
+      "sha256": "00690946b6e515d917fd79d1b123f2a54b367b0a1b004752d1e9255f44b0943a",
+      "bytes": 5496
+    },
+    {
+      "path": "ground_riverTile.glb",
+      "sha256": "533236a2273569fa691a0730d64694384c2fb873f136a4ecbf4e3ff10bbdb568",
+      "bytes": 6172
+    },
+    {
+      "path": "hanging_moss.glb",
+      "sha256": "33ec23e66defd844f99d2bb3294b56320b9540ef2533efbaf59dbce2de93f68b",
+      "bytes": 2496
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "cb96b75e3560ac78d7a53ce6f083f4cdb5c53faea6141b62d63458dcfe1e4b9d",
+      "bytes": 611
+    },
+    {
+      "path": "lily_large.glb",
+      "sha256": "95f80c98244f63adeb62b5b7175bb4cf0eee5474ca349b292b55a19ed90428ba",
+      "bytes": 5024
+    },
+    {
+      "path": "lily_small.glb",
+      "sha256": "b8863d26ffbcd9012beacfb0e0cc453920149ec536abb935e37d42bd3f06e153",
+      "bytes": 3672
+    },
+    {
+      "path": "log_large.glb",
+      "sha256": "734bcdb388899d4fdf70b42f9932b0892ff54fe05a69b4ed7bcd7e53b5d4b798",
+      "bytes": 4048
+    },
+    {
+      "path": "log_stack.glb",
+      "sha256": "d4936897b803218156a5320c0d03293178d6aeecc44f49f066385389c70d183a",
+      "bytes": 4792
+    },
+    {
+      "path": "log_stackLarge.glb",
+      "sha256": "02bbdebf94c5bfc7472eacb8bef66ab33ebcaad2f92890260c9a8ac1b5843547",
+      "bytes": 7088
+    },
+    {
+      "path": "log.glb",
+      "sha256": "bb0d555b2e996361cf23542df165b0f2f13a9224556c1ad14a0378636751b551",
+      "bytes": 5200
+    },
+    {
+      "path": "mushroom_red.glb",
+      "sha256": "0b6b3b05b2f04559ff9b24a301596bbcb1625f409799840e6cc9c28670d1530a",
+      "bytes": 3700
+    },
+    {
+      "path": "mushroom_redGroup.glb",
+      "sha256": "473760bb35733fbedc3655bbce1be4baa05cd30a696b3b60a4db48a96450843c",
+      "bytes": 5300
+    },
+    {
+      "path": "mushroom_redTall.glb",
+      "sha256": "bc0691f996d13dfeb1979ce88e5412b321f96c7eff990f9b65bbea4b31800935",
+      "bytes": 3716
+    },
+    {
+      "path": "mushroom_tan.glb",
+      "sha256": "c520cd2d1d01ab172b1c0c7d50f1d36af86761a88d013463b4af714a1e912353",
+      "bytes": 3652
+    },
+    {
+      "path": "mushroom_tanGroup.glb",
+      "sha256": "d0a3949009502d8474bacc3733e1e84a8175551d69125767ff52dc5e814d8f8a",
+      "bytes": 5292
+    },
+    {
+      "path": "mushroom_tanTall.glb",
+      "sha256": "d6d57fdba63118d41e689e7ded2a4801aa851fb8237e266eb635f7f7fd1f8d85",
+      "bytes": 3712
+    },
+    {
+      "path": "path_stone.glb",
+      "sha256": "056b3944d176620553b49d7401100a9eefd50aa05670b6f6f11fdde8495351d8",
+      "bytes": 5600
+    },
+    {
+      "path": "path_stoneCircle.glb",
+      "sha256": "25d9915429ee536a884967beecd2f3e8ba58cdea102664d4069a8fd80dc7355b",
+      "bytes": 4864
+    },
+    {
+      "path": "path_stoneCorner.glb",
+      "sha256": "8c59fadab98e7ecf40d52f0e149f55a6201948192060a9743105413339c008eb",
+      "bytes": 5344
+    },
+    {
+      "path": "path_stoneEnd.glb",
+      "sha256": "f64ac5571f5a6a5e5d4074ff23240196e7528ef9e024b846430a23272865ab40",
+      "bytes": 5164
+    },
+    {
+      "path": "path_wood.glb",
+      "sha256": "32d6e934d9148309325618db7b60abd4af9357a3ed8a2251fec5097dfcf600b2",
+      "bytes": 3752
+    },
+    {
+      "path": "path_woodCorner.glb",
+      "sha256": "0ea63ef44625e737280595e9dc4b20ca4758296c1fd79c543ec181ac1477bb0c",
+      "bytes": 3764
+    },
+    {
+      "path": "path_woodEnd.glb",
+      "sha256": "ee0e6c424985a0161846c949aa076f541e7747a30ef58f55df0c7d2410ca79dc",
+      "bytes": 4508
+    },
+    {
+      "path": "plant_bush.glb",
+      "sha256": "25ba8f94b47a730ccf837b3d2eedbf79d6935428a734eff973354a8e9bcda585",
+      "bytes": 2480
+    },
+    {
+      "path": "plant_bushDetailed.glb",
+      "sha256": "fa0e5701cfada34785d2be9c89bbf4830888eb678888a712e18d920df0eb2ced",
+      "bytes": 3644
+    },
+    {
+      "path": "plant_bushLarge.glb",
+      "sha256": "4721124cdc650f725cf5d312b6d12eb221941454c918b7de37048fc300f50bc8",
+      "bytes": 2928
+    },
+    {
+      "path": "plant_bushLargeTriangle.glb",
+      "sha256": "75bb664187f433cc07581d77e34cd3199259cab8bf3eed6ce7ed7c58258a6047",
+      "bytes": 2560
+    },
+    {
+      "path": "plant_bushSmall.glb",
+      "sha256": "9ed720b3ee700e2cb0e59e9487efd0a975c52e4d3a06aa55a41a78f49cb49380",
+      "bytes": 2240
+    },
+    {
+      "path": "plant_bushTriangle.glb",
+      "sha256": "7b8d3740e79c73348365e841db6300912016cc61af686de1fa136cd06f2c7001",
+      "bytes": 2448
+    },
+    {
+      "path": "plant_flatShort.glb",
+      "sha256": "bccfc8625c5c7d099c3f36a02ff9a50efd86b78eaaea96e68c74a0d9489fa51e",
+      "bytes": 2272
+    },
+    {
+      "path": "plant_flatTall.glb",
+      "sha256": "5914bdb51991cf5f9b0b75598aec2d3d032d3e1987a46de81ff5f948ce0c5635",
+      "bytes": 2248
+    },
+    {
+      "path": "platform_beach.glb",
+      "sha256": "66066665ca04b3f7de6acbba779bd48d697ef845eb028c3664fc3a245af9abbd",
+      "bytes": 4032
+    },
+    {
+      "path": "platform_grass.glb",
+      "sha256": "0e5b309144e413b951cc5453f9f3f48e26fda918f4d2019a1123fc2cc16b9a4c",
+      "bytes": 4832
+    },
+    {
+      "path": "platform_stone.glb",
+      "sha256": "cee248e7113a304c960610e6a525c6c7bacce253c00b562ec5260c210158ad67",
+      "bytes": 5032
+    },
+    {
+      "path": "pot_large.glb",
+      "sha256": "f1933073475ed12935319fd3108421dce3032bc380de417379fac51eac9f1fba",
+      "bytes": 3696
+    },
+    {
+      "path": "pot_small.glb",
+      "sha256": "0b74aa173dd50416ae68ec382e44c2a0d377589161747565297ebe73b28d34d2",
+      "bytes": 4748
+    },
+    {
+      "path": "rock_largeA.glb",
+      "sha256": "d1b3c894ba38ebcb7e1e073f18b979c08dccf4899a959d4ca53f495a2c54bedc",
+      "bytes": 4068
+    },
+    {
+      "path": "rock_largeB.glb",
+      "sha256": "1b04b827b7b5c7b2df44299a92a8eed39fa100b8e37e2f59eca6776e694acc50",
+      "bytes": 5080
+    },
+    {
+      "path": "rock_largeC.glb",
+      "sha256": "737ffdd9e6bcce9cb4ebcd4dcf605e34188379f328c7423467cd4f53c05a10e1",
+      "bytes": 3936
+    },
+    {
+      "path": "rock_largeD.glb",
+      "sha256": "c6271f7ec02952af1d1660efb0cd68afd89629bdb6dfd1935f9a8d843a79ad5e",
+      "bytes": 4976
+    },
+    {
+      "path": "rock_largeE.glb",
+      "sha256": "349ea9f8d174a7511b8f1f8202eb53f2a90aafabc8214fe1944ae946db9e9cb3",
+      "bytes": 3828
+    },
+    {
+      "path": "rock_largeF.glb",
+      "sha256": "50d78dd47d49fefce1266faf86841ce60a0b410648dd7861ef25c1a9f0aa71f0",
+      "bytes": 4876
+    },
+    {
+      "path": "rock_smallA.glb",
+      "sha256": "e5c51f425023bf5c3886789e62cac0ae29b79147d06db78cce5d7404f171d724",
+      "bytes": 3160
+    },
+    {
+      "path": "rock_smallB.glb",
+      "sha256": "5e7c0f172d88ca156098905000d8b766f41ba0bffa19b8149f6eb6f9f293448a",
+      "bytes": 3272
+    },
+    {
+      "path": "rock_smallC.glb",
+      "sha256": "be35fcec4631e4261bdde80ba00dd08bccac1767e0b7d7f63dac8f8d556d0af0",
+      "bytes": 3172
+    },
+    {
+      "path": "rock_smallD.glb",
+      "sha256": "066a39d6589bb94c22f7099635b434197c524d687261736b6987cccee2fe1f31",
+      "bytes": 3352
+    },
+    {
+      "path": "rock_smallE.glb",
+      "sha256": "b58284d1e3e321900355ebc829772d4c158c9e87dd7378bf22942b5c361d24d6",
+      "bytes": 3688
+    },
+    {
+      "path": "rock_smallF.glb",
+      "sha256": "d77dca3598e8cf9098bf288a84877ca12d195d100beb397a942fbdc99907e743",
+      "bytes": 3656
+    },
+    {
+      "path": "rock_smallFlatA.glb",
+      "sha256": "4d7fb4eaa228022039ea454cd9728438bac24d7e768c79d6e09189122d0ce9d5",
+      "bytes": 3204
+    },
+    {
+      "path": "rock_smallFlatB.glb",
+      "sha256": "13f3f4d3a9c5febff121ce4cf5857ee17a45ec42637e4281942f7ece2c31e6d2",
+      "bytes": 3176
+    },
+    {
+      "path": "rock_smallFlatC.glb",
+      "sha256": "c11662cd2438b69da3c475b7c2cb478a44c40f09956dc907965cee32daa8914f",
+      "bytes": 3428
+    },
+    {
+      "path": "rock_smallG.glb",
+      "sha256": "090725542cb9bec2adadb0ca0353ca232e695cc85b5bad525887f9c0454d17a2",
+      "bytes": 3384
+    },
+    {
+      "path": "rock_smallH.glb",
+      "sha256": "0c9d3cd546697b9b175dae29aa7c7652c5052665910e7440bf0c934f49666632",
+      "bytes": 3780
+    },
+    {
+      "path": "rock_smallI.glb",
+      "sha256": "25dc53b0df2f964dfb97682fb6c656d72fd53f2e32400b6181d5454306db5984",
+      "bytes": 3584
+    },
+    {
+      "path": "rock_smallTopA.glb",
+      "sha256": "f62fbb3b2dd9cda8edb63a8dfe8c39079878a7abd27256b755345f3a03409477",
+      "bytes": 3580
+    },
+    {
+      "path": "rock_smallTopB.glb",
+      "sha256": "5f8d8278e8b166c8eb513f86bca73c030d61d1a19af5df359c62e25b6485fa8f",
+      "bytes": 3836
+    },
+    {
+      "path": "rock_tallA.glb",
+      "sha256": "47ee9158257aeb2613ef1f794ac824d8df6031ff3b2d14306d09c7ff6df3dea2",
+      "bytes": 5636
+    },
+    {
+      "path": "rock_tallB.glb",
+      "sha256": "d4db06f2e529593a2bb73907f66bccc9e490bdeaf4fad6d9161454ecc6868780",
+      "bytes": 5884
+    },
+    {
+      "path": "rock_tallC.glb",
+      "sha256": "71c185716343b729ac8fc763f654bd50b034296be82bb762e45d9f71e6a57cb2",
+      "bytes": 4452
+    },
+    {
+      "path": "rock_tallD.glb",
+      "sha256": "376a0bf292185334a259c18f6b4e8c838ef8d8551fa61d835b0cd56637e9abf9",
+      "bytes": 4496
+    },
+    {
+      "path": "rock_tallE.glb",
+      "sha256": "f042012bfe8ff508d7439dc43f6e2ea49ddec9b1e50605eaddf1c2bfd2c12a94",
+      "bytes": 4448
+    },
+    {
+      "path": "rock_tallF.glb",
+      "sha256": "1d3c939e5308e68d2d763b2677af3df7d3cdbec582ffebc921260dafa80c7577",
+      "bytes": 4516
+    },
+    {
+      "path": "rock_tallG.glb",
+      "sha256": "07c5998d3d3e95e3a1314f2008be30348c71c3794d2b0a79921ae8b0760fb37a",
+      "bytes": 4772
+    },
+    {
+      "path": "rock_tallH.glb",
+      "sha256": "07bdf924ad2b9018a055c2d1edf01872adeebe03e1adaba460d26038f188f506",
+      "bytes": 4944
+    },
+    {
+      "path": "rock_tallI.glb",
+      "sha256": "f135a45caff258d124fe0ed897c01a0e83ba9febe61718274908439f36d419af",
+      "bytes": 4504
+    },
+    {
+      "path": "rock_tallJ.glb",
+      "sha256": "a4bafb41b7b87c679c68f340d6533a0c56a1c4e88e5bb0eaab622207c8e59db8",
+      "bytes": 4500
+    },
+    {
+      "path": "sign.glb",
+      "sha256": "7beb0a0e8e88ca3d8ce029873c27929a9eca001922a89359be8197e353b7082f",
+      "bytes": 4364
+    },
+    {
+      "path": "statue_block.glb",
+      "sha256": "96b5b40f24c467ce828280ef1cfa34b72760064cd8063311b427e27adfc7739b",
+      "bytes": 4300
+    },
+    {
+      "path": "statue_column.glb",
+      "sha256": "1183c30d1a318ef15aa69bbfc383f7bd5e67d7ffed7b0c52f1d6186de77202c3",
+      "bytes": 5268
+    },
+    {
+      "path": "statue_columnDamaged.glb",
+      "sha256": "bba30692228fe2ee537f57d2640168d2dafcf9470916c85c284c377646d256f7",
+      "bytes": 4104
+    },
+    {
+      "path": "statue_head.glb",
+      "sha256": "56608b11ba719ac25da8a0f7bcd2d084ca8182c3729267030527303a3294b97d",
+      "bytes": 6128
+    },
+    {
+      "path": "statue_obelisk.glb",
+      "sha256": "6463e5a61871cfe2f6b3062fdf6cf0b2b0bda90551f9aa6767c46cf18b962132",
+      "bytes": 3464
+    },
+    {
+      "path": "statue_ring.glb",
+      "sha256": "e4acef5fd2025e59116acb3442f7486c14da026b2c2905e3398d060ec0252be1",
+      "bytes": 3808
+    },
+    {
+      "path": "stone_largeA.glb",
+      "sha256": "5b25c30bd2a9fe9ea147be6ac081f426ea916bb1608e8067d23aa8fc5e230b52",
+      "bytes": 3036
+    },
+    {
+      "path": "stone_largeB.glb",
+      "sha256": "cff5d6fe9e30d52d97aab6147b886b35e9add0965a06d1ef6a14b2b059b5462f",
+      "bytes": 4060
+    },
+    {
+      "path": "stone_largeC.glb",
+      "sha256": "2c0872e420eafb69609d5a01e56cd28e86ab9390a0a51452b6fcd15af45be2e3",
+      "bytes": 2920
+    },
+    {
+      "path": "stone_largeD.glb",
+      "sha256": "2dc6e1229004b97f15710d901860d204b8af0e4506e552a069b17f1666b802c1",
+      "bytes": 3928
+    },
+    {
+      "path": "stone_largeE.glb",
+      "sha256": "8890a056c1ef08d3f251b1a967355e12789d45cc4e29f80df7184118bf09d2cc",
+      "bytes": 2800
+    },
+    {
+      "path": "stone_largeF.glb",
+      "sha256": "b114eef44619a3a2615d2bc457f1a3d09a3540d31188565e65fa4eacf280a73c",
+      "bytes": 3832
+    },
+    {
+      "path": "stone_smallA.glb",
+      "sha256": "dd5170f28a5829f0d284ec71360da2b15bc6c0c4be1d67f3e2447926351566cd",
+      "bytes": 2120
+    },
+    {
+      "path": "stone_smallB.glb",
+      "sha256": "85b19a53696d1eee6da85bb8ae45c2a7971166b7d9b976376535f1a1c9200e76",
+      "bytes": 2204
+    },
+    {
+      "path": "stone_smallC.glb",
+      "sha256": "6bd05fba4c938a370bfa17fc7527325801c2bb286d76f214560219f0930ff4ca",
+      "bytes": 2116
+    },
+    {
+      "path": "stone_smallD.glb",
+      "sha256": "827de9a606c1f1dacccc011b96e86a17d8f20f48dec8d31e0ed8b6272c6baf5e",
+      "bytes": 2300
+    },
+    {
+      "path": "stone_smallE.glb",
+      "sha256": "3b9213673070d79ac3db98857cab823198b72cf0ef4fde7e96673486b103e599",
+      "bytes": 2656
+    },
+    {
+      "path": "stone_smallF.glb",
+      "sha256": "772c0c45a5f8fe80522ccb675914a4f0acd1c104e33d651bcb86a3d061d97811",
+      "bytes": 2596
+    },
+    {
+      "path": "stone_smallFlatA.glb",
+      "sha256": "31d8c794c56e0d314c481a6a6ea388d40fd97dfc79a793fe7c8a2f41e3da65d1",
+      "bytes": 2184
+    },
+    {
+      "path": "stone_smallFlatB.glb",
+      "sha256": "d095a3e4bb8bbdf0676af9d9d994a616f56af9020e6969e0dacac4dfa2a4b61b",
+      "bytes": 2124
+    },
+    {
+      "path": "stone_smallFlatC.glb",
+      "sha256": "ec9dc5329a63dfbe6221e3da85ca8b87efe5e6ef1147ccfc2d2fb003a8f9f73b",
+      "bytes": 2404
+    },
+    {
+      "path": "stone_smallG.glb",
+      "sha256": "66d8f5b4577f54fb51a964ba42929c577e8181a86756835fb0b02d8646668706",
+      "bytes": 2340
+    },
+    {
+      "path": "stone_smallH.glb",
+      "sha256": "f8aef860dd6b85799584509e1da9d99392318932f476171c489dac8df74d5902",
+      "bytes": 2720
+    },
+    {
+      "path": "stone_smallI.glb",
+      "sha256": "9873789d7950e4ea127e5ec8405f50a2ef96f35061819282854c3fe48000773d",
+      "bytes": 2560
+    },
+    {
+      "path": "stone_smallTopA.glb",
+      "sha256": "5a00b49a0f85ee15277855e7f0fab653711dae491d0a6ad62d1825942cb9b665",
+      "bytes": 2532
+    },
+    {
+      "path": "stone_smallTopB.glb",
+      "sha256": "d62c30e01486232d7dcd1579faeb086665640e2fed3eead6347a6fe57989fc0e",
+      "bytes": 2792
+    },
+    {
+      "path": "stone_tallA.glb",
+      "sha256": "ccf0143c0bce8f23d16b59fead9b4a21e1ec216b6b3e5a0766b2a90255189ea9",
+      "bytes": 4636
+    },
+    {
+      "path": "stone_tallB.glb",
+      "sha256": "d3a293a23c690bf2755d193bdd21e091d32f3bfc057d03c29e7aa0cf31fa7a1f",
+      "bytes": 4884
+    },
+    {
+      "path": "stone_tallC.glb",
+      "sha256": "8925273b38ff995bfcb32b10a46b6b5017cc6501af4ede4b98ac35a05ca4dc6e",
+      "bytes": 3420
+    },
+    {
+      "path": "stone_tallD.glb",
+      "sha256": "a77b3142b2d97348e07b0a367f93b0e2afcbe375659e3a697c1b80432b94c1c0",
+      "bytes": 3404
+    },
+    {
+      "path": "stone_tallE.glb",
+      "sha256": "90adb38f160e9816074f2b54c61f1cd3fe2fd8f046bacec2dd9eb0d91508efbd",
+      "bytes": 3388
+    },
+    {
+      "path": "stone_tallF.glb",
+      "sha256": "2dfab9c2f2d8f71f49d54fd413144ff4dcf0808448ea908d764d0589c5d62ad2",
+      "bytes": 3484
+    },
+    {
+      "path": "stone_tallG.glb",
+      "sha256": "c8d627d847736a35cdaf4b23d8cc06d2b1efe9beec48a7851d074a1c3a78c8ad",
+      "bytes": 3736
+    },
+    {
+      "path": "stone_tallH.glb",
+      "sha256": "515b58ca24f374ec95d444618781353f2909e0ea8b8b3050e0661e85366e3685",
+      "bytes": 3920
+    },
+    {
+      "path": "stone_tallI.glb",
+      "sha256": "f5d06c0c64df3a2c0799092419570013920408e3c746f7e6dad667524e8aceda",
+      "bytes": 3484
+    },
+    {
+      "path": "stone_tallJ.glb",
+      "sha256": "9af963693e8fe0e623fb0c01d119e03537da515103a4b119dab40629081223ce",
+      "bytes": 3460
+    },
+    {
+      "path": "stump_old.glb",
+      "sha256": "beba174d62464c40e1860a216396365137118f68f65e8ed0fd0a383664b7bcd5",
+      "bytes": 3452
+    },
+    {
+      "path": "stump_oldTall.glb",
+      "sha256": "c191530be59b57918e37706d893df78fb8c5b68cfed34a4ef734187f9c3e5582",
+      "bytes": 3460
+    },
+    {
+      "path": "stump_round.glb",
+      "sha256": "af0606a7c09c0fa6e8863fb37d0e2b7e945e1b4ae0d8a063ab4744bac63e667b",
+      "bytes": 3656
+    },
+    {
+      "path": "stump_roundDetailed.glb",
+      "sha256": "7a915186904ac7e589e33327458825a4d96e82a311d8b1dd0dd149b33dd655c8",
+      "bytes": 4196
+    },
+    {
+      "path": "stump_square.glb",
+      "sha256": "f62851f6af2c0b888b58573fac2a80f1cfb3d0494f2374b1517a933cb07ae504",
+      "bytes": 3516
+    },
+    {
+      "path": "stump_squareDetailed.glb",
+      "sha256": "99958724ef6c6c7a289f6c4207daac911d0f4c4d59aedb1293915d9a74182ad1",
+      "bytes": 3996
+    },
+    {
+      "path": "stump_squareDetailedWide.glb",
+      "sha256": "a256c1e55b32e6fcb8395eeb4c855e2f1368db7860ffbde9c05a1d07d4da07b8",
+      "bytes": 3916
+    },
+    {
+      "path": "tent_detailedClosed.glb",
+      "sha256": "2d23140f4b00e467a2de125da7e0ec68a2cd067330889f2cda78e5e954f4f782",
+      "bytes": 6052
+    },
+    {
+      "path": "tent_detailedOpen.glb",
+      "sha256": "a38e1b7aeb9517f1dafd27d7aa3bf31db313a4482a0663e81ebabd66c07bfe75",
+      "bytes": 5068
+    },
+    {
+      "path": "tent_smallClosed.glb",
+      "sha256": "e52a0bfd9ec11bfed323cb06dd61533ed95dca3251ba13ece68538d9b62f325b",
+      "bytes": 6680
+    },
+    {
+      "path": "tent_smallOpen.glb",
+      "sha256": "ef91ecef2ef928c60c88f781bd7e156d15087e88f7356c87642437fb2267b903",
+      "bytes": 5848
+    },
+    {
+      "path": "tree_blocks_dark.glb",
+      "sha256": "6ff29a1c9eaf28fe2176a711abc12f4ec1816f3c167852a03ae7993b45d3b2a5",
+      "bytes": 4336
+    },
+    {
+      "path": "tree_blocks_fall.glb",
+      "sha256": "ac892ab7781e50d33455ebc2cbff118894d8fa672990c07a0b8d940dfc06afc5",
+      "bytes": 5628
+    },
+    {
+      "path": "tree_blocks.glb",
+      "sha256": "ebdbf014de26927a23b2c776a1cd9db65e87cf2a13800c845899544907cedd96",
+      "bytes": 4328
+    },
+    {
+      "path": "tree_cone_dark.glb",
+      "sha256": "4510bbff6b13e5778dc905018caf574486b7dc6b98d40b87d6fd6df686bae28d",
+      "bytes": 6348
+    },
+    {
+      "path": "tree_cone_fall.glb",
+      "sha256": "e4bd8b5da71de2434e2abfea1bb914ef146577be463491490733ba60b2b85c18",
+      "bytes": 4680
+    },
+    {
+      "path": "tree_cone.glb",
+      "sha256": "fe4676fd5f7291c22ea9e344f40acfaaa65eb976a53501b660e427fe9d403c89",
+      "bytes": 4688
+    },
+    {
+      "path": "tree_default_dark.glb",
+      "sha256": "32bdd1e61cbdaf0ffb33c414a3e67b8c91489c5ebe9b718ed8f5e0bef2c1f78b",
+      "bytes": 4388
+    },
+    {
+      "path": "tree_default_fall.glb",
+      "sha256": "c601b423e6077730cdfafe07ba6b526f822ca4644340f940b5762c174528ec5f",
+      "bytes": 5732
+    },
+    {
+      "path": "tree_default.glb",
+      "sha256": "7856e353b665518fb2f45f93386ac0cb5aa4d713e1e315720cae2273bb9b0b79",
+      "bytes": 4380
+    },
+    {
+      "path": "tree_detailed_dark.glb",
+      "sha256": "8bcbf80dbd989ce0ec3a559597264a83f70f05875b5100ab2fdf6c0300e005c2",
+      "bytes": 9632
+    },
+    {
+      "path": "tree_detailed_fall.glb",
+      "sha256": "083f3b516614547e2cdf5ae251941a05a423b7145a3664156a01b48b6cfea5cf",
+      "bytes": 9620
+    },
+    {
+      "path": "tree_detailed.glb",
+      "sha256": "deee38c23644ec7dc955363e92b66124c397bb846f7076d76fd2dee10c0a662c",
+      "bytes": 9624
+    },
+    {
+      "path": "tree_fat_darkh.glb",
+      "sha256": "bcb379a4670c1bfc056656232dcb5d5f1ac957d70f79d1347d7d9022a306abec",
+      "bytes": 3672
+    },
+    {
+      "path": "tree_fat_fall.glb",
+      "sha256": "66d1543a2dc02b72d7727c9a5bf28d13e02c74d7677f4cb2333c877fec379e4e",
+      "bytes": 3660
+    },
+    {
+      "path": "tree_fat.glb",
+      "sha256": "5f1807692ac2a1c851443363db90c080e7a0b31cfec2a76ace93bd5bc0c211dd",
+      "bytes": 3664
+    },
+    {
+      "path": "tree_oak_dark.glb",
+      "sha256": "216b03eea56cadc2ffd3250fc3022e7c487f146f5daadd9b1eeb7eea386cba07",
+      "bytes": 5336
+    },
+    {
+      "path": "tree_oak_fall.glb",
+      "sha256": "f90632680c9ad9b548b1d504e23b8340bafb210e54e32b2f3a6a62f19c0df035",
+      "bytes": 5324
+    },
+    {
+      "path": "tree_oak.glb",
+      "sha256": "90d50176fb71b9241a2d185d01d00d467a74832c5ac512872981cdae9c7d4f9b",
+      "bytes": 5328
+    },
+    {
+      "path": "tree_palm.glb",
+      "sha256": "b1785eada008c1687aed819422105d2e061e52587582e838b21d1577f908b809",
+      "bytes": 5056
+    },
+    {
+      "path": "tree_palmBend.glb",
+      "sha256": "5de49f8b1ebae18073879fe9d3d25016c8104cc5b7c694dce4893fee7b06c019",
+      "bytes": 5348
+    },
+    {
+      "path": "tree_palmDetailedShort.glb",
+      "sha256": "d6195329ead707c78ed76663857bc358a0c3f23b7a301046e2b03fe8da5aefa1",
+      "bytes": 7996
+    },
+    {
+      "path": "tree_palmDetailedTall.glb",
+      "sha256": "3dd9bd9ee2be712634d46f59b8567cc5fa74cf19b408d6f46e69e9675192bf6d",
+      "bytes": 8024
+    },
+    {
+      "path": "tree_palmShort.glb",
+      "sha256": "eea69d518669720e3149a67855cef81434878a88cee60b9d1832bce8fec28097",
+      "bytes": 5624
+    },
+    {
+      "path": "tree_palmTall.glb",
+      "sha256": "c28201356ad038486174127f266cb510bccf816cc16b64278a8f285c7770110f",
+      "bytes": 5636
+    },
+    {
+      "path": "tree_pineDefaultA.glb",
+      "sha256": "9c9ad8438d156430731f13190fbd314be7dfcc2f762c3055bd2027f057112b6f",
+      "bytes": 5968
+    },
+    {
+      "path": "tree_pineDefaultB.glb",
+      "sha256": "56f78636da56f9130bb3852a040147427be57c07f4c7a61c43580caf20e974a4",
+      "bytes": 6224
+    },
+    {
+      "path": "tree_pineGroundA.glb",
+      "sha256": "b71c801b8a0b1a4864130101457565c3e1673bc4f236d12155be103f10c84adb",
+      "bytes": 2912
+    },
+    {
+      "path": "tree_pineGroundB.glb",
+      "sha256": "ab4b82eac635ee920f69b0b8b8edd0b5e0208a0b4ac9e210be8e62aaa5a9d322",
+      "bytes": 2952
+    },
+    {
+      "path": "tree_pineRoundA.glb",
+      "sha256": "ea68eb9a2643793746eb9d768d0dfcc52fed6f95c4f1b427fcca2e0a02ddbbd5",
+      "bytes": 5192
+    },
+    {
+      "path": "tree_pineRoundB.glb",
+      "sha256": "c3cd9be9907b147498732cb6dda1cb3443df35b680a93f4b14b62ecbe615e3e5",
+      "bytes": 7088
+    },
+    {
+      "path": "tree_pineRoundC.glb",
+      "sha256": "cfdd0c5b9cbab7355a17630966be7886d4a926e9a3e7a7af337e1773cdf8ddb6",
+      "bytes": 5488
+    },
+    {
+      "path": "tree_pineRoundD.glb",
+      "sha256": "4b8d4be2e3479106d069cdb100fb847c4b0cb45970b21d5ed0a3c5eb23279695",
+      "bytes": 5296
+    },
+    {
+      "path": "tree_pineRoundE.glb",
+      "sha256": "e1d241689c46769789d088a889af1ecf188e34dd7bf16666a6613a87005600de",
+      "bytes": 5660
+    },
+    {
+      "path": "tree_pineRoundF.glb",
+      "sha256": "96c70c8c537862f1a123cae5dfb732d943a84d2c31bc3a3080844a18d2c0d2bf",
+      "bytes": 5888
+    },
+    {
+      "path": "tree_pineSmallA.glb",
+      "sha256": "e7f154d6e96f78b6fe6aaa54177b7506d589a510502d44720d0a921635902783",
+      "bytes": 5004
+    },
+    {
+      "path": "tree_pineSmallB.glb",
+      "sha256": "cb40271fe3fef86aaf1b0cd41eebdfee83783eba8755aa90514c923369e7a176",
+      "bytes": 4104
+    },
+    {
+      "path": "tree_pineSmallC.glb",
+      "sha256": "b539e171c3758b3de70729116c0b9086355671346f5f613028c0e1cb43b46b59",
+      "bytes": 3664
+    },
+    {
+      "path": "tree_pineSmallD.glb",
+      "sha256": "92a28d8e928c02d7dbe557f92463657f2b1faa557cad3084f74bf4758d2c1bbb",
+      "bytes": 3616
+    },
+    {
+      "path": "tree_pineTallA_detailed.glb",
+      "sha256": "c9e418f75180414ec3c5ac37d99641b0c7f193dfafe92f244a6e1090d6cc6f4d",
+      "bytes": 4608
+    },
+    {
+      "path": "tree_pineTallA.glb",
+      "sha256": "7c13b27e6ff1cf1955ee0b861962f297c9d39e4f56077aaa1d133ec57889e0f1",
+      "bytes": 3976
+    },
+    {
+      "path": "tree_pineTallB_detailed.glb",
+      "sha256": "588d47e79036bf799b2a6526ffdc18ea9f203852ccfd1fdbd7167352ce9fe7d9",
+      "bytes": 4924
+    },
+    {
+      "path": "tree_pineTallB.glb",
+      "sha256": "09bfcbe589a525b52a7489a14c9a9f029afffa2d39f00836db5ff3ba8cbf7ff4",
+      "bytes": 3964
+    },
+    {
+      "path": "tree_pineTallC_detailed.glb",
+      "sha256": "65258948d8d77e793560620c4137b33e6b662bcd5be8036cf1041e288d52ece1",
+      "bytes": 4788
+    },
+    {
+      "path": "tree_pineTallC.glb",
+      "sha256": "02cff9935f66f39a49e39c5545ad80be2bd3b472677ac4e3e3d8d1915d76dfed",
+      "bytes": 4168
+    },
+    {
+      "path": "tree_pineTallD_detailed.glb",
+      "sha256": "436b521b11d30734be7e821fd7f311c069f8fd0344f5d7d5e950e4858e974cb8",
+      "bytes": 4944
+    },
+    {
+      "path": "tree_pineTallD.glb",
+      "sha256": "4e518a7cbbc87dedbdffe78fb799be42519101f784cdbc0fc55ac9a77efa252e",
+      "bytes": 4152
+    },
+    {
+      "path": "tree_plateau_dark.glb",
+      "sha256": "422a5a81410e350869dec54a6ef1ca21e685cc1fee2fdcb7af8604abd1b554f7",
+      "bytes": 5748
+    },
+    {
+      "path": "tree_plateau_fall.glb",
+      "sha256": "11cb8d73fae43e6217a53883b5ae5f42447b034806342f7a39f2e26bedd3a9f8",
+      "bytes": 5736
+    },
+    {
+      "path": "tree_plateau.glb",
+      "sha256": "6119c4a036694ea575c739d06d54258cb5fbe838d247ce89f6649bd9a8b19e1c",
+      "bytes": 5740
+    },
+    {
+      "path": "tree_simple_dark.glb",
+      "sha256": "cb1c265834327f708530f85b2530835bfd4c82b718cd8f1e3fcdcbdfb66b77fe",
+      "bytes": 3848
+    },
+    {
+      "path": "tree_simple_fall.glb",
+      "sha256": "2942ea82742507691ae8feb9fa3d0c678576d1d0a7d180c18e7e6640da2f5603",
+      "bytes": 3836
+    },
+    {
+      "path": "tree_simple.glb",
+      "sha256": "5baad5afb7ea790bd94b0063218a59ccee92ffc2f2b2d95e4ea10cfca0963246",
+      "bytes": 3840
+    },
+    {
+      "path": "tree_small_dark.glb",
+      "sha256": "516e1e304ae2d267f5207e64a7244f1b41e25ff750bc0213931e16b7bf63a009",
+      "bytes": 4756
+    },
+    {
+      "path": "tree_small_fall.glb",
+      "sha256": "7a0a7ac01f12ba26e3f289a3577833272793c123b7d4592987f6ba61a1238389",
+      "bytes": 3864
+    },
+    {
+      "path": "tree_small.glb",
+      "sha256": "9126f72eca5fac490a17928de5027a7d3018dde01eace597e26418e78304b143",
+      "bytes": 3868
+    },
+    {
+      "path": "tree_tall_dark.glb",
+      "sha256": "0a015ecd56624ab8a89c38c0b671a647223ea371f0b72c52848e092762c66e4f",
+      "bytes": 3936
+    },
+    {
+      "path": "tree_tall_fall.glb",
+      "sha256": "fa38f4bf5131cf3541b866b90c2e788a098925108d73c348cdb25c0192b27422",
+      "bytes": 4888
+    },
+    {
+      "path": "tree_tall.glb",
+      "sha256": "580e1d3fe89c9864218fbe07a02138e0e6abd9a1f0f8ee89b959e8e3eb15e0ea",
+      "bytes": 3928
+    },
+    {
+      "path": "tree_thin_dark.glb",
+      "sha256": "34bf86a7b0c89e12d58cd7f8d3ea798a8d8eef553c77c8afad35257f8d3d840f",
+      "bytes": 8772
+    },
+    {
+      "path": "tree_thin_fall.glb",
+      "sha256": "f1a68e2ec52c8c9bbc6952f1aec7d9dc35b3f3e4fe3617d90e9e7b6a51aaa580",
+      "bytes": 5932
+    },
+    {
+      "path": "tree_thin.glb",
+      "sha256": "0c9bf0b29c366432bf7c6ee12fff079d47bb75e966864a5661cb6d2afaf78bc6",
+      "bytes": 5936
+    }
+  ],
+  "optimized": {
+    "bed.glb": "a2f113fadb14db8d7acc60e381cf237a59a8f5595a9edfd59eb0b8a876cc7ceb",
+    "bed_floor.glb": "9a5cb331b77f5c6e81dcbe0f50f26b1e4893e7e36a2a07404ba60bd675edd80d",
+    "bridge_center_stone.glb": "7410703e7f95e5c8f5dc317a1543dc79b8e8d469f287707255bd8c14163367ea",
+    "bridge_center_stoneRound.glb": "2f32b08c7849c87369900f5f48aba4362e89ca09af3e4405fd774fbf51cf2008",
+    "bridge_center_wood.glb": "a2ae2c1b48191136e5562351c135af37ac16e70f3e18334bfb757ce066c7a6ff",
+    "bridge_center_woodRound.glb": "fe9bbdfecd72ead7c4e40bc4b2fa820c7ca71ee0cf42b940f6cd4f620a6a8f45",
+    "bridge_side_stone.glb": "60a9928eb34eb9e9c123d57c111a704a7776c51abab7769e70df284745b8c2be",
+    "bridge_side_stoneRound.glb": "2e35f74b9db22e2abf85e872dabc19073874083a63c3b6e60cd2c4dbc5fd1c49",
+    "bridge_side_wood.glb": "2286d1cdc9f285fad25efc8e78ae8d78b5ff3650d1d312f4c87112ad691aa27f",
+    "bridge_side_woodRound.glb": "03fe3990e45c01e5bb3d55037ef70e098ce5373659fca240475326e39e290a42",
+    "bridge_stone.glb": "13b661376a8d1f851f54391dee5e3c8d12267ff81d4b45083f79ac171297a9fb",
+    "bridge_stoneNarrow.glb": "ffb485258c997ec596ec33482340117804a33c76f3d18a49e7bde97dba9d14ea",
+    "bridge_stoneRound.glb": "21f30c74178019c1c29a37848d872e50bace193f29aa32b91b1df61d05badb89",
+    "bridge_stoneRoundNarrow.glb": "8875f072332d883eff05f137cefe30f951c3694e17a5b413e6ee6041d4235e44",
+    "bridge_wood.glb": "642baf0cef596ec89db213d31ebe501657c499c02e6fbea8905835468859d9e4",
+    "bridge_woodNarrow.glb": "22ff342fb3cc28fe3a2ac00030e39338eae99035f80ea865b14c1d94d263081a",
+    "bridge_woodRound.glb": "09455df336fce2144bc8c1ca52804a4d4fe1277f3355e8916bda147cee1d1739",
+    "bridge_woodRoundNarrow.glb": "2fa83358acb1585f257a680e44126d1c9d6546f1f882e8e02f0502afe0421730",
+    "cactus_short.glb": "1baab1d08f37afbc6a396581869cf51c0aa4f6fd169a0a04e604f49c9897e7aa",
+    "cactus_tall.glb": "104e452a531d4f2f89f2067106f51e1030937104eabe6039665feecf66bc886d",
+    "campfire_bricks.glb": "169dd761de5f416a1ec2fd78d2efc10f8f46576556733bf6fac774a6bdb60ef7",
+    "campfire_logs.glb": "420b73260e3257cae3808b20add4506993fd70167617db84c4333449306c3c94",
+    "campfire_planks.glb": "e1edef8e8b21921267d78337ed17169584c426ff93554c83ca53ef235ccc3536",
+    "campfire_stones.glb": "72d5369036cb23bb4b125242811fdfffea3bf307d2a437c69331f0fc37381717",
+    "canoe.glb": "18cfdf9ba0affed3b9503497e677cbf0dcd0d9f3fc13c3bf495f09145a265fff",
+    "canoe_paddle.glb": "13cc4e408dcf616b6f26a6cc98dd7303483943c35db7a21a8eb4214ef6abc7a8",
+    "cliff_blockCave_rock.glb": "fba8d03ac422f9c94f6492e99798f8b008515a5a3cdbfe75a54cbe9e9a943d82",
+    "cliff_blockCave_stone.glb": "c462add5c211cda22daf6a337c52dc604afdf105ac2d01a019da996ce85c2e21",
+    "cliff_blockDiagonal_rock.glb": "2399bcf0e8859c20f9bccfe485d58094d6c0ce8550eca7dc3d5f7daf24dd0d71",
+    "cliff_blockDiagonal_stone.glb": "aab2c7d5c0c0c82ac62d8817ec0aee7ad34fc7dceb1bc41de07cc1176bb6e8ec",
+    "cliff_blockHalf_rock.glb": "0e08c76a83563b78daa6ce2cd62c41df0650acffbab473418fcfd4749a84d7e7",
+    "cliff_blockHalf_stone.glb": "956764e37c9fb8c312092c17ac17ad6795bf04105d5b7045bb358cdb834ceda2",
+    "cliff_blockQuarter_rock.glb": "e73d9721d77aebe5733a52fba5763c2d203034ab39a10f1bb3c609aa8efcfd25",
+    "cliff_blockQuarter_stone.glb": "f6856c94905be8250228b1e90bdbb14bb8242a916370034957fa7566dd043fa1",
+    "cliff_blockSlopeHalfWalls_rock.glb": "2092e9a2b7b1e8b2861dccb0b2582a6bf00c1d25a8c7db60e9afe0b123667ca0",
+    "cliff_blockSlopeHalfWalls_stone.glb": "5138a28fd95c99073d4f942280c769678fae846f34ab276d70019ad7996bf2a7",
+    "cliff_blockSlopeWalls_rock.glb": "0c9c1046059f7d55cb4308a0ecb411a6839abb068faf5250a59182b2dca06911",
+    "cliff_blockSlopeWalls_stone.glb": "4d73a2fa52609296d5d8994f071d8aa7477d3683943e0d14f963033a93789ac4",
+    "cliff_blockSlope_rock.glb": "dba672e2d55e8bbc9ac154802540fe6adfaafae04149bfc1685440ca73187fdf",
+    "cliff_blockSlope_stone.glb": "3baec8d231528c6341a329a3d6843441f1bc94b449b7ead5c00adcf7d155599f",
+    "cliff_block_rock.glb": "766a65b2e6edc4051d0f10dc155afac20919f8e9d81fb33a9dd54ab3503d1b86",
+    "cliff_block_stone.glb": "a511c90de247dd11545597c45d156fc7f9e94c95ca2213923f7e17761fb2ae2f",
+    "cliff_cave_rock.glb": "719f390817d80bd83742bb9c14fe13b63592b052add2e518fd6d4c4ed6e58b8d",
+    "cliff_cave_stone.glb": "787be8d9546f9d892c84d74630d258c5444b5f53a8732155db5f6b8368221aac",
+    "cliff_cornerInnerLarge_rock.glb": "359da2d7853184ee662db4e81d024716788d30e2b4aa17c40ff8a17e1f595d6e",
+    "cliff_cornerInnerLarge_stone.glb": "46aaf5a7af729a537d34aaa72e362485ca7acdf97eab253080c5b379bf26abcc",
+    "cliff_cornerInnerTop_rock.glb": "4ef7e36204d6dfe11cc38b649c2022eeeb6f5d8ccd51ff60382f088ccc6d271d",
+    "cliff_cornerInnerTop_stone.glb": "8a93713e9df586c8bcc0accb7ae4d651c349158b1f1a54a9a30178ea111ab9a1",
+    "cliff_cornerInner_rock.glb": "8a32135b6030e43d129b46f2daf8a397ebc2eb7465c18cc6cd96f0fbb82a162c",
+    "cliff_cornerInner_stone.glb": "41f3aee39a551b34e487d8b7e6f6392413f84dfb86ca78a8f4dc2984a252536d",
+    "cliff_cornerLarge_rock.glb": "4001c6570b4361f6093875d95c8e37197473b9b6906bba372ae7b6a020396541",
+    "cliff_cornerLarge_stone.glb": "186f2cfd6f33bcfb496b771c104567ffe1da72200360f5cd748e0e5b773f45a9",
+    "cliff_cornerTop_rock.glb": "1613dba0aa71ffc4178ad42b4bd745b9c0d451c7ed3983912e1af4914ddd279f",
+    "cliff_cornerTop_stone.glb": "56a2c8b194a8a8d189ac2ff791f5f920be61678a326912fbeaae718b5a78756e",
+    "cliff_corner_rock.glb": "b6b1131952e918b746ea1206ebd2fda3ba7723f0996dbcd7a3edbd5a95619621",
+    "cliff_corner_stone.glb": "6800b7d8234bf220309708c2abe99383a247c466ede85ebc5d4057f9171644f4",
+    "cliff_diagonal_rock.glb": "090efd29db3ada4644db810232713efc4a146a36b39ed1db9d29124a38fcc7b3",
+    "cliff_diagonal_stone.glb": "b13f058e703b5691c49d83329a348167b3fc41f0c081786bf961f28aed6c29ac",
+    "cliff_halfCornerInner_rock.glb": "9c41b83a18571c9d92e352dcff5600b55b1874bfbf67cc45e2dc810ea885c645",
+    "cliff_halfCornerInner_stone.glb": "fa2d183b18bae684cded2fd7a884c9a34bb4855cef1b3fd5c088618df569395c",
+    "cliff_halfCorner_rock.glb": "c4304d9a9e5af6a7c625794094f96feef18aa1583c8ac3269304c619e48a0faa",
+    "cliff_halfCorner_stone.glb": "7d83e6856fc32a0076c67d8e1e8a66c23d943f46d5a49a0929a02b453ae83473",
+    "cliff_half_rock.glb": "1596c2623bd05c2bfb1c2d9ef0b8b1b058167ad26c88d71f4dd2acaf6b191660",
+    "cliff_half_stone.glb": "1c3df879f3fb274610f62b4b5f4211277b752844af4c89ee42e49f19e46c9488",
+    "cliff_large_rock.glb": "19c0ad71978807fc1539373535fba55167833a1067d1fb0ab6fc37fa1cf3cddb",
+    "cliff_large_stone.glb": "f29941f43bb0c1b62eb03a5486c90196262ab51939eaf1a71335d98125d23344",
+    "cliff_rock.glb": "3e1ffc7fe6e4f74e181b84f5e59103cde45f6e5a1d9f89653d2a3740d5f0f99f",
+    "cliff_stepsCornerInner_rock.glb": "ec8b040915147f0966cbfad43a9000df42acfb9af4e43be8082c10c966c40cca",
+    "cliff_stepsCornerInner_stone.glb": "c2640ee05d2c8ba01c816c73ddd691dd2c3370a737e6c3293b798aba6061f204",
+    "cliff_stepsCorner_rock.glb": "b8cc4951afb7996005270755fc573eca9fabb4f42c56ed9ae927323b54bb7fc5",
+    "cliff_stepsCorner_stone.glb": "f828614aa7d7332e7a4153acab8bcc7d42363511b785f860ec3e28d249c48ff4",
+    "cliff_steps_rock.glb": "7f0b85542049dcc233e605834756868ccde137d9ada1a44052a77fa5d3bbd601",
+    "cliff_steps_stone.glb": "178e90def0ba0ea7e7db2e58dea83ae1c7402dd6b144009d6a313d375c4323a4",
+    "cliff_stone.glb": "1fa910d69c09e979fd1285fc390f31dac2154bcc1aa3e0ecc31b87395daf6cf2",
+    "cliff_topDiagonal_rock.glb": "3a784f688e5ef3c6018e879e29492022d2c0f104a09ed107f692e58114a3dbc1",
+    "cliff_topDiagonal_stone.glb": "4c9ef0daee9b5d74344f0d2f94d85f04a3fdcfd2a9c72ab8e49d122fbab209eb",
+    "cliff_top_rock.glb": "7da812956dc231ff98d4d3c8f20d997180b92ef03618d67f118f21e012f57647",
+    "cliff_top_stone.glb": "c1edfdf57ad136a37775b5c0aa325e74d6000a3ef326c1e35702f37bdbfcd58e",
+    "cliff_waterfallTop_rock.glb": "7c2951066a51970bb74dfb3d1c2cbadcce20c458068456fd4d9e9babb7484ff4",
+    "cliff_waterfallTop_stone.glb": "a7bcbbc11819f4b43bb553af74425f5b908e82be73ac2cb9ed0d5c36b00a3f20",
+    "cliff_waterfall_rock.glb": "06a11c95e16b10e9d3368e27cd0c88d2febb3a756a52af152a4ace5b72c45af4",
+    "cliff_waterfall_stone.glb": "16ff784cb2dc9fa5ce6bc67daa25dc61ad28f3798a5470c47f7b289661f68973",
+    "crops_bambooStageA.glb": "0fb39b291b06cf7486d01e3eb5c48a8668d6d2e574fb4296e4bb069e9ec92e76",
+    "crops_bambooStageB.glb": "b2e0eb542f4609640c7a57f8846fcc61495ce0d999a7cea0cbdbbfabcc1dc58c",
+    "crops_cornStageA.glb": "d65dc636dba18f803c03adfa92922a5c3e37bd2773d5a347e43991e7526c830e",
+    "crops_cornStageB.glb": "d6ea841784f6df61ac9815b7a1faa2bbad3415f0e5465037e646757f7b79030f",
+    "crops_cornStageC.glb": "326a80c8f00d78a78ae2f80337950f9eaba5ca10e72a71e1b6d71ecdabfcd9a0",
+    "crops_cornStageD.glb": "b400aafd99fda023b591aebd53e7ce3f85a8688ba27e048642aba35a6bdb34c3",
+    "crops_dirtDoubleRow.glb": "0e9341905e0ca79c1ae8cdd7b891e94ed838c34b753bd0bb05b556656eaf9f8d",
+    "crops_dirtDoubleRowCorner.glb": "68f3b180194696629af08012577224eeaa136b804888d0b436f67e283d5f53d4",
+    "crops_dirtDoubleRowEnd.glb": "70a31612545f2025ec3f5cccc52c32de04700253462206eef440aeef948f3a74",
+    "crops_dirtRow.glb": "2440834165bf69e622142eeeb88698ca5a524491ce90252243f6067fe0fd7a95",
+    "crops_dirtRowCorner.glb": "d2ca431d57c835140d0d1b566f6c3d1a0e0a6b10c3fff56a28e14a1789dd7a09",
+    "crops_dirtRowEnd.glb": "3e7eb14a4c9404ef6d1d36f6c2f692f12deb9b95312dc920345dcdfbffa27b46",
+    "crops_dirtSingle.glb": "20a2c08c80a3e5252c82796ab9f869abc6426b897c1de6263e25066052d70086",
+    "crops_leafsStageA.glb": "ff60a8b9dd2f4373b460bdc4416af42729962e6af7448c37834e05af71aef879",
+    "crops_leafsStageB.glb": "516a420f3dc5deffaae6fd6780b9767fada63fdcace4313ac6c6e83689e3405a",
+    "crops_wheatStageA.glb": "425fbe565ecd14cba5edcb6c196e30ad9cde2f78b9b0584da57c927e7a702ab4",
+    "crops_wheatStageB.glb": "165964447d40b2efa8285be3fc756f5115fabbdd68564353a04fe097d76ef2da",
+    "crop_carrot.glb": "f4cb6c4b0ca4c7b1dc1587586b9a9ef2b0d126cf47d1bb77d7d5e049ddb36304",
+    "crop_melon.glb": "efb5788b7edeb5d7d212fdf2c8837baf684a118d17ff44c73a511b04e51a0e3b",
+    "crop_pumpkin.glb": "16cebb01dea6ae7d0176bcfe1b62366e6e339082e08358926533ad06abf05df8",
+    "crop_turnip.glb": "4646c6b8eddadb9b05bd7736c622df00b3067bcef22483b2f4ff0acb5c655045",
+    "fence_bend.glb": "851735c900d6f8e35482f4fbe5254a908442d93daf696798a68bfb90bcbd0c8e",
+    "fence_bendCenter.glb": "afeb164580bb9eb7a9c1bddebdc329c8eae88b0aef900efada814bf74b1abccb",
+    "fence_corner.glb": "45657cd6fb2463d0ca1e30ae31923c56134809db49fe9bcf4fffd13267c82558",
+    "fence_gate.glb": "dc81095ce1e092a03408510c0b41bc6f620c4947d815e559be32ef20aeb5b14f",
+    "fence_planks.glb": "1fd62efbefb2debbc8ee4a6fc1981e03a04c48b2108de72e80e65b87475bb7e1",
+    "fence_planksDouble.glb": "c4232492ee28e7a319cf6f9c7305933cf25a1d93c04f7b38d29b331c3b5008cc",
+    "fence_simple.glb": "715e0df3f4a4e2e76a315152a66de5286d3e0ae47918cb6d21b1215785f5edff",
+    "fence_simpleCenter.glb": "f8f95b86a8b6c06fba586d0873453018bf21dd69e95f8cff8c6efb7452e75c33",
+    "fence_simpleDiagonal.glb": "1eff6ffdc2bf0438149a17fbc6b523dbab11a880db867d6359c29bf4f30dcf95",
+    "fence_simpleDiagonalCenter.glb": "032639b9c35a23fd1438496e3e8bbcca1444b31328ea5adc6545d05da4c14c53",
+    "fence_simpleHigh.glb": "253ded88e79081f68251b4eed859d645f495184625c874b42ddef09ed72d5271",
+    "fence_simpleLow.glb": "4d56aca4e30840d323e939f909dd79f26b8b3e0af48a550a375d01da8e4d14a7",
+    "flower_purpleA.glb": "17f00ef9b10311c372ca46cb0b9156d710dbaa4b00cc54cb624ea49861011b93",
+    "flower_purpleB.glb": "ede5640e6d5d5f2bfeaf107723393a684d41ff301187f7b1765f848b1cb39f3f",
+    "flower_purpleC.glb": "0c65dea69cc4970a0a11086d004ce2a85c61990b94f8bb2a665a86fa072f52aa",
+    "flower_redA.glb": "2030cfb6933768994aa5693eb8084133de47be3b1b11e70a524de97df9185ae4",
+    "flower_redB.glb": "49387ccc23f2f431ceb93bf466e383a9c541162f5b0d75ebb0781947184004db",
+    "flower_redC.glb": "dd8040ef9e81bb8923d55daa13eb5d0556588ab60804e4f2c8edd150d48cb95e",
+    "flower_yellowA.glb": "58821dc805af4f905b2556c1b827c939ddf1ae65ad9aece1970c3252c6dc44b9",
+    "flower_yellowB.glb": "d6938ecf32fee1d1ecb8e23aeda63a6f1b6b54ff068f08bedd2586657313b3f2",
+    "flower_yellowC.glb": "6a6ae684c26143c171fdc13b378916ab234f21256bb9f09b0dc4af54f9e05346",
+    "grass.glb": "cf87bce676f317ed11252cc3d270650d4118f4777fa3795d9a584a7b0ad261bf",
+    "grass_large.glb": "ab4587f0765ff0ff75d4f345f8fc7cfe760f0bb4a06c63f1d11a321ef9539976",
+    "grass_leafs.glb": "3d46b992694df6c83e65030cfbd7288fbf4ed864c28e0d2811d9ccbd54e22ac8",
+    "grass_leafsLarge.glb": "be518ff8578892da7ce61ffb6caa26c5a626e3d7092fc87371ba8ddb0d511844",
+    "ground_grass.glb": "5149072905b9cf343dd8e0786c488256a9cd0075dddaceb6413d2977028b8c8f",
+    "ground_pathBend.glb": "9303ae658e1944f4b5240ee69add5c62eaaae4968619b2cf543dbe60d1a1dfc8",
+    "ground_pathBendBank.glb": "1e6fda2546a5e5aee3b9381c3b3b387bb107a0762af83289fc28f73cda40a701",
+    "ground_pathCorner.glb": "38d500c6e130c0042d99e76c9c888d8bcb54bd009867383db80d667080ddc705",
+    "ground_pathCornerSmall.glb": "a50c041bd8d8c4611fef99d0741136f8c636d1f865b8975f29cdddba78b2b5c0",
+    "ground_pathCross.glb": "79479edb6cacf9ac00860e178ad2b72dc938fdbcab9b0a5528d701fee408f833",
+    "ground_pathEnd.glb": "2ae02c29c4b1ee132a1455d23aba24b486e9f34096e65c9aa671b2d6ff0e08cb",
+    "ground_pathEndClosed.glb": "a4609e1ba3c7b1b277131cce30260cc4d56def467f9ce26632ffe61e8cd0da7c",
+    "ground_pathOpen.glb": "0d7670fd20f848c4791a1a2bbb881e599b4abc4b87dfa6526f304b2230f7207c",
+    "ground_pathRocks.glb": "ddda06cab520286a826af4919415ed4001a3f1ec05cb25c04943b284d2c7e383",
+    "ground_pathSide.glb": "eb0cf86513b83267fc951d7e47ebdb0241d441b4a7f227f0fb515c7cc40064ce",
+    "ground_pathSideOpen.glb": "fa5c45f0d5c3dc0222a7716146aac3b06046b8539b3fa88c87524b7a92e1a4a1",
+    "ground_pathSplit.glb": "e9ca5aa3dac89a6a88071d5c02aeae335e0970428c6acb0aba82e7474c8dc85c",
+    "ground_pathStraight.glb": "da177acca724982025ad14b135f97d588e808cdf6875a08ebd1b2c9d3184431d",
+    "ground_pathTile.glb": "fbedf07799fcfabac8a9f1e4fb5e79c346292b03f7878ae2a35e2062e343039b",
+    "ground_riverBend.glb": "1acf3fc4c544e5977e299cb0c5a30586cbd8560f014daa69739230279e01583e",
+    "ground_riverBendBank.glb": "7a10b2ad6583cff38cb7b352a9ff7f6ac98ed942411e2f434dcb16e83844c4ae",
+    "ground_riverCorner.glb": "34e9f589b4234db589738526697b9841f3f9619e74f8725a42495d8b877af63d",
+    "ground_riverCornerSmall.glb": "8c85c9e41771a3a72b6fa5c7a00933d8a3e446fdbd84f20a349cd7e1d1798d39",
+    "ground_riverCross.glb": "db14d335bcad371d0f86b93b8fe1693128d4948f86e9b040fb9daaa515c02198",
+    "ground_riverEnd.glb": "61b08de24485da00d7aa646fb7f97b0271aa9b69102e63d29440e45a0ebc21ef",
+    "ground_riverEndClosed.glb": "bd7e4d17ded068ec3dcf8379c21cb7c1acf12443b0d97dac105037b2d10a5525",
+    "ground_riverOpen.glb": "0d7670fd20f848c4791a1a2bbb881e599b4abc4b87dfa6526f304b2230f7207c",
+    "ground_riverRocks.glb": "fe9d599085bb216fdcdde60bdbefbcd392a082b9258827af8570d05f72e87134",
+    "ground_riverSide.glb": "d7a5201e8c81c81d9c6023ff91eec1c84cec3330a191529353606cd1abd14929",
+    "ground_riverSideOpen.glb": "208ec2b885c59714f465d6ab19d18c8d7bda1a1c4662873b80dc19e648dc649f",
+    "ground_riverSplit.glb": "29d7aa867f9ed2681f3eab82d913e60d359b9265d4875742e7f8252075c29f1d",
+    "ground_riverStraight.glb": "00690946b6e515d917fd79d1b123f2a54b367b0a1b004752d1e9255f44b0943a",
+    "ground_riverTile.glb": "533236a2273569fa691a0730d64694384c2fb873f136a4ecbf4e3ff10bbdb568",
+    "hanging_moss.glb": "33ec23e66defd844f99d2bb3294b56320b9540ef2533efbaf59dbce2de93f68b",
+    "lily_large.glb": "95f80c98244f63adeb62b5b7175bb4cf0eee5474ca349b292b55a19ed90428ba",
+    "lily_small.glb": "b8863d26ffbcd9012beacfb0e0cc453920149ec536abb935e37d42bd3f06e153",
+    "log.glb": "bb0d555b2e996361cf23542df165b0f2f13a9224556c1ad14a0378636751b551",
+    "log_large.glb": "734bcdb388899d4fdf70b42f9932b0892ff54fe05a69b4ed7bcd7e53b5d4b798",
+    "log_stack.glb": "d4936897b803218156a5320c0d03293178d6aeecc44f49f066385389c70d183a",
+    "log_stackLarge.glb": "02bbdebf94c5bfc7472eacb8bef66ab33ebcaad2f92890260c9a8ac1b5843547",
+    "mushroom_red.glb": "0b6b3b05b2f04559ff9b24a301596bbcb1625f409799840e6cc9c28670d1530a",
+    "mushroom_redGroup.glb": "473760bb35733fbedc3655bbce1be4baa05cd30a696b3b60a4db48a96450843c",
+    "mushroom_redTall.glb": "bc0691f996d13dfeb1979ce88e5412b321f96c7eff990f9b65bbea4b31800935",
+    "mushroom_tan.glb": "c520cd2d1d01ab172b1c0c7d50f1d36af86761a88d013463b4af714a1e912353",
+    "mushroom_tanGroup.glb": "d0a3949009502d8474bacc3733e1e84a8175551d69125767ff52dc5e814d8f8a",
+    "mushroom_tanTall.glb": "d6d57fdba63118d41e689e7ded2a4801aa851fb8237e266eb635f7f7fd1f8d85",
+    "path_stone.glb": "056b3944d176620553b49d7401100a9eefd50aa05670b6f6f11fdde8495351d8",
+    "path_stoneCircle.glb": "25d9915429ee536a884967beecd2f3e8ba58cdea102664d4069a8fd80dc7355b",
+    "path_stoneCorner.glb": "8c59fadab98e7ecf40d52f0e149f55a6201948192060a9743105413339c008eb",
+    "path_stoneEnd.glb": "f64ac5571f5a6a5e5d4074ff23240196e7528ef9e024b846430a23272865ab40",
+    "path_wood.glb": "32d6e934d9148309325618db7b60abd4af9357a3ed8a2251fec5097dfcf600b2",
+    "path_woodCorner.glb": "0ea63ef44625e737280595e9dc4b20ca4758296c1fd79c543ec181ac1477bb0c",
+    "path_woodEnd.glb": "ee0e6c424985a0161846c949aa076f541e7747a30ef58f55df0c7d2410ca79dc",
+    "plant_bush.glb": "25ba8f94b47a730ccf837b3d2eedbf79d6935428a734eff973354a8e9bcda585",
+    "plant_bushDetailed.glb": "fa0e5701cfada34785d2be9c89bbf4830888eb678888a712e18d920df0eb2ced",
+    "plant_bushLarge.glb": "4721124cdc650f725cf5d312b6d12eb221941454c918b7de37048fc300f50bc8",
+    "plant_bushLargeTriangle.glb": "75bb664187f433cc07581d77e34cd3199259cab8bf3eed6ce7ed7c58258a6047",
+    "plant_bushSmall.glb": "9ed720b3ee700e2cb0e59e9487efd0a975c52e4d3a06aa55a41a78f49cb49380",
+    "plant_bushTriangle.glb": "7b8d3740e79c73348365e841db6300912016cc61af686de1fa136cd06f2c7001",
+    "plant_flatShort.glb": "bccfc8625c5c7d099c3f36a02ff9a50efd86b78eaaea96e68c74a0d9489fa51e",
+    "plant_flatTall.glb": "5914bdb51991cf5f9b0b75598aec2d3d032d3e1987a46de81ff5f948ce0c5635",
+    "platform_beach.glb": "66066665ca04b3f7de6acbba779bd48d697ef845eb028c3664fc3a245af9abbd",
+    "platform_grass.glb": "0e5b309144e413b951cc5453f9f3f48e26fda918f4d2019a1123fc2cc16b9a4c",
+    "platform_stone.glb": "cee248e7113a304c960610e6a525c6c7bacce253c00b562ec5260c210158ad67",
+    "pot_large.glb": "f1933073475ed12935319fd3108421dce3032bc380de417379fac51eac9f1fba",
+    "pot_small.glb": "0b74aa173dd50416ae68ec382e44c2a0d377589161747565297ebe73b28d34d2",
+    "rock_largeA.glb": "d1b3c894ba38ebcb7e1e073f18b979c08dccf4899a959d4ca53f495a2c54bedc",
+    "rock_largeB.glb": "1b04b827b7b5c7b2df44299a92a8eed39fa100b8e37e2f59eca6776e694acc50",
+    "rock_largeC.glb": "737ffdd9e6bcce9cb4ebcd4dcf605e34188379f328c7423467cd4f53c05a10e1",
+    "rock_largeD.glb": "c6271f7ec02952af1d1660efb0cd68afd89629bdb6dfd1935f9a8d843a79ad5e",
+    "rock_largeE.glb": "349ea9f8d174a7511b8f1f8202eb53f2a90aafabc8214fe1944ae946db9e9cb3",
+    "rock_largeF.glb": "50d78dd47d49fefce1266faf86841ce60a0b410648dd7861ef25c1a9f0aa71f0",
+    "rock_smallA.glb": "e5c51f425023bf5c3886789e62cac0ae29b79147d06db78cce5d7404f171d724",
+    "rock_smallB.glb": "5e7c0f172d88ca156098905000d8b766f41ba0bffa19b8149f6eb6f9f293448a",
+    "rock_smallC.glb": "be35fcec4631e4261bdde80ba00dd08bccac1767e0b7d7f63dac8f8d556d0af0",
+    "rock_smallD.glb": "066a39d6589bb94c22f7099635b434197c524d687261736b6987cccee2fe1f31",
+    "rock_smallE.glb": "b58284d1e3e321900355ebc829772d4c158c9e87dd7378bf22942b5c361d24d6",
+    "rock_smallF.glb": "d77dca3598e8cf9098bf288a84877ca12d195d100beb397a942fbdc99907e743",
+    "rock_smallFlatA.glb": "4d7fb4eaa228022039ea454cd9728438bac24d7e768c79d6e09189122d0ce9d5",
+    "rock_smallFlatB.glb": "13f3f4d3a9c5febff121ce4cf5857ee17a45ec42637e4281942f7ece2c31e6d2",
+    "rock_smallFlatC.glb": "c11662cd2438b69da3c475b7c2cb478a44c40f09956dc907965cee32daa8914f",
+    "rock_smallG.glb": "090725542cb9bec2adadb0ca0353ca232e695cc85b5bad525887f9c0454d17a2",
+    "rock_smallH.glb": "0c9d3cd546697b9b175dae29aa7c7652c5052665910e7440bf0c934f49666632",
+    "rock_smallI.glb": "25dc53b0df2f964dfb97682fb6c656d72fd53f2e32400b6181d5454306db5984",
+    "rock_smallTopA.glb": "f62fbb3b2dd9cda8edb63a8dfe8c39079878a7abd27256b755345f3a03409477",
+    "rock_smallTopB.glb": "5f8d8278e8b166c8eb513f86bca73c030d61d1a19af5df359c62e25b6485fa8f",
+    "rock_tallA.glb": "47ee9158257aeb2613ef1f794ac824d8df6031ff3b2d14306d09c7ff6df3dea2",
+    "rock_tallB.glb": "d4db06f2e529593a2bb73907f66bccc9e490bdeaf4fad6d9161454ecc6868780",
+    "rock_tallC.glb": "71c185716343b729ac8fc763f654bd50b034296be82bb762e45d9f71e6a57cb2",
+    "rock_tallD.glb": "376a0bf292185334a259c18f6b4e8c838ef8d8551fa61d835b0cd56637e9abf9",
+    "rock_tallE.glb": "f042012bfe8ff508d7439dc43f6e2ea49ddec9b1e50605eaddf1c2bfd2c12a94",
+    "rock_tallF.glb": "1d3c939e5308e68d2d763b2677af3df7d3cdbec582ffebc921260dafa80c7577",
+    "rock_tallG.glb": "07c5998d3d3e95e3a1314f2008be30348c71c3794d2b0a79921ae8b0760fb37a",
+    "rock_tallH.glb": "07bdf924ad2b9018a055c2d1edf01872adeebe03e1adaba460d26038f188f506",
+    "rock_tallI.glb": "f135a45caff258d124fe0ed897c01a0e83ba9febe61718274908439f36d419af",
+    "rock_tallJ.glb": "a4bafb41b7b87c679c68f340d6533a0c56a1c4e88e5bb0eaab622207c8e59db8",
+    "sign.glb": "7beb0a0e8e88ca3d8ce029873c27929a9eca001922a89359be8197e353b7082f",
+    "statue_block.glb": "96b5b40f24c467ce828280ef1cfa34b72760064cd8063311b427e27adfc7739b",
+    "statue_column.glb": "1183c30d1a318ef15aa69bbfc383f7bd5e67d7ffed7b0c52f1d6186de77202c3",
+    "statue_columnDamaged.glb": "bba30692228fe2ee537f57d2640168d2dafcf9470916c85c284c377646d256f7",
+    "statue_head.glb": "56608b11ba719ac25da8a0f7bcd2d084ca8182c3729267030527303a3294b97d",
+    "statue_obelisk.glb": "6463e5a61871cfe2f6b3062fdf6cf0b2b0bda90551f9aa6767c46cf18b962132",
+    "statue_ring.glb": "e4acef5fd2025e59116acb3442f7486c14da026b2c2905e3398d060ec0252be1",
+    "stone_largeA.glb": "5b25c30bd2a9fe9ea147be6ac081f426ea916bb1608e8067d23aa8fc5e230b52",
+    "stone_largeB.glb": "cff5d6fe9e30d52d97aab6147b886b35e9add0965a06d1ef6a14b2b059b5462f",
+    "stone_largeC.glb": "2c0872e420eafb69609d5a01e56cd28e86ab9390a0a51452b6fcd15af45be2e3",
+    "stone_largeD.glb": "2dc6e1229004b97f15710d901860d204b8af0e4506e552a069b17f1666b802c1",
+    "stone_largeE.glb": "8890a056c1ef08d3f251b1a967355e12789d45cc4e29f80df7184118bf09d2cc",
+    "stone_largeF.glb": "b114eef44619a3a2615d2bc457f1a3d09a3540d31188565e65fa4eacf280a73c",
+    "stone_smallA.glb": "dd5170f28a5829f0d284ec71360da2b15bc6c0c4be1d67f3e2447926351566cd",
+    "stone_smallB.glb": "85b19a53696d1eee6da85bb8ae45c2a7971166b7d9b976376535f1a1c9200e76",
+    "stone_smallC.glb": "6bd05fba4c938a370bfa17fc7527325801c2bb286d76f214560219f0930ff4ca",
+    "stone_smallD.glb": "827de9a606c1f1dacccc011b96e86a17d8f20f48dec8d31e0ed8b6272c6baf5e",
+    "stone_smallE.glb": "3b9213673070d79ac3db98857cab823198b72cf0ef4fde7e96673486b103e599",
+    "stone_smallF.glb": "772c0c45a5f8fe80522ccb675914a4f0acd1c104e33d651bcb86a3d061d97811",
+    "stone_smallFlatA.glb": "31d8c794c56e0d314c481a6a6ea388d40fd97dfc79a793fe7c8a2f41e3da65d1",
+    "stone_smallFlatB.glb": "d095a3e4bb8bbdf0676af9d9d994a616f56af9020e6969e0dacac4dfa2a4b61b",
+    "stone_smallFlatC.glb": "ec9dc5329a63dfbe6221e3da85ca8b87efe5e6ef1147ccfc2d2fb003a8f9f73b",
+    "stone_smallG.glb": "66d8f5b4577f54fb51a964ba42929c577e8181a86756835fb0b02d8646668706",
+    "stone_smallH.glb": "f8aef860dd6b85799584509e1da9d99392318932f476171c489dac8df74d5902",
+    "stone_smallI.glb": "9873789d7950e4ea127e5ec8405f50a2ef96f35061819282854c3fe48000773d",
+    "stone_smallTopA.glb": "5a00b49a0f85ee15277855e7f0fab653711dae491d0a6ad62d1825942cb9b665",
+    "stone_smallTopB.glb": "d62c30e01486232d7dcd1579faeb086665640e2fed3eead6347a6fe57989fc0e",
+    "stone_tallA.glb": "ccf0143c0bce8f23d16b59fead9b4a21e1ec216b6b3e5a0766b2a90255189ea9",
+    "stone_tallB.glb": "d3a293a23c690bf2755d193bdd21e091d32f3bfc057d03c29e7aa0cf31fa7a1f",
+    "stone_tallC.glb": "8925273b38ff995bfcb32b10a46b6b5017cc6501af4ede4b98ac35a05ca4dc6e",
+    "stone_tallD.glb": "a77b3142b2d97348e07b0a367f93b0e2afcbe375659e3a697c1b80432b94c1c0",
+    "stone_tallE.glb": "90adb38f160e9816074f2b54c61f1cd3fe2fd8f046bacec2dd9eb0d91508efbd",
+    "stone_tallF.glb": "2dfab9c2f2d8f71f49d54fd413144ff4dcf0808448ea908d764d0589c5d62ad2",
+    "stone_tallG.glb": "c8d627d847736a35cdaf4b23d8cc06d2b1efe9beec48a7851d074a1c3a78c8ad",
+    "stone_tallH.glb": "515b58ca24f374ec95d444618781353f2909e0ea8b8b3050e0661e85366e3685",
+    "stone_tallI.glb": "f5d06c0c64df3a2c0799092419570013920408e3c746f7e6dad667524e8aceda",
+    "stone_tallJ.glb": "9af963693e8fe0e623fb0c01d119e03537da515103a4b119dab40629081223ce",
+    "stump_old.glb": "beba174d62464c40e1860a216396365137118f68f65e8ed0fd0a383664b7bcd5",
+    "stump_oldTall.glb": "c191530be59b57918e37706d893df78fb8c5b68cfed34a4ef734187f9c3e5582",
+    "stump_round.glb": "af0606a7c09c0fa6e8863fb37d0e2b7e945e1b4ae0d8a063ab4744bac63e667b",
+    "stump_roundDetailed.glb": "7a915186904ac7e589e33327458825a4d96e82a311d8b1dd0dd149b33dd655c8",
+    "stump_square.glb": "f62851f6af2c0b888b58573fac2a80f1cfb3d0494f2374b1517a933cb07ae504",
+    "stump_squareDetailed.glb": "99958724ef6c6c7a289f6c4207daac911d0f4c4d59aedb1293915d9a74182ad1",
+    "stump_squareDetailedWide.glb": "a256c1e55b32e6fcb8395eeb4c855e2f1368db7860ffbde9c05a1d07d4da07b8",
+    "tent_detailedClosed.glb": "2d23140f4b00e467a2de125da7e0ec68a2cd067330889f2cda78e5e954f4f782",
+    "tent_detailedOpen.glb": "a38e1b7aeb9517f1dafd27d7aa3bf31db313a4482a0663e81ebabd66c07bfe75",
+    "tent_smallClosed.glb": "e52a0bfd9ec11bfed323cb06dd61533ed95dca3251ba13ece68538d9b62f325b",
+    "tent_smallOpen.glb": "ef91ecef2ef928c60c88f781bd7e156d15087e88f7356c87642437fb2267b903",
+    "tree_blocks.glb": "ebdbf014de26927a23b2c776a1cd9db65e87cf2a13800c845899544907cedd96",
+    "tree_blocks_dark.glb": "6ff29a1c9eaf28fe2176a711abc12f4ec1816f3c167852a03ae7993b45d3b2a5",
+    "tree_blocks_fall.glb": "ac892ab7781e50d33455ebc2cbff118894d8fa672990c07a0b8d940dfc06afc5",
+    "tree_cone.glb": "fe4676fd5f7291c22ea9e344f40acfaaa65eb976a53501b660e427fe9d403c89",
+    "tree_cone_dark.glb": "4510bbff6b13e5778dc905018caf574486b7dc6b98d40b87d6fd6df686bae28d",
+    "tree_cone_fall.glb": "e4bd8b5da71de2434e2abfea1bb914ef146577be463491490733ba60b2b85c18",
+    "tree_default.glb": "7856e353b665518fb2f45f93386ac0cb5aa4d713e1e315720cae2273bb9b0b79",
+    "tree_default_dark.glb": "32bdd1e61cbdaf0ffb33c414a3e67b8c91489c5ebe9b718ed8f5e0bef2c1f78b",
+    "tree_default_fall.glb": "c601b423e6077730cdfafe07ba6b526f822ca4644340f940b5762c174528ec5f",
+    "tree_detailed.glb": "deee38c23644ec7dc955363e92b66124c397bb846f7076d76fd2dee10c0a662c",
+    "tree_detailed_dark.glb": "8bcbf80dbd989ce0ec3a559597264a83f70f05875b5100ab2fdf6c0300e005c2",
+    "tree_detailed_fall.glb": "083f3b516614547e2cdf5ae251941a05a423b7145a3664156a01b48b6cfea5cf",
+    "tree_fat.glb": "5f1807692ac2a1c851443363db90c080e7a0b31cfec2a76ace93bd5bc0c211dd",
+    "tree_fat_darkh.glb": "bcb379a4670c1bfc056656232dcb5d5f1ac957d70f79d1347d7d9022a306abec",
+    "tree_fat_fall.glb": "66d1543a2dc02b72d7727c9a5bf28d13e02c74d7677f4cb2333c877fec379e4e",
+    "tree_oak.glb": "90d50176fb71b9241a2d185d01d00d467a74832c5ac512872981cdae9c7d4f9b",
+    "tree_oak_dark.glb": "216b03eea56cadc2ffd3250fc3022e7c487f146f5daadd9b1eeb7eea386cba07",
+    "tree_oak_fall.glb": "f90632680c9ad9b548b1d504e23b8340bafb210e54e32b2f3a6a62f19c0df035",
+    "tree_palm.glb": "b1785eada008c1687aed819422105d2e061e52587582e838b21d1577f908b809",
+    "tree_palmBend.glb": "5de49f8b1ebae18073879fe9d3d25016c8104cc5b7c694dce4893fee7b06c019",
+    "tree_palmDetailedShort.glb": "d6195329ead707c78ed76663857bc358a0c3f23b7a301046e2b03fe8da5aefa1",
+    "tree_palmDetailedTall.glb": "3dd9bd9ee2be712634d46f59b8567cc5fa74cf19b408d6f46e69e9675192bf6d",
+    "tree_palmShort.glb": "eea69d518669720e3149a67855cef81434878a88cee60b9d1832bce8fec28097",
+    "tree_palmTall.glb": "c28201356ad038486174127f266cb510bccf816cc16b64278a8f285c7770110f",
+    "tree_pineDefaultA.glb": "9c9ad8438d156430731f13190fbd314be7dfcc2f762c3055bd2027f057112b6f",
+    "tree_pineDefaultB.glb": "56f78636da56f9130bb3852a040147427be57c07f4c7a61c43580caf20e974a4",
+    "tree_pineGroundA.glb": "b71c801b8a0b1a4864130101457565c3e1673bc4f236d12155be103f10c84adb",
+    "tree_pineGroundB.glb": "ab4b82eac635ee920f69b0b8b8edd0b5e0208a0b4ac9e210be8e62aaa5a9d322",
+    "tree_pineRoundA.glb": "ea68eb9a2643793746eb9d768d0dfcc52fed6f95c4f1b427fcca2e0a02ddbbd5",
+    "tree_pineRoundB.glb": "c3cd9be9907b147498732cb6dda1cb3443df35b680a93f4b14b62ecbe615e3e5",
+    "tree_pineRoundC.glb": "cfdd0c5b9cbab7355a17630966be7886d4a926e9a3e7a7af337e1773cdf8ddb6",
+    "tree_pineRoundD.glb": "4b8d4be2e3479106d069cdb100fb847c4b0cb45970b21d5ed0a3c5eb23279695",
+    "tree_pineRoundE.glb": "e1d241689c46769789d088a889af1ecf188e34dd7bf16666a6613a87005600de",
+    "tree_pineRoundF.glb": "96c70c8c537862f1a123cae5dfb732d943a84d2c31bc3a3080844a18d2c0d2bf",
+    "tree_pineSmallA.glb": "e7f154d6e96f78b6fe6aaa54177b7506d589a510502d44720d0a921635902783",
+    "tree_pineSmallB.glb": "cb40271fe3fef86aaf1b0cd41eebdfee83783eba8755aa90514c923369e7a176",
+    "tree_pineSmallC.glb": "b539e171c3758b3de70729116c0b9086355671346f5f613028c0e1cb43b46b59",
+    "tree_pineSmallD.glb": "92a28d8e928c02d7dbe557f92463657f2b1faa557cad3084f74bf4758d2c1bbb",
+    "tree_pineTallA.glb": "7c13b27e6ff1cf1955ee0b861962f297c9d39e4f56077aaa1d133ec57889e0f1",
+    "tree_pineTallA_detailed.glb": "c9e418f75180414ec3c5ac37d99641b0c7f193dfafe92f244a6e1090d6cc6f4d",
+    "tree_pineTallB.glb": "09bfcbe589a525b52a7489a14c9a9f029afffa2d39f00836db5ff3ba8cbf7ff4",
+    "tree_pineTallB_detailed.glb": "588d47e79036bf799b2a6526ffdc18ea9f203852ccfd1fdbd7167352ce9fe7d9",
+    "tree_pineTallC.glb": "02cff9935f66f39a49e39c5545ad80be2bd3b472677ac4e3e3d8d1915d76dfed",
+    "tree_pineTallC_detailed.glb": "65258948d8d77e793560620c4137b33e6b662bcd5be8036cf1041e288d52ece1",
+    "tree_pineTallD.glb": "4e518a7cbbc87dedbdffe78fb799be42519101f784cdbc0fc55ac9a77efa252e",
+    "tree_pineTallD_detailed.glb": "436b521b11d30734be7e821fd7f311c069f8fd0344f5d7d5e950e4858e974cb8",
+    "tree_plateau.glb": "6119c4a036694ea575c739d06d54258cb5fbe838d247ce89f6649bd9a8b19e1c",
+    "tree_plateau_dark.glb": "422a5a81410e350869dec54a6ef1ca21e685cc1fee2fdcb7af8604abd1b554f7",
+    "tree_plateau_fall.glb": "11cb8d73fae43e6217a53883b5ae5f42447b034806342f7a39f2e26bedd3a9f8",
+    "tree_simple.glb": "5baad5afb7ea790bd94b0063218a59ccee92ffc2f2b2d95e4ea10cfca0963246",
+    "tree_simple_dark.glb": "cb1c265834327f708530f85b2530835bfd4c82b718cd8f1e3fcdcbdfb66b77fe",
+    "tree_simple_fall.glb": "2942ea82742507691ae8feb9fa3d0c678576d1d0a7d180c18e7e6640da2f5603",
+    "tree_small.glb": "9126f72eca5fac490a17928de5027a7d3018dde01eace597e26418e78304b143",
+    "tree_small_dark.glb": "516e1e304ae2d267f5207e64a7244f1b41e25ff750bc0213931e16b7bf63a009",
+    "tree_small_fall.glb": "7a0a7ac01f12ba26e3f289a3577833272793c123b7d4592987f6ba61a1238389",
+    "tree_tall.glb": "580e1d3fe89c9864218fbe07a02138e0e6abd9a1f0f8ee89b959e8e3eb15e0ea",
+    "tree_tall_dark.glb": "0a015ecd56624ab8a89c38c0b671a647223ea371f0b72c52848e092762c66e4f",
+    "tree_tall_fall.glb": "fa38f4bf5131cf3541b866b90c2e788a098925108d73c348cdb25c0192b27422",
+    "tree_thin.glb": "0c9bf0b29c366432bf7c6ee12fff079d47bb75e966864a5661cb6d2afaf78bc6",
+    "tree_thin_dark.glb": "34bf86a7b0c89e12d58cd7f8d3ea798a8d8eef553c77c8afad35257f8d3d840f",
+    "tree_thin_fall.glb": "f1a68e2ec52c8c9bbc6952f1aec7d9dc35b3f3e4fe3617d90e9e7b6a51aaa580"
+  }
+}

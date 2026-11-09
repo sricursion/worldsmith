@@ -1,0 +1,477 @@
+{
+  "pack": "kenney-castle-kit",
+  "sourceUrl": "https://kenney.nl/assets/castle-kit",
+  "sourceFile": "kenney-castle-kit.zip",
+  "license": "CC0-1.0",
+  "fetchedAt": "2026-10-29T21:14:28.841Z",
+  "files": [
+    {
+      "path": "bridge-draw.glb",
+      "sha256": "896f36153e45715868efcf1ee8f8fb6d8b893af2348cbf7da6d0e16efd728542",
+      "bytes": 4116
+    },
+    {
+      "path": "bridge-straight-pillar.glb",
+      "sha256": "2ca98e74800bf957a528e16c07d45660e386c9141b2200901549c1116564fcaa",
+      "bytes": 5584
+    },
+    {
+      "path": "bridge-straight.glb",
+      "sha256": "722b780610aa94eb6e379a75afafaa5a1c6daddbc9fe852a51e0f262b88d9e74",
+      "bytes": 5728
+    },
+    {
+      "path": "door.glb",
+      "sha256": "6299aaf9188012f33dc62e3f3fe214b19837f761e872c649d6f549bdc0bcfe23",
+      "bytes": 5404
+    },
+    {
+      "path": "flag-banner-long.glb",
+      "sha256": "41a6080a19828ec941f8ee1aaf727955b19fed0dfbda0d7cc7dd237ba948ba36",
+      "bytes": 4400
+    },
+    {
+      "path": "flag-banner-short.glb",
+      "sha256": "6bd83049d442f56398e33d012268eb13a18396c2985f11ef21a43e72bd6722f8",
+      "bytes": 4448
+    },
+    {
+      "path": "flag-pennant.glb",
+      "sha256": "f8d5732bd08bd5035ee2cef1b727876c9aed9002d8dcd6c7d296b31d5650ddc6",
+      "bytes": 5716
+    },
+    {
+      "path": "flag-wide.glb",
+      "sha256": "a10e2ea040741f8b108ecea72f1cb45fdec5937a8bc6cf4dcd5426731fbefc5f",
+      "bytes": 7296
+    },
+    {
+      "path": "flag.glb",
+      "sha256": "d40cdddd1b3d283bdc8f96c0c9399ce489a06d4737ddd081031a846e15eea4c4",
+      "bytes": 5772
+    },
+    {
+      "path": "gate.glb",
+      "sha256": "182a10b8f489046889c8f606f6c1f8f1e3e021b75046caee05598c2b76606da3",
+      "bytes": 5308
+    },
+    {
+      "path": "ground-hills.glb",
+      "sha256": "2e9c96ae08b67789b3e26d3053fc9c2262c263bbd241f4865141005eedf5f467",
+      "bytes": 5500
+    },
+    {
+      "path": "ground.glb",
+      "sha256": "f5bcb0cbd6f5afa02b4163a346cd794acc09b59a9736e63620c68abb6853a85a",
+      "bytes": 3460
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "aac944f18106b3a3e29c6fdeec02523d4cab4c735abc01f5a8fa88a79ae173ef",
+      "bytes": 713
+    },
+    {
+      "path": "metal-gate.glb",
+      "sha256": "005d3036879c42b36a1bb17be962d0c8b057a743e002f54b4d1f6ff0d918f115",
+      "bytes": 6672
+    },
+    {
+      "path": "rocks-large.glb",
+      "sha256": "1e2a8cc057302a0220ba757f139ba9e003357557158ec01d5adc1effce4a995e",
+      "bytes": 6180
+    },
+    {
+      "path": "rocks-small.glb",
+      "sha256": "3ff76187c0d22b84a619f7cba76c4b6392e0261a4d91e1a612023d3bbe699709",
+      "bytes": 5992
+    },
+    {
+      "path": "siege-ballista-demolished.glb",
+      "sha256": "4f17b289bece4b68df8ad052fd516cb746a7e579b57fbb50461dde5c88d1b546",
+      "bytes": 12404
+    },
+    {
+      "path": "siege-ballista.glb",
+      "sha256": "392979a040bda1dc3c2e44347676731661e81fac6279a1dba73d9f4151f0e69b",
+      "bytes": 13096
+    },
+    {
+      "path": "siege-catapult-demolished.glb",
+      "sha256": "ee2a81bf17a4be0297fc98cf7d7fe9db927ee940d8bb77f0aa0b322832a7facf",
+      "bytes": 14848
+    },
+    {
+      "path": "siege-catapult.glb",
+      "sha256": "00d353b6a0d5e21441d2a220cc6868da41f79beee0842aeeacef3a0841070780",
+      "bytes": 16364
+    },
+    {
+      "path": "siege-ram-demolished.glb",
+      "sha256": "c9ee74d4d30d41425f7deec6879b1e862f5f6c7ffe06f354674e98f7a2b65491",
+      "bytes": 14128
+    },
+    {
+      "path": "siege-ram.glb",
+      "sha256": "be47c597305a77cc381bd001d1609d4c7dac5c16d7d8c4f61dcf5842862e34fa",
+      "bytes": 18444
+    },
+    {
+      "path": "siege-tower-demolished.glb",
+      "sha256": "b5a85b78c2873cebff0f3280d2efa5b7ef97de77cc07913a7c48d42b90d5e6e9",
+      "bytes": 22108
+    },
+    {
+      "path": "siege-tower.glb",
+      "sha256": "ec421ded434c3476299e68fb3a82b34633b4423175a0fd2a72213b6790f8ae8f",
+      "bytes": 23872
+    },
+    {
+      "path": "siege-trebuchet-demolished.glb",
+      "sha256": "cac85aff50f93e656560eaec8628efb42f493eaebcf6bed8bc1e579aee857ed0",
+      "bytes": 14124
+    },
+    {
+      "path": "siege-trebuchet.glb",
+      "sha256": "8951dc3a9c19c1eb88f2962b49a1567fbda5d20fa364412fcc237fe376b2413f",
+      "bytes": 21928
+    },
+    {
+      "path": "stairs-stone-square.glb",
+      "sha256": "6c3ce5e8f9d7d88b64a1ee90a0ee342286689514e8aa3fd685ddc94ddd1c077d",
+      "bytes": 4728
+    },
+    {
+      "path": "stairs-stone.glb",
+      "sha256": "ff13116a83fe69538e95129deb36e9fab3067e465b989bcca46bad25cadd6a7e",
+      "bytes": 4792
+    },
+    {
+      "path": "Textures/colormap.png",
+      "sha256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "bytes": 7529
+    },
+    {
+      "path": "tower-base.glb",
+      "sha256": "a741c0851925264349d51357f361e7fb723a51c587c78b973b60615e790cf8c5",
+      "bytes": 7832
+    },
+    {
+      "path": "tower-hexagon-base.glb",
+      "sha256": "c0abb0d4471ebd30124ff1e273127dfb8ccd3eb3c59859ab52920beb172d34f4",
+      "bytes": 4620
+    },
+    {
+      "path": "tower-hexagon-mid.glb",
+      "sha256": "b5f1049ca1c3bac968334e2b864b5d100c8a6a56d97f6f4f6a67a3223c53c954",
+      "bytes": 8344
+    },
+    {
+      "path": "tower-hexagon-roof-secondary.glb",
+      "sha256": "86af893e39a7d47195f1b6dc958ee4e0360d0d529ab74a842e0d8c704b94e34e",
+      "bytes": 5580
+    },
+    {
+      "path": "tower-hexagon-roof.glb",
+      "sha256": "5487936d065a21bbae159a5b6975086f590256c552b56caa5e6675f38cebfddb",
+      "bytes": 4868
+    },
+    {
+      "path": "tower-hexagon-top-wood.glb",
+      "sha256": "fc8931a12fcfff8da785071717a3ac6922543631d5865b6c9089bb28c90223df",
+      "bytes": 5524
+    },
+    {
+      "path": "tower-hexagon-top.glb",
+      "sha256": "c9473be6db069b6a552d25129b5cfb943e60fe2634c645e34277efea4567771e",
+      "bytes": 5492
+    },
+    {
+      "path": "tower-slant-roof.glb",
+      "sha256": "b4723d7707448584d573781bf6f336725093010536bef4b7569ed7d7b5b81fbf",
+      "bytes": 10156
+    },
+    {
+      "path": "tower-square-arch.glb",
+      "sha256": "d6581fbfb5a584b15cf8bf99c58ba2159800c8cb776e6dfdbe5e93c6d435b380",
+      "bytes": 6844
+    },
+    {
+      "path": "tower-square-base-border.glb",
+      "sha256": "bc17198d8bd2127e524f706cdd90a45353d816c83281c60ea0996f9e67b610a7",
+      "bytes": 3880
+    },
+    {
+      "path": "tower-square-base-color.glb",
+      "sha256": "da3c659ec3170851a3574d1023ae5b478fb9c6690ae6582efd0333e5d8c97376",
+      "bytes": 4488
+    },
+    {
+      "path": "tower-square-base.glb",
+      "sha256": "3c5d1292ef3ddaff2034ec6cedc4ee9dc3c5f4e636f551d5f661210bfd1b8951",
+      "bytes": 4056
+    },
+    {
+      "path": "tower-square-mid-color.glb",
+      "sha256": "053e2ab71afe4ca86fbf8b172066364b48f2db1bfefdf65401bbdfef571f16f8",
+      "bytes": 4148
+    },
+    {
+      "path": "tower-square-mid-door.glb",
+      "sha256": "0eb9f2c6b4fd24d5505bb2d67b90d361af226ca04d5dae0898812ec46186e032",
+      "bytes": 6876
+    },
+    {
+      "path": "tower-square-mid-open-simple.glb",
+      "sha256": "b5d8676b80a680b3fc2f50fe031ed81d527c907ca06cc8b9486eff26b56dd9d7",
+      "bytes": 6076
+    },
+    {
+      "path": "tower-square-mid-open.glb",
+      "sha256": "dce3c31117c5da4431c733e3e768ea4fd1637e8b88dad14cb67e4dc5d2e69548",
+      "bytes": 6800
+    },
+    {
+      "path": "tower-square-mid-windows.glb",
+      "sha256": "29469491cc6de852ef7f13956768c170ac52d562cd59f8bfcc6fafeb6c7efc90",
+      "bytes": 7100
+    },
+    {
+      "path": "tower-square-mid.glb",
+      "sha256": "236ca8b37916c264ee66ddb283408df7cb6f286a80d76966c7a4d54809b8310d",
+      "bytes": 4416
+    },
+    {
+      "path": "tower-square-roof.glb",
+      "sha256": "9c76763752289c2727843a940b4c82bf33d8dd284af1d8a8ba9c46735c1d22f2",
+      "bytes": 5472
+    },
+    {
+      "path": "tower-square-top-color.glb",
+      "sha256": "63b89840fac5e9ea5aa246f28e82e262520bc5a24baec03781c6cd35c4dcc0fc",
+      "bytes": 5536
+    },
+    {
+      "path": "tower-square-top-roof-high-windows.glb",
+      "sha256": "b2a1f52fa1f43e3ca462afe95f7967c874d811d16bdb3e99f100305286d2d531",
+      "bytes": 6560
+    },
+    {
+      "path": "tower-square-top-roof-high.glb",
+      "sha256": "9fcd7ad43a553e8ddc7a7ef0f6c2f9b7feea413d0a76229717d43ba460eb7dbf",
+      "bytes": 5108
+    },
+    {
+      "path": "tower-square-top-roof-rounded.glb",
+      "sha256": "b743136927726967a98fc7cdb69f7f88f6aef0bce7f019bbb333e43673e95c94",
+      "bytes": 5124
+    },
+    {
+      "path": "tower-square-top-roof.glb",
+      "sha256": "0472ea1b22f207f2667be8637f8bcf44511a4245aa7454e94e211d308100dd4c",
+      "bytes": 5016
+    },
+    {
+      "path": "tower-square-top.glb",
+      "sha256": "56730c5a43a2f357a73b2f18eef9293b883e0358d00ba6b482f58629fe73ef6d",
+      "bytes": 5404
+    },
+    {
+      "path": "tower-square.glb",
+      "sha256": "c2434bfb793e88611e29b56a88bc130f96fbdae18bba0b73250a369e2c5236c2",
+      "bytes": 5824
+    },
+    {
+      "path": "tower-top.glb",
+      "sha256": "968a90231d512fdb8505b40adc189a0325bc2b4b085351d2125f6a6df2ff8c67",
+      "bytes": 7340
+    },
+    {
+      "path": "tree-large.glb",
+      "sha256": "b7fa874ad1a92bf53e9ce4aa7fa4763a2f0efb39cab3fb017237b497f10f93d9",
+      "bytes": 7056
+    },
+    {
+      "path": "tree-log.glb",
+      "sha256": "61c496ee8ffaa4681def261a40ce8b457e890f253a5226f129c408bdb6a9efb2",
+      "bytes": 4692
+    },
+    {
+      "path": "tree-small.glb",
+      "sha256": "d9c4270b2a8d0292be0fcc8ecf0c412d91d0cc1a714e073982ef160ec4570eb8",
+      "bytes": 6068
+    },
+    {
+      "path": "tree-trunk.glb",
+      "sha256": "143a1d3a2ced46c79f0d03024e7ee493c6d8c5baf5fe331e80bdfc8c3815f154",
+      "bytes": 4316
+    },
+    {
+      "path": "wall-corner-half-tower.glb",
+      "sha256": "489f76f0cf6c872bae7893748bd503be6faa2e0520e83d88bb7079596c90854b",
+      "bytes": 11724
+    },
+    {
+      "path": "wall-corner-half.glb",
+      "sha256": "e932074eeb6f3ec1dee201d7e17efd742a9243c223d67dfd7652f27580940427",
+      "bytes": 5364
+    },
+    {
+      "path": "wall-corner-slant.glb",
+      "sha256": "8aa3e5740d6f1a226508f8a268dac8bc090e4042a91aef6f1e8bcb128e1e2fbe",
+      "bytes": 5420
+    },
+    {
+      "path": "wall-corner.glb",
+      "sha256": "8c1f0f5813c46efb94b600be922a7bdafef9641943bc9d563dc4297fad5780c5",
+      "bytes": 5696
+    },
+    {
+      "path": "wall-doorway.glb",
+      "sha256": "d72c8fd6033ebe9f8de76b6b3432e82586f6facae2e4fd7ebda3404aacd06411",
+      "bytes": 7940
+    },
+    {
+      "path": "wall-half-modular.glb",
+      "sha256": "6f59f33423a7087ae40e7b10eed1e9c0c4e8d561aae675df201a371e74938196",
+      "bytes": 4596
+    },
+    {
+      "path": "wall-half.glb",
+      "sha256": "6f95afe0cfabe3aa25e41dfa92f1cb4896b5b781e050783f6fbef9ac9fffc154",
+      "bytes": 5200
+    },
+    {
+      "path": "wall-narrow-corner.glb",
+      "sha256": "f70172178a77385a894abce75bcb6ebac93ed150f35e5b0d7082b079fa5acd70",
+      "bytes": 4848
+    },
+    {
+      "path": "wall-narrow-gate.glb",
+      "sha256": "643a76ac6c7dc146cd2498f6072130b878fc07ceebed72a1adaa86f1fbff097e",
+      "bytes": 5836
+    },
+    {
+      "path": "wall-narrow-stairs-rail.glb",
+      "sha256": "524d23047e184f597e9487770f53488f276a5035d1a36631bf2aea7208c885cd",
+      "bytes": 8724
+    },
+    {
+      "path": "wall-narrow-stairs.glb",
+      "sha256": "dc50b6d6ede3e0e368e7c237ae784b7784314c7f44ac7bf92c84ac7b0b3f321a",
+      "bytes": 6648
+    },
+    {
+      "path": "wall-narrow-wood-fence.glb",
+      "sha256": "b2e608da04096b5b93b53c3962793bb28c841677cfde92e246de2b0989c7d3d7",
+      "bytes": 8448
+    },
+    {
+      "path": "wall-narrow-wood.glb",
+      "sha256": "578e77af04e585092e376793641139fb3f6ce25341aa6788f45ee9f35bdb7e5c",
+      "bytes": 7552
+    },
+    {
+      "path": "wall-narrow.glb",
+      "sha256": "e30888c6f3bc429da0b4a897b08e09111efebd78007f88ac9e5a6ebdc61603ab",
+      "bytes": 5232
+    },
+    {
+      "path": "wall-pillar.glb",
+      "sha256": "17db64662a17798310fbcda41ed31a586c55b3f3a3636ab50484c5f70527424e",
+      "bytes": 5796
+    },
+    {
+      "path": "wall-stud.glb",
+      "sha256": "132e1572ac38cc8e3804d6d114f659e2cd8dfb7e9642d00c3a0ec529d5ad520a",
+      "bytes": 3768
+    },
+    {
+      "path": "wall-to-narrow.glb",
+      "sha256": "c471a510024c52041750a3ae6e6c995c962e840ea78d2a22a050eacd14d0251f",
+      "bytes": 6312
+    },
+    {
+      "path": "wall.glb",
+      "sha256": "63fcc0d554f270c7d0c670ef7dca88eeacf1beb808607fbdd5af743ecd8c4ffb",
+      "bytes": 5748
+    }
+  ],
+  "optimized": {
+    "bridge-draw.glb": "896f36153e45715868efcf1ee8f8fb6d8b893af2348cbf7da6d0e16efd728542",
+    "bridge-straight-pillar.glb": "2ca98e74800bf957a528e16c07d45660e386c9141b2200901549c1116564fcaa",
+    "bridge-straight.glb": "722b780610aa94eb6e379a75afafaa5a1c6daddbc9fe852a51e0f262b88d9e74",
+    "door.glb": "6299aaf9188012f33dc62e3f3fe214b19837f761e872c649d6f549bdc0bcfe23",
+    "flag-banner-long.glb": "41a6080a19828ec941f8ee1aaf727955b19fed0dfbda0d7cc7dd237ba948ba36",
+    "flag-banner-short.glb": "6bd83049d442f56398e33d012268eb13a18396c2985f11ef21a43e72bd6722f8",
+    "flag-pennant.glb": "f8d5732bd08bd5035ee2cef1b727876c9aed9002d8dcd6c7d296b31d5650ddc6",
+    "flag-wide.glb": "a10e2ea040741f8b108ecea72f1cb45fdec5937a8bc6cf4dcd5426731fbefc5f",
+    "flag.glb": "d40cdddd1b3d283bdc8f96c0c9399ce489a06d4737ddd081031a846e15eea4c4",
+    "gate.glb": "182a10b8f489046889c8f606f6c1f8f1e3e021b75046caee05598c2b76606da3",
+    "ground-hills.glb": "2e9c96ae08b67789b3e26d3053fc9c2262c263bbd241f4865141005eedf5f467",
+    "ground.glb": "f5bcb0cbd6f5afa02b4163a346cd794acc09b59a9736e63620c68abb6853a85a",
+    "metal-gate.glb": "005d3036879c42b36a1bb17be962d0c8b057a743e002f54b4d1f6ff0d918f115",
+    "rocks-large.glb": "1e2a8cc057302a0220ba757f139ba9e003357557158ec01d5adc1effce4a995e",
+    "rocks-small.glb": "3ff76187c0d22b84a619f7cba76c4b6392e0261a4d91e1a612023d3bbe699709",
+    "siege-ballista-demolished.glb": "4f17b289bece4b68df8ad052fd516cb746a7e579b57fbb50461dde5c88d1b546",
+    "siege-ballista.glb": "392979a040bda1dc3c2e44347676731661e81fac6279a1dba73d9f4151f0e69b",
+    "siege-catapult-demolished.glb": "ee2a81bf17a4be0297fc98cf7d7fe9db927ee940d8bb77f0aa0b322832a7facf",
+    "siege-catapult.glb": "00d353b6a0d5e21441d2a220cc6868da41f79beee0842aeeacef3a0841070780",
+    "siege-ram-demolished.glb": "c9ee74d4d30d41425f7deec6879b1e862f5f6c7ffe06f354674e98f7a2b65491",
+    "siege-ram.glb": "be47c597305a77cc381bd001d1609d4c7dac5c16d7d8c4f61dcf5842862e34fa",
+    "siege-tower-demolished.glb": "b5a85b78c2873cebff0f3280d2efa5b7ef97de77cc07913a7c48d42b90d5e6e9",
+    "siege-tower.glb": "ec421ded434c3476299e68fb3a82b34633b4423175a0fd2a72213b6790f8ae8f",
+    "siege-trebuchet-demolished.glb": "cac85aff50f93e656560eaec8628efb42f493eaebcf6bed8bc1e579aee857ed0",
+    "siege-trebuchet.glb": "8951dc3a9c19c1eb88f2962b49a1567fbda5d20fa364412fcc237fe376b2413f",
+    "stairs-stone-square.glb": "6c3ce5e8f9d7d88b64a1ee90a0ee342286689514e8aa3fd685ddc94ddd1c077d",
+    "stairs-stone.glb": "ff13116a83fe69538e95129deb36e9fab3067e465b989bcca46bad25cadd6a7e",
+    "tower-base.glb": "a741c0851925264349d51357f361e7fb723a51c587c78b973b60615e790cf8c5",
+    "tower-hexagon-base.glb": "c0abb0d4471ebd30124ff1e273127dfb8ccd3eb3c59859ab52920beb172d34f4",
+    "tower-hexagon-mid.glb": "b5f1049ca1c3bac968334e2b864b5d100c8a6a56d97f6f4f6a67a3223c53c954",
+    "tower-hexagon-roof-secondary.glb": "86af893e39a7d47195f1b6dc958ee4e0360d0d529ab74a842e0d8c704b94e34e",
+    "tower-hexagon-roof.glb": "5487936d065a21bbae159a5b6975086f590256c552b56caa5e6675f38cebfddb",
+    "tower-hexagon-top-wood.glb": "fc8931a12fcfff8da785071717a3ac6922543631d5865b6c9089bb28c90223df",
+    "tower-hexagon-top.glb": "c9473be6db069b6a552d25129b5cfb943e60fe2634c645e34277efea4567771e",
+    "tower-slant-roof.glb": "b4723d7707448584d573781bf6f336725093010536bef4b7569ed7d7b5b81fbf",
+    "tower-square-arch.glb": "d6581fbfb5a584b15cf8bf99c58ba2159800c8cb776e6dfdbe5e93c6d435b380",
+    "tower-square-base-border.glb": "bc17198d8bd2127e524f706cdd90a45353d816c83281c60ea0996f9e67b610a7",
+    "tower-square-base-color.glb": "da3c659ec3170851a3574d1023ae5b478fb9c6690ae6582efd0333e5d8c97376",
+    "tower-square-base.glb": "3c5d1292ef3ddaff2034ec6cedc4ee9dc3c5f4e636f551d5f661210bfd1b8951",
+    "tower-square-mid-color.glb": "053e2ab71afe4ca86fbf8b172066364b48f2db1bfefdf65401bbdfef571f16f8",
+    "tower-square-mid-door.glb": "0eb9f2c6b4fd24d5505bb2d67b90d361af226ca04d5dae0898812ec46186e032",
+    "tower-square-mid-open-simple.glb": "b5d8676b80a680b3fc2f50fe031ed81d527c907ca06cc8b9486eff26b56dd9d7",
+    "tower-square-mid-open.glb": "dce3c31117c5da4431c733e3e768ea4fd1637e8b88dad14cb67e4dc5d2e69548",
+    "tower-square-mid-windows.glb": "29469491cc6de852ef7f13956768c170ac52d562cd59f8bfcc6fafeb6c7efc90",
+    "tower-square-mid.glb": "236ca8b37916c264ee66ddb283408df7cb6f286a80d76966c7a4d54809b8310d",
+    "tower-square-roof.glb": "9c76763752289c2727843a940b4c82bf33d8dd284af1d8a8ba9c46735c1d22f2",
+    "tower-square-top-color.glb": "63b89840fac5e9ea5aa246f28e82e262520bc5a24baec03781c6cd35c4dcc0fc",
+    "tower-square-top-roof-high-windows.glb": "b2a1f52fa1f43e3ca462afe95f7967c874d811d16bdb3e99f100305286d2d531",
+    "tower-square-top-roof-high.glb": "9fcd7ad43a553e8ddc7a7ef0f6c2f9b7feea413d0a76229717d43ba460eb7dbf",
+    "tower-square-top-roof-rounded.glb": "b743136927726967a98fc7cdb69f7f88f6aef0bce7f019bbb333e43673e95c94",
+    "tower-square-top-roof.glb": "0472ea1b22f207f2667be8637f8bcf44511a4245aa7454e94e211d308100dd4c",
+    "tower-square-top.glb": "56730c5a43a2f357a73b2f18eef9293b883e0358d00ba6b482f58629fe73ef6d",
+    "tower-square.glb": "c2434bfb793e88611e29b56a88bc130f96fbdae18bba0b73250a369e2c5236c2",
+    "tower-top.glb": "968a90231d512fdb8505b40adc189a0325bc2b4b085351d2125f6a6df2ff8c67",
+    "tree-large.glb": "b7fa874ad1a92bf53e9ce4aa7fa4763a2f0efb39cab3fb017237b497f10f93d9",
+    "tree-log.glb": "61c496ee8ffaa4681def261a40ce8b457e890f253a5226f129c408bdb6a9efb2",
+    "tree-small.glb": "d9c4270b2a8d0292be0fcc8ecf0c412d91d0cc1a714e073982ef160ec4570eb8",
+    "tree-trunk.glb": "143a1d3a2ced46c79f0d03024e7ee493c6d8c5baf5fe331e80bdfc8c3815f154",
+    "wall-corner-half-tower.glb": "489f76f0cf6c872bae7893748bd503be6faa2e0520e83d88bb7079596c90854b",
+    "wall-corner-half.glb": "e932074eeb6f3ec1dee201d7e17efd742a9243c223d67dfd7652f27580940427",
+    "wall-corner-slant.glb": "8aa3e5740d6f1a226508f8a268dac8bc090e4042a91aef6f1e8bcb128e1e2fbe",
+    "wall-corner.glb": "8c1f0f5813c46efb94b600be922a7bdafef9641943bc9d563dc4297fad5780c5",
+    "wall-doorway.glb": "d72c8fd6033ebe9f8de76b6b3432e82586f6facae2e4fd7ebda3404aacd06411",
+    "wall-half-modular.glb": "6f59f33423a7087ae40e7b10eed1e9c0c4e8d561aae675df201a371e74938196",
+    "wall-half.glb": "6f95afe0cfabe3aa25e41dfa92f1cb4896b5b781e050783f6fbef9ac9fffc154",
+    "wall-narrow-corner.glb": "f70172178a77385a894abce75bcb6ebac93ed150f35e5b0d7082b079fa5acd70",
+    "wall-narrow-gate.glb": "643a76ac6c7dc146cd2498f6072130b878fc07ceebed72a1adaa86f1fbff097e",
+    "wall-narrow-stairs-rail.glb": "524d23047e184f597e9487770f53488f276a5035d1a36631bf2aea7208c885cd",
+    "wall-narrow-stairs.glb": "dc50b6d6ede3e0e368e7c237ae784b7784314c7f44ac7bf92c84ac7b0b3f321a",
+    "wall-narrow-wood-fence.glb": "b2e608da04096b5b93b53c3962793bb28c841677cfde92e246de2b0989c7d3d7",
+    "wall-narrow-wood.glb": "578e77af04e585092e376793641139fb3f6ce25341aa6788f45ee9f35bdb7e5c",
+    "wall-narrow.glb": "e30888c6f3bc429da0b4a897b08e09111efebd78007f88ac9e5a6ebdc61603ab",
+    "wall-pillar.glb": "17db64662a17798310fbcda41ed31a586c55b3f3a3636ab50484c5f70527424e",
+    "wall-stud.glb": "132e1572ac38cc8e3804d6d114f659e2cd8dfb7e9642d00c3a0ec529d5ad520a",
+    "wall-to-narrow.glb": "c471a510024c52041750a3ae6e6c995c962e840ea78d2a22a050eacd14d0251f",
+    "wall.glb": "63fcc0d554f270c7d0c670ef7dca88eeacf1beb808607fbdd5af743ecd8c4ffb"
+  }
+}

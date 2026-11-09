@@ -1,0 +1,591 @@
+{
+  "pack": "kenney-city-kit-roads",
+  "sourceUrl": "https://kenney.nl/assets/city-kit-roads",
+  "sourceFile": "kenney-city-kit-roads.zip",
+  "license": "CC0-1.0",
+  "fetchedAt": "2026-10-29T21:14:41.905Z",
+  "files": [
+    {
+      "path": "bridge-pillar-wide.glb",
+      "sha256": "ea965165c6ce195d1a7f5c29048cbf1d7c8d7bc76f63d961c2b3d0c11576b756",
+      "bytes": 4488
+    },
+    {
+      "path": "bridge-pillar.glb",
+      "sha256": "ed138f2b3751e636991ad32aa9231e3e2fe6f3a1333c4827a9651e41bd5e4f75",
+      "bytes": 4480
+    },
+    {
+      "path": "construction-barrier.glb",
+      "sha256": "3c2c729373949bd9f27c4dee436e1e77776e44a789409564e8e35b4896870346",
+      "bytes": 4972
+    },
+    {
+      "path": "construction-cone.glb",
+      "sha256": "ad9f4ea66c6230f4f48f15e88dee60dd80b9807db24b29308ffc8a2fe4b77657",
+      "bytes": 4776
+    },
+    {
+      "path": "construction-fence.glb",
+      "sha256": "2cda1c6133843e85af0fdc6747aec6d52d6b7c34cc44cac48e4bb2f018a2fd3d",
+      "bytes": 6240
+    },
+    {
+      "path": "construction-light.glb",
+      "sha256": "ed7ba94a4c67777813570ebc51db7a2786b30e40123d4c811d70e113f54b5767",
+      "bytes": 6112
+    },
+    {
+      "path": "dumpster.glb",
+      "sha256": "1a3a66dd8b3a1adca6b6ffac1d143445da038129745e2be4a9fd1cfe7baa6b09",
+      "bytes": 7300
+    },
+    {
+      "path": "electricity-pole-single.glb",
+      "sha256": "068aabfcf03fb76dd4e3b18bea2cd2f995b48640a9641279cb716316e48ba7bf",
+      "bytes": 7172
+    },
+    {
+      "path": "electricity-pole-wide.glb",
+      "sha256": "ecfc54f397c798a9067b1b5ecfa682158734359cff46d4b393b39b7f3527021f",
+      "bytes": 13572
+    },
+    {
+      "path": "electricity-pole.glb",
+      "sha256": "a55bc56033ccb7b5cd845b5208db912e86db2c2e6388ce954d20ed63ad15a4e7",
+      "bytes": 11416
+    },
+    {
+      "path": "electricity-side-single.glb",
+      "sha256": "4585c40ef8c87a4a302a0eef31e9bd6207ed3acf2280e8cb4d8d0378bfcd2697",
+      "bytes": 7112
+    },
+    {
+      "path": "electricity-side-wide.glb",
+      "sha256": "6a68f24bf9057a1e9b7e3f1a145d2be62760176c4e03caed7c20b9644d2f6440",
+      "bytes": 13304
+    },
+    {
+      "path": "electricity-side.glb",
+      "sha256": "f7827e199a00119bc41a3e095f82481f27542109822556a7156236b09088104a",
+      "bytes": 11412
+    },
+    {
+      "path": "electricity-wires-wide.glb",
+      "sha256": "569d1f4c612aa136d3467352343b984f6190cb5d1a4c32a6291999d2cd0d60cc",
+      "bytes": 7732
+    },
+    {
+      "path": "electricity-wires.glb",
+      "sha256": "2d25d8f2c490390573d86ca4d21911ee8f4990b839a9359d06a92c6d02893f17",
+      "bytes": 5380
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "d23f51360ca2cd81711bc5b09ddfb28ac94da96d7ca2dbdef12c50f33f35c353",
+      "bytes": 703
+    },
+    {
+      "path": "light-curved-cross.glb",
+      "sha256": "bb389b667021b9a227e16777c27cc530664202c39e67a5813d9ff6bd8a3955f3",
+      "bytes": 6960
+    },
+    {
+      "path": "light-curved-double.glb",
+      "sha256": "d7ec157664879a4dd416ad6cafbbf32ab7101194b800c3c5de97ec1927ffb7da",
+      "bytes": 5656
+    },
+    {
+      "path": "light-curved.glb",
+      "sha256": "cc8904f3bfe52a08e4107ec579b6391fd62002dd9ff20bbd13e1f56978e833f7",
+      "bytes": 5012
+    },
+    {
+      "path": "light-square-cross.glb",
+      "sha256": "1aed3a1e5b74c29aee55feabab37e921ebd8884d4d869dbf319ab1730d13ea94",
+      "bytes": 5700
+    },
+    {
+      "path": "light-square-double.glb",
+      "sha256": "b402f79b99ffa23af2f6e7ec3bdb52361db8b5f83e4119185ba29bdb5609e836",
+      "bytes": 5100
+    },
+    {
+      "path": "light-square.glb",
+      "sha256": "7f20b19b68afdc70ef9ffeaf7c44f5ecada462b75c5a4411220d797eee97e1ae",
+      "bytes": 4708
+    },
+    {
+      "path": "road-bend-barrier.glb",
+      "sha256": "81541f31d087bbe839017c8b585688de7831412cf6176dd4617e83f2b6cfef20",
+      "bytes": 5280
+    },
+    {
+      "path": "road-bend-sidewalk.glb",
+      "sha256": "3df8bed97dd1aff5d64f5a31f9be99eb015ea356ca7df9b5ba85d94bf021e771",
+      "bytes": 5880
+    },
+    {
+      "path": "road-bend-square-barrier.glb",
+      "sha256": "4200843f32e72a6fd47a97175e7057a91a3ccb35e72b99887a20d56654b2cfb5",
+      "bytes": 4492
+    },
+    {
+      "path": "road-bend-square.glb",
+      "sha256": "c5b0e5c4e189b1e8a6420459f79ae81f49e6ba910ea3186734661dc313b6450e",
+      "bytes": 4488
+    },
+    {
+      "path": "road-bend.glb",
+      "sha256": "00fd28f9571620c13d741803c74d244ed2c6c248f78422ea9eb0987ecf93c6d2",
+      "bytes": 6372
+    },
+    {
+      "path": "road-bridge.glb",
+      "sha256": "5e34cc97c5d99d915ecd4252df8cc0a3b8e75f34c66397ef4cd3eeaaffa0c8af",
+      "bytes": 7316
+    },
+    {
+      "path": "road-crossing.glb",
+      "sha256": "86d7cbdc2a941238a0603cf1fbb4057bbebf007e6e78def0ef4ad168e6962c32",
+      "bytes": 4680
+    },
+    {
+      "path": "road-crossroad-barrier.glb",
+      "sha256": "6a2980fbd24c45685aa1d66a6992491ce4b2cf85999b0a039da837b6240146f0",
+      "bytes": 5168
+    },
+    {
+      "path": "road-crossroad-line.glb",
+      "sha256": "bbf84325253509d402a3abe9e9e6ee732161ac9fbf34e626a322f1ca7a119101",
+      "bytes": 4960
+    },
+    {
+      "path": "road-crossroad-path.glb",
+      "sha256": "2b5a6f2f0f5fe414c377a3c865190b9793995e9fe59f5a1f27d7070e08e6fe56",
+      "bytes": 5800
+    },
+    {
+      "path": "road-crossroad.glb",
+      "sha256": "72c5bd68c4c5ed2eca220ad292336af293d807460e6355710dffbbd748effacf",
+      "bytes": 4980
+    },
+    {
+      "path": "road-curve-barrier.glb",
+      "sha256": "1aa4f697e9f16e17e722faddd2d7c32bd2bde0002910c137eaedcfaba080eec0",
+      "bytes": 6000
+    },
+    {
+      "path": "road-curve-intersection-barrier.glb",
+      "sha256": "77923e4318cc6ebfe9b728b3e0cc5d9e85e4bb0e5ba6b5e03074f0bbd43f33cb",
+      "bytes": 5656
+    },
+    {
+      "path": "road-curve-intersection.glb",
+      "sha256": "3eed89fe62a8bfa95617970e255a430b6e806194a02188acdad5314723524252",
+      "bytes": 6492
+    },
+    {
+      "path": "road-curve-pavement.glb",
+      "sha256": "71e5b9b89364501cbc373c676bf176f3e8102f1491549266303f260dd0951b5d",
+      "bytes": 5744
+    },
+    {
+      "path": "road-curve.glb",
+      "sha256": "d58072f9978152247acf3f7ddd54a7e57f53f3a3b354d63c64946ba8c32840c9",
+      "bytes": 6704
+    },
+    {
+      "path": "road-driveway-double-barrier.glb",
+      "sha256": "1bbec463c039054a55f62d20da316a04a6c1f541b8f27e72ecab0691eee8fe94",
+      "bytes": 4888
+    },
+    {
+      "path": "road-driveway-double.glb",
+      "sha256": "48fc18f7b8155078f0c716f310436a8bcd71dd6843ae5ad2ec1850ab249e55ac",
+      "bytes": 4760
+    },
+    {
+      "path": "road-driveway-single-barrier.glb",
+      "sha256": "0da611f94ffc1e9a828aa5e9923a3ca05d113db66f7dd890b29b429af090e631",
+      "bytes": 4520
+    },
+    {
+      "path": "road-driveway-single.glb",
+      "sha256": "c99b876c25dd79716cc8afe709c12911ac3d11dda30116cf4933eca7e1b78ada",
+      "bytes": 4556
+    },
+    {
+      "path": "road-end-barrier.glb",
+      "sha256": "86778c47d2beda37130a6f8b494f382258e2eac65608aef6b3a4697dc27c4b9e",
+      "bytes": 4156
+    },
+    {
+      "path": "road-end-round-barrier.glb",
+      "sha256": "519ecbc5135a16f8c3f621d494eb8e5dd0d1f02fd0095237b0705f231ad538ad",
+      "bytes": 5836
+    },
+    {
+      "path": "road-end-round.glb",
+      "sha256": "553a8eca34d3957c5cd3ec6ce8c42c5b47468a074e3cf3bf2b3e6dd7bc79a16b",
+      "bytes": 5800
+    },
+    {
+      "path": "road-end.glb",
+      "sha256": "b4e27efed1e87a8d635115eb0ac011aa3ba6b3785d1a8bf22061e0c2fa9a3aee",
+      "bytes": 4272
+    },
+    {
+      "path": "road-intersection-barrier.glb",
+      "sha256": "6dd8cea9c5723928cd4108de75038a15241ae6149d25843444164063fad179d3",
+      "bytes": 4692
+    },
+    {
+      "path": "road-intersection-line.glb",
+      "sha256": "37eaed22960ba8e2b383c684a9990efa68c0745de9b0e425bf6d36560b25e4f8",
+      "bytes": 4664
+    },
+    {
+      "path": "road-intersection-path.glb",
+      "sha256": "7dbd47761fe7aa28b517d6d44ee8367465710f347f53aa72d7b125cee9a1ddaa",
+      "bytes": 5316
+    },
+    {
+      "path": "road-intersection.glb",
+      "sha256": "9813d1617fd6fb85188e7a89c1347bace482c8ad939140f69e3a83a6c64bff17",
+      "bytes": 4748
+    },
+    {
+      "path": "road-roundabout-barrier.glb",
+      "sha256": "78ed770f43e4b584e83fbfc0ba2d9d30a81b5dcb45a83fae427a590c4df8d70c",
+      "bytes": 11028
+    },
+    {
+      "path": "road-roundabout.glb",
+      "sha256": "0c255b9b170be8e252db16eaf129df87e8b7803a875c9c62a43606fb75b5a5a6",
+      "bytes": 14804
+    },
+    {
+      "path": "road-side-barrier.glb",
+      "sha256": "e2d4505e3b37cb64c4592bf7851a15d9b56f1ba4983c1489627e7a855387af70",
+      "bytes": 4248
+    },
+    {
+      "path": "road-side-entry-barrier.glb",
+      "sha256": "38ced3a86bd1eb1eb45928e43c6731e143157c55a5e4ee9fbdd6ee35e58c5528",
+      "bytes": 6160
+    },
+    {
+      "path": "road-side-entry.glb",
+      "sha256": "5db8f2f3f51a6d9e2da1c29944e9db59ff5a0a804b54277af3b386df8b662a06",
+      "bytes": 6480
+    },
+    {
+      "path": "road-side-exit-barrier.glb",
+      "sha256": "1020385c07efe4f651e968b980a3873231200c5c222057b0aed7105402ef8282",
+      "bytes": 6164
+    },
+    {
+      "path": "road-side-exit.glb",
+      "sha256": "ca6870d8338c02d4ad00024748f634169edb4af185a4e06b136e3a1d4312119b",
+      "bytes": 6536
+    },
+    {
+      "path": "road-side.glb",
+      "sha256": "67632d0ff2d076143a54b32f005950014d138f1cf867ad4853d07226f15be637",
+      "bytes": 4408
+    },
+    {
+      "path": "road-sign-empty-hanging.glb",
+      "sha256": "dfeac41015a5dbd440f3d07339ff76435b121646a98bf56e8d782d864234092d",
+      "bytes": 5528
+    },
+    {
+      "path": "road-sign-empty.glb",
+      "sha256": "c4849acc77ce2f40d0f44f0a27f4bf3719f952f2c591f3ea5daf30e3da47e180",
+      "bytes": 4440
+    },
+    {
+      "path": "road-sign-object-stop.glb",
+      "sha256": "9cacb2aafb9b270dc77348921003cb5f9ed24f9fc2cb02d178566966efa47d00",
+      "bytes": 4852
+    },
+    {
+      "path": "road-sign-object-street.glb",
+      "sha256": "d87674f7f13d5eaba7b17bae7e87bff125a11051209f39a80af9962d83779857",
+      "bytes": 4724
+    },
+    {
+      "path": "road-sign-object-warning.glb",
+      "sha256": "f28a496f08fe81063e080fd17c0b232719a02f25f531392565581365a7ef040d",
+      "bytes": 5032
+    },
+    {
+      "path": "road-sign-stop.glb",
+      "sha256": "9d339c2c7d1c174ad69faf3bfa7e9debe51b3361be7c47dff20b45c08f488d13",
+      "bytes": 5384
+    },
+    {
+      "path": "road-sign-street.glb",
+      "sha256": "bf2dd15af898e120a6c07b47a4f801023e83cb1176bf6cecb7371b5f192e1b44",
+      "bytes": 5972
+    },
+    {
+      "path": "road-sign-warning.glb",
+      "sha256": "027be785b356641fd9f1b9efe30df6d7bba95d66e64fb77099e4fffac1826944",
+      "bytes": 5568
+    },
+    {
+      "path": "road-slant-barrier.glb",
+      "sha256": "9f9bbc98796695fcb1d8755e1e4f501b65f599de0083de83d900687c043c3766",
+      "bytes": 4160
+    },
+    {
+      "path": "road-slant-curve-barrier.glb",
+      "sha256": "5a7e4b66b4870724d99fbf35e30da71123c66ebb1503493a5e4b92bd77280666",
+      "bytes": 7328
+    },
+    {
+      "path": "road-slant-curve.glb",
+      "sha256": "5f654f8038d2debe8cfbab9c11b87420e303dede83271074200df34d4da352fa",
+      "bytes": 7816
+    },
+    {
+      "path": "road-slant-flat-curve.glb",
+      "sha256": "0d2c4bc4b241c432fb6fa9aa2917a818efdcf006b64ded9d5ac8e5fb4b0a3146",
+      "bytes": 8508
+    },
+    {
+      "path": "road-slant-flat-high.glb",
+      "sha256": "581f99eb910ab1130e063d079f0efa5dee33e5b75a7a2c2e63f5f6f893a63e8e",
+      "bytes": 4424
+    },
+    {
+      "path": "road-slant-flat.glb",
+      "sha256": "9092331ff062fa8f5345308b620500b5b9a7faac34670091f043666ec9921db5",
+      "bytes": 4420
+    },
+    {
+      "path": "road-slant-high-barrier.glb",
+      "sha256": "1e336b91d5c9fcf88d92c79985075c54de04071803452bf46bb33a81bf3c3e54",
+      "bytes": 4168
+    },
+    {
+      "path": "road-slant-high.glb",
+      "sha256": "2b9b8f1fff6017362bcf2e149f52d88475fb336b04402dac6900f1af10a7af0c",
+      "bytes": 4380
+    },
+    {
+      "path": "road-slant.glb",
+      "sha256": "a268993258ca6e2971c2ee6fc0ea4d0d4fe46da1c016a33741828b7dba365276",
+      "bytes": 4380
+    },
+    {
+      "path": "road-split-barrier.glb",
+      "sha256": "65a1b89a7e35228636194d79316325542c73805b9611222662dba2d6ca59082f",
+      "bytes": 8208
+    },
+    {
+      "path": "road-split.glb",
+      "sha256": "b1c7b06d5caf4d784176aca3cf45a0e45b4a0af7318e6cab47044c626f272a36",
+      "bytes": 9884
+    },
+    {
+      "path": "road-square-barrier.glb",
+      "sha256": "87661a7a01eedca40436f6c9d2609e7fef15219b91a65db213f0de49acbdc1e8",
+      "bytes": 4184
+    },
+    {
+      "path": "road-square.glb",
+      "sha256": "2cfb43b0fb8e1a2a5ec29e1897e16f6cd724d68728b942bbfe23a9d2f86b82e1",
+      "bytes": 4264
+    },
+    {
+      "path": "road-straight-barrier-end.glb",
+      "sha256": "91bfd08102f61fb41b6640da9088aaff4e45ac00eea1af25f3490b1fb329e5e6",
+      "bytes": 4180
+    },
+    {
+      "path": "road-straight-barrier-half.glb",
+      "sha256": "6f2f4eae70b92830eb21f425d4bfb33a84500e5472150c906bc4c9b0b7e770ad",
+      "bytes": 4260
+    },
+    {
+      "path": "road-straight-barrier.glb",
+      "sha256": "a0148526a064a46b2358d42168470fe54090d421a2c2eb66d5cab62347e9211e",
+      "bytes": 4200
+    },
+    {
+      "path": "road-straight-half.glb",
+      "sha256": "59e7e6a7eac441dcb957035f96a8c24c97a0ca6862ce350db0836443d651f128",
+      "bytes": 4380
+    },
+    {
+      "path": "road-straight.glb",
+      "sha256": "e46346e70849641381c2a0524924ff7d123a9578eb82bbe880a5bca7f88b15e6",
+      "bytes": 4332
+    },
+    {
+      "path": "sign-highway-detailed.glb",
+      "sha256": "d0661a350529a767ac17f1c7e7fb138af63a77c6a527247e177aa469780afd1f",
+      "bytes": 6832
+    },
+    {
+      "path": "sign-highway-wide.glb",
+      "sha256": "1060a3776dcb1a07982c7293629901146f7fbc984957e9f00cea0446d484f741",
+      "bytes": 5700
+    },
+    {
+      "path": "sign-highway.glb",
+      "sha256": "c5ef1f666e5d2650b1f41484dda9852561ce5076f17b5964cabb4d7424518b3b",
+      "bytes": 6036
+    },
+    {
+      "path": "Textures/colormap.png",
+      "sha256": "a48e2962661ae44368ffddf3054f80ed8491d082b757dcc3011184cd9a98b185",
+      "bytes": 11428
+    },
+    {
+      "path": "tile-high.glb",
+      "sha256": "9b711992d393127ed35f5a01ec0776432bf06728282c0df563f5628762d393eb",
+      "bytes": 3948
+    },
+    {
+      "path": "tile-low.glb",
+      "sha256": "81504b4806db31dc67b9ecf181b8bba1a69257c432dd7a2d1c0a44c6077821cd",
+      "bytes": 3960
+    },
+    {
+      "path": "tile-slant.glb",
+      "sha256": "ae89e587ab9d3465d3732346f809152c0e54f54f6ccbfc3ac84eba95dad280d8",
+      "bytes": 3972
+    },
+    {
+      "path": "tile-slantHigh.glb",
+      "sha256": "ed5a55f3169e18b4c750d24a7933e3da0cd429b0c7728e729d9ff56165b3775b",
+      "bytes": 3988
+    },
+    {
+      "path": "traffic-light-hanging.glb",
+      "sha256": "97627d1b6e959f28418dd449518f3ec5863583147a67b94b3fc760c28d643c68",
+      "bytes": 7052
+    },
+    {
+      "path": "traffic-light-object-hanging.glb",
+      "sha256": "721c6ab538b86c53fa40b2001a8d715a2514647948cf9e6b59ca2bc486205ef4",
+      "bytes": 5468
+    },
+    {
+      "path": "traffic-light-object-horizontal.glb",
+      "sha256": "17a69c914eb9c22b03752cbbbf077020a4f592dc258c207cd05fcfdea00d5044",
+      "bytes": 5444
+    },
+    {
+      "path": "traffic-light-object-vertical.glb",
+      "sha256": "69e41f090ca434206f9f179d77774350f64358af4c652903a52fe042ae30b6f2",
+      "bytes": 5740
+    },
+    {
+      "path": "traffic-light.glb",
+      "sha256": "4d3e1744ca484f09b442372e9eb0502f38fd05803dddabe7b017d425494bcbac",
+      "bytes": 6768
+    }
+  ],
+  "optimized": {
+    "bridge-pillar-wide.glb": "ea965165c6ce195d1a7f5c29048cbf1d7c8d7bc76f63d961c2b3d0c11576b756",
+    "bridge-pillar.glb": "ed138f2b3751e636991ad32aa9231e3e2fe6f3a1333c4827a9651e41bd5e4f75",
+    "construction-barrier.glb": "3c2c729373949bd9f27c4dee436e1e77776e44a789409564e8e35b4896870346",
+    "construction-cone.glb": "ad9f4ea66c6230f4f48f15e88dee60dd80b9807db24b29308ffc8a2fe4b77657",
+    "construction-fence.glb": "2cda1c6133843e85af0fdc6747aec6d52d6b7c34cc44cac48e4bb2f018a2fd3d",
+    "construction-light.glb": "ed7ba94a4c67777813570ebc51db7a2786b30e40123d4c811d70e113f54b5767",
+    "dumpster.glb": "1a3a66dd8b3a1adca6b6ffac1d143445da038129745e2be4a9fd1cfe7baa6b09",
+    "electricity-pole-single.glb": "068aabfcf03fb76dd4e3b18bea2cd2f995b48640a9641279cb716316e48ba7bf",
+    "electricity-pole-wide.glb": "ecfc54f397c798a9067b1b5ecfa682158734359cff46d4b393b39b7f3527021f",
+    "electricity-pole.glb": "a55bc56033ccb7b5cd845b5208db912e86db2c2e6388ce954d20ed63ad15a4e7",
+    "electricity-side-single.glb": "4585c40ef8c87a4a302a0eef31e9bd6207ed3acf2280e8cb4d8d0378bfcd2697",
+    "electricity-side-wide.glb": "6a68f24bf9057a1e9b7e3f1a145d2be62760176c4e03caed7c20b9644d2f6440",
+    "electricity-side.glb": "f7827e199a00119bc41a3e095f82481f27542109822556a7156236b09088104a",
+    "electricity-wires-wide.glb": "569d1f4c612aa136d3467352343b984f6190cb5d1a4c32a6291999d2cd0d60cc",
+    "electricity-wires.glb": "2d25d8f2c490390573d86ca4d21911ee8f4990b839a9359d06a92c6d02893f17",
+    "light-curved-cross.glb": "bb389b667021b9a227e16777c27cc530664202c39e67a5813d9ff6bd8a3955f3",
+    "light-curved-double.glb": "d7ec157664879a4dd416ad6cafbbf32ab7101194b800c3c5de97ec1927ffb7da",
+    "light-curved.glb": "cc8904f3bfe52a08e4107ec579b6391fd62002dd9ff20bbd13e1f56978e833f7",
+    "light-square-cross.glb": "1aed3a1e5b74c29aee55feabab37e921ebd8884d4d869dbf319ab1730d13ea94",
+    "light-square-double.glb": "b402f79b99ffa23af2f6e7ec3bdb52361db8b5f83e4119185ba29bdb5609e836",
+    "light-square.glb": "7f20b19b68afdc70ef9ffeaf7c44f5ecada462b75c5a4411220d797eee97e1ae",
+    "road-bend-barrier.glb": "81541f31d087bbe839017c8b585688de7831412cf6176dd4617e83f2b6cfef20",
+    "road-bend-sidewalk.glb": "3df8bed97dd1aff5d64f5a31f9be99eb015ea356ca7df9b5ba85d94bf021e771",
+    "road-bend-square-barrier.glb": "4200843f32e72a6fd47a97175e7057a91a3ccb35e72b99887a20d56654b2cfb5",
+    "road-bend-square.glb": "c5b0e5c4e189b1e8a6420459f79ae81f49e6ba910ea3186734661dc313b6450e",
+    "road-bend.glb": "00fd28f9571620c13d741803c74d244ed2c6c248f78422ea9eb0987ecf93c6d2",
+    "road-bridge.glb": "5e34cc97c5d99d915ecd4252df8cc0a3b8e75f34c66397ef4cd3eeaaffa0c8af",
+    "road-crossing.glb": "86d7cbdc2a941238a0603cf1fbb4057bbebf007e6e78def0ef4ad168e6962c32",
+    "road-crossroad-barrier.glb": "6a2980fbd24c45685aa1d66a6992491ce4b2cf85999b0a039da837b6240146f0",
+    "road-crossroad-line.glb": "bbf84325253509d402a3abe9e9e6ee732161ac9fbf34e626a322f1ca7a119101",
+    "road-crossroad-path.glb": "2b5a6f2f0f5fe414c377a3c865190b9793995e9fe59f5a1f27d7070e08e6fe56",
+    "road-crossroad.glb": "72c5bd68c4c5ed2eca220ad292336af293d807460e6355710dffbbd748effacf",
+    "road-curve-barrier.glb": "1aa4f697e9f16e17e722faddd2d7c32bd2bde0002910c137eaedcfaba080eec0",
+    "road-curve-intersection-barrier.glb": "77923e4318cc6ebfe9b728b3e0cc5d9e85e4bb0e5ba6b5e03074f0bbd43f33cb",
+    "road-curve-intersection.glb": "3eed89fe62a8bfa95617970e255a430b6e806194a02188acdad5314723524252",
+    "road-curve-pavement.glb": "71e5b9b89364501cbc373c676bf176f3e8102f1491549266303f260dd0951b5d",
+    "road-curve.glb": "d58072f9978152247acf3f7ddd54a7e57f53f3a3b354d63c64946ba8c32840c9",
+    "road-driveway-double-barrier.glb": "1bbec463c039054a55f62d20da316a04a6c1f541b8f27e72ecab0691eee8fe94",
+    "road-driveway-double.glb": "48fc18f7b8155078f0c716f310436a8bcd71dd6843ae5ad2ec1850ab249e55ac",
+    "road-driveway-single-barrier.glb": "0da611f94ffc1e9a828aa5e9923a3ca05d113db66f7dd890b29b429af090e631",
+    "road-driveway-single.glb": "c99b876c25dd79716cc8afe709c12911ac3d11dda30116cf4933eca7e1b78ada",
+    "road-end-barrier.glb": "86778c47d2beda37130a6f8b494f382258e2eac65608aef6b3a4697dc27c4b9e",
+    "road-end-round-barrier.glb": "519ecbc5135a16f8c3f621d494eb8e5dd0d1f02fd0095237b0705f231ad538ad",
+    "road-end-round.glb": "553a8eca34d3957c5cd3ec6ce8c42c5b47468a074e3cf3bf2b3e6dd7bc79a16b",
+    "road-end.glb": "b4e27efed1e87a8d635115eb0ac011aa3ba6b3785d1a8bf22061e0c2fa9a3aee",
+    "road-intersection-barrier.glb": "6dd8cea9c5723928cd4108de75038a15241ae6149d25843444164063fad179d3",
+    "road-intersection-line.glb": "37eaed22960ba8e2b383c684a9990efa68c0745de9b0e425bf6d36560b25e4f8",
+    "road-intersection-path.glb": "7dbd47761fe7aa28b517d6d44ee8367465710f347f53aa72d7b125cee9a1ddaa",
+    "road-intersection.glb": "9813d1617fd6fb85188e7a89c1347bace482c8ad939140f69e3a83a6c64bff17",
+    "road-roundabout-barrier.glb": "78ed770f43e4b584e83fbfc0ba2d9d30a81b5dcb45a83fae427a590c4df8d70c",
+    "road-roundabout.glb": "0c255b9b170be8e252db16eaf129df87e8b7803a875c9c62a43606fb75b5a5a6",
+    "road-side-barrier.glb": "e2d4505e3b37cb64c4592bf7851a15d9b56f1ba4983c1489627e7a855387af70",
+    "road-side-entry-barrier.glb": "38ced3a86bd1eb1eb45928e43c6731e143157c55a5e4ee9fbdd6ee35e58c5528",
+    "road-side-entry.glb": "5db8f2f3f51a6d9e2da1c29944e9db59ff5a0a804b54277af3b386df8b662a06",
+    "road-side-exit-barrier.glb": "1020385c07efe4f651e968b980a3873231200c5c222057b0aed7105402ef8282",
+    "road-side-exit.glb": "ca6870d8338c02d4ad00024748f634169edb4af185a4e06b136e3a1d4312119b",
+    "road-side.glb": "67632d0ff2d076143a54b32f005950014d138f1cf867ad4853d07226f15be637",
+    "road-sign-empty-hanging.glb": "dfeac41015a5dbd440f3d07339ff76435b121646a98bf56e8d782d864234092d",
+    "road-sign-empty.glb": "c4849acc77ce2f40d0f44f0a27f4bf3719f952f2c591f3ea5daf30e3da47e180",
+    "road-sign-object-stop.glb": "9cacb2aafb9b270dc77348921003cb5f9ed24f9fc2cb02d178566966efa47d00",
+    "road-sign-object-street.glb": "d87674f7f13d5eaba7b17bae7e87bff125a11051209f39a80af9962d83779857",
+    "road-sign-object-warning.glb": "f28a496f08fe81063e080fd17c0b232719a02f25f531392565581365a7ef040d",
+    "road-sign-stop.glb": "9d339c2c7d1c174ad69faf3bfa7e9debe51b3361be7c47dff20b45c08f488d13",
+    "road-sign-street.glb": "bf2dd15af898e120a6c07b47a4f801023e83cb1176bf6cecb7371b5f192e1b44",
+    "road-sign-warning.glb": "027be785b356641fd9f1b9efe30df6d7bba95d66e64fb77099e4fffac1826944",
+    "road-slant-barrier.glb": "9f9bbc98796695fcb1d8755e1e4f501b65f599de0083de83d900687c043c3766",
+    "road-slant-curve-barrier.glb": "5a7e4b66b4870724d99fbf35e30da71123c66ebb1503493a5e4b92bd77280666",
+    "road-slant-curve.glb": "5f654f8038d2debe8cfbab9c11b87420e303dede83271074200df34d4da352fa",
+    "road-slant-flat-curve.glb": "0d2c4bc4b241c432fb6fa9aa2917a818efdcf006b64ded9d5ac8e5fb4b0a3146",
+    "road-slant-flat-high.glb": "581f99eb910ab1130e063d079f0efa5dee33e5b75a7a2c2e63f5f6f893a63e8e",
+    "road-slant-flat.glb": "9092331ff062fa8f5345308b620500b5b9a7faac34670091f043666ec9921db5",
+    "road-slant-high-barrier.glb": "1e336b91d5c9fcf88d92c79985075c54de04071803452bf46bb33a81bf3c3e54",
+    "road-slant-high.glb": "2b9b8f1fff6017362bcf2e149f52d88475fb336b04402dac6900f1af10a7af0c",
+    "road-slant.glb": "a268993258ca6e2971c2ee6fc0ea4d0d4fe46da1c016a33741828b7dba365276",
+    "road-split-barrier.glb": "65a1b89a7e35228636194d79316325542c73805b9611222662dba2d6ca59082f",
+    "road-split.glb": "b1c7b06d5caf4d784176aca3cf45a0e45b4a0af7318e6cab47044c626f272a36",
+    "road-square-barrier.glb": "87661a7a01eedca40436f6c9d2609e7fef15219b91a65db213f0de49acbdc1e8",
+    "road-square.glb": "2cfb43b0fb8e1a2a5ec29e1897e16f6cd724d68728b942bbfe23a9d2f86b82e1",
+    "road-straight-barrier-end.glb": "91bfd08102f61fb41b6640da9088aaff4e45ac00eea1af25f3490b1fb329e5e6",
+    "road-straight-barrier-half.glb": "6f2f4eae70b92830eb21f425d4bfb33a84500e5472150c906bc4c9b0b7e770ad",
+    "road-straight-barrier.glb": "a0148526a064a46b2358d42168470fe54090d421a2c2eb66d5cab62347e9211e",
+    "road-straight-half.glb": "59e7e6a7eac441dcb957035f96a8c24c97a0ca6862ce350db0836443d651f128",
+    "road-straight.glb": "e46346e70849641381c2a0524924ff7d123a9578eb82bbe880a5bca7f88b15e6",
+    "sign-highway-detailed.glb": "d0661a350529a767ac17f1c7e7fb138af63a77c6a527247e177aa469780afd1f",
+    "sign-highway-wide.glb": "1060a3776dcb1a07982c7293629901146f7fbc984957e9f00cea0446d484f741",
+    "sign-highway.glb": "c5ef1f666e5d2650b1f41484dda9852561ce5076f17b5964cabb4d7424518b3b",
+    "tile-high.glb": "9b711992d393127ed35f5a01ec0776432bf06728282c0df563f5628762d393eb",
+    "tile-low.glb": "81504b4806db31dc67b9ecf181b8bba1a69257c432dd7a2d1c0a44c6077821cd",
+    "tile-slant.glb": "ae89e587ab9d3465d3732346f809152c0e54f54f6ccbfc3ac84eba95dad280d8",
+    "tile-slantHigh.glb": "ed5a55f3169e18b4c750d24a7933e3da0cd429b0c7728e729d9ff56165b3775b",
+    "traffic-light-hanging.glb": "97627d1b6e959f28418dd449518f3ec5863583147a67b94b3fc760c28d643c68",
+    "traffic-light-object-hanging.glb": "721c6ab538b86c53fa40b2001a8d715a2514647948cf9e6b59ca2bc486205ef4",
+    "traffic-light-object-horizontal.glb": "17a69c914eb9c22b03752cbbbf077020a4f592dc258c207cd05fcfdea00d5044",
+    "traffic-light-object-vertical.glb": "69e41f090ca434206f9f179d77774350f64358af4c652903a52fe042ae30b6f2",
+    "traffic-light.glb": "4d3e1744ca484f09b442372e9eb0502f38fd05803dddabe7b017d425494bcbac"
+  }
+}

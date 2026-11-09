@@ -1,0 +1,1023 @@
+{
+  "pack": "kenney-fantasy-town-kit",
+  "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+  "sourceFile": "kenney-fantasy-town-kit.zip",
+  "license": "CC0-1.0",
+  "fetchedAt": "2026-10-29T21:14:26.389Z",
+  "files": [
+    {
+      "path": "balcony-wall-fence.glb",
+      "sha256": "c350dc066ba235bb286b1bba71fb70353e8fd7691d44569fd10a02ea271fa4e7",
+      "bytes": 5320
+    },
+    {
+      "path": "balcony-wall.glb",
+      "sha256": "355aca34a530ee3fd08c610031b0a65033c86c68487fb3940b292ee19615c0ac",
+      "bytes": 4668
+    },
+    {
+      "path": "banner-green.glb",
+      "sha256": "37721c7cd47e2e175111a6dc630f7916a1fb9935956d0c81bab1d535474f3127",
+      "bytes": 5304
+    },
+    {
+      "path": "banner-red.glb",
+      "sha256": "f50dd92655702e5f9d90baf1680425e60e6366d7d1a5c8b820d8f7e207882ed7",
+      "bytes": 5296
+    },
+    {
+      "path": "blade.glb",
+      "sha256": "68b02becdcbf27f3816f40dc5d4921f7afb659d876f795e69c61f511cd218354",
+      "bytes": 6372
+    },
+    {
+      "path": "cart-high.glb",
+      "sha256": "a67c77247a24188846781e0c4bdf478a7f54dc999eb5febd77076f9ff208a39e",
+      "bytes": 16880
+    },
+    {
+      "path": "cart.glb",
+      "sha256": "c7baab0d2f33749b4f94b76a25ef4ab98e1cc6e9de0869fa6d5eba3f74d2d260",
+      "bytes": 11372
+    },
+    {
+      "path": "chimney-base.glb",
+      "sha256": "95eff0aff8b625a0668c34db065b2cf443ed0a5979ffa41b6306f7d3aa16c069",
+      "bytes": 5000
+    },
+    {
+      "path": "chimney-top.glb",
+      "sha256": "dcb0288482b8bce96c2a6cc769d337629339164ca3cd0da7d521376755e18941",
+      "bytes": 4896
+    },
+    {
+      "path": "chimney.glb",
+      "sha256": "39846182d175d693a3d14a45b1e0c40f51a8ca9ee32be4fd605687aa12295147",
+      "bytes": 4232
+    },
+    {
+      "path": "fence-broken.glb",
+      "sha256": "92c27c2fbb87bdc16af5f25e473876803ba26baecbf73b1793e023ca0d93864a",
+      "bytes": 5652
+    },
+    {
+      "path": "fence-curved.glb",
+      "sha256": "9aaa195a1bf4007cb97218714e05c3743bf739bf332007ca4c02fe9fd3f6961b",
+      "bytes": 7404
+    },
+    {
+      "path": "fence-gate.glb",
+      "sha256": "8bfe624e0560bdef6d8559d7a2f859257fe64cd66b9633c39b12521f0b4a37d4",
+      "bytes": 9528
+    },
+    {
+      "path": "fence.glb",
+      "sha256": "f4eb14470c01c1a280ee656165b9f8be60eba6e20a0375e032b83c0bf5cf9c4e",
+      "bytes": 4804
+    },
+    {
+      "path": "fountain-center.glb",
+      "sha256": "455f2602ee69b2a7ff325fbd72c482e21fe1ad8fb64a6e8aa756af957d84ac14",
+      "bytes": 4136
+    },
+    {
+      "path": "fountain-corner-inner-square.glb",
+      "sha256": "b65859b43d4cbebe07b2900877d9283b9a32a4615a9e004b336caf17862a0323",
+      "bytes": 5624
+    },
+    {
+      "path": "fountain-corner-inner.glb",
+      "sha256": "9964e29dc8e3affeb3ec87c25f1b5b773ba79bb245f6147a2b14824d17287920",
+      "bytes": 6900
+    },
+    {
+      "path": "fountain-corner.glb",
+      "sha256": "f152b4ce87ab88a5655ffe4873f413908280aad925b81fad8285818cb9cfee22",
+      "bytes": 5920
+    },
+    {
+      "path": "fountain-curved.glb",
+      "sha256": "94ca3942accdf39c471be44e1e633faa67afc302461231b2abee1a539c4af8ca",
+      "bytes": 8732
+    },
+    {
+      "path": "fountain-edge.glb",
+      "sha256": "e5c77f86d20f7668b6659ee8bdbc9f5692c28fee45a9683de8d5d5ee036e73c2",
+      "bytes": 5480
+    },
+    {
+      "path": "fountain-round-detail.glb",
+      "sha256": "2ff627fb771d4520ed5a3dcd1dbe0895d22825ff6d3784ace77ed1e41e68d35d",
+      "bytes": 24404
+    },
+    {
+      "path": "fountain-round.glb",
+      "sha256": "e33db62982128af3de05357a8ae680020b2347dd52e9b6fff529ddfad2287ec5",
+      "bytes": 17200
+    },
+    {
+      "path": "fountain-square-detail.glb",
+      "sha256": "f1bb7eb6ce0ec152926b1a5a660783d4653a55839aeffacb590cdc388e5b606a",
+      "bytes": 9588
+    },
+    {
+      "path": "fountain-square.glb",
+      "sha256": "76d8e35867993e4ad43d65c6c9030b143bab8eba2de31558e99795271c4aeb75",
+      "bytes": 8904
+    },
+    {
+      "path": "hedge-curved.glb",
+      "sha256": "2b8da998730349e09fb0f37b0d98829941b9fc1f7555d9c597b8b9af4b848e48",
+      "bytes": 8176
+    },
+    {
+      "path": "hedge-gate.glb",
+      "sha256": "56a6419d86b1d1d16fa849cd6fd2785ab9548359cb865a56b13a6227853a167c",
+      "bytes": 5020
+    },
+    {
+      "path": "hedge-large-curved.glb",
+      "sha256": "5783c9c0e1808997d03f7043969faf892c4230db0e77ffa74df10dcf7bc3981e",
+      "bytes": 8164
+    },
+    {
+      "path": "hedge-large-gate.glb",
+      "sha256": "9378ecd0936024932c0f64eaa62cbecfbe597d43223c42590b2d314d001013c3",
+      "bytes": 6732
+    },
+    {
+      "path": "hedge-large.glb",
+      "sha256": "d9db746a3b38e4761747cda1be16f1d7602d7c231ee3f4ded3907ca1ab4b01e7",
+      "bytes": 5236
+    },
+    {
+      "path": "hedge.glb",
+      "sha256": "1a5300b704ffdedbfdc9b36221c25ef9f80c1a9d5e2ac9cb51a3fb7fb76ab6e2",
+      "bytes": 4720
+    },
+    {
+      "path": "lantern.glb",
+      "sha256": "011a1aae40f088818d96e68a3eb669dd6574c2041db2ece9f9abdd2da772465c",
+      "bytes": 5928
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "fb8e4817197ef9f62215e95b4451a0f09c769c8e03e416e3a2ce108dfa6117e4",
+      "bytes": 705
+    },
+    {
+      "path": "overhang.glb",
+      "sha256": "03d40e2170c8ff73f204537470af8a9b36bdbf31ba71070b4250ec4eb78c480d",
+      "bytes": 4844
+    },
+    {
+      "path": "pillar-stone.glb",
+      "sha256": "7dfc66e6bf64d32f860f6a1ceb6cef027390140dd940faed0e57ab5fe9b5d7d3",
+      "bytes": 5492
+    },
+    {
+      "path": "pillar-wood.glb",
+      "sha256": "88c1ecf711adb86ea5b97e6ec401ff29abae6bf091b9b9c7072ec5b9e8d6037a",
+      "bytes": 4524
+    },
+    {
+      "path": "planks-half.glb",
+      "sha256": "fbc88fd9457fee4018808fe833d934a3359d7589e7c0f658016fef8db53067c2",
+      "bytes": 5156
+    },
+    {
+      "path": "planks-opening.glb",
+      "sha256": "0cadf5afcb9104b66def06ddbb384f3f18f7959c80a41c3ec6e7beba6347a1f4",
+      "bytes": 5928
+    },
+    {
+      "path": "planks.glb",
+      "sha256": "bad75944365334c82fc47aa43187cd815a29029eb50b069da68dd1bb9c29c62f",
+      "bytes": 5072
+    },
+    {
+      "path": "poles-horizontal.glb",
+      "sha256": "414a7505d48fd623abfef49ea6c275e071b0c6943ed5f455f69e759c5253c1af",
+      "bytes": 4460
+    },
+    {
+      "path": "poles.glb",
+      "sha256": "0ba9d6f3f1b8c0abefc0ecd009a873023c064e1a3d379c8eb1bb474d3736b718",
+      "bytes": 4124
+    },
+    {
+      "path": "road-bend.glb",
+      "sha256": "c4345d62faa733176172c08c2a2ed10aa79fbc01cb240dab8537d782ef1722f3",
+      "bytes": 6896
+    },
+    {
+      "path": "road-corner-inner.glb",
+      "sha256": "cf42cd235e8e8f7ee241cd150356290b73954b70a0249de2b0b9a0a3c78a12ce",
+      "bytes": 5496
+    },
+    {
+      "path": "road-corner.glb",
+      "sha256": "bb7f77910dbd43c7b03e2767753fa9ada77e2acc1defc45adfe358d27c366d7d",
+      "bytes": 5404
+    },
+    {
+      "path": "road-curb-end.glb",
+      "sha256": "3f847a1dba7a8ef04ef09d09b48a46944f83b810f8de11b49f1daeaa52ff37a0",
+      "bytes": 4184
+    },
+    {
+      "path": "road-curb.glb",
+      "sha256": "fe15823acc0d6132ca171343d27b474cf435657a8bf9e9f3b600682e0433d4c9",
+      "bytes": 3936
+    },
+    {
+      "path": "road-edge-slope.glb",
+      "sha256": "3129dfc88f200af1a82e8fb84d03babbe11c1f7c61b0886ce43b7144ebf9671b",
+      "bytes": 4204
+    },
+    {
+      "path": "road-edge.glb",
+      "sha256": "028dcaed9c8d4a019503df01cec1861e0a6f201a90c77d5c35ba495e80fef777",
+      "bytes": 4224
+    },
+    {
+      "path": "road-slope.glb",
+      "sha256": "5093667302b3efa5833d0bff932d320857c0ef60767285075a402bcc8b08a02a",
+      "bytes": 3948
+    },
+    {
+      "path": "road.glb",
+      "sha256": "6335a8b4170783e32fcc8c6c38f7132b2a64f1e47809ab3f40bcd34f56355b2b",
+      "bytes": 3916
+    },
+    {
+      "path": "rock-large.glb",
+      "sha256": "21d29ff487fb75207dd359313e947dae395fbe96bfb93422b5a853e9e8a7bad3",
+      "bytes": 6908
+    },
+    {
+      "path": "rock-small.glb",
+      "sha256": "76e07a2b3414d10983a6dcb485a9ef8109c3687d19bb07b04c79923db65e5440",
+      "bytes": 5868
+    },
+    {
+      "path": "rock-wide.glb",
+      "sha256": "598dda90910f438aba8f9910481a1485dcddfca36b879145a6c2e8b37198ca60",
+      "bytes": 6208
+    },
+    {
+      "path": "roof-corner-inner.glb",
+      "sha256": "245c4fe0be39bc5317bd2789c8ce7ccc681806f94836e5a51d9d144ec0b645b9",
+      "bytes": 4304
+    },
+    {
+      "path": "roof-corner-round.glb",
+      "sha256": "9ec6a1d9f98f80c446010ff27d85e3a73f4398ff79a91f967c9fbffb1b2734ff",
+      "bytes": 4668
+    },
+    {
+      "path": "roof-corner.glb",
+      "sha256": "783839d1aaf6172665d357017795d9cb15573b9a65283131c76726bddc639bfb",
+      "bytes": 4424
+    },
+    {
+      "path": "roof-flat.glb",
+      "sha256": "8b15d99058c4513b8e95efeddc3706284b0c3b2d9945dc1b3c9169afd517b1ea",
+      "bytes": 4096
+    },
+    {
+      "path": "roof-gable-detail.glb",
+      "sha256": "8be73a448fe95e301a9aba5813dedefabe30a8762734247a68200926041c9688",
+      "bytes": 5628
+    },
+    {
+      "path": "roof-gable-end.glb",
+      "sha256": "0bc44ec1c28c2b558381d5044a5d2440894ce381ac6c2591c1658a60738ce672",
+      "bytes": 4660
+    },
+    {
+      "path": "roof-gable-top.glb",
+      "sha256": "0930a568f81d5692ab6e1af7bb020e5df9493e587894953fe4e9492436aafc67",
+      "bytes": 4624
+    },
+    {
+      "path": "roof-gable.glb",
+      "sha256": "c0dffb036c2940ebe7780d1220d84f9bda714869b029808017fc9cccef28ae68",
+      "bytes": 4892
+    },
+    {
+      "path": "roof-high-corner-round.glb",
+      "sha256": "6fef9be8476ebddce22a221870337694a9c88194b5f978da24f6f17ed559ac4f",
+      "bytes": 4684
+    },
+    {
+      "path": "roof-high-corner.glb",
+      "sha256": "0d0b048961d05ed5bf9d8b10fe55dc8a0df6a4c54db69fee9dc5789cdf667816",
+      "bytes": 4456
+    },
+    {
+      "path": "roof-high-cornerinner.glb",
+      "sha256": "a62030bb2928488ab131c8a9132aac2a0cbd25c0ffe920f61b265618655c156c",
+      "bytes": 4364
+    },
+    {
+      "path": "roof-high-flat.glb",
+      "sha256": "466a7adc13d5659128c215512db2cd584fe0d3f024285c5503b508b1b8b3a4db",
+      "bytes": 4088
+    },
+    {
+      "path": "roof-high-gable-detail.glb",
+      "sha256": "eb1def48d8c6b5766121d4507ecb0599825f1f5d39f533516c707eff2fea554f",
+      "bytes": 5812
+    },
+    {
+      "path": "roof-high-gable-end.glb",
+      "sha256": "5fecc8c95b7bf9a3955bfd72a40a866d201e1b4c3159b9a4ca6fbff1f33b6b06",
+      "bytes": 4728
+    },
+    {
+      "path": "roof-high-gable-top.glb",
+      "sha256": "af9f4b3cf5c8648fb3db655e105578c32d9f893de341453649be5b9de701da34",
+      "bytes": 4624
+    },
+    {
+      "path": "roof-high-gable.glb",
+      "sha256": "70778e768e6476636796ece2a4821dd873cffb24fba59e5d8458d6d281fb79e4",
+      "bytes": 4896
+    },
+    {
+      "path": "roof-high-left.glb",
+      "sha256": "d83c2264584d36d8e1e8758832548d9da23eb1c9b42bb5091a4a6314d49ee4ed",
+      "bytes": 5040
+    },
+    {
+      "path": "roof-high-point.glb",
+      "sha256": "4bb37a646f4715b945f25b83b2d820fa3d35b0e1d97e8aea823a1b918fbeb256",
+      "bytes": 4724
+    },
+    {
+      "path": "roof-high-right.glb",
+      "sha256": "aaf54e015e648f5586186e2dbcabd110c98b453323251c49436a116d54ddb5f6",
+      "bytes": 5032
+    },
+    {
+      "path": "roof-high-window.glb",
+      "sha256": "9e4c9fce3b84213b94db90d2bcd56c97222bffc4267e01ffbbb7be23f3d31b87",
+      "bytes": 6876
+    },
+    {
+      "path": "roof-high.glb",
+      "sha256": "ab4349c552085130101b8cfc1eeaf4818d57e6410d0dbe0ac5527326bbf5ceca",
+      "bytes": 4768
+    },
+    {
+      "path": "roof-left.glb",
+      "sha256": "e9e1c18261f5985a457817df52621ef5ce491237c342a823cc9869c02462f135",
+      "bytes": 5004
+    },
+    {
+      "path": "roof-point.glb",
+      "sha256": "189c3ecaf21ab7b5e385512cc3ef70485adc7306cea70f84ed19c62a52f9bb2e",
+      "bytes": 4720
+    },
+    {
+      "path": "roof-right.glb",
+      "sha256": "59cd79d192dbfbf4248e762b0142eb2ad9ec676d51b0b023cc7266c786b348e3",
+      "bytes": 5016
+    },
+    {
+      "path": "roof-window.glb",
+      "sha256": "6969b242b8bd443fac8d9552901f0bb7a0b100a45818fb21588ca4f5d7cf8628",
+      "bytes": 6084
+    },
+    {
+      "path": "roof.glb",
+      "sha256": "f28da452628e6055f65bea36d29e11de132feed6b7d752f09d7ae240e03a1100",
+      "bytes": 4656
+    },
+    {
+      "path": "stairs-full-corner-inner.glb",
+      "sha256": "cd1520e62276ff03bc04ea4c8977b0fd47b0a038f1ba217761ccaf07cf6497ed",
+      "bytes": 4928
+    },
+    {
+      "path": "stairs-full-corner-outer.glb",
+      "sha256": "f586ea72cb9e79156d522dc6a3e8748e2c650a4b9019761072c95ebc2019a01d",
+      "bytes": 5228
+    },
+    {
+      "path": "stairs-full.glb",
+      "sha256": "ffa507645d18fb2eb26f9227cb9a4fec77ca5c6192b996dbc9101847127e15b0",
+      "bytes": 4768
+    },
+    {
+      "path": "stairs-stone-corner.glb",
+      "sha256": "8a5db81df9d3a46f23f2571d38dde993ebd3d4e6c087e389c9f9c43836b96a95",
+      "bytes": 5772
+    },
+    {
+      "path": "stairs-stone-handrail.glb",
+      "sha256": "e7ae42f41ae7402990a9c174d61744dc1e75f3d4833fe0b51ae979944a4ec898",
+      "bytes": 7448
+    },
+    {
+      "path": "stairs-stone-round.glb",
+      "sha256": "8caa01a209398fe5c8f231a3340fba5d456da393fda5126dece6b28e435c1d06",
+      "bytes": 6616
+    },
+    {
+      "path": "stairs-stone.glb",
+      "sha256": "445c82066fb12dc417b31369e1d294d648d15bef8afc7b9f38a421a117b1c351",
+      "bytes": 5668
+    },
+    {
+      "path": "stairs-wide-stone-handrail.glb",
+      "sha256": "2863b44bca50924919abfd592400e130a00971810b225f2de5f45a63a589d978",
+      "bytes": 7496
+    },
+    {
+      "path": "stairs-wide-stone.glb",
+      "sha256": "21e07bc4eeb44ef30a6730e2b9da048e93a62f33bc621bbf4a807dc787236358",
+      "bytes": 5636
+    },
+    {
+      "path": "stairs-wide-wood-handrail.glb",
+      "sha256": "70500e9f200dae22a8904c710c04fe1895dffed19f821ce735bd74a354e8afec",
+      "bytes": 10372
+    },
+    {
+      "path": "stairs-wide-wood.glb",
+      "sha256": "547ba053aa71d9d98d1e0f08e69e922430fede4a98995b59f77857f356e0f455",
+      "bytes": 8572
+    },
+    {
+      "path": "stairs-wood-handrail.glb",
+      "sha256": "5cd0f01df95860f943242f4a592f2ab90d00300f26f553e0c99b0df0d6933181",
+      "bytes": 10424
+    },
+    {
+      "path": "stairs-wood.glb",
+      "sha256": "bc9eeaf300beeed7739593eaf846e53dc26373a0d72d49779ae7c424b4eca9bb",
+      "bytes": 8640
+    },
+    {
+      "path": "stall-bench.glb",
+      "sha256": "7c1c4669f2fafc17ba2c754f51fc8a5c1414c78135514d8523591f16e6ca6bad",
+      "bytes": 5844
+    },
+    {
+      "path": "stall-green.glb",
+      "sha256": "7fb04772bd689bb7769e51b152e51d0ea2fc3e437bd89c285e60027ce4c6dfe8",
+      "bytes": 7516
+    },
+    {
+      "path": "stall-red.glb",
+      "sha256": "c225884dea72bc0787770d91f15790653029fe0e375271926d84ef102e0ad525",
+      "bytes": 7116
+    },
+    {
+      "path": "stall-stool.glb",
+      "sha256": "0b773d443aefa676ff31882168cef219f9749f71799b91b6d530bca0d851678b",
+      "bytes": 5960
+    },
+    {
+      "path": "stall.glb",
+      "sha256": "cd3e5ab8a50cc2d7d8ddb6d56881bdf16a5f7d0697c90bb1e8a266535b62d55f",
+      "bytes": 5344
+    },
+    {
+      "path": "Textures/colormap.png",
+      "sha256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "bytes": 11143
+    },
+    {
+      "path": "tree-crooked.glb",
+      "sha256": "ab5f9b12549b4f84b7642cd8288a302acd1c2daf062dcd73366de82fc41cd961",
+      "bytes": 7304
+    },
+    {
+      "path": "tree-high-crooked.glb",
+      "sha256": "f15fb92368b00c20a29820a17792a5d766860bc4a4dea367a0ef55e63af72fcb",
+      "bytes": 7756
+    },
+    {
+      "path": "tree-high-round.glb",
+      "sha256": "7f7269fc22f3eaccb79e04e77fc3cf2717d5fba547cc22fd5b7d30802e8df5a1",
+      "bytes": 6048
+    },
+    {
+      "path": "tree-high.glb",
+      "sha256": "acfb5ba155153a7c4e8acaefe22fbcb9b82d99bcc34d526e725a891b51483569",
+      "bytes": 7388
+    },
+    {
+      "path": "tree.glb",
+      "sha256": "3dc8061ee003a5996aba99e5dbf7b59f6e6e6b09b928df0df67b98e3b3256d7f",
+      "bytes": 6928
+    },
+    {
+      "path": "wall-arch-top-detail.glb",
+      "sha256": "cd0c5b2dc017cdce8270eb1e9272391668d669d02ecdbcdaa989b1aaf9a30f99",
+      "bytes": 6044
+    },
+    {
+      "path": "wall-arch-top.glb",
+      "sha256": "a28d568f96ebb1b91af578af0f0a7fcd87ce54aa8fa3391ab2638a8a61b92420",
+      "bytes": 5364
+    },
+    {
+      "path": "wall-arch.glb",
+      "sha256": "d253ca792b3830f0405b85a6a34e18c547dd192e60f0d2c1c1f512d7449d3381",
+      "bytes": 4284
+    },
+    {
+      "path": "wall-block-half.glb",
+      "sha256": "152850f964f0c26b59ad1ece6d071709f22cca9e349fc81f3c242cf1b046d270",
+      "bytes": 4976
+    },
+    {
+      "path": "wall-block.glb",
+      "sha256": "725fe96dafa2eb58a8a1c1a2c599da9f678fc2f1621f1b419d9fb912f7a8fffb",
+      "bytes": 4892
+    },
+    {
+      "path": "wall-broken.glb",
+      "sha256": "2e6f65b0a4d38f3d7ea7d8a38fb7edfa519834e994ec0cb941c8b387c19de98e",
+      "bytes": 6188
+    },
+    {
+      "path": "wall-corner-detail.glb",
+      "sha256": "36e0d6ae04f82a033dc0bf2a0dfcaf1605c57299990288375e841dd01201a123",
+      "bytes": 6124
+    },
+    {
+      "path": "wall-corner-diagonal-half.glb",
+      "sha256": "086675f1d6477e0f8391f75784bb8ff6b725f43859f23d46391aebc3450ec06f",
+      "bytes": 4328
+    },
+    {
+      "path": "wall-corner-diagonal.glb",
+      "sha256": "911decb32e37476aac72427f79ddde6446db21e820e84ef6dabafcf0777ddd49",
+      "bytes": 4496
+    },
+    {
+      "path": "wall-corner-edge.glb",
+      "sha256": "256811e50fc4f03a6386b3ee5dfda022e30f4a2b14ed971050554d42e11c86f2",
+      "bytes": 4404
+    },
+    {
+      "path": "wall-corner.glb",
+      "sha256": "1c400ae6de16bf420804b49a75fba5888e5398d3a8d7a073bf02540966bdf488",
+      "bytes": 4580
+    },
+    {
+      "path": "wall-curved.glb",
+      "sha256": "0053e8d9c3afbf480013d1dc95cb5c1d772d38da1ac19bc153c91b256c17adeb",
+      "bytes": 5328
+    },
+    {
+      "path": "wall-detail-cross.glb",
+      "sha256": "b19f05bee0840c023aecee7d3941c2ce5e78ccb51e5beba940f926165f67ada2",
+      "bytes": 4968
+    },
+    {
+      "path": "wall-detail-diagonal.glb",
+      "sha256": "5ceb0a96e0a725b9a8b7b31621912a0b562dce634464fb795a1a112e890cb67c",
+      "bytes": 4680
+    },
+    {
+      "path": "wall-detail-horizontal.glb",
+      "sha256": "041f45890aacbd4380d3d9d628dbc0b78025c2afaf317e4c20d3f493f2b5cb25",
+      "bytes": 4552
+    },
+    {
+      "path": "wall-diagonal.glb",
+      "sha256": "ce2ecff47c13028ea0399b18c49cf61f9da50e8f80f3e900e8b5a155f2b679d0",
+      "bytes": 4384
+    },
+    {
+      "path": "wall-door.glb",
+      "sha256": "0e95b2eb9711212b5cd4f8bd913ebc48b7998d776f018b976f65e3c112eb6281",
+      "bytes": 7292
+    },
+    {
+      "path": "wall-doorway-base.glb",
+      "sha256": "543fbbf52940e3f9df55d06b5bd657d1cbb59dac40d2d8e0ebaa3cfe10176e74",
+      "bytes": 4760
+    },
+    {
+      "path": "wall-doorway-round.glb",
+      "sha256": "f71f8f2f555715908fcaa4a4134b83559d1ddedf1f4e67595aa6794558ccc52c",
+      "bytes": 5272
+    },
+    {
+      "path": "wall-doorway-square-wide-curved.glb",
+      "sha256": "69e974079e14a032c9724d1900bf78fb63bcf16f55b5fd66ded7172e0353481a",
+      "bytes": 5388
+    },
+    {
+      "path": "wall-doorway-square-wide.glb",
+      "sha256": "20b0a7028edc191dbaf9292e8f3966c1fa13a08d880923d9960024d51a73a955",
+      "bytes": 4540
+    },
+    {
+      "path": "wall-doorway-square.glb",
+      "sha256": "b2d6db65869b26d94405e165aaee227733b1afac42974eb7e006dab1e52d319e",
+      "bytes": 4788
+    },
+    {
+      "path": "wall-half.glb",
+      "sha256": "07e6314b3cf5482be9362df250420439599533fe940dda16471871019376b19a",
+      "bytes": 4300
+    },
+    {
+      "path": "wall-rounded.glb",
+      "sha256": "39259763a9237ece10b88ff76088d0ccf623caa946b8be59eae51a606c65b551",
+      "bytes": 5368
+    },
+    {
+      "path": "wall-side.glb",
+      "sha256": "c1316fba0213dfe5a25540fa69719a07fbc7134a0d0a96e1fa0b3a12527d4773",
+      "bytes": 4148
+    },
+    {
+      "path": "wall-slope.glb",
+      "sha256": "1918774fb29bdedcc258b6127955075e281be5270f0c986d30dcae6848581fdc",
+      "bytes": 4284
+    },
+    {
+      "path": "wall-window-glass.glb",
+      "sha256": "898ed67285b836ca8f434d59f7cb607ee5b8b081c2e38aa4bb0014382e5a4bf4",
+      "bytes": 5980
+    },
+    {
+      "path": "wall-window-round.glb",
+      "sha256": "e216087af3866e817a6a1d61b4bedb150baee7c459dda42543019cc76b6fdcee",
+      "bytes": 6676
+    },
+    {
+      "path": "wall-window-shutters.glb",
+      "sha256": "6d9a36b37b77bc1e3521f6a956457a11cc3b3cc4f7b0ab6f65dccfee38856cc1",
+      "bytes": 7292
+    },
+    {
+      "path": "wall-window-small.glb",
+      "sha256": "73583475360e1416a1d2ad91de2eaf072f8d72235425e50055dd90e502f9d17a",
+      "bytes": 5052
+    },
+    {
+      "path": "wall-window-stone.glb",
+      "sha256": "af2a5c351f82937b2bd915ba66e96842fb3e5f6cf4f25d58bec9c29aa68cc6e1",
+      "bytes": 5596
+    },
+    {
+      "path": "wall-wood-arch-top-detail.glb",
+      "sha256": "76b261fd55ad42b408c4c3488d30697093b4981600b6ecb296f4c375d94822b3",
+      "bytes": 6056
+    },
+    {
+      "path": "wall-wood-arch-top.glb",
+      "sha256": "4ca91ab37e676d9af95d8d6527cbd0ebc738545ca368e2ac58517b1e2b0e7173",
+      "bytes": 5376
+    },
+    {
+      "path": "wall-wood-arch.glb",
+      "sha256": "b1bab90324210e4b5a02e9d8da5c4b7261497a150a31c8689274b57da7e62555",
+      "bytes": 4300
+    },
+    {
+      "path": "wall-wood-block-half.glb",
+      "sha256": "6a99b1bd940c9a61614eaff74a3b91b4e84fb00230ee679efb21f1991ceb10d0",
+      "bytes": 4988
+    },
+    {
+      "path": "wall-wood-block.glb",
+      "sha256": "11b811b3623693bebc3bd92791371661088fc1e0b6730161fa2f64b80c2d1142",
+      "bytes": 4904
+    },
+    {
+      "path": "wall-wood-broken.glb",
+      "sha256": "b2a9c671f50e1c3c08f008aa2ec4851ccb103e61ac8ed94f9b14722be2e8fe60",
+      "bytes": 6100
+    },
+    {
+      "path": "wall-wood-corner-diagonal-half.glb",
+      "sha256": "938ff01fcda1272074164e6e56d9fcc10bc468062dd12d8ff4af3e03c5575b3a",
+      "bytes": 4340
+    },
+    {
+      "path": "wall-wood-corner-diagonal.glb",
+      "sha256": "507230a91005d19c1e4745e2663a5c7cfc52a07d207554489b381fa5466d8c4a",
+      "bytes": 4512
+    },
+    {
+      "path": "wall-wood-corner-edge.glb",
+      "sha256": "b74127946a4634d529ea00166952c99bf851f0b08da3066fb9f5c883e384ae94",
+      "bytes": 4420
+    },
+    {
+      "path": "wall-wood-corner.glb",
+      "sha256": "465c618fa5aa284c3093addeb0c88d7621747b2f7dd7500dc055d9f248d3bdfc",
+      "bytes": 4592
+    },
+    {
+      "path": "wall-wood-curved.glb",
+      "sha256": "9c6b4788394ae22e21a9a9f5104b874a57155a6a882482e5664d7414c08e3678",
+      "bytes": 5340
+    },
+    {
+      "path": "wall-wood-detail-cross.glb",
+      "sha256": "194763f379d4795508174925bf094332d598e6d8cec243978f64190209e55fa5",
+      "bytes": 4980
+    },
+    {
+      "path": "wall-wood-detail-diagonal.glb",
+      "sha256": "ffe4921de56e858b7d454de04d01926af257f4f7ecc9e779f41f12060a73810e",
+      "bytes": 4692
+    },
+    {
+      "path": "wall-wood-detail-horizontal.glb",
+      "sha256": "96b36b336e517f3c5d69e302defb798624e887f171bbea89d17bc933b0f3cd10",
+      "bytes": 4568
+    },
+    {
+      "path": "wall-wood-diagonal.glb",
+      "sha256": "2130b9c8c38595bad7177bf009e8b6f9b043cd8e9c89456b9af3e97e71dca851",
+      "bytes": 4392
+    },
+    {
+      "path": "wall-wood-door.glb",
+      "sha256": "8535a862da453df9a195842d458e849886b016424fc74dbfe74da754874cf667",
+      "bytes": 7340
+    },
+    {
+      "path": "wall-wood-doorway-base.glb",
+      "sha256": "4095819016fdb00a4e9bcfe63d63c6de75f799ea531800ce821b20701905cf2a",
+      "bytes": 4776
+    },
+    {
+      "path": "wall-wood-doorway-round.glb",
+      "sha256": "570f6de45487446e0140fc7887d77ee944fa8dd39c6c58edd115b3100140092e",
+      "bytes": 5636
+    },
+    {
+      "path": "wall-wood-doorway-square-wide-curved.glb",
+      "sha256": "7f6e6c445e5be7e2a4bc2e17cd3fbed4bfdd4e57b0efc4946dc1578ecc925281",
+      "bytes": 5400
+    },
+    {
+      "path": "wall-wood-doorway-square-wide.glb",
+      "sha256": "94c375df878cd135411528d6d700fdd2746c14d20f6f6e6e1a6246b5a60aa8d6",
+      "bytes": 4556
+    },
+    {
+      "path": "wall-wood-doorway-square.glb",
+      "sha256": "04f04720154a62fc5f5a7d0d98a9a0a20bc04ba985f65ac5ab5a33c0c3ab6f6b",
+      "bytes": 4896
+    },
+    {
+      "path": "wall-wood-half.glb",
+      "sha256": "54d8a4882f41eb332cd8079c9cfb8589afb1969442e349d08784247c499824cc",
+      "bytes": 4316
+    },
+    {
+      "path": "wall-wood-rounded.glb",
+      "sha256": "f01564b84d07bba1ec2894738ce84ae0f8298f0d1686440d18e45aa6a38b2a47",
+      "bytes": 5384
+    },
+    {
+      "path": "wall-wood-side.glb",
+      "sha256": "33c8ae260f485fca56d3f21912bfdc9b2944c62f063aba5b9854670c1e9941ed",
+      "bytes": 4164
+    },
+    {
+      "path": "wall-wood-slope.glb",
+      "sha256": "6cfe4cb0416d422795c9cf9f523a259c9eea95fb69612abe20c012beb426e922",
+      "bytes": 4688
+    },
+    {
+      "path": "wall-wood-window-glass.glb",
+      "sha256": "566743158fc694c400784bf76e8289f524dd42d824b5ede252a29423faaa3525",
+      "bytes": 5348
+    },
+    {
+      "path": "wall-wood-window-round.glb",
+      "sha256": "564a59e6feb0a57f1742fccef5775645013183c714a5884f67fc158d92cc7b19",
+      "bytes": 6580
+    },
+    {
+      "path": "wall-wood-window-shutters.glb",
+      "sha256": "d6bf18300631a9c3fbe54cf5a4ec620b30122981fe1e3b96f73e7b0c4aaa57d5",
+      "bytes": 5304
+    },
+    {
+      "path": "wall-wood-window-small.glb",
+      "sha256": "1ed9820598eb0f145178b2723c35d7586cc74d752eca95d3da3823e8ef3a85dc",
+      "bytes": 5436
+    },
+    {
+      "path": "wall-wood-window-stone.glb",
+      "sha256": "9c9223466ca89d9064092db9310e9a5cb8b28eeb9cdced991edd9af78d720c90",
+      "bytes": 6196
+    },
+    {
+      "path": "wall-wood.glb",
+      "sha256": "986f926a07cab2b40d306a54aaa844390f2dccea2d08e60cd556e4e70ac26dc7",
+      "bytes": 4268
+    },
+    {
+      "path": "wall.glb",
+      "sha256": "62a82d69a2de11dcc12623c9bdda716e77eef12678f820000a99dbc099288dd0",
+      "bytes": 4252
+    },
+    {
+      "path": "watermill-wide.glb",
+      "sha256": "e672a6b83c55f3bd9e5f17ccabdce6043870489c4547dc855654959a943af4de",
+      "bytes": 11272
+    },
+    {
+      "path": "watermill.glb",
+      "sha256": "649f54808a85ac191cf902a2cff1181c841c3e6c7480c4a90e047e194acb5f35",
+      "bytes": 11256
+    },
+    {
+      "path": "wheel.glb",
+      "sha256": "f83dcb03f4cf981f01eb7ebdee27f3ce131da202a8c9e2a982159a4f12c19b6b",
+      "bytes": 6716
+    },
+    {
+      "path": "windmill.glb",
+      "sha256": "901a1b262d42251a99de8afc09580eb6a36188776bb52e655d92e5731d4d85f0",
+      "bytes": 14612
+    }
+  ],
+  "optimized": {
+    "balcony-wall-fence.glb": "c350dc066ba235bb286b1bba71fb70353e8fd7691d44569fd10a02ea271fa4e7",
+    "balcony-wall.glb": "355aca34a530ee3fd08c610031b0a65033c86c68487fb3940b292ee19615c0ac",
+    "banner-green.glb": "37721c7cd47e2e175111a6dc630f7916a1fb9935956d0c81bab1d535474f3127",
+    "banner-red.glb": "f50dd92655702e5f9d90baf1680425e60e6366d7d1a5c8b820d8f7e207882ed7",
+    "blade.glb": "68b02becdcbf27f3816f40dc5d4921f7afb659d876f795e69c61f511cd218354",
+    "cart-high.glb": "a67c77247a24188846781e0c4bdf478a7f54dc999eb5febd77076f9ff208a39e",
+    "cart.glb": "c7baab0d2f33749b4f94b76a25ef4ab98e1cc6e9de0869fa6d5eba3f74d2d260",
+    "chimney-base.glb": "95eff0aff8b625a0668c34db065b2cf443ed0a5979ffa41b6306f7d3aa16c069",
+    "chimney-top.glb": "dcb0288482b8bce96c2a6cc769d337629339164ca3cd0da7d521376755e18941",
+    "chimney.glb": "39846182d175d693a3d14a45b1e0c40f51a8ca9ee32be4fd605687aa12295147",
+    "fence-broken.glb": "92c27c2fbb87bdc16af5f25e473876803ba26baecbf73b1793e023ca0d93864a",
+    "fence-curved.glb": "9aaa195a1bf4007cb97218714e05c3743bf739bf332007ca4c02fe9fd3f6961b",
+    "fence-gate.glb": "8bfe624e0560bdef6d8559d7a2f859257fe64cd66b9633c39b12521f0b4a37d4",
+    "fence.glb": "f4eb14470c01c1a280ee656165b9f8be60eba6e20a0375e032b83c0bf5cf9c4e",
+    "fountain-center.glb": "455f2602ee69b2a7ff325fbd72c482e21fe1ad8fb64a6e8aa756af957d84ac14",
+    "fountain-corner-inner-square.glb": "b65859b43d4cbebe07b2900877d9283b9a32a4615a9e004b336caf17862a0323",
+    "fountain-corner-inner.glb": "9964e29dc8e3affeb3ec87c25f1b5b773ba79bb245f6147a2b14824d17287920",
+    "fountain-corner.glb": "f152b4ce87ab88a5655ffe4873f413908280aad925b81fad8285818cb9cfee22",
+    "fountain-curved.glb": "94ca3942accdf39c471be44e1e633faa67afc302461231b2abee1a539c4af8ca",
+    "fountain-edge.glb": "e5c77f86d20f7668b6659ee8bdbc9f5692c28fee45a9683de8d5d5ee036e73c2",
+    "fountain-round-detail.glb": "2ff627fb771d4520ed5a3dcd1dbe0895d22825ff6d3784ace77ed1e41e68d35d",
+    "fountain-round.glb": "e33db62982128af3de05357a8ae680020b2347dd52e9b6fff529ddfad2287ec5",
+    "fountain-square-detail.glb": "f1bb7eb6ce0ec152926b1a5a660783d4653a55839aeffacb590cdc388e5b606a",
+    "fountain-square.glb": "76d8e35867993e4ad43d65c6c9030b143bab8eba2de31558e99795271c4aeb75",
+    "hedge-curved.glb": "2b8da998730349e09fb0f37b0d98829941b9fc1f7555d9c597b8b9af4b848e48",
+    "hedge-gate.glb": "56a6419d86b1d1d16fa849cd6fd2785ab9548359cb865a56b13a6227853a167c",
+    "hedge-large-curved.glb": "5783c9c0e1808997d03f7043969faf892c4230db0e77ffa74df10dcf7bc3981e",
+    "hedge-large-gate.glb": "9378ecd0936024932c0f64eaa62cbecfbe597d43223c42590b2d314d001013c3",
+    "hedge-large.glb": "d9db746a3b38e4761747cda1be16f1d7602d7c231ee3f4ded3907ca1ab4b01e7",
+    "hedge.glb": "1a5300b704ffdedbfdc9b36221c25ef9f80c1a9d5e2ac9cb51a3fb7fb76ab6e2",
+    "lantern.glb": "011a1aae40f088818d96e68a3eb669dd6574c2041db2ece9f9abdd2da772465c",
+    "overhang.glb": "03d40e2170c8ff73f204537470af8a9b36bdbf31ba71070b4250ec4eb78c480d",
+    "pillar-stone.glb": "7dfc66e6bf64d32f860f6a1ceb6cef027390140dd940faed0e57ab5fe9b5d7d3",
+    "pillar-wood.glb": "88c1ecf711adb86ea5b97e6ec401ff29abae6bf091b9b9c7072ec5b9e8d6037a",
+    "planks-half.glb": "fbc88fd9457fee4018808fe833d934a3359d7589e7c0f658016fef8db53067c2",
+    "planks-opening.glb": "0cadf5afcb9104b66def06ddbb384f3f18f7959c80a41c3ec6e7beba6347a1f4",
+    "planks.glb": "bad75944365334c82fc47aa43187cd815a29029eb50b069da68dd1bb9c29c62f",
+    "poles-horizontal.glb": "414a7505d48fd623abfef49ea6c275e071b0c6943ed5f455f69e759c5253c1af",
+    "poles.glb": "0ba9d6f3f1b8c0abefc0ecd009a873023c064e1a3d379c8eb1bb474d3736b718",
+    "road-bend.glb": "c4345d62faa733176172c08c2a2ed10aa79fbc01cb240dab8537d782ef1722f3",
+    "road-corner-inner.glb": "cf42cd235e8e8f7ee241cd150356290b73954b70a0249de2b0b9a0a3c78a12ce",
+    "road-corner.glb": "bb7f77910dbd43c7b03e2767753fa9ada77e2acc1defc45adfe358d27c366d7d",
+    "road-curb-end.glb": "3f847a1dba7a8ef04ef09d09b48a46944f83b810f8de11b49f1daeaa52ff37a0",
+    "road-curb.glb": "fe15823acc0d6132ca171343d27b474cf435657a8bf9e9f3b600682e0433d4c9",
+    "road-edge-slope.glb": "3129dfc88f200af1a82e8fb84d03babbe11c1f7c61b0886ce43b7144ebf9671b",
+    "road-edge.glb": "028dcaed9c8d4a019503df01cec1861e0a6f201a90c77d5c35ba495e80fef777",
+    "road-slope.glb": "5093667302b3efa5833d0bff932d320857c0ef60767285075a402bcc8b08a02a",
+    "road.glb": "6335a8b4170783e32fcc8c6c38f7132b2a64f1e47809ab3f40bcd34f56355b2b",
+    "rock-large.glb": "21d29ff487fb75207dd359313e947dae395fbe96bfb93422b5a853e9e8a7bad3",
+    "rock-small.glb": "76e07a2b3414d10983a6dcb485a9ef8109c3687d19bb07b04c79923db65e5440",
+    "rock-wide.glb": "598dda90910f438aba8f9910481a1485dcddfca36b879145a6c2e8b37198ca60",
+    "roof-corner-inner.glb": "245c4fe0be39bc5317bd2789c8ce7ccc681806f94836e5a51d9d144ec0b645b9",
+    "roof-corner-round.glb": "9ec6a1d9f98f80c446010ff27d85e3a73f4398ff79a91f967c9fbffb1b2734ff",
+    "roof-corner.glb": "783839d1aaf6172665d357017795d9cb15573b9a65283131c76726bddc639bfb",
+    "roof-flat.glb": "8b15d99058c4513b8e95efeddc3706284b0c3b2d9945dc1b3c9169afd517b1ea",
+    "roof-gable-detail.glb": "8be73a448fe95e301a9aba5813dedefabe30a8762734247a68200926041c9688",
+    "roof-gable-end.glb": "0bc44ec1c28c2b558381d5044a5d2440894ce381ac6c2591c1658a60738ce672",
+    "roof-gable-top.glb": "0930a568f81d5692ab6e1af7bb020e5df9493e587894953fe4e9492436aafc67",
+    "roof-gable.glb": "c0dffb036c2940ebe7780d1220d84f9bda714869b029808017fc9cccef28ae68",
+    "roof-high-corner-round.glb": "6fef9be8476ebddce22a221870337694a9c88194b5f978da24f6f17ed559ac4f",
+    "roof-high-corner.glb": "0d0b048961d05ed5bf9d8b10fe55dc8a0df6a4c54db69fee9dc5789cdf667816",
+    "roof-high-cornerinner.glb": "a62030bb2928488ab131c8a9132aac2a0cbd25c0ffe920f61b265618655c156c",
+    "roof-high-flat.glb": "466a7adc13d5659128c215512db2cd584fe0d3f024285c5503b508b1b8b3a4db",
+    "roof-high-gable-detail.glb": "eb1def48d8c6b5766121d4507ecb0599825f1f5d39f533516c707eff2fea554f",
+    "roof-high-gable-end.glb": "5fecc8c95b7bf9a3955bfd72a40a866d201e1b4c3159b9a4ca6fbff1f33b6b06",
+    "roof-high-gable-top.glb": "af9f4b3cf5c8648fb3db655e105578c32d9f893de341453649be5b9de701da34",
+    "roof-high-gable.glb": "70778e768e6476636796ece2a4821dd873cffb24fba59e5d8458d6d281fb79e4",
+    "roof-high-left.glb": "d83c2264584d36d8e1e8758832548d9da23eb1c9b42bb5091a4a6314d49ee4ed",
+    "roof-high-point.glb": "4bb37a646f4715b945f25b83b2d820fa3d35b0e1d97e8aea823a1b918fbeb256",
+    "roof-high-right.glb": "aaf54e015e648f5586186e2dbcabd110c98b453323251c49436a116d54ddb5f6",
+    "roof-high-window.glb": "9e4c9fce3b84213b94db90d2bcd56c97222bffc4267e01ffbbb7be23f3d31b87",
+    "roof-high.glb": "ab4349c552085130101b8cfc1eeaf4818d57e6410d0dbe0ac5527326bbf5ceca",
+    "roof-left.glb": "e9e1c18261f5985a457817df52621ef5ce491237c342a823cc9869c02462f135",
+    "roof-point.glb": "189c3ecaf21ab7b5e385512cc3ef70485adc7306cea70f84ed19c62a52f9bb2e",
+    "roof-right.glb": "59cd79d192dbfbf4248e762b0142eb2ad9ec676d51b0b023cc7266c786b348e3",
+    "roof-window.glb": "6969b242b8bd443fac8d9552901f0bb7a0b100a45818fb21588ca4f5d7cf8628",
+    "roof.glb": "f28da452628e6055f65bea36d29e11de132feed6b7d752f09d7ae240e03a1100",
+    "stairs-full-corner-inner.glb": "cd1520e62276ff03bc04ea4c8977b0fd47b0a038f1ba217761ccaf07cf6497ed",
+    "stairs-full-corner-outer.glb": "f586ea72cb9e79156d522dc6a3e8748e2c650a4b9019761072c95ebc2019a01d",
+    "stairs-full.glb": "ffa507645d18fb2eb26f9227cb9a4fec77ca5c6192b996dbc9101847127e15b0",
+    "stairs-stone-corner.glb": "8a5db81df9d3a46f23f2571d38dde993ebd3d4e6c087e389c9f9c43836b96a95",
+    "stairs-stone-handrail.glb": "e7ae42f41ae7402990a9c174d61744dc1e75f3d4833fe0b51ae979944a4ec898",
+    "stairs-stone-round.glb": "8caa01a209398fe5c8f231a3340fba5d456da393fda5126dece6b28e435c1d06",
+    "stairs-stone.glb": "445c82066fb12dc417b31369e1d294d648d15bef8afc7b9f38a421a117b1c351",
+    "stairs-wide-stone-handrail.glb": "2863b44bca50924919abfd592400e130a00971810b225f2de5f45a63a589d978",
+    "stairs-wide-stone.glb": "21e07bc4eeb44ef30a6730e2b9da048e93a62f33bc621bbf4a807dc787236358",
+    "stairs-wide-wood-handrail.glb": "70500e9f200dae22a8904c710c04fe1895dffed19f821ce735bd74a354e8afec",
+    "stairs-wide-wood.glb": "547ba053aa71d9d98d1e0f08e69e922430fede4a98995b59f77857f356e0f455",
+    "stairs-wood-handrail.glb": "5cd0f01df95860f943242f4a592f2ab90d00300f26f553e0c99b0df0d6933181",
+    "stairs-wood.glb": "bc9eeaf300beeed7739593eaf846e53dc26373a0d72d49779ae7c424b4eca9bb",
+    "stall-bench.glb": "7c1c4669f2fafc17ba2c754f51fc8a5c1414c78135514d8523591f16e6ca6bad",
+    "stall-green.glb": "7fb04772bd689bb7769e51b152e51d0ea2fc3e437bd89c285e60027ce4c6dfe8",
+    "stall-red.glb": "c225884dea72bc0787770d91f15790653029fe0e375271926d84ef102e0ad525",
+    "stall-stool.glb": "0b773d443aefa676ff31882168cef219f9749f71799b91b6d530bca0d851678b",
+    "stall.glb": "cd3e5ab8a50cc2d7d8ddb6d56881bdf16a5f7d0697c90bb1e8a266535b62d55f",
+    "tree-crooked.glb": "ab5f9b12549b4f84b7642cd8288a302acd1c2daf062dcd73366de82fc41cd961",
+    "tree-high-crooked.glb": "f15fb92368b00c20a29820a17792a5d766860bc4a4dea367a0ef55e63af72fcb",
+    "tree-high-round.glb": "7f7269fc22f3eaccb79e04e77fc3cf2717d5fba547cc22fd5b7d30802e8df5a1",
+    "tree-high.glb": "acfb5ba155153a7c4e8acaefe22fbcb9b82d99bcc34d526e725a891b51483569",
+    "tree.glb": "3dc8061ee003a5996aba99e5dbf7b59f6e6e6b09b928df0df67b98e3b3256d7f",
+    "wall-arch-top-detail.glb": "cd0c5b2dc017cdce8270eb1e9272391668d669d02ecdbcdaa989b1aaf9a30f99",
+    "wall-arch-top.glb": "a28d568f96ebb1b91af578af0f0a7fcd87ce54aa8fa3391ab2638a8a61b92420",
+    "wall-arch.glb": "d253ca792b3830f0405b85a6a34e18c547dd192e60f0d2c1c1f512d7449d3381",
+    "wall-block-half.glb": "152850f964f0c26b59ad1ece6d071709f22cca9e349fc81f3c242cf1b046d270",
+    "wall-block.glb": "725fe96dafa2eb58a8a1c1a2c599da9f678fc2f1621f1b419d9fb912f7a8fffb",
+    "wall-broken.glb": "2e6f65b0a4d38f3d7ea7d8a38fb7edfa519834e994ec0cb941c8b387c19de98e",
+    "wall-corner-detail.glb": "36e0d6ae04f82a033dc0bf2a0dfcaf1605c57299990288375e841dd01201a123",
+    "wall-corner-diagonal-half.glb": "086675f1d6477e0f8391f75784bb8ff6b725f43859f23d46391aebc3450ec06f",
+    "wall-corner-diagonal.glb": "911decb32e37476aac72427f79ddde6446db21e820e84ef6dabafcf0777ddd49",
+    "wall-corner-edge.glb": "256811e50fc4f03a6386b3ee5dfda022e30f4a2b14ed971050554d42e11c86f2",
+    "wall-corner.glb": "1c400ae6de16bf420804b49a75fba5888e5398d3a8d7a073bf02540966bdf488",
+    "wall-curved.glb": "0053e8d9c3afbf480013d1dc95cb5c1d772d38da1ac19bc153c91b256c17adeb",
+    "wall-detail-cross.glb": "b19f05bee0840c023aecee7d3941c2ce5e78ccb51e5beba940f926165f67ada2",
+    "wall-detail-diagonal.glb": "5ceb0a96e0a725b9a8b7b31621912a0b562dce634464fb795a1a112e890cb67c",
+    "wall-detail-horizontal.glb": "041f45890aacbd4380d3d9d628dbc0b78025c2afaf317e4c20d3f493f2b5cb25",
+    "wall-diagonal.glb": "ce2ecff47c13028ea0399b18c49cf61f9da50e8f80f3e900e8b5a155f2b679d0",
+    "wall-door.glb": "0e95b2eb9711212b5cd4f8bd913ebc48b7998d776f018b976f65e3c112eb6281",
+    "wall-doorway-base.glb": "543fbbf52940e3f9df55d06b5bd657d1cbb59dac40d2d8e0ebaa3cfe10176e74",
+    "wall-doorway-round.glb": "f71f8f2f555715908fcaa4a4134b83559d1ddedf1f4e67595aa6794558ccc52c",
+    "wall-doorway-square-wide-curved.glb": "69e974079e14a032c9724d1900bf78fb63bcf16f55b5fd66ded7172e0353481a",
+    "wall-doorway-square-wide.glb": "20b0a7028edc191dbaf9292e8f3966c1fa13a08d880923d9960024d51a73a955",
+    "wall-doorway-square.glb": "b2d6db65869b26d94405e165aaee227733b1afac42974eb7e006dab1e52d319e",
+    "wall-half.glb": "07e6314b3cf5482be9362df250420439599533fe940dda16471871019376b19a",
+    "wall-rounded.glb": "39259763a9237ece10b88ff76088d0ccf623caa946b8be59eae51a606c65b551",
+    "wall-side.glb": "c1316fba0213dfe5a25540fa69719a07fbc7134a0d0a96e1fa0b3a12527d4773",
+    "wall-slope.glb": "1918774fb29bdedcc258b6127955075e281be5270f0c986d30dcae6848581fdc",
+    "wall-window-glass.glb": "898ed67285b836ca8f434d59f7cb607ee5b8b081c2e38aa4bb0014382e5a4bf4",
+    "wall-window-round.glb": "e216087af3866e817a6a1d61b4bedb150baee7c459dda42543019cc76b6fdcee",
+    "wall-window-shutters.glb": "6d9a36b37b77bc1e3521f6a956457a11cc3b3cc4f7b0ab6f65dccfee38856cc1",
+    "wall-window-small.glb": "73583475360e1416a1d2ad91de2eaf072f8d72235425e50055dd90e502f9d17a",
+    "wall-window-stone.glb": "af2a5c351f82937b2bd915ba66e96842fb3e5f6cf4f25d58bec9c29aa68cc6e1",
+    "wall-wood-arch-top-detail.glb": "76b261fd55ad42b408c4c3488d30697093b4981600b6ecb296f4c375d94822b3",
+    "wall-wood-arch-top.glb": "4ca91ab37e676d9af95d8d6527cbd0ebc738545ca368e2ac58517b1e2b0e7173",
+    "wall-wood-arch.glb": "b1bab90324210e4b5a02e9d8da5c4b7261497a150a31c8689274b57da7e62555",
+    "wall-wood-block-half.glb": "6a99b1bd940c9a61614eaff74a3b91b4e84fb00230ee679efb21f1991ceb10d0",
+    "wall-wood-block.glb": "11b811b3623693bebc3bd92791371661088fc1e0b6730161fa2f64b80c2d1142",
+    "wall-wood-broken.glb": "b2a9c671f50e1c3c08f008aa2ec4851ccb103e61ac8ed94f9b14722be2e8fe60",
+    "wall-wood-corner-diagonal-half.glb": "938ff01fcda1272074164e6e56d9fcc10bc468062dd12d8ff4af3e03c5575b3a",
+    "wall-wood-corner-diagonal.glb": "507230a91005d19c1e4745e2663a5c7cfc52a07d207554489b381fa5466d8c4a",
+    "wall-wood-corner-edge.glb": "b74127946a4634d529ea00166952c99bf851f0b08da3066fb9f5c883e384ae94",
+    "wall-wood-corner.glb": "465c618fa5aa284c3093addeb0c88d7621747b2f7dd7500dc055d9f248d3bdfc",
+    "wall-wood-curved.glb": "9c6b4788394ae22e21a9a9f5104b874a57155a6a882482e5664d7414c08e3678",
+    "wall-wood-detail-cross.glb": "194763f379d4795508174925bf094332d598e6d8cec243978f64190209e55fa5",
+    "wall-wood-detail-diagonal.glb": "ffe4921de56e858b7d454de04d01926af257f4f7ecc9e779f41f12060a73810e",
+    "wall-wood-detail-horizontal.glb": "96b36b336e517f3c5d69e302defb798624e887f171bbea89d17bc933b0f3cd10",
+    "wall-wood-diagonal.glb": "2130b9c8c38595bad7177bf009e8b6f9b043cd8e9c89456b9af3e97e71dca851",
+    "wall-wood-door.glb": "8535a862da453df9a195842d458e849886b016424fc74dbfe74da754874cf667",
+    "wall-wood-doorway-base.glb": "4095819016fdb00a4e9bcfe63d63c6de75f799ea531800ce821b20701905cf2a",
+    "wall-wood-doorway-round.glb": "570f6de45487446e0140fc7887d77ee944fa8dd39c6c58edd115b3100140092e",
+    "wall-wood-doorway-square-wide-curved.glb": "7f6e6c445e5be7e2a4bc2e17cd3fbed4bfdd4e57b0efc4946dc1578ecc925281",
+    "wall-wood-doorway-square-wide.glb": "94c375df878cd135411528d6d700fdd2746c14d20f6f6e6e1a6246b5a60aa8d6",
+    "wall-wood-doorway-square.glb": "04f04720154a62fc5f5a7d0d98a9a0a20bc04ba985f65ac5ab5a33c0c3ab6f6b",
+    "wall-wood-half.glb": "54d8a4882f41eb332cd8079c9cfb8589afb1969442e349d08784247c499824cc",
+    "wall-wood-rounded.glb": "f01564b84d07bba1ec2894738ce84ae0f8298f0d1686440d18e45aa6a38b2a47",
+    "wall-wood-side.glb": "33c8ae260f485fca56d3f21912bfdc9b2944c62f063aba5b9854670c1e9941ed",
+    "wall-wood-slope.glb": "6cfe4cb0416d422795c9cf9f523a259c9eea95fb69612abe20c012beb426e922",
+    "wall-wood-window-glass.glb": "566743158fc694c400784bf76e8289f524dd42d824b5ede252a29423faaa3525",
+    "wall-wood-window-round.glb": "564a59e6feb0a57f1742fccef5775645013183c714a5884f67fc158d92cc7b19",
+    "wall-wood-window-shutters.glb": "d6bf18300631a9c3fbe54cf5a4ec620b30122981fe1e3b96f73e7b0c4aaa57d5",
+    "wall-wood-window-small.glb": "1ed9820598eb0f145178b2723c35d7586cc74d752eca95d3da3823e8ef3a85dc",
+    "wall-wood-window-stone.glb": "9c9223466ca89d9064092db9310e9a5cb8b28eeb9cdced991edd9af78d720c90",
+    "wall-wood.glb": "986f926a07cab2b40d306a54aaa844390f2dccea2d08e60cd556e4e70ac26dc7",
+    "wall.glb": "62a82d69a2de11dcc12623c9bdda716e77eef12678f820000a99dbc099288dd0",
+    "watermill-wide.glb": "e672a6b83c55f3bd9e5f17ccabdce6043870489c4547dc855654959a943af4de",
+    "watermill.glb": "649f54808a85ac191cf902a2cff1181c841c3e6c7480c4a90e047e194acb5f35",
+    "wheel.glb": "f83dcb03f4cf981f01eb7ebdee27f3ce131da202a8c9e2a982159a4f12c19b6b",
+    "windmill.glb": "901a1b262d42251a99de8afc09580eb6a36188776bb52e655d92e5731d4d85f0"
+  }
+}

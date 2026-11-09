@@ -1,0 +1,261 @@
+{
+  "pack": "kenney-city-kit-suburban",
+  "sourceUrl": "https://kenney.nl/assets/city-kit-suburban",
+  "sourceFile": "kenney-city-kit-suburban.zip",
+  "license": "CC0-1.0",
+  "fetchedAt": "2026-10-29T21:14:37.092Z",
+  "files": [
+    {
+      "path": "building-type-a.glb",
+      "sha256": "fde8272209c041af5cf7d38e7d408dfdf529b44ffc53c2c4e42ecdf57ef3eb10",
+      "bytes": 19056
+    },
+    {
+      "path": "building-type-b.glb",
+      "sha256": "489e922c2e72038c95d013acdca9561f9f1463b7ad718616543e75332f5e8c25",
+      "bytes": 25576
+    },
+    {
+      "path": "building-type-c.glb",
+      "sha256": "714048db57e89de6547f5987d38ba371c5e1059662016fc6e09dd08160661ac5",
+      "bytes": 18788
+    },
+    {
+      "path": "building-type-d.glb",
+      "sha256": "20af701bb5751b5cfa41e63135bcb1e69eaed6060ade0d0bd01328a5193a30ce",
+      "bytes": 25864
+    },
+    {
+      "path": "building-type-e.glb",
+      "sha256": "471b167347cb3bcbf369f575a1cd10487817555e2ec3dfbbf2671a5762dab50c",
+      "bytes": 25348
+    },
+    {
+      "path": "building-type-f.glb",
+      "sha256": "a80566cfb8402b0d8e78423e11ba37af03e8b57f927cb53db8688a5a3fccb14a",
+      "bytes": 25384
+    },
+    {
+      "path": "building-type-g.glb",
+      "sha256": "a1efefa89562f97acf33afad91e543b04ca78a9b127d520c217212866cf2ac95",
+      "bytes": 18352
+    },
+    {
+      "path": "building-type-h.glb",
+      "sha256": "1e82c35c3b9a6623b39872ac5289246177df90995df1883920d2811de9dbbf87",
+      "bytes": 14052
+    },
+    {
+      "path": "building-type-i.glb",
+      "sha256": "f4205dc355a0445dcc4ad73932e4094ca09293ec4e33f7e735857d45380e1859",
+      "bytes": 14520
+    },
+    {
+      "path": "building-type-j.glb",
+      "sha256": "57fcc1afad39148eaa49023769d3592457240248c18a495fa7097bbe29afa154",
+      "bytes": 19016
+    },
+    {
+      "path": "building-type-k.glb",
+      "sha256": "b1f5b431481a01533a9291198cb0a72278200ee6f2aac10f72e49ce1a9b011f0",
+      "bytes": 16816
+    },
+    {
+      "path": "building-type-l.glb",
+      "sha256": "874af7a2ceb1642d8a40480b8c03596ebad51d7ac50ce7584e861212d5a5b675",
+      "bytes": 20344
+    },
+    {
+      "path": "building-type-m.glb",
+      "sha256": "6f6074de651619be67777920267c9d4a3f8575e7873208cb919afb5aab109d90",
+      "bytes": 18600
+    },
+    {
+      "path": "building-type-n.glb",
+      "sha256": "0b264839dcde22d237292d42c08cdc69897cf8c1ffad0209938e1bd97ab377c2",
+      "bytes": 24592
+    },
+    {
+      "path": "building-type-o.glb",
+      "sha256": "db30a9debf9f6a26100c88e1012d7e0bcd382a18af996acbd672bba801171106",
+      "bytes": 21572
+    },
+    {
+      "path": "building-type-p.glb",
+      "sha256": "9e9ae6b380ec8cfa1f99648bbdcf2bd943ec06569486d1ef001341177dc08660",
+      "bytes": 19956
+    },
+    {
+      "path": "building-type-q.glb",
+      "sha256": "e2e955bc6d970f03db38d18b996c5fdb92ddb42454ba75d81d52f0ab7aae097b",
+      "bytes": 17856
+    },
+    {
+      "path": "building-type-r.glb",
+      "sha256": "acc164b18c4f5ba4abbbff9afed98518293e4a00f1d3360fd9ef0a6d32988358",
+      "bytes": 17564
+    },
+    {
+      "path": "building-type-s.glb",
+      "sha256": "67bee5bc7f583222472ce9c711f078d44ec4ec0c12a2ae3717ffa084b04fac37",
+      "bytes": 19808
+    },
+    {
+      "path": "building-type-t.glb",
+      "sha256": "5a3f2d92aca6d75356460bdc94fe0cefc0b6414e0db6bfe8c653f9c488c29bd3",
+      "bytes": 29020
+    },
+    {
+      "path": "building-type-u.glb",
+      "sha256": "89e54ce975f05ef81d1767e7a2cd600e3bd62a12b8a203bcd84b717cffdd7f2e",
+      "bytes": 22316
+    },
+    {
+      "path": "driveway-long.glb",
+      "sha256": "fccb800dfa013354edd043cf9cd1eda0d20b537ff9ec575c902fb2edbb74d3e2",
+      "bytes": 4052
+    },
+    {
+      "path": "driveway-short.glb",
+      "sha256": "3b754db4a40721889151f988a2f63ed8ac017f972c19998006bb765268b0d419",
+      "bytes": 4072
+    },
+    {
+      "path": "fence-1x2.glb",
+      "sha256": "3554df5c1be15293ba863efa406b95bd8224dfb0d717244b8187570d0ed7fabb",
+      "bytes": 6136
+    },
+    {
+      "path": "fence-1x3.glb",
+      "sha256": "b48ac2c02b5ddacb991052d83ec9321e797dee96bc1e50beab70daf2302b0889",
+      "bytes": 6872
+    },
+    {
+      "path": "fence-1x4.glb",
+      "sha256": "c54cfcf6299e49ad0321a78196cd7e46a911a2d749106ec26a0366c864b2ca57",
+      "bytes": 7592
+    },
+    {
+      "path": "fence-2x2.glb",
+      "sha256": "d0fa30556c3eb8b7d5d2e7fcd5ead4b73cd194cbbf585aa92b15458217c71132",
+      "bytes": 7328
+    },
+    {
+      "path": "fence-2x3.glb",
+      "sha256": "e8d0fe3aa35c8e7d9eac616f51a9b363ea997d6665ba625d9cd231c3a74f74ad",
+      "bytes": 8052
+    },
+    {
+      "path": "fence-3x2.glb",
+      "sha256": "eed886f41604141ea559d9a9d360213d31b43bf30d0bf8de150ef47ff2925078",
+      "bytes": 8596
+    },
+    {
+      "path": "fence-3x3.glb",
+      "sha256": "50be3f24dc5812e78409128a11128996830c862eb31ff9f9705724757a46d080",
+      "bytes": 9216
+    },
+    {
+      "path": "fence-low.glb",
+      "sha256": "6e1ceee2d9058162392f7dac95fb4b957f3ccc77d930aaeb88f386f752c36443",
+      "bytes": 6544
+    },
+    {
+      "path": "fence.glb",
+      "sha256": "428f36f8424bb3aea604889fa9101ea7e6885c792751dd9138523c12947d9345",
+      "bytes": 5164
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "d778fa769a89a7d9f167bc337fdf8fc2144e47d9abb0c35eb6ad897c0ee24d0a",
+      "bytes": 706
+    },
+    {
+      "path": "path-long.glb",
+      "sha256": "0c874a3f2bd75c8349ee65e7fec49af7aa8bc3e66fbf9c67810f3938970f23ed",
+      "bytes": 4040
+    },
+    {
+      "path": "path-short.glb",
+      "sha256": "ff2f41bd2a100696be4469ba4c251e60743c4151b27aef4dba056f26f56f81c0",
+      "bytes": 4060
+    },
+    {
+      "path": "path-stones-long.glb",
+      "sha256": "b77e2a445c0016faf3123f2bfc3d2da9da1d9ffcb90e03323e5b5f46baaf727e",
+      "bytes": 4764
+    },
+    {
+      "path": "path-stones-messy.glb",
+      "sha256": "22c11e67145483553a9cad9c574701bc91f6c97ea013c052a3c43b021ee4f408",
+      "bytes": 4576
+    },
+    {
+      "path": "path-stones-short.glb",
+      "sha256": "e1416c595822abcf85ae8d251379bc5e847d0ffad282271d658b495c427fb818",
+      "bytes": 4320
+    },
+    {
+      "path": "planter.glb",
+      "sha256": "3b7059c3602a32abfa34e41e28ca3b634782cb8d4eafdb3362f22943e855f25d",
+      "bytes": 7108
+    },
+    {
+      "path": "Textures/colormap.png",
+      "sha256": "9b5de86078c25ef02351a80d35ff3c978693a1044565b73eedd9ae9b5b80665d",
+      "bytes": 11784
+    },
+    {
+      "path": "tree-large.glb",
+      "sha256": "60a1e8a4d7f4e6ac667f968fbf661262dc79ca5b82c141e00fe98bc5b3d2bc7f",
+      "bytes": 4652
+    },
+    {
+      "path": "tree-small.glb",
+      "sha256": "178ee2aba210c1df858639407cec91e947791a2d96745467bde9c150a8806893",
+      "bytes": 4648
+    }
+  ],
+  "optimized": {
+    "building-type-a.glb": "fde8272209c041af5cf7d38e7d408dfdf529b44ffc53c2c4e42ecdf57ef3eb10",
+    "building-type-b.glb": "489e922c2e72038c95d013acdca9561f9f1463b7ad718616543e75332f5e8c25",
+    "building-type-c.glb": "714048db57e89de6547f5987d38ba371c5e1059662016fc6e09dd08160661ac5",
+    "building-type-d.glb": "20af701bb5751b5cfa41e63135bcb1e69eaed6060ade0d0bd01328a5193a30ce",
+    "building-type-e.glb": "471b167347cb3bcbf369f575a1cd10487817555e2ec3dfbbf2671a5762dab50c",
+    "building-type-f.glb": "a80566cfb8402b0d8e78423e11ba37af03e8b57f927cb53db8688a5a3fccb14a",
+    "building-type-g.glb": "a1efefa89562f97acf33afad91e543b04ca78a9b127d520c217212866cf2ac95",
+    "building-type-h.glb": "1e82c35c3b9a6623b39872ac5289246177df90995df1883920d2811de9dbbf87",
+    "building-type-i.glb": "f4205dc355a0445dcc4ad73932e4094ca09293ec4e33f7e735857d45380e1859",
+    "building-type-j.glb": "57fcc1afad39148eaa49023769d3592457240248c18a495fa7097bbe29afa154",
+    "building-type-k.glb": "b1f5b431481a01533a9291198cb0a72278200ee6f2aac10f72e49ce1a9b011f0",
+    "building-type-l.glb": "874af7a2ceb1642d8a40480b8c03596ebad51d7ac50ce7584e861212d5a5b675",
+    "building-type-m.glb": "6f6074de651619be67777920267c9d4a3f8575e7873208cb919afb5aab109d90",
+    "building-type-n.glb": "0b264839dcde22d237292d42c08cdc69897cf8c1ffad0209938e1bd97ab377c2",
+    "building-type-o.glb": "db30a9debf9f6a26100c88e1012d7e0bcd382a18af996acbd672bba801171106",
+    "building-type-p.glb": "9e9ae6b380ec8cfa1f99648bbdcf2bd943ec06569486d1ef001341177dc08660",
+    "building-type-q.glb": "e2e955bc6d970f03db38d18b996c5fdb92ddb42454ba75d81d52f0ab7aae097b",
+    "building-type-r.glb": "acc164b18c4f5ba4abbbff9afed98518293e4a00f1d3360fd9ef0a6d32988358",
+    "building-type-s.glb": "67bee5bc7f583222472ce9c711f078d44ec4ec0c12a2ae3717ffa084b04fac37",
+    "building-type-t.glb": "5a3f2d92aca6d75356460bdc94fe0cefc0b6414e0db6bfe8c653f9c488c29bd3",
+    "building-type-u.glb": "89e54ce975f05ef81d1767e7a2cd600e3bd62a12b8a203bcd84b717cffdd7f2e",
+    "driveway-long.glb": "fccb800dfa013354edd043cf9cd1eda0d20b537ff9ec575c902fb2edbb74d3e2",
+    "driveway-short.glb": "3b754db4a40721889151f988a2f63ed8ac017f972c19998006bb765268b0d419",
+    "fence-1x2.glb": "3554df5c1be15293ba863efa406b95bd8224dfb0d717244b8187570d0ed7fabb",
+    "fence-1x3.glb": "b48ac2c02b5ddacb991052d83ec9321e797dee96bc1e50beab70daf2302b0889",
+    "fence-1x4.glb": "c54cfcf6299e49ad0321a78196cd7e46a911a2d749106ec26a0366c864b2ca57",
+    "fence-2x2.glb": "d0fa30556c3eb8b7d5d2e7fcd5ead4b73cd194cbbf585aa92b15458217c71132",
+    "fence-2x3.glb": "e8d0fe3aa35c8e7d9eac616f51a9b363ea997d6665ba625d9cd231c3a74f74ad",
+    "fence-3x2.glb": "eed886f41604141ea559d9a9d360213d31b43bf30d0bf8de150ef47ff2925078",
+    "fence-3x3.glb": "50be3f24dc5812e78409128a11128996830c862eb31ff9f9705724757a46d080",
+    "fence-low.glb": "6e1ceee2d9058162392f7dac95fb4b957f3ccc77d930aaeb88f386f752c36443",
+    "fence.glb": "428f36f8424bb3aea604889fa9101ea7e6885c792751dd9138523c12947d9345",
+    "path-long.glb": "0c874a3f2bd75c8349ee65e7fec49af7aa8bc3e66fbf9c67810f3938970f23ed",
+    "path-short.glb": "ff2f41bd2a100696be4469ba4c251e60743c4151b27aef4dba056f26f56f81c0",
+    "path-stones-long.glb": "b77e2a445c0016faf3123f2bfc3d2da9da1d9ffcb90e03323e5b5f46baaf727e",
+    "path-stones-messy.glb": "22c11e67145483553a9cad9c574701bc91f6c97ea013c052a3c43b021ee4f408",
+    "path-stones-short.glb": "e1416c595822abcf85ae8d251379bc5e847d0ffad282271d658b495c427fb818",
+    "planter.glb": "3b7059c3602a32abfa34e41e28ca3b634782cb8d4eafdb3362f22943e855f25d",
+    "tree-large.glb": "60a1e8a4d7f4e6ac667f968fbf661262dc79ca5b82c141e00fe98bc5b3d2bc7f",
+    "tree-small.glb": "178ee2aba210c1df858639407cec91e947791a2d96745467bde9c150a8806893"
+  }
+}

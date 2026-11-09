@@ -1,0 +1,66 @@
+{
+  "pack": "kaykit-adventurers",
+  "sourceUrl": "https://kaylousberg.itch.io/kaykit-adventurers",
+  "sourceFile": "",
+  "license": "CC0-1.0",
+  "fetchedAt": "2026-10-29T21:14:59.811Z",
+  "files": [
+    {
+      "path": "barbarian_texture.png",
+      "sha256": "7329b2ff9709e8d54c886d5ef49c08bd42b12be3bbb2facb1488a6b48b1e8a80",
+      "bytes": 15089
+    },
+    {
+      "path": "Barbarian.glb",
+      "sha256": "cd2ecd2aa4a40b6e015bd0affda16bffe4bde3c522cedc3f5422af8de2136ae2",
+      "bytes": 2001728
+    },
+    {
+      "path": "knight_texture.png",
+      "sha256": "5d250ccc5da020e6126bfa3839f83bd9a465a951ed223e4d13c08b1925e154d4",
+      "bytes": 14172
+    },
+    {
+      "path": "Knight.glb",
+      "sha256": "ea3a0d15b57131f8f5f64027403ee030850fcf456da17f7c3100717e0954aa56",
+      "bytes": 2016952
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629",
+      "bytes": 891
+    },
+    {
+      "path": "mage_texture.png",
+      "sha256": "ea49f094b960402635fe51db9f1864960c97271b17f2e3554e5aca1b2bbba144",
+      "bytes": 16311
+    },
+    {
+      "path": "Mage.glb",
+      "sha256": "951871467e2b245b5e725f19eaf2c38446d92e18238e7bdf4328555b70fd4d7b",
+      "bytes": 1995228
+    },
+    {
+      "path": "Rogue_Hooded.glb",
+      "sha256": "a666affe9ff7f0c89a81479bce356102d2d9370aab766354fa255777b7fbe396",
+      "bytes": 1994428
+    },
+    {
+      "path": "rogue_texture.png",
+      "sha256": "a4032e877c3b91939f5cdbb630349c1998fdbc3211bbd587c111125500fe4cc5",
+      "bytes": 16670
+    },
+    {
+      "path": "Rogue.glb",
+      "sha256": "09db99982692254c9d14b8bb7d3f19b8ec701c0e84059c93b1ebecc6395e6076",
+      "bytes": 1998108
+    }
+  ],
+  "optimized": {
+    "Barbarian.glb": "cd2ecd2aa4a40b6e015bd0affda16bffe4bde3c522cedc3f5422af8de2136ae2",
+    "Knight.glb": "ea3a0d15b57131f8f5f64027403ee030850fcf456da17f7c3100717e0954aa56",
+    "Mage.glb": "951871467e2b245b5e725f19eaf2c38446d92e18238e7bdf4328555b70fd4d7b",
+    "Rogue.glb": "09db99982692254c9d14b8bb7d3f19b8ec701c0e84059c93b1ebecc6395e6076",
+    "Rogue_Hooded.glb": "a666affe9ff7f0c89a81479bce356102d2d9370aab766354fa255777b7fbe396"
+  }
+}

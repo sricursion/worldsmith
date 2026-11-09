@@ -1,0 +1,934 @@
+{
+  "pack": "kenney-space-kit",
+  "sourceUrl": "https://kenney.nl/assets/space-kit",
+  "sourceFile": "kenney-space-kit.zip",
+  "license": "CC0-1.0",
+  "fetchedAt": "2026-10-29T21:14:34.781Z",
+  "files": [
+    {
+      "path": "alien.glb",
+      "sha256": "350bd2c580e65d0abe04ba9e4145b8d8a3b75a6c3dd42ca92b2d54121fae6cc7",
+      "bytes": 6356
+    },
+    {
+      "path": "astronautA.glb",
+      "sha256": "595a19de86ed34108395c64896378ed6fec60d0f9ade9cd39e8e14dde595b919",
+      "bytes": 6356
+    },
+    {
+      "path": "astronautB.glb",
+      "sha256": "0c84b224de3928bba75211d99696e074ed51d6cbff2562458beb3a69f7f15411",
+      "bytes": 6512
+    },
+    {
+      "path": "barrel.glb",
+      "sha256": "b2a19b9596d06547f292be3ec8428e8182df34f58bb442dae168fd2bbe4db39f",
+      "bytes": 3556
+    },
+    {
+      "path": "barrels_rail.glb",
+      "sha256": "7284328aac174eba421f1d913345d3a7e43466bc2a7e7ffcbdec3cd04081fa69",
+      "bytes": 8804
+    },
+    {
+      "path": "barrels.glb",
+      "sha256": "fd7ec382b7495367bb589c4ede08cffce55c57a6d3c99b472805cac5873605ae",
+      "bytes": 7428
+    },
+    {
+      "path": "bones.glb",
+      "sha256": "0c4a7305f4ef205b9f3185027f1378efea4b2995292855b20d79832bca7968e7",
+      "bytes": 4424
+    },
+    {
+      "path": "chimney_detailed.glb",
+      "sha256": "906384e86d31c5b281510a36de236dd8a74596df0ad4b7cc419a06b2eb67a4b2",
+      "bytes": 8128
+    },
+    {
+      "path": "chimney.glb",
+      "sha256": "cfee167884f631ccd262a099211c41b044f90a44e2be16da1f941446eba0dcf3",
+      "bytes": 4012
+    },
+    {
+      "path": "corridor_corner.glb",
+      "sha256": "75cfe386711f912c0d91d47c94eb57678914e80cdfc46f30bf772152b4e39d36",
+      "bytes": 4988
+    },
+    {
+      "path": "corridor_cornerRound.glb",
+      "sha256": "6a5a627fba0e58d5673d8a3ecefbb924732ae14787e5da849eab1806d31b3b79",
+      "bytes": 8932
+    },
+    {
+      "path": "corridor_cornerRoundWindow.glb",
+      "sha256": "b4f73d15a41ff829b5cbf3cc3e681bb477de073efd5610ede416594668ae0ae7",
+      "bytes": 10800
+    },
+    {
+      "path": "corridor_cross.glb",
+      "sha256": "c00b1aa700b8a9c4085aecda604bd238aa649d6785aec4d779829b3bc61e0aa9",
+      "bytes": 5916
+    },
+    {
+      "path": "corridor_detailed.glb",
+      "sha256": "b59ea000d1ea229e367032828472057d13b569d0dc2f6944c5b82696a12f5e42",
+      "bytes": 6612
+    },
+    {
+      "path": "corridor_end.glb",
+      "sha256": "70ce87bd0edd3bdd8eb7f8bbc28317897f45b82870e4bf257da3e41e8c2b1869",
+      "bytes": 6200
+    },
+    {
+      "path": "corridor_open.glb",
+      "sha256": "3fff0d9e35bb22ba956859623b7ca6a9c3fbb3523fe345a5efc650d40f22d22b",
+      "bytes": 4492
+    },
+    {
+      "path": "corridor_roof.glb",
+      "sha256": "0981fd379ea6b94ad44be3be77569a83d501665ed40b9a551bc6e4c256137dea",
+      "bytes": 3312
+    },
+    {
+      "path": "corridor_split.glb",
+      "sha256": "4dc037b9a7557c0ad88d7747494f0085d2edbbcf34881ee404cfe81049aaceff",
+      "bytes": 6276
+    },
+    {
+      "path": "corridor_wall.glb",
+      "sha256": "604bdfb881d5d09992a582030a3c14efa26e3553c20a27053cf1610420e75235",
+      "bytes": 4364
+    },
+    {
+      "path": "corridor_wallCorner.glb",
+      "sha256": "62f4b9edfbf99ea707b70b2f3081470d5450564c02e5e938b0a8e0676ac37ae1",
+      "bytes": 8572
+    },
+    {
+      "path": "corridor_window.glb",
+      "sha256": "3ee1782ffb7ea9f1c81655ef2eaad405c24801969ac60f8dcbe3b63b0f0e10a3",
+      "bytes": 6740
+    },
+    {
+      "path": "corridor_windowClosed.glb",
+      "sha256": "3a25d0d1465b81af12dcecbd11cda94a26e7cf25d41afb1a5e7989e2bb3103c3",
+      "bytes": 6916
+    },
+    {
+      "path": "corridor.glb",
+      "sha256": "bf3a11fd9bd5d63016819c53946156c22febfe6b0b253efa1b0d0e5848f98bda",
+      "bytes": 4712
+    },
+    {
+      "path": "craft_cargoA.glb",
+      "sha256": "4d5a631359c9de7a51b271971ad9c5171b6b5946ebbfe87683a3e4aa8b0107a7",
+      "bytes": 7876
+    },
+    {
+      "path": "craft_cargoB.glb",
+      "sha256": "36f10b8f3554da28c13b393b42fce110233b782237522352f836d36daaf0d250",
+      "bytes": 8860
+    },
+    {
+      "path": "craft_miner.glb",
+      "sha256": "20db1744bc7e463452875c86850483cb6d3df783a472935d1a7696259ee7b199",
+      "bytes": 9264
+    },
+    {
+      "path": "craft_racer.glb",
+      "sha256": "57ee3fb068bda63d896371f5486f17fc598353e1b3c83af2b4ac54b69b225384",
+      "bytes": 8004
+    },
+    {
+      "path": "craft_speederA.glb",
+      "sha256": "a9383207b6aa703f3c6aa44fa183258044dd8d8335b461f7b56b1905b3f5a4f6",
+      "bytes": 8172
+    },
+    {
+      "path": "craft_speederB.glb",
+      "sha256": "16aebe7ec9b686317a860cb41020815905d812e86e6f9a6b5e1492b2b2cd0456",
+      "bytes": 7836
+    },
+    {
+      "path": "craft_speederC.glb",
+      "sha256": "0ef082989010884f50423c20a99870c39874f0f910155978bd380ba45d73e2a9",
+      "bytes": 8172
+    },
+    {
+      "path": "craft_speederD.glb",
+      "sha256": "c7109bd562be542228a60fc401fef00d067f558633d96911003e2ad0cb717a8e",
+      "bytes": 8624
+    },
+    {
+      "path": "crater.glb",
+      "sha256": "e3530cb46a23b83b2d1ccce4d2fe9eb8369aba3972401b809b3a9a0ae77c91ed",
+      "bytes": 3672
+    },
+    {
+      "path": "craterLarge.glb",
+      "sha256": "52a1da2ba4ea6062c324c84647bc06b89136287cc5df837366d1e6efff94ebc8",
+      "bytes": 3624
+    },
+    {
+      "path": "desk_chair.glb",
+      "sha256": "19115d5e57cca1fdce3bb5574cd3e4349db8fb30aca8a514a170fe8911054462",
+      "bytes": 5036
+    },
+    {
+      "path": "desk_chairArms.glb",
+      "sha256": "fffafe039a624155492aff37eb1b5f9c307a0462e67bf9d7f27ee7171c633475",
+      "bytes": 5432
+    },
+    {
+      "path": "desk_chairStool.glb",
+      "sha256": "05d971889c2db8181456d1153e4d5879c4170d41c8f7828ef96a285c81c9886a",
+      "bytes": 3892
+    },
+    {
+      "path": "desk_computer.glb",
+      "sha256": "ac26aa108e975360d6009a82f3d985b51e892f17e2a3b74cb09adfaf3c5786f0",
+      "bytes": 4804
+    },
+    {
+      "path": "desk_computerCorner.glb",
+      "sha256": "39959497e33ba084b6b0da962fee69ebbcdde625232a1defb3c2b1e32a3da728",
+      "bytes": 5156
+    },
+    {
+      "path": "desk_computerScreen.glb",
+      "sha256": "ffc1000f0cc4edb558e155ab68588b3fbd85517f192d971d1f6c11042ad320a7",
+      "bytes": 5052
+    },
+    {
+      "path": "gate_complex.glb",
+      "sha256": "af6c5b170ff69c3e8535655b7f2b881a6ecb4ab21350e66ee8b697a4cdb207c1",
+      "bytes": 9816
+    },
+    {
+      "path": "gate_simple.glb",
+      "sha256": "741c94842e2cc6ede422cc125fc36b0d4aad85605cfb14f1549237fc11192084",
+      "bytes": 6280
+    },
+    {
+      "path": "hangar_largeA.glb",
+      "sha256": "997a1b837a295bc5897a4250c8f4595d13bc1cedee0b22990558537f2da46d7d",
+      "bytes": 8804
+    },
+    {
+      "path": "hangar_largeB.glb",
+      "sha256": "bda8b03b6071c56eac19d10f0b0b0a9d6e521d99f63c7177c7475fe01d84906f",
+      "bytes": 8236
+    },
+    {
+      "path": "hangar_roundA.glb",
+      "sha256": "bab056ab8b230ed952eaa10f9e852767e316d52942ccf9b477a65296a5548fef",
+      "bytes": 6872
+    },
+    {
+      "path": "hangar_roundB.glb",
+      "sha256": "82d5be9f5ac9b55f15cab48a3ce431e9cc6f039ba9051c28e5bb64d026c2795a",
+      "bytes": 6896
+    },
+    {
+      "path": "hangar_roundGlass.glb",
+      "sha256": "846f9c5b156664a8521c8fa0d08cc9b3dc32af77ceafd315a052cccc526ffd52",
+      "bytes": 6224
+    },
+    {
+      "path": "hangar_smallA.glb",
+      "sha256": "8cca27c2521929e786d2398981b980e69757058031e78e37a2569426b26d735b",
+      "bytes": 7572
+    },
+    {
+      "path": "hangar_smallB.glb",
+      "sha256": "5dddb52e5c4d86f0e56ce6bd886ace1b44b87548596eb8fe7c023dc8b9059057",
+      "bytes": 7748
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "bd4e050e69d41351282c4d53f943cd4d80a80b968593e60653ba5292637941b7",
+      "bytes": 610
+    },
+    {
+      "path": "machine_barrel.glb",
+      "sha256": "62a77c2f7fc58c880400f9fe5e691ad5a753bcc89e910bdf5002d3ae1afec480",
+      "bytes": 8772
+    },
+    {
+      "path": "machine_barrelLarge.glb",
+      "sha256": "d9b25f1a17073d97c8f8701e36723e10efdd3725ba5af8f8ebcbbde2cd9af74f",
+      "bytes": 7312
+    },
+    {
+      "path": "machine_generator.glb",
+      "sha256": "6e2a7a17e6ee264828d7f2a75383d786d49e21d1a44be3984de33a7e9b382ab5",
+      "bytes": 7276
+    },
+    {
+      "path": "machine_generatorLarge.glb",
+      "sha256": "886e927186c832fab71dc2aea9747fa47cd8fb8f0a1df3558e787cf89cee2fb5",
+      "bytes": 6192
+    },
+    {
+      "path": "machine_wireless.glb",
+      "sha256": "0f7c4bfa39beb710edb611c0cfb70943b192185fd7f66c81e8d2a80061c332bf",
+      "bytes": 6800
+    },
+    {
+      "path": "machine_wirelessCable.glb",
+      "sha256": "2cc8093056378eb8ce3fbc9e91e25987e49cacfdef8c413e940ec3e7805bd7a9",
+      "bytes": 7616
+    },
+    {
+      "path": "meteor_detailed.glb",
+      "sha256": "7d13446ef7a6fd5672f39628935600b71cf7039285794ce4df0ca37079fafc86",
+      "bytes": 4412
+    },
+    {
+      "path": "meteor_half.glb",
+      "sha256": "5cddf16bfe45d28bebb5cc9bc220e06e2090ec1247ad3fc8f50fdfb0964d8b59",
+      "bytes": 2520
+    },
+    {
+      "path": "meteor.glb",
+      "sha256": "aff79655b766cd160ee9d8b14d89edd39aba0962c21764e72394e5d459311021",
+      "bytes": 2888
+    },
+    {
+      "path": "monorail_trackCornerLarge.glb",
+      "sha256": "3c0c3b6675561c21928763f28d28cce3a530d668bed8d8211aba7c21b7be3273",
+      "bytes": 5172
+    },
+    {
+      "path": "monorail_trackCornerSmall.glb",
+      "sha256": "4d0504cdab6c7fbbd62a9de8e73a95ab1cc81f9db6630305dac7609fba3406af",
+      "bytes": 7424
+    },
+    {
+      "path": "monorail_trackSlope.glb",
+      "sha256": "6f8de8c4e2a8b8ebd16ebd55f5a7da0acc4bca6f72e2cd7360a40c87639e13c2",
+      "bytes": 3196
+    },
+    {
+      "path": "monorail_trackStraight.glb",
+      "sha256": "be13550e475d5a3f94e1287331577f69dc1507c453afc7877aa74c81922cda89",
+      "bytes": 3176
+    },
+    {
+      "path": "monorail_trackSupport.glb",
+      "sha256": "4600097d034ccabb562f78880d38280d2b68d203da805e1b71b6c3f0c9d40cff",
+      "bytes": 5600
+    },
+    {
+      "path": "monorail_trackSupportCorner.glb",
+      "sha256": "22e30bbae1683bdb0c854a0e0916f606e070a3b4ac119288a05e93d0463b928c",
+      "bytes": 5560
+    },
+    {
+      "path": "monorail_trainBox.glb",
+      "sha256": "5dcea6b4eefc44f103ab5acc0efe6cd27d14a77e795f0ed894439fa26564c5c9",
+      "bytes": 4904
+    },
+    {
+      "path": "monorail_trainCargo.glb",
+      "sha256": "b55f75b45a39c4b70e40fad1ddd9efa071f19bd9ec592475e6be388b8fd4776d",
+      "bytes": 10752
+    },
+    {
+      "path": "monorail_trainEnd.glb",
+      "sha256": "42d275311ad418b04b6dc7e87594b7d16320a205016b2db4fe0f078ad9bf7414",
+      "bytes": 7012
+    },
+    {
+      "path": "monorail_trainFlat.glb",
+      "sha256": "8ac16239aad69b4107ee6336cc3babb1354b25837bbb9337488f7c01c75ba8d2",
+      "bytes": 4776
+    },
+    {
+      "path": "monorail_trainFront.glb",
+      "sha256": "9d94b2d64abc6096d562ac0d59a81de4c54c98bac40c76fcfb40a253178fdcb4",
+      "bytes": 6664
+    },
+    {
+      "path": "monorail_trainPassenger.glb",
+      "sha256": "766f8ed96a69fea5cae3243bb7fb42e3f81ef0e0564a82384492ff10d948419f",
+      "bytes": 6624
+    },
+    {
+      "path": "pipe_corner.glb",
+      "sha256": "56963aad86005aeb1ed880c4c4f439a8deb2f0b59968439a912353a225e879f4",
+      "bytes": 3836
+    },
+    {
+      "path": "pipe_cornerDiagonal.glb",
+      "sha256": "8590f04b80a5908a1f34334812fd3d64357e610f0fbe8ad00bc9c12f5dd0f440",
+      "bytes": 3512
+    },
+    {
+      "path": "pipe_cornerRound.glb",
+      "sha256": "a1347487fcb09568328cd271c2dbc0d300517a568c666ffac5282be4ebdd1309",
+      "bytes": 6724
+    },
+    {
+      "path": "pipe_cornerRoundLarge.glb",
+      "sha256": "2a74085e6702220afc277d46b248b2ab4b6132e3a833c7c5c123d61445ceb51c",
+      "bytes": 6940
+    },
+    {
+      "path": "pipe_cross.glb",
+      "sha256": "862ee7c29e57075f75265d85afd39f384e48b11d3641f48066c90b2ecd6908e4",
+      "bytes": 6012
+    },
+    {
+      "path": "pipe_end.glb",
+      "sha256": "26bd802b09c630aaf0c82ae51d54d27b8fc99cc06ad67a69a162cae18d86140f",
+      "bytes": 4680
+    },
+    {
+      "path": "pipe_entrance.glb",
+      "sha256": "85450b8f5dd933ee418e04bb0f4c96820c15256a56511471fe4195762fc0fb07",
+      "bytes": 4008
+    },
+    {
+      "path": "pipe_open.glb",
+      "sha256": "4a3cfb89039830da9f578bbc35c002c9c52902f766b213ec53d8eaf70675e5d9",
+      "bytes": 3760
+    },
+    {
+      "path": "pipe_rampLarge.glb",
+      "sha256": "73462ba128d055e5c8a58db38f841095f881e39de458c5a57cd11650521010d5",
+      "bytes": 5556
+    },
+    {
+      "path": "pipe_rampSmall.glb",
+      "sha256": "0edf6df332a230829f65b9ae7a2c0253341fe173557bf6a7cad110f99558b607",
+      "bytes": 5572
+    },
+    {
+      "path": "pipe_ring.glb",
+      "sha256": "ad27fac114c7083258a667e01b0f11e30d4bb645822baaa7c50d7d4a5809eb1f",
+      "bytes": 6220
+    },
+    {
+      "path": "pipe_ringHigh.glb",
+      "sha256": "bd9fdde2962b006b02164a54a81e087b91252f96e51ca6e75308fc1f03e24f5d",
+      "bytes": 4828
+    },
+    {
+      "path": "pipe_ringHighEnd.glb",
+      "sha256": "9fd9bec2529eaac95f0aaf8737b5bbc6fcd49ae15537bf066dbcb1dbd81449fa",
+      "bytes": 4804
+    },
+    {
+      "path": "pipe_ringSupport.glb",
+      "sha256": "e3b53b66b69573cbe72ea327acda055f52464514d17976b9953ec9c815d41ba3",
+      "bytes": 5064
+    },
+    {
+      "path": "pipe_split.glb",
+      "sha256": "e0492020fff43cd06172fb002285071a744665f3def6262cace845b9e9f94325",
+      "bytes": 5364
+    },
+    {
+      "path": "pipe_straight.glb",
+      "sha256": "67427657698b290677a1b71445edae39dd183bed7e1cef0f6fb3848e9c06c9fd",
+      "bytes": 4652
+    },
+    {
+      "path": "pipe_supportHigh.glb",
+      "sha256": "e324e632741de1c689cb87193ba6f5333dd70b0cef2369a3ef5e5733cae19fc4",
+      "bytes": 4512
+    },
+    {
+      "path": "pipe_supportLow.glb",
+      "sha256": "b715dff03cc203c9928a7617baf262a55631a959165d09686381032bf60e5721",
+      "bytes": 4512
+    },
+    {
+      "path": "platform_center.glb",
+      "sha256": "31e4aa0122c1165b0faf670b1e1408f33af097df020da73b40aad0a4ca7338d1",
+      "bytes": 1880
+    },
+    {
+      "path": "platform_corner.glb",
+      "sha256": "a811bb4e2378b28c7f3a67ca5e29958c82b9421b4c33b9b2c9e807e30347030d",
+      "bytes": 4720
+    },
+    {
+      "path": "platform_cornerOpen.glb",
+      "sha256": "b51e7a57cfc68e9d22da9f605ec4614fea3a910554c4f5f58fca70df87d1ead5",
+      "bytes": 4436
+    },
+    {
+      "path": "platform_cornerRound.glb",
+      "sha256": "b45e7a600a62cf7d2db49dd36eac740fe6add1778fc790cfce26de7dae782fb4",
+      "bytes": 6684
+    },
+    {
+      "path": "platform_end.glb",
+      "sha256": "4b08ec103899c8ec9781e48bd81acbedc866c33b0e81841d48508bd46b7fcb8b",
+      "bytes": 4512
+    },
+    {
+      "path": "platform_high.glb",
+      "sha256": "f4835758b7a730dd42bfc925859dd83b7100ddf5bcbf66437ef5554d8613422a",
+      "bytes": 7300
+    },
+    {
+      "path": "platform_large.glb",
+      "sha256": "0675cf50e3f59e9860d9c81842db3323b28b49b4d55512e90559609f421b4d64",
+      "bytes": 4516
+    },
+    {
+      "path": "platform_long.glb",
+      "sha256": "3f086d2e51fa6f90764454dcc2e0f5e096d677d964e64884dce2655b8253fc47",
+      "bytes": 4540
+    },
+    {
+      "path": "platform_low.glb",
+      "sha256": "bf8847746fb6ff2945a7d5d994b9fe57ac58610c3cc6b3c7eaa21647c465df8c",
+      "bytes": 5492
+    },
+    {
+      "path": "platform_side.glb",
+      "sha256": "f75c8fefcc7da5cf872bee7bbfe35f7509bfb061d529bdefdae1514d840456a6",
+      "bytes": 5216
+    },
+    {
+      "path": "platform_small.glb",
+      "sha256": "842e13346f637c2e96fb7731cd078a1ce92e3715254d9cd49c94cb58e170436c",
+      "bytes": 4568
+    },
+    {
+      "path": "platform_smallDiagonal.glb",
+      "sha256": "2c53fbd30247c71f3f0b1bd9a29cf690b5664e22cd1c65ae798bb8ecf1bc6932",
+      "bytes": 4588
+    },
+    {
+      "path": "platform_straight.glb",
+      "sha256": "2144b446f8b1a345d3f64aade09fdc54bac8ff81831da0292673d18057ee6d01",
+      "bytes": 5472
+    },
+    {
+      "path": "rail_corner.glb",
+      "sha256": "283419ffbfe9ecae082af3c479e07c6cdb6be935b2c60b3e814d1a15fd3cf198",
+      "bytes": 4368
+    },
+    {
+      "path": "rail_end.glb",
+      "sha256": "69864f6d7ece8190a5684c1f5a2a424388252fd2207aad3f0dfff8f419893103",
+      "bytes": 3476
+    },
+    {
+      "path": "rail_middle.glb",
+      "sha256": "3dd1ccb6ee5b7d10213ac29a9b7386ad81ace3666e1a89d34201f0f880cad337",
+      "bytes": 3384
+    },
+    {
+      "path": "rail.glb",
+      "sha256": "13f9a70eb7f38c77e2263cee8010363bd27b651b8f6a0261a96517f86dafb2f2",
+      "bytes": 3592
+    },
+    {
+      "path": "rock_crystals.glb",
+      "sha256": "1a6fb8c4d1555edc46aca07b6216a4ffce9ad6c5656102b5efee46b481737dda",
+      "bytes": 8200
+    },
+    {
+      "path": "rock_crystalsLargeA.glb",
+      "sha256": "b4e4d7582ecae99890a74cc76b3965915c55aa545af2ebf0e55e6dd16ce7d28f",
+      "bytes": 8488
+    },
+    {
+      "path": "rock_crystalsLargeB.glb",
+      "sha256": "30b8003e972ebad0937ee28c061dd402d5dacc3adf2abf51c72f5e693c4f4d17",
+      "bytes": 8444
+    },
+    {
+      "path": "rock_largeA.glb",
+      "sha256": "f98f6988db4a63c1a339a379af9b6e078e495a410cef09f57fda93e8ab3289c9",
+      "bytes": 5044
+    },
+    {
+      "path": "rock_largeB.glb",
+      "sha256": "e82a2c148976046bdc7096f203541ea1ae1ed3ac475f41852334162399511f5b",
+      "bytes": 5028
+    },
+    {
+      "path": "rock.glb",
+      "sha256": "60ffc2a58773930afb90b128f18a38864e8de243ee1e8181067cb4e6639dff16",
+      "bytes": 5008
+    },
+    {
+      "path": "rocket_baseA.glb",
+      "sha256": "ce094d07e2832e59e932346d5af77e0dcf1e7e3ecc75e954e7874b80a5cfe4b2",
+      "bytes": 7268
+    },
+    {
+      "path": "rocket_baseB.glb",
+      "sha256": "d6da4bf2322e5132f6c3d393ee40c2254a79b8e990fb11418adda70f689d85e7",
+      "bytes": 7164
+    },
+    {
+      "path": "rocket_finsA.glb",
+      "sha256": "eca13df6237ebb00e01e2d20f0d65e75c7eb55e05a313bea6db734d22fde30da",
+      "bytes": 5972
+    },
+    {
+      "path": "rocket_finsB.glb",
+      "sha256": "05812a52698973262f059c07cf1b8d63a268b3498282b604719714b64bc4d935",
+      "bytes": 6380
+    },
+    {
+      "path": "rocket_fuelA.glb",
+      "sha256": "863184df031f5b2de5e71f0783b02fd1ccce9f3d2acc8042aa4e695fb2c55dd3",
+      "bytes": 3804
+    },
+    {
+      "path": "rocket_fuelB.glb",
+      "sha256": "781205f248225cfbc9d6093c0558b9cc399dd26d85c907ecd77c17f5964a1a3f",
+      "bytes": 4152
+    },
+    {
+      "path": "rocket_sidesA.glb",
+      "sha256": "7350a64c0b835b37655a7e2fba1cc76af68f89c86f6b5dfcabe4f4971a0e2a76",
+      "bytes": 6072
+    },
+    {
+      "path": "rocket_sidesB.glb",
+      "sha256": "71a1fd220961d789fec1a6499224897d7fabf20af4f6a2f23952a9e9e6f993ca",
+      "bytes": 6160
+    },
+    {
+      "path": "rocket_topA.glb",
+      "sha256": "9ca42d56c8b9b5412d6eded301f395fa3e0c8c625b401cafc327bf4169269e48",
+      "bytes": 5548
+    },
+    {
+      "path": "rocket_topB.glb",
+      "sha256": "548b886b843a168c6e7acf38aa12317547cb1af9b1f75199e7efdca5b6258024",
+      "bytes": 4976
+    },
+    {
+      "path": "rocks_smallA.glb",
+      "sha256": "6d31e20e532d72c53c569ea8805b97f2d2f3f117c2546d2e2e846c9d63e6a055",
+      "bytes": 2772
+    },
+    {
+      "path": "rocks_smallB.glb",
+      "sha256": "b676d38dc5fea10670c6e7f32daa9f83d6eb2ce766e1c713529154c2f8c603bf",
+      "bytes": 2588
+    },
+    {
+      "path": "rover.glb",
+      "sha256": "3ea0995320a9f43138e550acd133445d1559a6be7f99fc8eed1150ca2c669f79",
+      "bytes": 7060
+    },
+    {
+      "path": "satelliteDish_detailed.glb",
+      "sha256": "de117f4c28fba8d00c082bed7ed4ab74342e7a8a210e9566f3418b4a49938eb6",
+      "bytes": 6948
+    },
+    {
+      "path": "satelliteDish_large.glb",
+      "sha256": "b30d31d6becc07859816d59df3b1052ceacc20f53c91f4a87848b627c4373c2e",
+      "bytes": 6384
+    },
+    {
+      "path": "satelliteDish.glb",
+      "sha256": "be05ef0bbea751a3119285b3d1c57a84c80bd2dc51c57981d06bf8cadb85b7dd",
+      "bytes": 5904
+    },
+    {
+      "path": "stairs_corner.glb",
+      "sha256": "f428f7f613b43728624b436c677638e251ad5401e5d0de6ebc68a06b76e3aac2",
+      "bytes": 6948
+    },
+    {
+      "path": "stairs_short.glb",
+      "sha256": "532593d563faa0c0bdbfea776ea74cf159163871530ff199c7bcba4c898d05e8",
+      "bytes": 5212
+    },
+    {
+      "path": "stairs.glb",
+      "sha256": "ba4ece14efb2e3acb3e0c631f5f30883a656c9bfd94f8a0a14bf18be3cbc36bf",
+      "bytes": 6320
+    },
+    {
+      "path": "structure_closed.glb",
+      "sha256": "8ff3946aa96979e88dd2cb29873ffee01e43e635cba52be2d2e260f06e4240ea",
+      "bytes": 6436
+    },
+    {
+      "path": "structure_detailed.glb",
+      "sha256": "80a847e647fe28d7d15cb870b330dd9c4c4a5c37482a99cc373c0d5d5e02fe99",
+      "bytes": 6420
+    },
+    {
+      "path": "structure_diagonal.glb",
+      "sha256": "1c466e9601d9ae469fe9d62cacf7315628ae6a53194177566d7ac38a9e7c394b",
+      "bytes": 7336
+    },
+    {
+      "path": "structure.glb",
+      "sha256": "ee7b6e4b8578208ba18856b0fe221f329c3c211e9276408bcfb11b3f1d85cb9c",
+      "bytes": 4648
+    },
+    {
+      "path": "supports_high.glb",
+      "sha256": "a4894110af6df5b438499e6bb9f6cca783d347af332df4921b0b56a59201ca52",
+      "bytes": 7308
+    },
+    {
+      "path": "supports_low.glb",
+      "sha256": "f22122daafe4586220cb367876659af0d80cd86818db9467e4dfde035495ff4e",
+      "bytes": 6020
+    },
+    {
+      "path": "terrain_ramp.glb",
+      "sha256": "be692dbb0c139a2f5283128980080d1ea0f9ea31b3f54a054ca85a704560e340",
+      "bytes": 2944
+    },
+    {
+      "path": "terrain_rampLarge_detailed.glb",
+      "sha256": "dd1ab01119bb3d01caad6c7809e1018848c132fd6a1b228b4e3eaad98955da32",
+      "bytes": 3044
+    },
+    {
+      "path": "terrain_rampLarge.glb",
+      "sha256": "5575229cf4a33ca0a55d8e69ebb8b062caf0037df9d4aded5634070ba985ede5",
+      "bytes": 2932
+    },
+    {
+      "path": "terrain_roadCorner.glb",
+      "sha256": "6d4af44906a477d33fd7e0c34df5854ce724636720e719cab1c4d7aa070a82b1",
+      "bytes": 3520
+    },
+    {
+      "path": "terrain_roadCross.glb",
+      "sha256": "3f521e6c087b2a9752039d271e5e60c796ad985476e30e4c6d0aa32ff65ce867",
+      "bytes": 3140
+    },
+    {
+      "path": "terrain_roadEnd.glb",
+      "sha256": "070ef065f46980d3dd323048e65c881309d6989aa05b09fdfc244928d89ff4aa",
+      "bytes": 3180
+    },
+    {
+      "path": "terrain_roadSplit.glb",
+      "sha256": "144d50beeffddcadeb551c6aefbcb4e1b6903365036a52ac1bed525e7f7f8b7b",
+      "bytes": 3892
+    },
+    {
+      "path": "terrain_roadStraight.glb",
+      "sha256": "c2ada427b441892ee18da0a0da38c94da0770a50311504e533fd7d6637024654",
+      "bytes": 2936
+    },
+    {
+      "path": "terrain_side.glb",
+      "sha256": "ff4c076c43a0ece025eb7e8264eda9f7b1de730a437fca377199f304ff69a724",
+      "bytes": 1860
+    },
+    {
+      "path": "terrain_sideCliff.glb",
+      "sha256": "51e7e184f0a8355d58e7810fd8659554ac70f228436bfc7dbfc1c98223172141",
+      "bytes": 3032
+    },
+    {
+      "path": "terrain_sideCorner.glb",
+      "sha256": "f2988396b8a0ffc7939450ca9a6c4c4735b5fb702f2ed6bdde2d38d5c05d5f40",
+      "bytes": 3080
+    },
+    {
+      "path": "terrain_sideCornerInner.glb",
+      "sha256": "92b841fd8bbb1c1f1746f740104aa9c08a47d58f31fdc63d2cd34ab8d1287f91",
+      "bytes": 2992
+    },
+    {
+      "path": "terrain_sideEnd.glb",
+      "sha256": "0194b0707877e3ea898667226a2733b50e987bf6a728becaeb68a3dc180ffa55",
+      "bytes": 4004
+    },
+    {
+      "path": "terrain.glb",
+      "sha256": "30695d1a228fd7bf73cb4a0ed95f1e0c5781528efda4d83228d21559ccbf0b1f",
+      "bytes": 1824
+    },
+    {
+      "path": "turret_double.glb",
+      "sha256": "036c4bead971d571a8dc27e6ec8856eb28f5fb9433ea0fdb7b6f9ec9209c554a",
+      "bytes": 13128
+    },
+    {
+      "path": "turret_single.glb",
+      "sha256": "445aa941c2069256ad549ced4fa5079194e630799edc122647388b4bec7c9fed",
+      "bytes": 11124
+    },
+    {
+      "path": "weapon_gun.glb",
+      "sha256": "e184ef7f8da34d455d7b069217fc719a38ed02333f09e5997d18de8674928f21",
+      "bytes": 5804
+    },
+    {
+      "path": "weapon_rifle.glb",
+      "sha256": "a7d361c0234f6b1af2574860707ef539da8854a0d494c1f9ddc96dcfc31c12d0",
+      "bytes": 6148
+    }
+  ],
+  "optimized": {
+    "alien.glb": "350bd2c580e65d0abe04ba9e4145b8d8a3b75a6c3dd42ca92b2d54121fae6cc7",
+    "astronautA.glb": "595a19de86ed34108395c64896378ed6fec60d0f9ade9cd39e8e14dde595b919",
+    "astronautB.glb": "0c84b224de3928bba75211d99696e074ed51d6cbff2562458beb3a69f7f15411",
+    "barrel.glb": "b2a19b9596d06547f292be3ec8428e8182df34f58bb442dae168fd2bbe4db39f",
+    "barrels.glb": "fd7ec382b7495367bb589c4ede08cffce55c57a6d3c99b472805cac5873605ae",
+    "barrels_rail.glb": "7284328aac174eba421f1d913345d3a7e43466bc2a7e7ffcbdec3cd04081fa69",
+    "bones.glb": "0c4a7305f4ef205b9f3185027f1378efea4b2995292855b20d79832bca7968e7",
+    "chimney.glb": "cfee167884f631ccd262a099211c41b044f90a44e2be16da1f941446eba0dcf3",
+    "chimney_detailed.glb": "906384e86d31c5b281510a36de236dd8a74596df0ad4b7cc419a06b2eb67a4b2",
+    "corridor.glb": "bf3a11fd9bd5d63016819c53946156c22febfe6b0b253efa1b0d0e5848f98bda",
+    "corridor_corner.glb": "75cfe386711f912c0d91d47c94eb57678914e80cdfc46f30bf772152b4e39d36",
+    "corridor_cornerRound.glb": "6a5a627fba0e58d5673d8a3ecefbb924732ae14787e5da849eab1806d31b3b79",
+    "corridor_cornerRoundWindow.glb": "b4f73d15a41ff829b5cbf3cc3e681bb477de073efd5610ede416594668ae0ae7",
+    "corridor_cross.glb": "c00b1aa700b8a9c4085aecda604bd238aa649d6785aec4d779829b3bc61e0aa9",
+    "corridor_detailed.glb": "b59ea000d1ea229e367032828472057d13b569d0dc2f6944c5b82696a12f5e42",
+    "corridor_end.glb": "70ce87bd0edd3bdd8eb7f8bbc28317897f45b82870e4bf257da3e41e8c2b1869",
+    "corridor_open.glb": "3fff0d9e35bb22ba956859623b7ca6a9c3fbb3523fe345a5efc650d40f22d22b",
+    "corridor_roof.glb": "0981fd379ea6b94ad44be3be77569a83d501665ed40b9a551bc6e4c256137dea",
+    "corridor_split.glb": "4dc037b9a7557c0ad88d7747494f0085d2edbbcf34881ee404cfe81049aaceff",
+    "corridor_wall.glb": "604bdfb881d5d09992a582030a3c14efa26e3553c20a27053cf1610420e75235",
+    "corridor_wallCorner.glb": "62f4b9edfbf99ea707b70b2f3081470d5450564c02e5e938b0a8e0676ac37ae1",
+    "corridor_window.glb": "3ee1782ffb7ea9f1c81655ef2eaad405c24801969ac60f8dcbe3b63b0f0e10a3",
+    "corridor_windowClosed.glb": "3a25d0d1465b81af12dcecbd11cda94a26e7cf25d41afb1a5e7989e2bb3103c3",
+    "craft_cargoA.glb": "4d5a631359c9de7a51b271971ad9c5171b6b5946ebbfe87683a3e4aa8b0107a7",
+    "craft_cargoB.glb": "36f10b8f3554da28c13b393b42fce110233b782237522352f836d36daaf0d250",
+    "craft_miner.glb": "20db1744bc7e463452875c86850483cb6d3df783a472935d1a7696259ee7b199",
+    "craft_racer.glb": "57ee3fb068bda63d896371f5486f17fc598353e1b3c83af2b4ac54b69b225384",
+    "craft_speederA.glb": "a9383207b6aa703f3c6aa44fa183258044dd8d8335b461f7b56b1905b3f5a4f6",
+    "craft_speederB.glb": "16aebe7ec9b686317a860cb41020815905d812e86e6f9a6b5e1492b2b2cd0456",
+    "craft_speederC.glb": "0ef082989010884f50423c20a99870c39874f0f910155978bd380ba45d73e2a9",
+    "craft_speederD.glb": "c7109bd562be542228a60fc401fef00d067f558633d96911003e2ad0cb717a8e",
+    "crater.glb": "e3530cb46a23b83b2d1ccce4d2fe9eb8369aba3972401b809b3a9a0ae77c91ed",
+    "craterLarge.glb": "52a1da2ba4ea6062c324c84647bc06b89136287cc5df837366d1e6efff94ebc8",
+    "desk_chair.glb": "19115d5e57cca1fdce3bb5574cd3e4349db8fb30aca8a514a170fe8911054462",
+    "desk_chairArms.glb": "fffafe039a624155492aff37eb1b5f9c307a0462e67bf9d7f27ee7171c633475",
+    "desk_chairStool.glb": "05d971889c2db8181456d1153e4d5879c4170d41c8f7828ef96a285c81c9886a",
+    "desk_computer.glb": "ac26aa108e975360d6009a82f3d985b51e892f17e2a3b74cb09adfaf3c5786f0",
+    "desk_computerCorner.glb": "39959497e33ba084b6b0da962fee69ebbcdde625232a1defb3c2b1e32a3da728",
+    "desk_computerScreen.glb": "ffc1000f0cc4edb558e155ab68588b3fbd85517f192d971d1f6c11042ad320a7",
+    "gate_complex.glb": "af6c5b170ff69c3e8535655b7f2b881a6ecb4ab21350e66ee8b697a4cdb207c1",
+    "gate_simple.glb": "741c94842e2cc6ede422cc125fc36b0d4aad85605cfb14f1549237fc11192084",
+    "hangar_largeA.glb": "997a1b837a295bc5897a4250c8f4595d13bc1cedee0b22990558537f2da46d7d",
+    "hangar_largeB.glb": "bda8b03b6071c56eac19d10f0b0b0a9d6e521d99f63c7177c7475fe01d84906f",
+    "hangar_roundA.glb": "bab056ab8b230ed952eaa10f9e852767e316d52942ccf9b477a65296a5548fef",
+    "hangar_roundB.glb": "82d5be9f5ac9b55f15cab48a3ce431e9cc6f039ba9051c28e5bb64d026c2795a",
+    "hangar_roundGlass.glb": "846f9c5b156664a8521c8fa0d08cc9b3dc32af77ceafd315a052cccc526ffd52",
+    "hangar_smallA.glb": "8cca27c2521929e786d2398981b980e69757058031e78e37a2569426b26d735b",
+    "hangar_smallB.glb": "5dddb52e5c4d86f0e56ce6bd886ace1b44b87548596eb8fe7c023dc8b9059057",
+    "machine_barrel.glb": "62a77c2f7fc58c880400f9fe5e691ad5a753bcc89e910bdf5002d3ae1afec480",
+    "machine_barrelLarge.glb": "d9b25f1a17073d97c8f8701e36723e10efdd3725ba5af8f8ebcbbde2cd9af74f",
+    "machine_generator.glb": "6e2a7a17e6ee264828d7f2a75383d786d49e21d1a44be3984de33a7e9b382ab5",
+    "machine_generatorLarge.glb": "886e927186c832fab71dc2aea9747fa47cd8fb8f0a1df3558e787cf89cee2fb5",
+    "machine_wireless.glb": "0f7c4bfa39beb710edb611c0cfb70943b192185fd7f66c81e8d2a80061c332bf",
+    "machine_wirelessCable.glb": "2cc8093056378eb8ce3fbc9e91e25987e49cacfdef8c413e940ec3e7805bd7a9",
+    "meteor.glb": "aff79655b766cd160ee9d8b14d89edd39aba0962c21764e72394e5d459311021",
+    "meteor_detailed.glb": "7d13446ef7a6fd5672f39628935600b71cf7039285794ce4df0ca37079fafc86",
+    "meteor_half.glb": "5cddf16bfe45d28bebb5cc9bc220e06e2090ec1247ad3fc8f50fdfb0964d8b59",
+    "monorail_trackCornerLarge.glb": "3c0c3b6675561c21928763f28d28cce3a530d668bed8d8211aba7c21b7be3273",
+    "monorail_trackCornerSmall.glb": "4d0504cdab6c7fbbd62a9de8e73a95ab1cc81f9db6630305dac7609fba3406af",
+    "monorail_trackSlope.glb": "6f8de8c4e2a8b8ebd16ebd55f5a7da0acc4bca6f72e2cd7360a40c87639e13c2",
+    "monorail_trackStraight.glb": "be13550e475d5a3f94e1287331577f69dc1507c453afc7877aa74c81922cda89",
+    "monorail_trackSupport.glb": "4600097d034ccabb562f78880d38280d2b68d203da805e1b71b6c3f0c9d40cff",
+    "monorail_trackSupportCorner.glb": "22e30bbae1683bdb0c854a0e0916f606e070a3b4ac119288a05e93d0463b928c",
+    "monorail_trainBox.glb": "5dcea6b4eefc44f103ab5acc0efe6cd27d14a77e795f0ed894439fa26564c5c9",
+    "monorail_trainCargo.glb": "b55f75b45a39c4b70e40fad1ddd9efa071f19bd9ec592475e6be388b8fd4776d",
+    "monorail_trainEnd.glb": "42d275311ad418b04b6dc7e87594b7d16320a205016b2db4fe0f078ad9bf7414",
+    "monorail_trainFlat.glb": "8ac16239aad69b4107ee6336cc3babb1354b25837bbb9337488f7c01c75ba8d2",
+    "monorail_trainFront.glb": "9d94b2d64abc6096d562ac0d59a81de4c54c98bac40c76fcfb40a253178fdcb4",
+    "monorail_trainPassenger.glb": "766f8ed96a69fea5cae3243bb7fb42e3f81ef0e0564a82384492ff10d948419f",
+    "pipe_corner.glb": "56963aad86005aeb1ed880c4c4f439a8deb2f0b59968439a912353a225e879f4",
+    "pipe_cornerDiagonal.glb": "8590f04b80a5908a1f34334812fd3d64357e610f0fbe8ad00bc9c12f5dd0f440",
+    "pipe_cornerRound.glb": "a1347487fcb09568328cd271c2dbc0d300517a568c666ffac5282be4ebdd1309",
+    "pipe_cornerRoundLarge.glb": "2a74085e6702220afc277d46b248b2ab4b6132e3a833c7c5c123d61445ceb51c",
+    "pipe_cross.glb": "862ee7c29e57075f75265d85afd39f384e48b11d3641f48066c90b2ecd6908e4",
+    "pipe_end.glb": "26bd802b09c630aaf0c82ae51d54d27b8fc99cc06ad67a69a162cae18d86140f",
+    "pipe_entrance.glb": "85450b8f5dd933ee418e04bb0f4c96820c15256a56511471fe4195762fc0fb07",
+    "pipe_open.glb": "4a3cfb89039830da9f578bbc35c002c9c52902f766b213ec53d8eaf70675e5d9",
+    "pipe_rampLarge.glb": "73462ba128d055e5c8a58db38f841095f881e39de458c5a57cd11650521010d5",
+    "pipe_rampSmall.glb": "0edf6df332a230829f65b9ae7a2c0253341fe173557bf6a7cad110f99558b607",
+    "pipe_ring.glb": "ad27fac114c7083258a667e01b0f11e30d4bb645822baaa7c50d7d4a5809eb1f",
+    "pipe_ringHigh.glb": "bd9fdde2962b006b02164a54a81e087b91252f96e51ca6e75308fc1f03e24f5d",
+    "pipe_ringHighEnd.glb": "9fd9bec2529eaac95f0aaf8737b5bbc6fcd49ae15537bf066dbcb1dbd81449fa",
+    "pipe_ringSupport.glb": "e3b53b66b69573cbe72ea327acda055f52464514d17976b9953ec9c815d41ba3",
+    "pipe_split.glb": "e0492020fff43cd06172fb002285071a744665f3def6262cace845b9e9f94325",
+    "pipe_straight.glb": "67427657698b290677a1b71445edae39dd183bed7e1cef0f6fb3848e9c06c9fd",
+    "pipe_supportHigh.glb": "e324e632741de1c689cb87193ba6f5333dd70b0cef2369a3ef5e5733cae19fc4",
+    "pipe_supportLow.glb": "b715dff03cc203c9928a7617baf262a55631a959165d09686381032bf60e5721",
+    "platform_center.glb": "31e4aa0122c1165b0faf670b1e1408f33af097df020da73b40aad0a4ca7338d1",
+    "platform_corner.glb": "a811bb4e2378b28c7f3a67ca5e29958c82b9421b4c33b9b2c9e807e30347030d",
+    "platform_cornerOpen.glb": "b51e7a57cfc68e9d22da9f605ec4614fea3a910554c4f5f58fca70df87d1ead5",
+    "platform_cornerRound.glb": "b45e7a600a62cf7d2db49dd36eac740fe6add1778fc790cfce26de7dae782fb4",
+    "platform_end.glb": "4b08ec103899c8ec9781e48bd81acbedc866c33b0e81841d48508bd46b7fcb8b",
+    "platform_high.glb": "f4835758b7a730dd42bfc925859dd83b7100ddf5bcbf66437ef5554d8613422a",
+    "platform_large.glb": "0675cf50e3f59e9860d9c81842db3323b28b49b4d55512e90559609f421b4d64",
+    "platform_long.glb": "3f086d2e51fa6f90764454dcc2e0f5e096d677d964e64884dce2655b8253fc47",
+    "platform_low.glb": "bf8847746fb6ff2945a7d5d994b9fe57ac58610c3cc6b3c7eaa21647c465df8c",
+    "platform_side.glb": "f75c8fefcc7da5cf872bee7bbfe35f7509bfb061d529bdefdae1514d840456a6",
+    "platform_small.glb": "842e13346f637c2e96fb7731cd078a1ce92e3715254d9cd49c94cb58e170436c",
+    "platform_smallDiagonal.glb": "2c53fbd30247c71f3f0b1bd9a29cf690b5664e22cd1c65ae798bb8ecf1bc6932",
+    "platform_straight.glb": "2144b446f8b1a345d3f64aade09fdc54bac8ff81831da0292673d18057ee6d01",
+    "rail.glb": "13f9a70eb7f38c77e2263cee8010363bd27b651b8f6a0261a96517f86dafb2f2",
+    "rail_corner.glb": "283419ffbfe9ecae082af3c479e07c6cdb6be935b2c60b3e814d1a15fd3cf198",
+    "rail_end.glb": "69864f6d7ece8190a5684c1f5a2a424388252fd2207aad3f0dfff8f419893103",
+    "rail_middle.glb": "3dd1ccb6ee5b7d10213ac29a9b7386ad81ace3666e1a89d34201f0f880cad337",
+    "rock.glb": "60ffc2a58773930afb90b128f18a38864e8de243ee1e8181067cb4e6639dff16",
+    "rocket_baseA.glb": "ce094d07e2832e59e932346d5af77e0dcf1e7e3ecc75e954e7874b80a5cfe4b2",
+    "rocket_baseB.glb": "d6da4bf2322e5132f6c3d393ee40c2254a79b8e990fb11418adda70f689d85e7",
+    "rocket_finsA.glb": "eca13df6237ebb00e01e2d20f0d65e75c7eb55e05a313bea6db734d22fde30da",
+    "rocket_finsB.glb": "05812a52698973262f059c07cf1b8d63a268b3498282b604719714b64bc4d935",
+    "rocket_fuelA.glb": "863184df031f5b2de5e71f0783b02fd1ccce9f3d2acc8042aa4e695fb2c55dd3",
+    "rocket_fuelB.glb": "781205f248225cfbc9d6093c0558b9cc399dd26d85c907ecd77c17f5964a1a3f",
+    "rocket_sidesA.glb": "7350a64c0b835b37655a7e2fba1cc76af68f89c86f6b5dfcabe4f4971a0e2a76",
+    "rocket_sidesB.glb": "71a1fd220961d789fec1a6499224897d7fabf20af4f6a2f23952a9e9e6f993ca",
+    "rocket_topA.glb": "9ca42d56c8b9b5412d6eded301f395fa3e0c8c625b401cafc327bf4169269e48",
+    "rocket_topB.glb": "548b886b843a168c6e7acf38aa12317547cb1af9b1f75199e7efdca5b6258024",
+    "rocks_smallA.glb": "6d31e20e532d72c53c569ea8805b97f2d2f3f117c2546d2e2e846c9d63e6a055",
+    "rocks_smallB.glb": "b676d38dc5fea10670c6e7f32daa9f83d6eb2ce766e1c713529154c2f8c603bf",
+    "rock_crystals.glb": "1a6fb8c4d1555edc46aca07b6216a4ffce9ad6c5656102b5efee46b481737dda",
+    "rock_crystalsLargeA.glb": "b4e4d7582ecae99890a74cc76b3965915c55aa545af2ebf0e55e6dd16ce7d28f",
+    "rock_crystalsLargeB.glb": "30b8003e972ebad0937ee28c061dd402d5dacc3adf2abf51c72f5e693c4f4d17",
+    "rock_largeA.glb": "f98f6988db4a63c1a339a379af9b6e078e495a410cef09f57fda93e8ab3289c9",
+    "rock_largeB.glb": "e82a2c148976046bdc7096f203541ea1ae1ed3ac475f41852334162399511f5b",
+    "rover.glb": "3ea0995320a9f43138e550acd133445d1559a6be7f99fc8eed1150ca2c669f79",
+    "satelliteDish.glb": "be05ef0bbea751a3119285b3d1c57a84c80bd2dc51c57981d06bf8cadb85b7dd",
+    "satelliteDish_detailed.glb": "de117f4c28fba8d00c082bed7ed4ab74342e7a8a210e9566f3418b4a49938eb6",
+    "satelliteDish_large.glb": "b30d31d6becc07859816d59df3b1052ceacc20f53c91f4a87848b627c4373c2e",
+    "stairs.glb": "ba4ece14efb2e3acb3e0c631f5f30883a656c9bfd94f8a0a14bf18be3cbc36bf",
+    "stairs_corner.glb": "f428f7f613b43728624b436c677638e251ad5401e5d0de6ebc68a06b76e3aac2",
+    "stairs_short.glb": "532593d563faa0c0bdbfea776ea74cf159163871530ff199c7bcba4c898d05e8",
+    "structure.glb": "ee7b6e4b8578208ba18856b0fe221f329c3c211e9276408bcfb11b3f1d85cb9c",
+    "structure_closed.glb": "8ff3946aa96979e88dd2cb29873ffee01e43e635cba52be2d2e260f06e4240ea",
+    "structure_detailed.glb": "80a847e647fe28d7d15cb870b330dd9c4c4a5c37482a99cc373c0d5d5e02fe99",
+    "structure_diagonal.glb": "1c466e9601d9ae469fe9d62cacf7315628ae6a53194177566d7ac38a9e7c394b",
+    "supports_high.glb": "a4894110af6df5b438499e6bb9f6cca783d347af332df4921b0b56a59201ca52",
+    "supports_low.glb": "f22122daafe4586220cb367876659af0d80cd86818db9467e4dfde035495ff4e",
+    "terrain.glb": "30695d1a228fd7bf73cb4a0ed95f1e0c5781528efda4d83228d21559ccbf0b1f",
+    "terrain_ramp.glb": "be692dbb0c139a2f5283128980080d1ea0f9ea31b3f54a054ca85a704560e340",
+    "terrain_rampLarge.glb": "5575229cf4a33ca0a55d8e69ebb8b062caf0037df9d4aded5634070ba985ede5",
+    "terrain_rampLarge_detailed.glb": "dd1ab01119bb3d01caad6c7809e1018848c132fd6a1b228b4e3eaad98955da32",
+    "terrain_roadCorner.glb": "6d4af44906a477d33fd7e0c34df5854ce724636720e719cab1c4d7aa070a82b1",
+    "terrain_roadCross.glb": "3f521e6c087b2a9752039d271e5e60c796ad985476e30e4c6d0aa32ff65ce867",
+    "terrain_roadEnd.glb": "070ef065f46980d3dd323048e65c881309d6989aa05b09fdfc244928d89ff4aa",
+    "terrain_roadSplit.glb": "144d50beeffddcadeb551c6aefbcb4e1b6903365036a52ac1bed525e7f7f8b7b",
+    "terrain_roadStraight.glb": "c2ada427b441892ee18da0a0da38c94da0770a50311504e533fd7d6637024654",
+    "terrain_side.glb": "ff4c076c43a0ece025eb7e8264eda9f7b1de730a437fca377199f304ff69a724",
+    "terrain_sideCliff.glb": "51e7e184f0a8355d58e7810fd8659554ac70f228436bfc7dbfc1c98223172141",
+    "terrain_sideCorner.glb": "f2988396b8a0ffc7939450ca9a6c4c4735b5fb702f2ed6bdde2d38d5c05d5f40",
+    "terrain_sideCornerInner.glb": "92b841fd8bbb1c1f1746f740104aa9c08a47d58f31fdc63d2cd34ab8d1287f91",
+    "terrain_sideEnd.glb": "0194b0707877e3ea898667226a2733b50e987bf6a728becaeb68a3dc180ffa55",
+    "turret_double.glb": "036c4bead971d571a8dc27e6ec8856eb28f5fb9433ea0fdb7b6f9ec9209c554a",
+    "turret_single.glb": "445aa941c2069256ad549ced4fa5079194e630799edc122647388b4bec7c9fed",
+    "weapon_gun.glb": "e184ef7f8da34d455d7b069217fc719a38ed02333f09e5997d18de8674928f21",
+    "weapon_rifle.glb": "a7d361c0234f6b1af2574860707ef539da8854a0d494c1f9ddc96dcfc31c12d0"
+  }
+}

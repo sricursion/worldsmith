@@ -1,0 +1,267 @@
+{
+  "pack": "kenney-city-kit-commercial",
+  "sourceUrl": "https://kenney.nl/assets/city-kit-commercial",
+  "sourceFile": "kenney-city-kit-commercial.zip",
+  "license": "CC0-1.0",
+  "fetchedAt": "2026-10-29T21:14:39.424Z",
+  "files": [
+    {
+      "path": "building-a.glb",
+      "sha256": "a660726e8c8f53fd59001f15d2070c6b88ff046cba098e77ca160f017cde18ae",
+      "bytes": 19220
+    },
+    {
+      "path": "building-b.glb",
+      "sha256": "b701a7d4c7b77662d89a8cb2c3bc9f748bd375accb136d6cbd08ddd483b74b34",
+      "bytes": 19596
+    },
+    {
+      "path": "building-c.glb",
+      "sha256": "4e3c7b1a75b450519251b98518c2e31bbd366466dc15e3f3d2ef86970ce0511f",
+      "bytes": 18908
+    },
+    {
+      "path": "building-d.glb",
+      "sha256": "6580c5ade78c0a4997bb2437cd5787b1bc4cacec519beca3895ea8488f3cf690",
+      "bytes": 18088
+    },
+    {
+      "path": "building-e.glb",
+      "sha256": "5363511b273b656b1eb8f5d4e47ac27437f21e1fa259ac8072eb373a15df6e90",
+      "bytes": 23116
+    },
+    {
+      "path": "building-f.glb",
+      "sha256": "6e9b48adb215d136c421cdbf68a0a87f8b174df72426c5064390fd679ca43fff",
+      "bytes": 25884
+    },
+    {
+      "path": "building-g.glb",
+      "sha256": "312ffd518238403d3fb011b2947a90c538188c8a02959379ba928ea3660b02ca",
+      "bytes": 27620
+    },
+    {
+      "path": "building-h.glb",
+      "sha256": "535abbbce2c825690cf5d3455d7498c747c93fc4be52f6095f1143f87f9decc4",
+      "bytes": 22276
+    },
+    {
+      "path": "building-i.glb",
+      "sha256": "5468942b5246d318f7cfdc26a5a0f617d0152000a49294df72d3675cfcf5d6bb",
+      "bytes": 35276
+    },
+    {
+      "path": "building-j.glb",
+      "sha256": "4119777d9e037e0545a38ca079999da2275ffca879004c0cdc897bfe31a5bf71",
+      "bytes": 67596
+    },
+    {
+      "path": "building-k.glb",
+      "sha256": "65c0c799114a485e60a8fdd4bc7dc7e83a409f44ca8b0ab8ccc4621e862e328c",
+      "bytes": 39644
+    },
+    {
+      "path": "building-l.glb",
+      "sha256": "fc55fd1514503339faa579bbdf8f14cd4226ea13212a2de53975c65eb4942523",
+      "bytes": 44932
+    },
+    {
+      "path": "building-m.glb",
+      "sha256": "12c0bae4c4c1f36f038d4d6165c8bd892e0426816e54799da3012267e2998288",
+      "bytes": 45960
+    },
+    {
+      "path": "building-n.glb",
+      "sha256": "d40be5447f5fac6a1abacd2aed91de2ce1db7fdc6e0cc1a740eff0eec99a3047",
+      "bytes": 52516
+    },
+    {
+      "path": "building-skyscraper-a.glb",
+      "sha256": "20b1d56069c20487e3c6a40c063d015b8eaa94b206ed17baa91f92e7f83b5e4e",
+      "bytes": 19788
+    },
+    {
+      "path": "building-skyscraper-b.glb",
+      "sha256": "00b4be9809c095aef5614f5ae7fcdeeff8dcaa5e04d27799b208bae21a49f0b3",
+      "bytes": 23056
+    },
+    {
+      "path": "building-skyscraper-c.glb",
+      "sha256": "c258a110215b40ca3777a0b2a66e336577c2c3bb780add045cdf98ab855d0a14",
+      "bytes": 24616
+    },
+    {
+      "path": "building-skyscraper-d.glb",
+      "sha256": "f89403f51b2e12f7f2d51880e2bb4ade4c0e67e7a354da7de33160555d777d1e",
+      "bytes": 26968
+    },
+    {
+      "path": "building-skyscraper-e.glb",
+      "sha256": "5394fdbe93237a0e21946899a7370595e238c86eb976f1942fb02415943c3eb5",
+      "bytes": 17784
+    },
+    {
+      "path": "detail-awning-wide.glb",
+      "sha256": "68e23349e69a2caa42741e594667b32a3bafa52fbd28b66405e802ade05495f3",
+      "bytes": 4536
+    },
+    {
+      "path": "detail-awning.glb",
+      "sha256": "c670c63ddbdedb31d70d447f8653bd5bc7df792e4c6bffb045959cf02264179b",
+      "bytes": 4512
+    },
+    {
+      "path": "detail-overhang-wide.glb",
+      "sha256": "0e4eef44a1502e7d71c264931af23fda9823e9f164eadca2ee4562dec026a0db",
+      "bytes": 4644
+    },
+    {
+      "path": "detail-overhang.glb",
+      "sha256": "452215fbdc37020ffb446a47d86246fe13c508feea2545a04a8ec071d857536d",
+      "bytes": 4656
+    },
+    {
+      "path": "detail-parasol-a.glb",
+      "sha256": "3bb2c455567c39c9f60402b78e33880a4602c352a65433654fbe92079b4a8cde",
+      "bytes": 5172
+    },
+    {
+      "path": "detail-parasol-b.glb",
+      "sha256": "3e27d44bba4109abbe883655bc0449d55aa915367284a64a760405d48fc23ce3",
+      "bytes": 5568
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "c38cee408d022e57e44e49f1cd655c2fe0dc881a07b881276b795215cdc0de69",
+      "bytes": 708
+    },
+    {
+      "path": "low-detail-building-a.glb",
+      "sha256": "418c7fe83dac95153e5bf6b3d475e78c36b915ababbf05ae6a34304de353c6d5",
+      "bytes": 5780
+    },
+    {
+      "path": "low-detail-building-b.glb",
+      "sha256": "99f8cc659eb3e2fee3d3949f133804a30721907bd341d312ec5ce6f821f7482d",
+      "bytes": 6000
+    },
+    {
+      "path": "low-detail-building-c.glb",
+      "sha256": "f5be53d2b70b2fb74955bf9d6981088a6c10dac67d15ba77e4fc5f59e68a7959",
+      "bytes": 5516
+    },
+    {
+      "path": "low-detail-building-d.glb",
+      "sha256": "93f7f4cde527d433eefa796de703f35178ebe363e49e77a55e7c03381a0b21ca",
+      "bytes": 4900
+    },
+    {
+      "path": "low-detail-building-e.glb",
+      "sha256": "29c1ddf4ebafac67fe95ff0e41dafc2a9d026b72984236560750c5a314550ca3",
+      "bytes": 4936
+    },
+    {
+      "path": "low-detail-building-f.glb",
+      "sha256": "104591d51de29e8d1670910926fe51ed470feccc30e1d49cbd0380b8f8e60edc",
+      "bytes": 4596
+    },
+    {
+      "path": "low-detail-building-g.glb",
+      "sha256": "487ae6f7ea671d7f50e2568c420200635c12f027a6941599276adc9108b14bdb",
+      "bytes": 5428
+    },
+    {
+      "path": "low-detail-building-h.glb",
+      "sha256": "67981617e5d6c67ca3055e8cda221f0526dfaf1f95d9271629fddc95a85413ba",
+      "bytes": 7516
+    },
+    {
+      "path": "low-detail-building-i.glb",
+      "sha256": "a8f826e505784a2a7ee06aa00b816bcfb31c136406c2b51124e0d3795d40464d",
+      "bytes": 5456
+    },
+    {
+      "path": "low-detail-building-j.glb",
+      "sha256": "eeb86c5b475ef657a9eed34ceb51424c0ad35a91fc2601ca64df85bed987dfdd",
+      "bytes": 6024
+    },
+    {
+      "path": "low-detail-building-k.glb",
+      "sha256": "d1376046c682384c7640c3fa94078f7db0694672038b9a6e4439da7aa3ce8f31",
+      "bytes": 4800
+    },
+    {
+      "path": "low-detail-building-l.glb",
+      "sha256": "6cc0cb982df56187ea505b3399e716ec0ad3183f7b6f7af8ab775638dea487af",
+      "bytes": 5424
+    },
+    {
+      "path": "low-detail-building-m.glb",
+      "sha256": "5bd1c7ce1ed8ac16c471ce2dabbc964e0b48aa3d68497660e239d13df9267dec",
+      "bytes": 5884
+    },
+    {
+      "path": "low-detail-building-n.glb",
+      "sha256": "69860c68d96014122cc9f91f5139b7193670a68cf561b2b5498cc95e82802022",
+      "bytes": 4576
+    },
+    {
+      "path": "low-detail-building-wide-a.glb",
+      "sha256": "ffbbc02f7dece5697dca230bb750df30b73b9cd91a6d14be6316ce248b9231e1",
+      "bytes": 5660
+    },
+    {
+      "path": "low-detail-building-wide-b.glb",
+      "sha256": "40c1f6cc5638d41b8a0d998579b937be343791c6f564b4184359270bf3238042",
+      "bytes": 6428
+    },
+    {
+      "path": "Textures/colormap.png",
+      "sha256": "191bec3889aaaca5018380038fecc129ebb5c2182879a099b7b538b3fa050b5d",
+      "bytes": 11002
+    }
+  ],
+  "optimized": {
+    "building-a.glb": "a660726e8c8f53fd59001f15d2070c6b88ff046cba098e77ca160f017cde18ae",
+    "building-b.glb": "b701a7d4c7b77662d89a8cb2c3bc9f748bd375accb136d6cbd08ddd483b74b34",
+    "building-c.glb": "4e3c7b1a75b450519251b98518c2e31bbd366466dc15e3f3d2ef86970ce0511f",
+    "building-d.glb": "6580c5ade78c0a4997bb2437cd5787b1bc4cacec519beca3895ea8488f3cf690",
+    "building-e.glb": "5363511b273b656b1eb8f5d4e47ac27437f21e1fa259ac8072eb373a15df6e90",
+    "building-f.glb": "6e9b48adb215d136c421cdbf68a0a87f8b174df72426c5064390fd679ca43fff",
+    "building-g.glb": "312ffd518238403d3fb011b2947a90c538188c8a02959379ba928ea3660b02ca",
+    "building-h.glb": "535abbbce2c825690cf5d3455d7498c747c93fc4be52f6095f1143f87f9decc4",
+    "building-i.glb": "5468942b5246d318f7cfdc26a5a0f617d0152000a49294df72d3675cfcf5d6bb",
+    "building-j.glb": "4119777d9e037e0545a38ca079999da2275ffca879004c0cdc897bfe31a5bf71",
+    "building-k.glb": "65c0c799114a485e60a8fdd4bc7dc7e83a409f44ca8b0ab8ccc4621e862e328c",
+    "building-l.glb": "fc55fd1514503339faa579bbdf8f14cd4226ea13212a2de53975c65eb4942523",
+    "building-m.glb": "12c0bae4c4c1f36f038d4d6165c8bd892e0426816e54799da3012267e2998288",
+    "building-n.glb": "d40be5447f5fac6a1abacd2aed91de2ce1db7fdc6e0cc1a740eff0eec99a3047",
+    "building-skyscraper-a.glb": "20b1d56069c20487e3c6a40c063d015b8eaa94b206ed17baa91f92e7f83b5e4e",
+    "building-skyscraper-b.glb": "00b4be9809c095aef5614f5ae7fcdeeff8dcaa5e04d27799b208bae21a49f0b3",
+    "building-skyscraper-c.glb": "c258a110215b40ca3777a0b2a66e336577c2c3bb780add045cdf98ab855d0a14",
+    "building-skyscraper-d.glb": "f89403f51b2e12f7f2d51880e2bb4ade4c0e67e7a354da7de33160555d777d1e",
+    "building-skyscraper-e.glb": "5394fdbe93237a0e21946899a7370595e238c86eb976f1942fb02415943c3eb5",
+    "detail-awning-wide.glb": "68e23349e69a2caa42741e594667b32a3bafa52fbd28b66405e802ade05495f3",
+    "detail-awning.glb": "c670c63ddbdedb31d70d447f8653bd5bc7df792e4c6bffb045959cf02264179b",
+    "detail-overhang-wide.glb": "0e4eef44a1502e7d71c264931af23fda9823e9f164eadca2ee4562dec026a0db",
+    "detail-overhang.glb": "452215fbdc37020ffb446a47d86246fe13c508feea2545a04a8ec071d857536d",
+    "detail-parasol-a.glb": "3bb2c455567c39c9f60402b78e33880a4602c352a65433654fbe92079b4a8cde",
+    "detail-parasol-b.glb": "3e27d44bba4109abbe883655bc0449d55aa915367284a64a760405d48fc23ce3",
+    "low-detail-building-a.glb": "418c7fe83dac95153e5bf6b3d475e78c36b915ababbf05ae6a34304de353c6d5",
+    "low-detail-building-b.glb": "99f8cc659eb3e2fee3d3949f133804a30721907bd341d312ec5ce6f821f7482d",
+    "low-detail-building-c.glb": "f5be53d2b70b2fb74955bf9d6981088a6c10dac67d15ba77e4fc5f59e68a7959",
+    "low-detail-building-d.glb": "93f7f4cde527d433eefa796de703f35178ebe363e49e77a55e7c03381a0b21ca",
+    "low-detail-building-e.glb": "29c1ddf4ebafac67fe95ff0e41dafc2a9d026b72984236560750c5a314550ca3",
+    "low-detail-building-f.glb": "104591d51de29e8d1670910926fe51ed470feccc30e1d49cbd0380b8f8e60edc",
+    "low-detail-building-g.glb": "487ae6f7ea671d7f50e2568c420200635c12f027a6941599276adc9108b14bdb",
+    "low-detail-building-h.glb": "67981617e5d6c67ca3055e8cda221f0526dfaf1f95d9271629fddc95a85413ba",
+    "low-detail-building-i.glb": "a8f826e505784a2a7ee06aa00b816bcfb31c136406c2b51124e0d3795d40464d",
+    "low-detail-building-j.glb": "eeb86c5b475ef657a9eed34ceb51424c0ad35a91fc2601ca64df85bed987dfdd",
+    "low-detail-building-k.glb": "d1376046c682384c7640c3fa94078f7db0694672038b9a6e4439da7aa3ce8f31",
+    "low-detail-building-l.glb": "6cc0cb982df56187ea505b3399e716ec0ad3183f7b6f7af8ab775638dea487af",
+    "low-detail-building-m.glb": "5bd1c7ce1ed8ac16c471ce2dabbc964e0b48aa3d68497660e239d13df9267dec",
+    "low-detail-building-n.glb": "69860c68d96014122cc9f91f5139b7193670a68cf561b2b5498cc95e82802022",
+    "low-detail-building-wide-a.glb": "ffbbc02f7dece5697dca230bb750df30b73b9cd91a6d14be6316ce248b9231e1",
+    "low-detail-building-wide-b.glb": "40c1f6cc5638d41b8a0d998579b937be343791c6f564b4184359270bf3238042"
+  }
+}

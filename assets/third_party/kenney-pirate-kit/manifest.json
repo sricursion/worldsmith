@@ -1,0 +1,453 @@
+{
+  "pack": "kenney-pirate-kit",
+  "sourceUrl": "https://kenney.nl/assets/pirate-kit",
+  "sourceFile": "kenney-pirate-kit.zip",
+  "license": "CC0-1.0",
+  "fetchedAt": "2026-10-29T21:14:44.349Z",
+  "files": [
+    {
+      "path": "barrel.glb",
+      "sha256": "5f6ef6657c707690cb257263ab07357a69110be6ddbd838086248f131cc03576",
+      "bytes": 5732
+    },
+    {
+      "path": "boat-row-large.glb",
+      "sha256": "f820e3191e30d263fe50a2ce44e1567a52d8f25a95802025221e3860ba517b3f",
+      "bytes": 5920
+    },
+    {
+      "path": "boat-row-small.glb",
+      "sha256": "e6ab04b7af500077e365b90ebf660b603751455d60b52a907ed2b6a0dec9c576",
+      "bytes": 6240
+    },
+    {
+      "path": "bottle-large.glb",
+      "sha256": "dd81258a39a5f8e8b3bc147d54804301a69534d81b7bcb1474eb678bf8cb3a04",
+      "bytes": 5700
+    },
+    {
+      "path": "bottle.glb",
+      "sha256": "b59a778c96833b1d622624bfe59abc6c80bd75b67f3431b7fe89883267bacc45",
+      "bytes": 5956
+    },
+    {
+      "path": "cannon-ball.glb",
+      "sha256": "813fec222aa5850a712b11bce41270525a4f0a1448305528fc804a7af4cadf3b",
+      "bytes": 4500
+    },
+    {
+      "path": "cannon-mobile.glb",
+      "sha256": "c4a213cde437cbc890c65383a7fc25aaa4a03e07762ec20c3e83f0d097874b43",
+      "bytes": 9856
+    },
+    {
+      "path": "cannon.glb",
+      "sha256": "43ee3521f58243111f0166edb66facdc0c09f05039124f5cc57b1ed7f657d39d",
+      "bytes": 6844
+    },
+    {
+      "path": "castle-door.glb",
+      "sha256": "c937b46c2848958b64c1725d09597547f3b50d680d5e6e6bc9e3bf4ad03d5261",
+      "bytes": 9024
+    },
+    {
+      "path": "castle-gate.glb",
+      "sha256": "c4e2ade034872ccb6a36ebb47a6b51124b8a538910a552ec73f583a0f0ea0f95",
+      "bytes": 13660
+    },
+    {
+      "path": "castle-wall.glb",
+      "sha256": "1c8c39cbe0a934001c6b751dd967c7584230b2321f1da1f654bfe0df389349df",
+      "bytes": 8016
+    },
+    {
+      "path": "castle-window.glb",
+      "sha256": "3b5aa5ae5e08395944b3536fe5ba11023706b86b989659f94526f5959c08be5f",
+      "bytes": 7656
+    },
+    {
+      "path": "chest.glb",
+      "sha256": "66133986ebbbf04eee91a71f1d9948cfe1a3199cb5c66335e166ddf0e68828dd",
+      "bytes": 10100
+    },
+    {
+      "path": "crate-bottles.glb",
+      "sha256": "b004a1229a649c702daf9863ebf4aa05cc1e29a9a24d831195e82179a0826da3",
+      "bytes": 14804
+    },
+    {
+      "path": "crate.glb",
+      "sha256": "349488e535469367345c2fe225d3071320332d3273385a67e440d745aa75520e",
+      "bytes": 4808
+    },
+    {
+      "path": "flag-high-pennant.glb",
+      "sha256": "943c174bb045780163bea08ef3352b1a086300caddc524d6b21c9161fa3a7c53",
+      "bytes": 5752
+    },
+    {
+      "path": "flag-high.glb",
+      "sha256": "5ab6a2ba411fd680d46d6399bc3b3a53ab3b189d7fa5210b04ee53915f431980",
+      "bytes": 5832
+    },
+    {
+      "path": "flag-pennant.glb",
+      "sha256": "b452034a6f31e37642537a0c3b27f7e547a12cb0f3cd6f6a6d869526ef31b811",
+      "bytes": 5800
+    },
+    {
+      "path": "flag-pirate-high-pennant.glb",
+      "sha256": "d57d3ca3a47a61771d2a38b0a2251f4026db730a79b94721abe7b60be5b9732b",
+      "bytes": 5772
+    },
+    {
+      "path": "flag-pirate-high.glb",
+      "sha256": "367fbbd38181e134cc42075e0974f4b71e763fa0790538979f7f99cc93f33688",
+      "bytes": 5856
+    },
+    {
+      "path": "flag-pirate-pennant.glb",
+      "sha256": "5e0d0ff10ac308e1a61c3c3c34d444a83c2bfb37b7ba16cb7f6df016dbeb5227",
+      "bytes": 5824
+    },
+    {
+      "path": "flag-pirate.glb",
+      "sha256": "eff737cd1d269511f132903c8fc9405a3bb72a91a8e45cfe1e8ce439e25eff08",
+      "bytes": 5900
+    },
+    {
+      "path": "flag.glb",
+      "sha256": "6bf6e366a6ae37bc4b7935d7450383a923d9867e1198e06320afcd8bdc014a89",
+      "bytes": 5880
+    },
+    {
+      "path": "grass-patch.glb",
+      "sha256": "f7ede1fa24c7d634576f3161b2fc59975862143ffcf9d6cb9f3c0dc04db8eac2",
+      "bytes": 10380
+    },
+    {
+      "path": "grass-plant.glb",
+      "sha256": "dd9ce9a38f24e20dd44b819368b4131cc0eb6228b3431c9a234903d76207b194",
+      "bytes": 6220
+    },
+    {
+      "path": "grass.glb",
+      "sha256": "77d01327ec257b4f42f3d8173235ef14b789bb99c3f89d257ba3ff200d97d0dc",
+      "bytes": 4960
+    },
+    {
+      "path": "hole.glb",
+      "sha256": "96955f87f9f5c0538cd23e17eff359ee2bfaceb4dbc680c281916d6c2845ba8d",
+      "bytes": 8592
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "5e99246a5a65fa3420a1a1c7a8616f096202c78866f73d7aacfe73c0aab0ca36",
+      "bytes": 699
+    },
+    {
+      "path": "mast-ropes.glb",
+      "sha256": "f8eae8706dbcd0e63d46f8f17e01e91857560c28b1d15d66ded89629bf9afeb2",
+      "bytes": 8880
+    },
+    {
+      "path": "mast.glb",
+      "sha256": "ba471c465ce3c1c6f1819deb34b25fb86901a7570789b1fcdc315ca3ef5e6f1f",
+      "bytes": 7736
+    },
+    {
+      "path": "palm-bend.glb",
+      "sha256": "debd5d167ca6eac2c3b2468bd81941df372c79e824042d22e630f8b34fa019dc",
+      "bytes": 10164
+    },
+    {
+      "path": "palm-detailed-bend.glb",
+      "sha256": "2862acfb4d6c94d3821832b3f2146921d4ae3e417acc026a2751af558b80964f",
+      "bytes": 13036
+    },
+    {
+      "path": "palm-detailed-straight.glb",
+      "sha256": "e640822aa9b8b8ecc95ac4636f66493ad6755b89ee76ce4c94626117da07dcbb",
+      "bytes": 13012
+    },
+    {
+      "path": "palm-straight.glb",
+      "sha256": "98f833924fc32d906496c7e32b709ed3bb4b5a548f8a2c52324239b215985be0",
+      "bytes": 10264
+    },
+    {
+      "path": "patch-grass-foliage.glb",
+      "sha256": "9dbe14165ea4567f2296f0482db012606c9ad0ef9dac01b5301c5e713d7d3b69",
+      "bytes": 8472
+    },
+    {
+      "path": "patch-grass.glb",
+      "sha256": "fa15eaafbdaa06552b7ffb2b744e365ba0680b72f63a14e2fe9201d6119ded3b",
+      "bytes": 4860
+    },
+    {
+      "path": "patch-sand-foliage.glb",
+      "sha256": "4f2ed9cd3e3ebd0355de0ea9db3141b8784601a7d645b5b0d97c75595fe95cdc",
+      "bytes": 13812
+    },
+    {
+      "path": "patch-sand.glb",
+      "sha256": "d16c34d41a19766b56e00b61224a9131d21e385700a23c1fbfa3c94acbc7a7f1",
+      "bytes": 5148
+    },
+    {
+      "path": "platform-planks.glb",
+      "sha256": "73921baf31e9fee8653db0ec1d9174391b1e18c5f4042ecd28b0d59d8878804e",
+      "bytes": 4556
+    },
+    {
+      "path": "platform.glb",
+      "sha256": "4cf6c821633b836f7b67ada6da6a3e23a9a3c432b763848cdba2eba649e10633",
+      "bytes": 4660
+    },
+    {
+      "path": "rocks-a.glb",
+      "sha256": "daaff1da1f0950291f732fca7644810ca58fa3614bfcb1aa7e2b2db262c85df5",
+      "bytes": 8484
+    },
+    {
+      "path": "rocks-b.glb",
+      "sha256": "251f2c0b9030e83a42bb35456eabccf725c0def6421e27274b4fd3ecab73ccd6",
+      "bytes": 9124
+    },
+    {
+      "path": "rocks-c.glb",
+      "sha256": "39d5da0d8e06976826bd8b7f228987b5fcc9fb84f634dc596842b8eecf999d06",
+      "bytes": 7884
+    },
+    {
+      "path": "rocks-sand-a.glb",
+      "sha256": "f2591fd0c131bd90470314d8c712f891039536a96638a8c0b904834369dffa08",
+      "bytes": 13240
+    },
+    {
+      "path": "rocks-sand-b.glb",
+      "sha256": "4732890dfb8deec8254f53968964aa1ff263fb307b6f04c5bc201cb2eb1d5efb",
+      "bytes": 12768
+    },
+    {
+      "path": "rocks-sand-c.glb",
+      "sha256": "2122f5f91e17f7d3d0d5c6640b34632b58f3609f417a347fcb65586cbad47e08",
+      "bytes": 11704
+    },
+    {
+      "path": "ship-ghost.glb",
+      "sha256": "c10dc0edf2827903fc55cee8f6818f5121f12e33e1a10665135930c4abc60f10",
+      "bytes": 25332
+    },
+    {
+      "path": "ship-large.glb",
+      "sha256": "1aa5ca61136ef18201b91487b925a85f7fd721f0d178b798632cd2a4e76ac21f",
+      "bytes": 25648
+    },
+    {
+      "path": "ship-medium.glb",
+      "sha256": "d335974e4648015d94d3b6fe7d9e19b71fdd9c8fa980e1166744cb739e235ee3",
+      "bytes": 24356
+    },
+    {
+      "path": "ship-pirate-large.glb",
+      "sha256": "e0be925256eea50a63a3693e6bdb347dab4558e2af15ba4848f839a9233c406a",
+      "bytes": 28064
+    },
+    {
+      "path": "ship-pirate-medium.glb",
+      "sha256": "61dae6d7fb21057e240cced37c03aaddbc40debfe888170460fc5dded5a5984b",
+      "bytes": 26864
+    },
+    {
+      "path": "ship-pirate-small.glb",
+      "sha256": "005802be17b437cbd3dbdc6f8bee149c6eb323b038d17d76e84aa8c8ec3216f7",
+      "bytes": 22200
+    },
+    {
+      "path": "ship-small.glb",
+      "sha256": "6db4d57456b91aaf440ef1a8fafd548e7bc146de0f72280b6693f7ce718db6c4",
+      "bytes": 20244
+    },
+    {
+      "path": "ship-wreck.glb",
+      "sha256": "2e32e9eb16f883d8500413c457dd4e0aa36e520b4b3c99248628c93bd907fe20",
+      "bytes": 30256
+    },
+    {
+      "path": "structure-fence-sides.glb",
+      "sha256": "ff1f52da7e988147113ea76df596e0d59cfbcb5b9be7609269577f3dcc3801bd",
+      "bytes": 10400
+    },
+    {
+      "path": "structure-fence.glb",
+      "sha256": "21bd5f0731fa1183b66185464b3aacfac1ba14ffa577cdbb8778bfd871d62861",
+      "bytes": 9092
+    },
+    {
+      "path": "structure-platform-dock-small.glb",
+      "sha256": "d4c613f686ca2581f946f88b5748ecaac3d90a888121fd908965fcd32ccba894",
+      "bytes": 8724
+    },
+    {
+      "path": "structure-platform-dock.glb",
+      "sha256": "109ca94b988b4e6301ae4ef952c93979e2d36f10b645aa4354b3eb2f32115a82",
+      "bytes": 8940
+    },
+    {
+      "path": "structure-platform-small.glb",
+      "sha256": "c0828e512a884aca249a937ac5e216072af2f5388146fa9d3f1bfbaecf739354",
+      "bytes": 7116
+    },
+    {
+      "path": "structure-platform.glb",
+      "sha256": "d0e8cb6c35cad6b2eca0eb6154d6998e8dbe5f46f3c49d5e5f6a34c8d6f77bd3",
+      "bytes": 7352
+    },
+    {
+      "path": "structure-roof.glb",
+      "sha256": "1e39e39ad309e27bdfe18d8045d71b1adfe4d4b21a01b0438cea987237a35803",
+      "bytes": 9072
+    },
+    {
+      "path": "structure.glb",
+      "sha256": "a7a9d49874f17bb8443918c71fe7056542b835c136305c37bfd99539f18c23d6",
+      "bytes": 7780
+    },
+    {
+      "path": "Textures/colormap.png",
+      "sha256": "451e1d7a53b8e76f4b2ee58742e241509fee5f82cf2cee6e3f7aca86ba718abe",
+      "bytes": 10061
+    },
+    {
+      "path": "tool-paddle.glb",
+      "sha256": "2b2cf400234390cf94bc4cd2611b1afec3806bc803bb3b7fe0d637cbcfa05c1b",
+      "bytes": 4408
+    },
+    {
+      "path": "tool-shovel.glb",
+      "sha256": "9f0d448d407405bed1638de2fdf83cfe24b9b0f948c3a553503d822269dd5add",
+      "bytes": 5876
+    },
+    {
+      "path": "tower-base-door.glb",
+      "sha256": "1bc1ee0a8abdb1770c8962398f779bf380363d85ea94cbcee5e4934bc1f658da",
+      "bytes": 5420
+    },
+    {
+      "path": "tower-base.glb",
+      "sha256": "4d83e87f9e6da222ec72117fdcd8b318be0e81f525626223d1df61a2cd482cfb",
+      "bytes": 4388
+    },
+    {
+      "path": "tower-complete-large.glb",
+      "sha256": "99ccf6fba3d36b1661833775977b8df44446fe4bc78f39fc867982059237cb33",
+      "bytes": 12448
+    },
+    {
+      "path": "tower-complete-small.glb",
+      "sha256": "6daa15d91c3a73133929af1c1c6550027fd73460a5b938b0dad34381f1182308",
+      "bytes": 12972
+    },
+    {
+      "path": "tower-middle-windows.glb",
+      "sha256": "5e14ced769f45ccad367b11b4fe7f403e61c0a8f2e80c9d2ef0f4cf570cb0574",
+      "bytes": 7152
+    },
+    {
+      "path": "tower-middle.glb",
+      "sha256": "c24fbea805cfafb84b7df0c65ca07c895a31eea23490b7cb525dff7d575d849f",
+      "bytes": 6924
+    },
+    {
+      "path": "tower-roof.glb",
+      "sha256": "160dc6bcd2da1d22a9ba47448a5ff17ec202539c1533a00689f1030bdc197014",
+      "bytes": 5520
+    },
+    {
+      "path": "tower-top.glb",
+      "sha256": "461811c28b18f0d21b06157e08b07a7995a018d6e2619252971631dc1b221c4e",
+      "bytes": 8176
+    },
+    {
+      "path": "tower-watch.glb",
+      "sha256": "c9eccdba59270485a6dbc7422b97538f430df8580c7eb12f454914bbc2cd567d",
+      "bytes": 6876
+    }
+  ],
+  "optimized": {
+    "barrel.glb": "5f6ef6657c707690cb257263ab07357a69110be6ddbd838086248f131cc03576",
+    "boat-row-large.glb": "f820e3191e30d263fe50a2ce44e1567a52d8f25a95802025221e3860ba517b3f",
+    "boat-row-small.glb": "e6ab04b7af500077e365b90ebf660b603751455d60b52a907ed2b6a0dec9c576",
+    "bottle-large.glb": "dd81258a39a5f8e8b3bc147d54804301a69534d81b7bcb1474eb678bf8cb3a04",
+    "bottle.glb": "b59a778c96833b1d622624bfe59abc6c80bd75b67f3431b7fe89883267bacc45",
+    "cannon-ball.glb": "813fec222aa5850a712b11bce41270525a4f0a1448305528fc804a7af4cadf3b",
+    "cannon-mobile.glb": "c4a213cde437cbc890c65383a7fc25aaa4a03e07762ec20c3e83f0d097874b43",
+    "cannon.glb": "43ee3521f58243111f0166edb66facdc0c09f05039124f5cc57b1ed7f657d39d",
+    "castle-door.glb": "c937b46c2848958b64c1725d09597547f3b50d680d5e6e6bc9e3bf4ad03d5261",
+    "castle-gate.glb": "c4e2ade034872ccb6a36ebb47a6b51124b8a538910a552ec73f583a0f0ea0f95",
+    "castle-wall.glb": "1c8c39cbe0a934001c6b751dd967c7584230b2321f1da1f654bfe0df389349df",
+    "castle-window.glb": "3b5aa5ae5e08395944b3536fe5ba11023706b86b989659f94526f5959c08be5f",
+    "chest.glb": "66133986ebbbf04eee91a71f1d9948cfe1a3199cb5c66335e166ddf0e68828dd",
+    "crate-bottles.glb": "b004a1229a649c702daf9863ebf4aa05cc1e29a9a24d831195e82179a0826da3",
+    "crate.glb": "349488e535469367345c2fe225d3071320332d3273385a67e440d745aa75520e",
+    "flag-high-pennant.glb": "943c174bb045780163bea08ef3352b1a086300caddc524d6b21c9161fa3a7c53",
+    "flag-high.glb": "5ab6a2ba411fd680d46d6399bc3b3a53ab3b189d7fa5210b04ee53915f431980",
+    "flag-pennant.glb": "b452034a6f31e37642537a0c3b27f7e547a12cb0f3cd6f6a6d869526ef31b811",
+    "flag-pirate-high-pennant.glb": "d57d3ca3a47a61771d2a38b0a2251f4026db730a79b94721abe7b60be5b9732b",
+    "flag-pirate-high.glb": "367fbbd38181e134cc42075e0974f4b71e763fa0790538979f7f99cc93f33688",
+    "flag-pirate-pennant.glb": "5e0d0ff10ac308e1a61c3c3c34d444a83c2bfb37b7ba16cb7f6df016dbeb5227",
+    "flag-pirate.glb": "eff737cd1d269511f132903c8fc9405a3bb72a91a8e45cfe1e8ce439e25eff08",
+    "flag.glb": "6bf6e366a6ae37bc4b7935d7450383a923d9867e1198e06320afcd8bdc014a89",
+    "grass-patch.glb": "f7ede1fa24c7d634576f3161b2fc59975862143ffcf9d6cb9f3c0dc04db8eac2",
+    "grass-plant.glb": "dd9ce9a38f24e20dd44b819368b4131cc0eb6228b3431c9a234903d76207b194",
+    "grass.glb": "77d01327ec257b4f42f3d8173235ef14b789bb99c3f89d257ba3ff200d97d0dc",
+    "hole.glb": "96955f87f9f5c0538cd23e17eff359ee2bfaceb4dbc680c281916d6c2845ba8d",
+    "mast-ropes.glb": "f8eae8706dbcd0e63d46f8f17e01e91857560c28b1d15d66ded89629bf9afeb2",
+    "mast.glb": "ba471c465ce3c1c6f1819deb34b25fb86901a7570789b1fcdc315ca3ef5e6f1f",
+    "palm-bend.glb": "debd5d167ca6eac2c3b2468bd81941df372c79e824042d22e630f8b34fa019dc",
+    "palm-detailed-bend.glb": "2862acfb4d6c94d3821832b3f2146921d4ae3e417acc026a2751af558b80964f",
+    "palm-detailed-straight.glb": "e640822aa9b8b8ecc95ac4636f66493ad6755b89ee76ce4c94626117da07dcbb",
+    "palm-straight.glb": "98f833924fc32d906496c7e32b709ed3bb4b5a548f8a2c52324239b215985be0",
+    "patch-grass-foliage.glb": "9dbe14165ea4567f2296f0482db012606c9ad0ef9dac01b5301c5e713d7d3b69",
+    "patch-grass.glb": "fa15eaafbdaa06552b7ffb2b744e365ba0680b72f63a14e2fe9201d6119ded3b",
+    "patch-sand-foliage.glb": "4f2ed9cd3e3ebd0355de0ea9db3141b8784601a7d645b5b0d97c75595fe95cdc",
+    "patch-sand.glb": "d16c34d41a19766b56e00b61224a9131d21e385700a23c1fbfa3c94acbc7a7f1",
+    "platform-planks.glb": "73921baf31e9fee8653db0ec1d9174391b1e18c5f4042ecd28b0d59d8878804e",
+    "platform.glb": "4cf6c821633b836f7b67ada6da6a3e23a9a3c432b763848cdba2eba649e10633",
+    "rocks-a.glb": "daaff1da1f0950291f732fca7644810ca58fa3614bfcb1aa7e2b2db262c85df5",
+    "rocks-b.glb": "251f2c0b9030e83a42bb35456eabccf725c0def6421e27274b4fd3ecab73ccd6",
+    "rocks-c.glb": "39d5da0d8e06976826bd8b7f228987b5fcc9fb84f634dc596842b8eecf999d06",
+    "rocks-sand-a.glb": "f2591fd0c131bd90470314d8c712f891039536a96638a8c0b904834369dffa08",
+    "rocks-sand-b.glb": "4732890dfb8deec8254f53968964aa1ff263fb307b6f04c5bc201cb2eb1d5efb",
+    "rocks-sand-c.glb": "2122f5f91e17f7d3d0d5c6640b34632b58f3609f417a347fcb65586cbad47e08",
+    "ship-ghost.glb": "c10dc0edf2827903fc55cee8f6818f5121f12e33e1a10665135930c4abc60f10",
+    "ship-large.glb": "1aa5ca61136ef18201b91487b925a85f7fd721f0d178b798632cd2a4e76ac21f",
+    "ship-medium.glb": "d335974e4648015d94d3b6fe7d9e19b71fdd9c8fa980e1166744cb739e235ee3",
+    "ship-pirate-large.glb": "e0be925256eea50a63a3693e6bdb347dab4558e2af15ba4848f839a9233c406a",
+    "ship-pirate-medium.glb": "61dae6d7fb21057e240cced37c03aaddbc40debfe888170460fc5dded5a5984b",
+    "ship-pirate-small.glb": "005802be17b437cbd3dbdc6f8bee149c6eb323b038d17d76e84aa8c8ec3216f7",
+    "ship-small.glb": "6db4d57456b91aaf440ef1a8fafd548e7bc146de0f72280b6693f7ce718db6c4",
+    "ship-wreck.glb": "2e32e9eb16f883d8500413c457dd4e0aa36e520b4b3c99248628c93bd907fe20",
+    "structure-fence-sides.glb": "ff1f52da7e988147113ea76df596e0d59cfbcb5b9be7609269577f3dcc3801bd",
+    "structure-fence.glb": "21bd5f0731fa1183b66185464b3aacfac1ba14ffa577cdbb8778bfd871d62861",
+    "structure-platform-dock-small.glb": "d4c613f686ca2581f946f88b5748ecaac3d90a888121fd908965fcd32ccba894",
+    "structure-platform-dock.glb": "109ca94b988b4e6301ae4ef952c93979e2d36f10b645aa4354b3eb2f32115a82",
+    "structure-platform-small.glb": "c0828e512a884aca249a937ac5e216072af2f5388146fa9d3f1bfbaecf739354",
+    "structure-platform.glb": "d0e8cb6c35cad6b2eca0eb6154d6998e8dbe5f46f3c49d5e5f6a34c8d6f77bd3",
+    "structure-roof.glb": "1e39e39ad309e27bdfe18d8045d71b1adfe4d4b21a01b0438cea987237a35803",
+    "structure.glb": "a7a9d49874f17bb8443918c71fe7056542b835c136305c37bfd99539f18c23d6",
+    "tool-paddle.glb": "2b2cf400234390cf94bc4cd2611b1afec3806bc803bb3b7fe0d637cbcfa05c1b",
+    "tool-shovel.glb": "9f0d448d407405bed1638de2fdf83cfe24b9b0f948c3a553503d822269dd5add",
+    "tower-base-door.glb": "1bc1ee0a8abdb1770c8962398f779bf380363d85ea94cbcee5e4934bc1f658da",
+    "tower-base.glb": "4d83e87f9e6da222ec72117fdcd8b318be0e81f525626223d1df61a2cd482cfb",
+    "tower-complete-large.glb": "99ccf6fba3d36b1661833775977b8df44446fe4bc78f39fc867982059237cb33",
+    "tower-complete-small.glb": "6daa15d91c3a73133929af1c1c6550027fd73460a5b938b0dad34381f1182308",
+    "tower-middle-windows.glb": "5e14ced769f45ccad367b11b4fe7f403e61c0a8f2e80c9d2ef0f4cf570cb0574",
+    "tower-middle.glb": "c24fbea805cfafb84b7df0c65ca07c895a31eea23490b7cb525dff7d575d849f",
+    "tower-roof.glb": "160dc6bcd2da1d22a9ba47448a5ff17ec202539c1533a00689f1030bdc197014",
+    "tower-top.glb": "461811c28b18f0d21b06157e08b07a7995a018d6e2619252971631dc1b221c4e",
+    "tower-watch.glb": "c9eccdba59270485a6dbc7422b97538f430df8580c7eb12f454914bbc2cd567d"
+  }
+}

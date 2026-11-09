@@ -8,11 +8,12 @@
     "build": "tsc -p app/tsconfig.json --noEmit && vite build --config app/vite.config.ts",
     "preview": "vite preview --config app/vite.config.ts",
     "test": "vitest run",
-    "worker:dev": "wrangler dev --config worker/wrangler.toml",
+    "worker:dev": "wrangler dev --config worker/wrangler.toml --env dev --port 8788 --local",
     "worker:deploy": "wrangler deploy --config worker/wrangler.toml",
     "assets:fetch": "node scripts/fetch-assets.mjs",
     "assets:optimize": "node scripts/optimize-assets.mjs",
-    "typecheck": "tsc -p app/tsconfig.json --noEmit && tsc -p worker/tsconfig.json --noEmit"
+    "typecheck": "tsc -p app/tsconfig.json --noEmit && tsc -p worker/tsconfig.json --noEmit",
+    "deploy": "npm run build && wrangler deploy --config worker/wrangler.toml"
   },
   "dependencies": {
     "@recast-navigation/three": "0.43.1",
@@ -33,5 +34,7 @@
     "vitest": "4.1.4",
     "wrangler": "4.154.0"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  }
 }

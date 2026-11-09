@@ -33,7 +33,10 @@ export function parseHour(text: string): number | null {
 }
 
 function idTokens(summary: string): string[] {
-  return [...new Set(summary.match(/\b[a-z]+(?:_[a-z0-9]+)+\b/g) ?? [])];
+  // Underscored ids anywhere, plus bare ids written as "id(role)" in the summary lines.
+  const underscored = summary.match(/\b[a-z]+(?:_[a-z0-9]+)+\b/g) ?? [];
+  const labelled = [...summary.matchAll(/\b([a-z][a-z0-9_]*)\(/g)].map((m) => m[1] ?? '');
+  return [...new Set([...underscored, ...labelled].filter(Boolean))];
 }
 
 function matchId(text: string, ids: string[]): string | null {

@@ -396,7 +396,7 @@ export class Game {
     t.state = res.state;
     this.afterEvent(res.completed);
     this.offerItemActions(n, handle);
-    void session.say('', (partial) => handle.stream(partial)).then((r) => {
+    void session.say('(walks up)', (partial) => handle.stream(partial)).then((r) => {
       if (t.handle !== handle) return;
       handle.done();
       this.speech.speak(r.text, n.spec.voice, n.spec.name);

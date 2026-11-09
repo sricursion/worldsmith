@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type { ThemeId } from '../../app/src/world/spec';
 import { CLIP_CANDIDATES, LOGICAL_CLIPS, resolveClipNames } from '../../app/src/engine/kaykit-clips';
-import { PALETTE_COUNT, PALETTE_RINGS, paletteSlot, paletteVariant, shiftPixels } from '../../app/src/engine/palette';
+import { PALETTE_COUNT, PALETTE_RINGS, classifyPixel, paletteSlot, paletteVariant, shiftPixels } from '../../app/src/engine/palette';
 import { BASE_FILES, CHARACTER_HEIGHT_M } from '../../app/src/engine/character';
 import { FOOTPRINT_TABLE } from '../../app/src/engine/assets';
 
@@ -22,18 +22,20 @@ describe('palette tables', () => {
   it('has ten variants per theme with the first untouched', () => {
     for (const t of THEMES) {
       expect(PALETTE_RINGS[t]).toHaveLength(PALETTE_COUNT);
-      expect(PALETTE_RINGS[t][0]).toEqual({ hue: 0, value: 1 });
+      expect(PALETTE_RINGS[t][0]).toEqual({ hue: 0, value: 1, sat: 1 });
     }
   });
 
-  it('keeps every variant distinct inside a theme and in sane ranges', () => {
+  it('keeps every variant distinct inside a theme and in moderate ranges', () => {
     for (const t of THEMES) {
-      const keys = new Set(PALETTE_RINGS[t].map((v) => `${v.hue}|${v.value}`));
+      const keys = new Set(PALETTE_RINGS[t].map((p) => `${p.hue}|${p.value}|${p.sat}`));
       expect(keys.size).toBe(PALETTE_COUNT);
-      for (const v of PALETTE_RINGS[t]) {
-        expect(Math.abs(v.hue)).toBeLessThanOrEqual(360);
-        expect(v.value).toBeGreaterThan(0.3);
-        expect(v.value).toBeLessThanOrEqual(1.3);
+      for (const p of PALETTE_RINGS[t]) {
+        expect(Math.abs(p.hue)).toBeLessThanOrEqual(150);
+        expect(p.value).toBeGreaterThan(0.3);
+        expect(p.value).toBeLessThanOrEqual(1.3);
+        expect(p.sat).toBeGreaterThan(0.3);
+        expect(p.sat).toBeLessThanOrEqual(1.3);
       }
     }
   });
@@ -43,12 +45,10 @@ describe('palette tables', () => {
     expect(new Set(rings).size).toBe(THEMES.length);
   });
 
-  it('puts the theme hues in the intended families', () => {
-    const mean = (t: ThemeId): number => PALETTE_RINGS[t].reduce((a, v) => a + v.hue, 0) / PALETTE_COUNT;
-    expect(Math.abs(mean('western'))).toBeLessThan(25); // stays in warm browns and reds
-    expect(mean('medieval')).toBeGreaterThan(60); // toward green and blue
-    expect(mean('scifi')).toBeGreaterThan(50);
-    const modernValue = PALETTE_RINGS.modern.reduce((a, v) => a + v.value, 0) / PALETTE_COUNT;
+  it('puts the theme flavours in the intended direction', () => {
+    const meanAbs = (t: ThemeId): number => PALETTE_RINGS[t].reduce((a, p) => a + Math.abs(p.hue), 0) / PALETTE_COUNT;
+    expect(meanAbs('western')).toBeLessThan(meanAbs('medieval'));
+    const modernValue = PALETTE_RINGS.modern.reduce((a, p) => a + p.value, 0) / PALETTE_COUNT;
     expect(modernValue).toBeLessThan(0.9); // darker greys and navies
   });
 
@@ -64,38 +64,85 @@ describe('palette tables', () => {
 
 describe('shiftPixels', () => {
   const px = (r: number, g: number, b: number, a = 255): Uint8ClampedArray => new Uint8ClampedArray([r, g, b, a]);
+  const hueOf = (d: Uint8ClampedArray): number => {
+    const r = (d[0] ?? 0) / 255;
+    const g = (d[1] ?? 0) / 255;
+    const b = (d[2] ?? 0) / 255;
+    const max = Math.max(r, g, b);
+    const delta = max - Math.min(r, g, b);
+    if (delta === 0) return 0;
+    const h = max === r ? ((g - b) / delta + 6) % 6 : max === g ? (b - r) / delta + 2 : (r - g) / delta + 4;
+    return h * 60;
+  };
+  const SKIN = [248, 200, 168] as const;
+  const HAIR = [168, 104, 72] as const;
+  const BLUE = [40, 60, 200] as const;
+  const GREY = [128, 128, 128] as const;
 
-  it('is the identity for hue 0, value 1', () => {
-    const d = px(200, 100, 50);
-    shiftPixels(d, 0, 1);
-    expect(Array.from(d)).toEqual([200, 100, 50, 255]);
+  /** Synthetic atlas holding skin, hair, blue cloth, grey and a saturated red pixel. */
+  const atlas = (): Uint8ClampedArray => new Uint8ClampedArray([...SKIN, 255, ...HAIR, 255, ...BLUE, 255, ...GREY, 255, 255, 0, 0, 255]);
+
+  it('classifies skin, hair, grey and cloth', () => {
+    expect(classifyPixel(...SKIN)).toBe('skin');
+    expect(classifyPixel(...HAIR)).toBe('skin');
+    expect(classifyPixel(...GREY)).toBe('neutral');
+    expect(classifyPixel(...BLUE)).toBe('cloth');
+    expect(classifyPixel(255, 0, 0)).toBe('cloth');
   });
 
-  it('rotates red to green at +120 degrees and blue at +240', () => {
+  it('makes palette 0 the identity for every theme', () => {
+    for (const t of THEMES) {
+      const p = paletteVariant(t, 0);
+      const d = atlas();
+      shiftPixels(d, p.hue, p.value, p.sat);
+      expect(Array.from(d)).toEqual(Array.from(atlas()));
+    }
+  });
+
+  it('never changes skin or hair pixels under any palette', () => {
+    for (const t of THEMES) {
+      for (let i = 0; i < PALETTE_COUNT; i++) {
+        const p = paletteVariant(t, i);
+        const d = atlas();
+        shiftPixels(d, p.hue, p.value, p.sat);
+        expect(Array.from(d.subarray(0, 8))).toEqual([...SKIN, 255, ...HAIR, 255]);
+      }
+    }
+  });
+
+  it('changes the hue of blue cloth under a non-zero palette', () => {
+    for (const t of THEMES) {
+      const p = paletteVariant(t, 1);
+      const d = px(...BLUE);
+      shiftPixels(d, p.hue, p.value, p.sat);
+      const diff = Math.abs(hueOf(d) - hueOf(px(...BLUE)));
+      expect(Math.min(diff, 360 - diff)).toBeGreaterThan(5);
+    }
+  });
+
+  it('keeps grey hue, and alpha, untouched', () => {
+    const grey = px(...GREY, 77);
+    shiftPixels(grey, 90, 0.5, 1.5);
+    expect(Array.from(grey)).toEqual([128, 128, 128, 77]);
+  });
+
+  it('rotates cloth red to green at +120 degrees and wraps negatives', () => {
     const g = px(255, 0, 0);
     shiftPixels(g, 120, 1);
     expect(Array.from(g)).toEqual([0, 255, 0, 255]);
     const b = px(255, 0, 0);
-    shiftPixels(b, 240, 1);
+    shiftPixels(b, -120, 1);
     expect(Array.from(b)).toEqual([0, 0, 255, 255]);
   });
 
-  it('wraps negative rotations', () => {
-    const d = px(255, 0, 0);
-    shiftPixels(d, -120, 1);
-    expect(Array.from(d)).toEqual([0, 0, 255, 255]);
-  });
-
-  it('leaves greys and alpha alone, and scales value', () => {
-    const grey = px(128, 128, 128, 77);
-    shiftPixels(grey, 90, 1);
-    expect(Array.from(grey)).toEqual([128, 128, 128, 77]);
+  it('scales value and saturation of cloth only', () => {
     const dim = px(200, 0, 0);
     shiftPixels(dim, 0, 0.5);
     expect(Array.from(dim)).toEqual([100, 0, 0, 255]);
-    const bright = px(200, 0, 0);
-    shiftPixels(bright, 0, 2);
-    expect(bright[0]).toBe(255);
+    const pale = px(...BLUE);
+    shiftPixels(pale, 0, 1, 0.5);
+    expect(pale[2]).toBe(BLUE[2]);
+    expect(pale[0]).toBeGreaterThan(BLUE[0]);
   });
 });
 

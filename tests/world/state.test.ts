@@ -67,9 +67,13 @@ describe('applyEvent', () => {
 
   it('caps the log at 60 entries', () => {
     let s = createState(spec);
-    for (let i = 0; i < 100; i++) s = applyEvent(spec, s, { type: 'npc_moved', npcId: 'drifter_jed', place: i % 2 ? 'saloon' : 'street' }).state;
+    for (let i = 0; i < 100; i++) s = applyEvent(spec, s, { type: 'npc_mood', npcId: 'drifter_jed', mood: i % 2 ? 'angry' : 'calm' }).state;
     expect(s.log).toHaveLength(60);
+    expect(s.npcMoods.drifter_jed).toBe('angry');
+    // Moves update the place without a log line; the game logs them with their reason.
+    s = applyEvent(spec, s, { type: 'npc_moved', npcId: 'drifter_jed', place: 'saloon' }).state;
     expect(s.npcPlaces.drifter_jed).toBe('saloon');
+    expect(s.log).toHaveLength(60);
   });
 
   it('adds and removes rules, and updates moods', () => {

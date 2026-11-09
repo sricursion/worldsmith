@@ -46,5 +46,6 @@ export class Bag {
 }
 
 export function focusSoon(node: HTMLElement): void {
-  node.focus({ preventScroll: true });
+  // Deferred past the current key event, so the key that opened a panel is not typed into it.
+  window.setTimeout(() => node.focus({ preventScroll: true }), 0);
 }

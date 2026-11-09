@@ -54,6 +54,15 @@ function effectFor(text: string, summary: string): RuleEffect {
     return { type: 'curfew', fromHour: from, toHour: from >= 12 ? 5 : from + 8, exemptRoles: ['sheriff', 'deputy', 'guard'] };
   }
 
+  // Prohibitions come before weather: "nobody in the saloon after dark" is a ban, not a night sky.
+  if (/\b(no|nobody|no one|ban\w*|forbid\w*|prohibit\w*|illegal|outlaw\w*|not allowed|may not|must not|cannot|can't)\b/.test(t)) {
+    const what =
+      /\b(?:no|ban(?:ned)?|forbid\w*|prohibit\w*|outlaw\w*)\s+([a-z]+(?:\s+[a-z]+)?)/.exec(t)?.[1] ??
+      (/\b(nobody|no one|not allowed|may not|must not|cannot|can't)\b/.test(t) ? 'entry' : 'trouble');
+    const where = matchId(t, ids.filter((id) => !/^(npc|item)_/.test(id))) ?? 'town';
+    return { type: 'ban', what: what.replace(/\s+(in|at|on|the|for|from)$/, ''), where };
+  }
+
   const weather = /\b(rain\w*|storm\w*|fog\w*|night|dark\w*|dusk|dawn|overcast)\b/.exec(t);
   if (weather) {
     const w = weather[1] ?? '';
@@ -76,12 +85,6 @@ function effectFor(text: string, summary: string): RuleEffect {
     else if (/\btripl\w*\b/.test(t)) multiplier = 3;
     else if (/\b(doubl\w*|expensive)\b/.test(t)) multiplier = 2;
     return { type: 'price', item, multiplier: Math.min(5, Math.max(0.1, multiplier)) };
-  }
-
-  if (/\b(no|ban\w*|forbid\w*|prohibit\w*|illegal|outlaw\w*|not allowed)\b/.test(t)) {
-    const what = /\b(?:no|ban(?:ned)?|forbid\w*|prohibit\w*|outlaw\w*)\s+([a-z]+(?:\s+[a-z]+)?)/.exec(t)?.[1] ?? 'trouble';
-    const where = matchId(t, ids.filter((id) => !/^(npc|item)_/.test(id))) ?? 'town';
-    return { type: 'ban', what: what.replace(/\s+(in|at|on|the|for|from)$/, ''), where };
   }
 
   const mood = MOOD_WORDS.find(([re]) => re.test(t));

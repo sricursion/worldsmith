@@ -194,8 +194,8 @@ export function applyEvent(
       break;
     }
     case 'npc_moved': {
+      // The game logs moves with their reason; the reducer only records the place.
       s.npcPlaces[ev.npcId] = ev.place;
-      pushLog(s, ev.npcId, `Moved to ${ev.place}`);
       break;
     }
     case 'npc_mood': {

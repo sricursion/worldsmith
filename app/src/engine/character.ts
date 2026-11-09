@@ -26,7 +26,7 @@ import { LOGICAL_CLIPS, resolveClipNames } from './kaykit-clips';
 import type { LogicalClip } from './kaykit-clips';
 import { paletteSlot, paletteVariant, shiftPixels } from './palette';
 
-export { PALETTE_COUNT, PALETTE_RINGS, paletteVariant, shiftPixels } from './palette';
+export { PALETTE_COUNT, PALETTE_RINGS, classifyPixel, paletteVariant, shiftPixels } from './palette';
 
 export interface CharacterRig {
   root: Object3D;
@@ -131,7 +131,7 @@ function paletteTexture(base: LoadedBase, theme: ThemeId, slot: number): Texture
   ctx.drawImage(image, 0, 0, w, h);
   const px = ctx.getImageData(0, 0, w, h);
   const v = paletteVariant(theme, slot);
-  shiftPixels(px.data, v.hue, v.value);
+  shiftPixels(px.data, v.hue, v.value, v.sat);
   ctx.putImageData(px, 0, 0);
   const tex = new CanvasTexture(canvas);
   tex.colorSpace = src.colorSpace;

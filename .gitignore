@@ -4,6 +4,7 @@ dist/
 .dev.vars
 *.local
 planning/
+.cache/
 assets/raw/
 assets/third_party/**/*.fbx
 .claude/

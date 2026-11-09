@@ -23,4 +23,4 @@ All assets are static files served from `assets/third_party/`. Each pack include
 
 ## How to refresh
 
-Run `npm run assets:fetch` to download the source archives and refresh pack manifests, then `npm run assets:optimize` to optimize GLB files for delivery. `assets/raw/` is the gitignored download cache; delete a cached zip there when you need to fetch that archive again.
+Run `npm run assets:fetch` to download the source archives and refresh pack manifests, then `npm run assets:optimize` to optimize GLB files for delivery. `.cache/assets-raw/` is the gitignored download cache; delete a cached zip there when you need to fetch that archive again.

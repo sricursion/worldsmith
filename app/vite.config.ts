@@ -11,7 +11,7 @@ export default defineConfig({
     emptyOutDir: true,
     target: 'es2022',
     sourcemap: false,
-    rollupOptions: { output: { manualChunks: { three: ['three'], recast: ['recast-navigation', '@recast-navigation/three'] } } },
+    rollupOptions: { output: { advancedChunks: { groups: [{ name: 'three', test: /node_modules[\/]three[\/]/ }, { name: 'recast', test: /node_modules[\/]@?recast-navigation/ }] } } },
   },
-  server: { port: 5173, strictPort: true, host: '127.0.0.1', proxy: { '/api': { target: 'http://127.0.0.1:8787', changeOrigin: true } } },
+  server: { port: 5173, strictPort: true, host: '127.0.0.1', proxy: { '/api': { target: 'http://127.0.0.1:8788', changeOrigin: true } } },
 });

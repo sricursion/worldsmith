@@ -6,9 +6,11 @@
     "lib": ["ES2022"],
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
     "skipLibCheck": true,
     "isolatedModules": true,
+    "noEmit": true,
     "types": ["@cloudflare/workers-types/2023-07-01"]
   },
-  "include": ["src"]
+  "include": ["src", "../app/src/world", "../app/src/net"]
 }

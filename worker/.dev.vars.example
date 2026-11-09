@@ -1,0 +1,7 @@
+# Copy to worker/.dev.vars (gitignored). In production use `wrangler secret put <NAME>`.
+ANTHROPIC_API_KEY=
+GROQ_API_KEY=
+TYPESAFE_API_KEY=
+TURNSTILE_SECRET=
+# Set to 1 to answer every model route from fixtures, ignoring the keys above.
+MOCK=1

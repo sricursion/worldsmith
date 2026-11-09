@@ -14,8 +14,8 @@ Demo: `DEMO_URL_PLACEHOLDER`
 Prompts to start with:
 
 1. `a Wild West town in the Arizona Territory, 1874, with a missing payroll`
-2. `PROMPT_2_PLACEHOLDER`
-3. `PROMPT_3_PLACEHOLDER`
+2. A medieval river market town the night before a saint's feast, when the relic goes missing
+3. A mining outpost on a frozen moon in 2187 where the reactor is failing and someone is behind it
 
 Controls: WASD to move, E to talk, R to open the rule editor, ? to ask why something happened.
 After the town loads, try the rule `nobody is allowed in the saloon after dark` and watch the
@@ -107,5 +107,5 @@ All 3D models are CC0 packs by Kenney and KayKit (Kay Lousberg), committed under
 
 ## License
 
-MIT for the code in this repository. LICENSE_PLACEHOLDER: add `LICENSE` with the author name and year.
+MIT for the code in this repository; see `LICENSE`. Third-party assets keep their own CC0 terms, listed in `docs/THIRD_PARTY.md`.
 Third-party assets keep their own CC0 licenses.

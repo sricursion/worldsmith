@@ -23,6 +23,7 @@ import type { Input } from './engine/input';
 import { loadKit, type LoadedKit } from './engine/assets';
 import type { CharacterRig } from './engine/character';
 import { createFigure, disposeBodyCache } from './engine/bodies';
+import { loadHumans, createHuman } from './engine/humans';
 import { createCreatures } from './engine/creatures';
 import { createSkyFeatures } from './engine/skyfeatures';
 import { hash32 } from './world/rng';
@@ -254,7 +255,7 @@ export class Game {
     try {
       // Start the heavy loads now so the town appears the moment the spec lands.
       const kitPromise = this.ensureKit(theme);
-      const charPromise = Promise.resolve();
+      const charPromise = loadHumans().then(() => undefined);
       ui.showCompiling('Thinking about your town…');
 
       // The town is shown as soon as its look arrives; the cast and quest follow a few seconds later.
@@ -323,6 +324,7 @@ export class Game {
     const verified = verifyQuest(repaired);
     const spec = repaired;
     const kit = await this.ensureKit(spec.theme);
+    await loadHumans();
 
     // Everything created below is registered here so a failure half-way cannot orphan it in the scene.
     const created: { objects?: TownObjects; nav?: NavWorld; rigs: CharacterRig[]; agents: NavAgent[]; player?: Player } = { rigs: [], agents: [] };
@@ -339,7 +341,12 @@ export class Game {
       created.nav = nav;
 
       const quality = viewport.getQuality?.() ?? 2;
-      const playerRig: Person = createFigure({ folk: spec.folk, role: 'traveller', theme: spec.theme, seed: hash32(`${spec.seed}|player`), quality });
+      // Modelled human bodies where the folk are human; the generated body plan for everyone else.
+      const person = (role: string, key: string): Person => {
+        const o = { folk: spec.folk, role, theme: spec.theme, seed: hash32(`${spec.seed}|${key}`), quality };
+        return createHuman(o) ?? createFigure(o);
+      };
+      const playerRig = person('traveller', 'player');
       viewport.scene.add(playerRig.root);
       created.rigs.push(playerRig);
       const player = createPlayer(playerRig, nav, viewport.camera, this.deps.input, objects.statics);
@@ -350,7 +357,7 @@ export class Game {
       const state = createState(spec);
       const npcs = new Map<string, NpcRuntime>();
       for (const n of spec.npcs) {
-        const rig: Person = createFigure({ folk: spec.folk, role: n.role, theme: spec.theme, seed: hash32(`${spec.seed}|${n.id}`), quality });
+        const rig = person(n.role, n.id);
         viewport.scene.add(rig.root);
         created.rigs.push(rig);
         const place = state.npcPlaces[n.id] ?? n.home;

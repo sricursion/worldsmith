@@ -1,0 +1,234 @@
+{
+  "pack": "quaternius-animated-humans",
+  "sourceUrl": "https://poly.pizza/u/Quaternius",
+  "sourceFile": "",
+  "license": "CC0-1.0",
+  "fetchedAt": "2026-11-10T18:08:52.793Z",
+  "files": [
+    {
+      "path": "adventurer.glb",
+      "sha256": "1b36fe9787b4fe85f208ea86203a78dacc9acb6f332019a3e9b02b2792e45f59",
+      "bytes": 513652
+    },
+    {
+      "path": "adventuress.glb",
+      "sha256": "60fefb5ce3fc469b03c66789ef9d20463cc2cccc1a7546f38a3d8e4aec7aeec0",
+      "bytes": 455832
+    },
+    {
+      "path": "astronaut.glb",
+      "sha256": "07ec90d131c2eaaa362e4a03b1f3c65726637699de45cdf0101f158d28b2f99a",
+      "bytes": 508624
+    },
+    {
+      "path": "beach.glb",
+      "sha256": "95652eff1fab0afff7676319c41d53207483c4e7534accbf1d8663096d900bc6",
+      "bytes": 445268
+    },
+    {
+      "path": "businessman.glb",
+      "sha256": "75979f7191a9633feadb84571ad4189c259f0c93cc3cefe987bf0566891954cb",
+      "bytes": 445760
+    },
+    {
+      "path": "casual.glb",
+      "sha256": "2d406933d45a95f831dc83a4ab031b8918e56a8b609d49327cc81b3e3bbbb018",
+      "bytes": 431404
+    },
+    {
+      "path": "farmer.glb",
+      "sha256": "1e71060272ea716e3c2517625a7552645786cbda3df66a463fbe89e6aa0fdff2",
+      "bytes": 433764
+    },
+    {
+      "path": "formal-woman.glb",
+      "sha256": "e2d81db38dc21111030959b8ce123f135343c98de8effcd3e0852eee86794016",
+      "bytes": 431528
+    },
+    {
+      "path": "hooded.glb",
+      "sha256": "0932fdb3811ea1ce71ef78bf476aa6e3901d24b7bbe9b3d3e67013e7ec92bcc7",
+      "bytes": 462876
+    },
+    {
+      "path": "hoodie.glb",
+      "sha256": "ac4b96eda0ae187e88d1c94c1e8e243bece2594bdf9c4f24cec7c3621aaad82f",
+      "bytes": 440380
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "6f0e57ad394a9d6e98fbc0cbccee9eb88ef292d09a4df971c443780e681eea92",
+      "bytes": 12000
+    },
+    {
+      "path": "man-casual.glb",
+      "sha256": "7946f71a976fd9f5400e0c7baceab804394459efd72f5c7fcf0513c665e9a6ba",
+      "bytes": 151320
+    },
+    {
+      "path": "man-suit.glb",
+      "sha256": "ad1af8dadba02df59a3cbce32a462149b6dcfa4b65810b51b03440e6c0484be1",
+      "bytes": 164028
+    },
+    {
+      "path": "punk.glb",
+      "sha256": "b38ef86a0bfe4283f148344a72cf0d4f12b0cce71d711d0fb35dea174428f5a3",
+      "bytes": 432140
+    },
+    {
+      "path": "swat.glb",
+      "sha256": "5c8a4c93f9d6f91b8be91f2e1a783ea1a85e5d2eb33b6435095aa5ae17c5383c",
+      "bytes": 454020
+    },
+    {
+      "path": "woman-casual.glb",
+      "sha256": "6a17a95bfec1e314bdc10e7b680c5232cf64fd923cfeadfa7f059fff59be0ec8",
+      "bytes": 167492
+    },
+    {
+      "path": "woman-jacket.glb",
+      "sha256": "7be157da2f09a0700f0f35665fe8da647bf76c1ce557feaee2a62ab9b46b6dec",
+      "bytes": 162496
+    },
+    {
+      "path": "woman-tank.glb",
+      "sha256": "f56caca990122b773aa056d57a518d81c0cf6a0da072a0123a46e890d243379c",
+      "bytes": 155472
+    },
+    {
+      "path": "worker.glb",
+      "sha256": "55cde8131fc3ea939c13fda72be4ec609b316b2879c630ce031eaf75139bc9cb",
+      "bytes": 429092
+    }
+  ],
+  "optimized": {
+    "casual.glb": "2d406933d45a95f831dc83a4ab031b8918e56a8b609d49327cc81b3e3bbbb018",
+    "worker.glb": "55cde8131fc3ea939c13fda72be4ec609b316b2879c630ce031eaf75139bc9cb",
+    "businessman.glb": "75979f7191a9633feadb84571ad4189c259f0c93cc3cefe987bf0566891954cb",
+    "farmer.glb": "1e71060272ea716e3c2517625a7552645786cbda3df66a463fbe89e6aa0fdff2",
+    "hoodie.glb": "ac4b96eda0ae187e88d1c94c1e8e243bece2594bdf9c4f24cec7c3621aaad82f",
+    "beach.glb": "95652eff1fab0afff7676319c41d53207483c4e7534accbf1d8663096d900bc6",
+    "punk.glb": "b38ef86a0bfe4283f148344a72cf0d4f12b0cce71d711d0fb35dea174428f5a3",
+    "adventurer.glb": "1b36fe9787b4fe85f208ea86203a78dacc9acb6f332019a3e9b02b2792e45f59",
+    "adventuress.glb": "60fefb5ce3fc469b03c66789ef9d20463cc2cccc1a7546f38a3d8e4aec7aeec0",
+    "hooded.glb": "0932fdb3811ea1ce71ef78bf476aa6e3901d24b7bbe9b3d3e67013e7ec92bcc7",
+    "formal-woman.glb": "e2d81db38dc21111030959b8ce123f135343c98de8effcd3e0852eee86794016",
+    "astronaut.glb": "07ec90d131c2eaaa362e4a03b1f3c65726637699de45cdf0101f158d28b2f99a",
+    "swat.glb": "5c8a4c93f9d6f91b8be91f2e1a783ea1a85e5d2eb33b6435095aa5ae17c5383c",
+    "woman-jacket.glb": "7be157da2f09a0700f0f35665fe8da647bf76c1ce557feaee2a62ab9b46b6dec",
+    "woman-tank.glb": "f56caca990122b773aa056d57a518d81c0cf6a0da072a0123a46e890d243379c",
+    "woman-casual.glb": "6a17a95bfec1e314bdc10e7b680c5232cf64fd923cfeadfa7f059fff59be0ec8",
+    "man-casual.glb": "7946f71a976fd9f5400e0c7baceab804394459efd72f5c7fcf0513c665e9a6ba",
+    "man-suit.glb": "ad1af8dadba02df59a3cbce32a462149b6dcfa4b65810b51b03440e6c0484be1"
+  },
+  "sources": [
+    {
+      "file": "casual.glb",
+      "url": "https://poly.pizza/m/kZ3DmIoGip",
+      "title": "Casual Character",
+      "date": "Feb 22, 2022"
+    },
+    {
+      "file": "worker.glb",
+      "url": "https://poly.pizza/m/Yg2bQZO6Hj",
+      "title": "Worker",
+      "date": "Feb 22, 2022"
+    },
+    {
+      "file": "businessman.glb",
+      "url": "https://poly.pizza/m/JFrLIKqvCH",
+      "title": "Business Man",
+      "date": "Feb 22, 2022"
+    },
+    {
+      "file": "farmer.glb",
+      "url": "https://poly.pizza/m/7pn3R6hPvE",
+      "title": "Farmer",
+      "date": "Feb 22, 2022"
+    },
+    {
+      "file": "hoodie.glb",
+      "url": "https://poly.pizza/m/gKLBoRsyKe",
+      "title": "Hoodie Character",
+      "date": "Feb 22, 2022"
+    },
+    {
+      "file": "beach.glb",
+      "url": "https://poly.pizza/m/DojKLcO34E",
+      "title": "Beach Character",
+      "date": "Feb 22, 2022"
+    },
+    {
+      "file": "punk.glb",
+      "url": "https://poly.pizza/m/BTALZymknF",
+      "title": "Punk",
+      "date": "Feb 22, 2022"
+    },
+    {
+      "file": "adventurer.glb",
+      "url": "https://poly.pizza/m/5EGWBMpuXq",
+      "title": "Adventurer",
+      "date": "Feb 22, 2022"
+    },
+    {
+      "file": "adventuress.glb",
+      "url": "https://poly.pizza/m/ZwF0K7WBmu",
+      "title": "Adventurer",
+      "date": "Apr 10, 2022"
+    },
+    {
+      "file": "hooded.glb",
+      "url": "https://poly.pizza/m/y9KWOVG21R",
+      "title": "Hooded Adventurer",
+      "date": "Apr 10, 2022"
+    },
+    {
+      "file": "formal-woman.glb",
+      "url": "https://poly.pizza/m/nIItLV9nxS",
+      "title": "Animated Woman",
+      "date": "Apr 10, 2022"
+    },
+    {
+      "file": "astronaut.glb",
+      "url": "https://poly.pizza/m/3hC2i0CTuO",
+      "title": "Astronaut",
+      "date": "Feb 22, 2022"
+    },
+    {
+      "file": "swat.glb",
+      "url": "https://poly.pizza/m/Btfn3G5Xv4",
+      "title": "SWAT",
+      "date": "Feb 22, 2022"
+    },
+    {
+      "file": "woman-jacket.glb",
+      "url": "https://poly.pizza/m/AQsd9ngvKU",
+      "title": "Woman",
+      "date": "Aug 24, 2021"
+    },
+    {
+      "file": "woman-tank.glb",
+      "url": "https://poly.pizza/m/XqzeZGB7iU",
+      "title": "Woman in Tank Top",
+      "date": "Aug 24, 2021"
+    },
+    {
+      "file": "woman-casual.glb",
+      "url": "https://poly.pizza/m/jpKRgGDxhk",
+      "title": "Woman Casual",
+      "date": "Aug 24, 2021"
+    },
+    {
+      "file": "man-casual.glb",
+      "url": "https://poly.pizza/m/HMnuH5geEG",
+      "title": "Man",
+      "date": "Aug 24, 2021"
+    },
+    {
+      "file": "man-suit.glb",
+      "url": "https://poly.pizza/m/mQnGoME1ez",
+      "title": "Man in Suit",
+      "date": "Aug 24, 2021"
+    }
+  ]
+}

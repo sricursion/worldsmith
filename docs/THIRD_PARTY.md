@@ -20,6 +20,7 @@ All assets are static files served from `assets/third_party/`. Each pack include
 | `kaykit-restaurant-bits` | Restaurant Bits | KayKit | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [GitHub](https://github.com/KayKit-Game-Assets/KayKit-Restaurant-Bits-1.0) | Interiors and props |
 | `kaykit-furniture-bits` | Furniture Bits | KayKit | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [GitHub](https://github.com/KayKit-Game-Assets/KayKit-Furniture-Bits-1.0) | Interiors and props |
 | `kaykit-adventurers` | KayKit Adventurers | Kay Lousberg | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [itch.io](https://kaylousberg.itch.io/kaykit-adventurers) | Player and NPC characters |
+| `quaternius-animated-humans` | Quaternius Animated Characters (18 rigged people: Casual, Worker, Business Man, Farmer, Hoodie, Beach, Punk, Adventurer, Adventuress, Hooded, Formal Woman, Astronaut, SWAT, Woman Jacket, Woman Tank, Woman Casual, Man, Man in Suit) | Quaternius | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) (Public Domain (CC0) on each Poly Pizza page, see the pack's LICENSE.txt) | [poly.pizza/u/Quaternius](https://poly.pizza/u/Quaternius) | Human folk in every theme (`scripts/fetch-humans.mjs`) |
 
 ## How to refresh
 

@@ -1,5 +1,6 @@
-// Camera rig: over-the-shoulder third person and first person on one spring-damped follow, with wall collision,
-// step-synced head motion, a sprint kick and a two-shot framing mode for conversations. No DOM access here.
+// Camera rig: first person (the default) and over-the-shoulder third person on one spring-damped follow, with
+// wall collision, step-synced head motion, a dip when a descent ends, a lean into strafes, breathing at rest, a
+// sprint kick and a framing mode for conversations. No DOM access here.
 import * as THREE from 'three';
 import type { MeshBVH } from 'three-mesh-bvh';
 
@@ -25,8 +26,10 @@ const ZOOM_STEP = 0.6;
 const ZOOM_OMEGA = 12;
 
 // First person
-export const FP_EYE_HEIGHT = 1.62;
-export const FP_FOV = 72;
+export const FP_EYE_HEIGHT = 1.65;
+export const FP_FOV = 75;
+/** First-person lens while a conversation is framed: a little longer, so the speaker fills more of the frame. */
+export const FP_FRAME_FOV = 62;
 const FP_PITCH_LIMIT = 1.45;
 const FP_SPRINT_FOV_KICK = 7;
 const BOB_Y_WALK = 0.032;
@@ -36,12 +39,27 @@ const BOB_X_RUN = 0.034;
 const BOB_ROLL_WALK = 0.005;
 const BOB_ROLL_RUN = 0.011;
 const BOB_FULL_SPEED = 2; // m/s at which the bob reaches full walking amplitude
-const LEAN_MAX = 0.02; // roll into a strafe, radians at LEAN_SPEED
+const LEAN_MAX = 0.028; // roll into a strafe, radians at LEAN_SPEED
 const LEAN_SPEED = 5;
+/** Breathing at rest: the eye rises and falls by this much (metres) and the view nods by BREATH_PITCH (radians). */
+export const BREATH_Y = 0.006;
+export const BREATH_PITCH = 0.0022;
+const BREATH_HZ = 0.23;
+/**
+ * Landing dip: when a descent ends (the foot of a slope, a step down) the knees take it and the eye sinks,
+ * then recovers. The kick is the change in vertical speed, capped; DIP_LIMIT bounds the sink in metres.
+ */
+const DIP_FALL = 0.35; // m/s downward before a stop counts as a landing
+const DIP_KICK = 0.4;
+const DIP_KICK_MAX = 4;
+const DIP_OMEGA = 9;
+export const DIP_LIMIT = 0.06;
 
 // Follow
 const FOLLOW_OMEGA = 10;
 const FOLLOW_OMEGA_Y = 7;
+const FOLLOW_OMEGA_Y_EYE = 30; // the eye stays with the body: a few centimetres of give on a slope, no more
+const FOLLOW_EYE_MAX_OFFSET = 0.25;
 const FOLLOW_MAX_OFFSET = 0.9;
 const LOOK_AHEAD_TIME = 0.3;
 const LOOK_AHEAD_MAX = 0.7;
@@ -166,6 +184,9 @@ export interface CameraRig {
   setFirstPerson(on: boolean): void;
   /** Eases to a two-shot of the subject and the given feet position; null eases back. */
   frame(target: THREE.Vector3 | null): void;
+  /** Height of the first-person eye over the feet, metres (0.6 to 3): a tall or a small folk sees from its own height. */
+  setEyeHeight(h: number): void;
+  readonly eyeHeight: number;
   /** Places the camera behind a subject facing `facing` with nothing left in motion. */
   reset(subject: CameraSubject, facing: number): void;
   update(dt: number, subject: CameraSubject): void;
@@ -179,15 +200,28 @@ function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
 
-export function createCameraRig(camera: THREE.PerspectiveCamera, collider: CameraCollider | null): CameraRig {
+export function createCameraRig(
+  camera: THREE.PerspectiveCamera,
+  collider: CameraCollider | null,
+  options: { firstPerson?: boolean; eyeHeight?: number } = {},
+): CameraRig {
   let yaw = Math.PI;
-  let pitch = TP_PITCH_DEFAULT;
+  let firstPerson = options.firstPerson !== false;
+  let pitch = firstPerson ? 0 : TP_PITCH_DEFAULT;
   let yawOut = yaw;
   let pitchOut = pitch;
   let pendDx = 0;
   let pendDy = 0;
-  let firstPerson = false;
-  let blend = 0;
+  let blend = firstPerson ? 1 : 0;
+  let eyeHeight = FP_EYE_HEIGHT;
+  let breathT = 0;
+  let lastY = 0;
+  let lastVy = 0;
+  const dipS: Spring = { x: 0, v: 0 };
+  const setEyeHeight = (h: number): void => {
+    if (Number.isFinite(h)) eyeHeight = clamp(h, 0.6, 3);
+  };
+  if (options.eyeHeight !== undefined) setEyeHeight(options.eyeHeight);
   let zoomGoal = TP_BOOM;
   let shoulder = TP_SHOULDER;
   let clear = 1; // share of the head-to-camera line that is free
@@ -210,6 +244,7 @@ export function createCameraRig(camera: THREE.PerspectiveCamera, collider: Camer
   const aheadZ: Spring = { x: 0, v: 0 };
   const followX: Spring = { x: 0, v: 0 };
   const followY: Spring = { x: 0, v: 0 };
+  const followEyeY: Spring = { x: 0, v: 0 };
   const followZ: Spring = { x: 0, v: 0 };
 
   const bob: BobSample = { x: 0, y: 0, roll: 0 };
@@ -238,7 +273,7 @@ export function createCameraRig(camera: THREE.PerspectiveCamera, collider: Camer
     const sa = Math.sin(FRAME_ANGLE);
     frameYawTp = Math.atan2(uz * frameSide * ca - ux * sa, -ux * frameSide * ca - uz * sa);
     frameYawFp = Math.atan2(-ux, -uz);
-    framePitchFp = Math.atan2(FP_EYE_HEIGHT - FRAME_SUBJECT_HEIGHT + s.position.y - frameTarget.y, Math.max(sep, 0.5));
+    framePitchFp = Math.atan2(eyeHeight - FRAME_SUBJECT_HEIGHT + s.position.y - frameTarget.y, Math.max(sep, 0.5));
     frameDist = clamp(sep * 0.75 + 2.2, 2.6, 5.5);
     frameMid.set(
       (s.position.x + frameTarget.x) / 2,
@@ -313,9 +348,27 @@ export function createCameraRig(camera: THREE.PerspectiveCamera, collider: Camer
       followZ.x = p.z + (oz * FOLLOW_MAX_OFFSET) / ol;
     }
     followY.x = clamp(followY.x, p.y - FOLLOW_MAX_OFFSET, p.y + FOLLOW_MAX_OFFSET);
+    springStep(followEyeY, p.y, FOLLOW_OMEGA_Y_EYE, dt);
+    followEyeY.x = clamp(followEyeY.x, p.y - FOLLOW_EYE_MAX_OFFSET, p.y + FOLLOW_EYE_MAX_OFFSET);
 
     headBob(s.stepPhase, clamp(bobS.x, 0, 1), sprint, bob);
     springStep(leanS, clamp((s.vx * rx + s.vz * rz) / LEAN_SPEED, -1, 1) * -LEAN_MAX, 8, dt);
+
+    // Weight. A descent that ends kicks the eye down; standing still, the eye rides the breath.
+    if (snap) {
+      lastVy = 0;
+      dipS.x = dipS.v = 0;
+    } else if (dt > 0) {
+      const vy = (p.y - lastY) / dt;
+      const dv = vy - lastVy;
+      if (dv > 0 && lastVy < -DIP_FALL) dipS.v -= Math.min(dv, DIP_KICK_MAX) * DIP_KICK;
+      lastVy = vy;
+    }
+    lastY = p.y;
+    springStep(dipS, 0, DIP_OMEGA, dt);
+    dipS.x = clamp(dipS.x, -DIP_LIMIT, DIP_LIMIT);
+    breathT = (breathT + dt * BREATH_HZ) % 1;
+    const breath = Math.sin(TAU * breathT) * (1 - clamp(bobS.x, 0, 1)) * (1 - w);
 
     head.set(p.x, p.y + HEAD_HEIGHT, p.z);
 
@@ -338,7 +391,7 @@ export function createCameraRig(camera: THREE.PerspectiveCamera, collider: Camer
     const ty = lerp(followY.x + TP_PIVOT_HEIGHT, frameMid.y, w) + Math.sin(pitchE) * boom + bob.y * sway;
     const tz = lerp(followZ.x, frameMid.z, w) + rz * shoulder + cy * cp * boom;
     const ex = p.x + rx * bob.x;
-    const ey = followY.x + FP_EYE_HEIGHT + bob.y;
+    const ey = followEyeY.x + eyeHeight + bob.y + dipS.x + breath * BREATH_Y;
     const ez = p.z + rz * bob.x;
     pos.set(lerp(tx, ex, fp), lerp(ty, ey, fp), lerp(tz, ez, fp));
 
@@ -373,8 +426,8 @@ export function createCameraRig(camera: THREE.PerspectiveCamera, collider: Camer
 
     camera.position.copy(pos);
     const roll = (bob.roll + leanS.x) * lerp(sway, 1, fp);
-    camera.rotation.set(-pitchE, yawE, roll, 'YXZ');
-    const fov = lerp(lerp(TP_FOV, FRAME_FOV, w), FP_FOV, fp) + sprint * lerp(TP_SPRINT_FOV_KICK, FP_SPRINT_FOV_KICK, fp);
+    camera.rotation.set(-pitchE - breath * BREATH_PITCH * fp, yawE, roll, 'YXZ');
+    const fov = lerp(lerp(TP_FOV, FRAME_FOV, w), lerp(FP_FOV, FP_FRAME_FOV, w), fp) + sprint * lerp(TP_SPRINT_FOV_KICK, FP_SPRINT_FOV_KICK, fp);
     if (Math.abs(camera.fov - fov) > 1e-3) {
       camera.fov = fov;
       camera.updateProjectionMatrix();
@@ -408,6 +461,10 @@ export function createCameraRig(camera: THREE.PerspectiveCamera, collider: Camer
     setFirstPerson(on) {
       firstPerson = on;
     },
+    setEyeHeight,
+    get eyeHeight() {
+      return eyeHeight;
+    },
     frame(target) {
       if (target === null) {
         frameTarget = null;
@@ -435,6 +492,10 @@ export function createCameraRig(camera: THREE.PerspectiveCamera, collider: Camer
       followY.x = subject.position.y;
       followZ.x = subject.position.z;
       followX.v = followY.v = followZ.v = 0;
+      followEyeY.x = subject.position.y;
+      followEyeY.v = 0;
+      breathT = 0;
+      lastY = subject.position.y;
       step(0, subject, true);
     },
     update(dt, subject) {

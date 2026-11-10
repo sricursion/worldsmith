@@ -4,19 +4,23 @@ import { outlineSystemPrompt, outlineUserMessage } from '../../worker/src/prompt
 import { lookSystemPrompt, lookUserMessage } from '../../worker/src/prompts/compilelook';
 import { storySystemPrompt, storyUserMessage } from '../../worker/src/prompts/compilestory';
 import {
-  closeTruncated, coerceLook, coerceOutline, coercePart, coerceStory, mergeSpec, parseLooseJson,
+  closeTruncated, coerceLook, coerceOutline, coercePart, coerceStory, mergeSpec, mute, parseLooseJson, SPIRIT_ID,
 } from '../../worker/src/prompts/compilemerge';
-import { mockLook, mockOutline, mockStory } from '../../worker/src/lib/mockcast';
+import { mockLook, mockOutline, mockStory, plainStory } from '../../worker/src/lib/mockcast';
+import { mockLand } from '../../worker/src/lib/mockland';
 import { BASE } from '../../worker/src/lib/mockstyle';
 import { nearestTheme } from '../../worker/src/lib/shared';
-import { GRADE_KINDS, SURFACE_KINDS, WEATHER_KINDS, validateSpec } from '../../app/src/world/schema';
-import { verifyQuest } from '../../app/src/world/verify';
+import {
+  CREATURE_BEHAVIOURS, CREATURE_FAMILIES, GRADE_KINDS, RELIEF_KINDS, SITE_PATTERNS, SKY_FEATURE_KINDS, SURFACE_KINDS, WATER_KINDS,
+  WEATHER_KINDS, normalizeSpec, validateSpec,
+} from '../../app/src/world/schema';
+import { repairQuest, verifyQuest } from '../../app/src/world/verify';
 
 describe('prompts', () => {
-  it('outline prompt stays small and asks for the structural idea, not a town of houses', () => {
+  it('outline prompt stays small and decides the kind of place first, not a town of houses', () => {
     const s = outlineSystemPrompt();
-    expect(s.length).toBeLessThan(7000);
-    for (const w of ['key', 'site', 'scatter', 'wild', 'quest', 'lexicon', 'form']) expect(s).toContain(w);
+    expect(s.length).toBeLessThan(18000);
+    for (const w of ['key', 'site', 'scatter', 'wild', 'quest', 'lexicon', 'form', 'NOT a town', 'settled', 'horizon']) expect(s).toContain(w);
     expect(outlineSystemPrompt()).toBe(s);
   });
 
@@ -25,17 +29,26 @@ describe('prompts', () => {
     for (const w of [...WEATHER_KINDS, ...GRADE_KINDS, 'ambience', 'music', 'haze', 'startHour', 'dusk']) expect(s).toContain(w);
   });
 
+  it('outline prompt names every relief, water, site pattern, sky feature, creature family and behaviour', () => {
+    const s = outlineSystemPrompt();
+    for (const w of [...RELIEF_KINDS, ...WATER_KINDS, ...SITE_PATTERNS, ...SKY_FEATURE_KINDS, ...CREATURE_FAMILIES, ...CREATURE_BEHAVIOURS]) {
+      expect(s).toContain(w);
+    }
+    // Contrastive examples, so one template is not copied onto every prompt.
+    for (const w of ['Sahara', 'Arctic', 'Mars', 'rainforest', 'dragon', 'gothic', 'Manhattan', 'beach', 'Vehicles are out of scope', 'folk']) expect(s).toContain(w);
+  });
+
   it('look prompt teaches every surface kind, wear and wet, glow as light, and set pieces', () => {
     const s = lookSystemPrompt();
     for (const k of SURFACE_KINDS) expect(s).toContain(`- ${k}:`);
-    for (const w of ['surfaces', 'wear', 'wet', 'bloom', 'crane', 'container port', 'Edo', 'mushroom grove']) expect(s).toContain(w);
+    for (const w of ['surfaces', 'wear', 'wet', 'practicals', 'crane', 'container port', 'Sahara', 'rainforest', 'Mars']) expect(s).toContain(w);
     const o = mockOutline('a rain-soaked container port at dawn', 3);
     expect(lookUserMessage('x', 1, o)).toContain('Air: weather rain');
   });
 
   it('look prompt carries the skeleton principle, the catalogue and the part vocabulary', () => {
     const s = lookSystemPrompt();
-    for (const w of ['SKELETON', 'dials', 'same family', 'trees', 'repeat', 'glow', 'doorX', 'low-poly stylised']) expect(s).toContain(w);
+    for (const w of ['SKELETON', 'dials', 'same family', 'tree', 'repeat', 'glow', 'doorX', 'GROUNDED REALISM', 'METRES', 'taller than 12 m', 'cave mouth', 'NO plants']) expect(s).toContain(w);
     expect(s.length).toBeLessThan(30000);
     expect(lookSystemPrompt()).toBe(s);
   });
@@ -193,6 +206,29 @@ describe('coercion and merge', () => {
     const o = mockOutline(prompt, 5);
     expect(coerceStory({ npcs: [], quest: { steps: [] } }, o)).toBeNull();
   });
+
+  it('accepts a story with nobody in it when the outline has nobody, and names the spirit as giver', () => {
+    const o = { ...mockOutline('the Sahara desert at dusk', 5), npcs: [] };
+    const story = coerceStory({
+      npcs: [{ id: 'ghost', name: 'Ghost' }],
+      items: [{ id: 'bell', name: 'Camel bell', description: 'Bronze.', holder: 'caravan_tent' }],
+      quest: { title: 'Dry wells', hook: 'h', giver: 'nobody', steps: [
+        { id: 'a', kind: 'talk', target: SPIRIT_ID, requires: [], objective: 'Listen.', beat: 'Wind.' },
+        { id: 'b', kind: 'visit', target: 'caravan_tent', requires: ['a'], objective: 'Reach the camp.', beat: 'Empty.' },
+        { id: 'c', kind: 'fetch', target: 'bell', item: 'bell', requires: ['b'], objective: 'Take the bell.', beat: 'It rings.' },
+      ], endings: [{ stepId: 'c', label: 'Done', tone: 'neutral' }] },
+      rules: [],
+    }, o);
+    expect(story).not.toBeNull();
+    if (!story) return;
+    expect(story.npcs).toHaveLength(0);
+    expect(story.quest.giver).toBe(SPIRIT_ID);
+    const spec = mergeSpec('the Sahara desert at dusk', 5, o, mockLook('the Sahara desert at dusk', 5, 'western', o), story);
+    expect(validateSpec(spec).ok).toBe(true);
+    const played = repairQuest(normalizeSpec(spec));
+    expect(played.npcs.map((n) => n.id)).toEqual([SPIRIT_ID]);
+    expect(verifyQuest(played).winnable).toBe(true);
+  });
 });
 
 describe('fixture fallbacks re-home the cast onto the outline', () => {
@@ -240,11 +276,134 @@ describe('POST /api/compile in mock mode', () => {
     if (v.ok) {
       expect(v.value.seed).toBe(77);
       expect(v.value.prompt).toBe('a desert caravan camp');
-      expect(v.value.site?.pattern).toBe('scatter');
+      // Open desert, not a town: one camp, two people, and the land, creatures and folk travel with the spec.
+      expect(v.value.site?.pattern).toBe('wild');
+      expect(v.value.terrain).toMatchObject({ relief: 'dunes', water: 'none' });
+      expect(v.value.terrain?.settled ?? 1).toBeLessThan(0.3);
+      expect(v.value.buildings.length).toBeLessThanOrEqual(3);
+      expect(v.value.npcs.length).toBeLessThanOrEqual(3);
+      expect(v.value.creatures?.some((c) => c.family === 'quadruped')).toBe(true);
+      expect(v.value.folk?.features).toContain('hood');
       expect(v.value.mood?.weather).toBe('dust');
       expect(v.value.style?.surfaces?.wall).toBe('canvas');
       expect(v.value.time.startHour).toBe(outline?.time?.startHour);
       expect(verifyQuest(v.value).winnable).toBe(true);
     }
   }, 15000);
+});
+
+describe('the outline decides the kind of place', () => {
+  const sahara = {
+    place: 'open dune sea with one caravan camp',
+    title: 'Erg Tifernine', tagline: 'Sand to every horizon.', era: 'present day', theme: 'western',
+    terrain: { relief: 'Dunes', ruggedness: '0.6', water: 'none', waterAmount: 0.4, horizon: 'dune sea in heat haze', settled: 0.05 },
+    site: { pattern: 'wild', wild: 0.1, paths: 'none', spacing: 14 },
+    time: { startHour: 17 }, mood: { weather: 'dust', intensity: 0.3, grade: 'golden', haze: 0.6, ambience: ['wind', 'desert'], music: 'lonely oud' },
+    palette: { sky: 'dusk', fog: 0.3 },
+    skyFeatures: [['moon', 0.08, '#e8e0d0'], ['flying saucer', 1, '#fff'], ['second_sun', 0.2, '#ffd9a0'], ['comet', 0.1, '#fff'], ['aurora', 0.5, '#0f0']],
+    folk: { name: 'Tuareg drovers', height: 1.75, bulk: 0.4, head: 1, features: ['hood', 'cloak', 'jetpack'], skin: ['#8d5f43'], cloth: ['#0000ff', '#d8d0bc'], trim: ['#2a2420'] },
+    buildings: [['caravan_camp', 'house', 'Camp of Seven Wells', 'low goat-hair tent', 'medium', 1]],
+    npcs: [['idir', 'Idir', 'camel drover', 'caravan_camp', 'caravan_camp'], ['tana', 'Tana', 'guide', 'nowhere', 'street']],
+    creatures: [
+      ['camels', 'dromedary camels', 'quadruped', 2.2, 4, 'graze', 'caravan_camp', '#b8956a', '#8a6a48', '#000000', 'Hobbled and chewing.', { hump: 0.8, legs: 0.7 }],
+      ['hawk', 'desert hawk', 'bird', 0.6, 1, 'circle', 'sky', '#7a5a3a', '#3a2a1c', '#000000', 'One mark in the sky.', {}],
+      ['eel', 'sand eel', 'swimmer', 99, 500, 'burrow', 'water', '#ff0000', 'red', '#000000', 'Wrong desert.', {}],
+      { id: 'wyrm', name: 'dune wyvern', family: 'sandworm', size: 12, count: 1, behaviour: 'lurk', haunt: 'the far dunes' },
+    ],
+    quest: { title: 'Dry wells', premise: 'The wells are failing. The drovers need a tracker.' }, lexicon: ['erg', 'guelta'],
+  };
+
+  it('reads terrain, sky, folk and creature rows, repairing slips', () => {
+    const o = coerceOutline(sahara, 'western', 'the Sahara desert at dusk');
+    expect(o).not.toBeNull();
+    if (!o) return;
+    expect(o.terrain).toEqual({ relief: 'dunes', ruggedness: 0.6, water: 'none', waterAmount: 0, horizon: 'dune sea in heat haze', settled: 0.05 });
+    expect(o.site.pattern).toBe('wild');
+    expect(o.buildings).toHaveLength(1);
+    expect(o.npcs.map((n) => n.home)).toEqual(['caravan_camp', 'caravan_camp']);
+    expect(o.skyFeatures.map((f) => f.kind)).toEqual(['moon', 'second_sun', 'comet']);
+    expect(o.folk.features).toEqual(['hood', 'cloak']);
+    expect(o.folk.cloth[0]).not.toBe('#0000ff');
+    expect(o.creatures.map((c) => c.family)).toEqual(['quadruped', 'bird', 'swimmer', 'serpent']);
+    expect(o.creatures[0]).toMatchObject({ haunt: 'caravan_camp', count: 4, size: 2.2, dials: { hump: 0.8, legs: 0.7 } });
+    // No water in this land, so nothing keeps to it; sizes and counts are clamped; unknown behaviour follows the family.
+    expect(o.creatures[2]).toMatchObject({ haunt: 'wild', size: 40, count: 24, behaviour: 'roam' });
+    expect(o.creatures[3]).toMatchObject({ haunt: 'wild', behaviour: 'stalk' });
+  });
+
+  it('accepts land with nothing built and nobody there, and rejects an empty reply', () => {
+    const o = coerceOutline({ title: 'Mare Frigoris', terrain: { relief: 'crater', water: 'none', settled: 0 }, buildings: [], npcs: [] }, 'scifi', 'a dead moon');
+    expect(o).not.toBeNull();
+    expect(o?.buildings).toHaveLength(0);
+    expect(o?.npcs).toHaveLength(0);
+    expect(o?.site.pattern).toBe('wild');
+    expect(coerceOutline({}, 'scifi', 'x')).toBeNull();
+    if (!o) return;
+    // No structures needs no blueprints; the story falls back to the spirit of the place and the world still plays.
+    const look = coerceLook({ style: { wall: '#444444', wall2: '#555555', roof: '#333333', trim: '#666666', accent: '#777777', dark: '#111111', glass: '#222222', glow: '#ffffff', ground: '#8a8a86', road: '#777777' }, blueprints: [], props: [{ kind: 'boulders', family: 'rock', dials: { form: 'boulder' }, parts: [], size: 40, weight: 5 }] }, o, BASE.scifi, 'a dead moon');
+    expect(look).not.toBeNull();
+    if (!look) return;
+    expect(look.blueprints).toHaveLength(0);
+    expect(look.props[0]?.size).toBe(16);
+    const spec = mergeSpec('a dead moon', 2, o, look, plainStory(o));
+    expect(validateSpec(spec).ok).toBe(true);
+    expect(spec.npcs).toHaveLength(0);
+    const played = repairQuest(normalizeSpec(spec));
+    expect(played.buildings).toHaveLength(0);
+    expect(played.npcs).toHaveLength(1);
+    expect(verifyQuest(played).winnable).toBe(true);
+  });
+
+  it('falls back to the land the prompt names when the model leaves terrain and life out', () => {
+    const o = coerceOutline({ title: 'Camp', buildings: [['tent', 'house', 'Tent', 'a tent', 'small', 1]] }, 'western', 'the Sahara desert');
+    expect(o?.terrain.relief).toBe('dunes');
+    expect(o?.creatures.length ?? 0).toBeGreaterThan(0);
+    expect(o?.creatures.every((c) => ['sky', 'water', 'wild', 'plaza', 'tent'].includes(c.haunt))).toBe(true);
+  });
+
+  it('mutes loud colours and leaves real ones alone', () => {
+    expect(mute('#ff0000', 0.5)).toBe('#ff8080');
+    expect(mute('#6E5D4B', 0.5)).toBe('#6e5d4b');
+    expect(mute('nope', 0.5)).toBe('nope');
+  });
+});
+
+describe('mock mode shows wilderness as well as towns', () => {
+  const cases: [string, string, string][] = [
+    ['the Sahara desert at dusk', 'desert', 'dunes'], ['the Amazon jungle after rain', 'jungle', 'rolling'],
+    ['an Arctic research outpost in a blizzard', 'arctic', 'icefield'], ['the first colony on Mars', 'mars', 'crater'],
+    ['an underwater coral reef', 'ocean', 'islands'], ["a dragon's volcanic lair", 'volcano', 'crater'],
+    ['a fog-bound swamp', 'swamp', 'swamp'], ['Manhattan rooftops at night', 'city', 'flat'],
+  ];
+  it.each(cases)('%s', (p, biome, relief) => {
+    const theme = nearestTheme(p);
+    const land = mockLand(p, theme);
+    expect(land.biome).toBe(biome);
+    const o = mockOutline(p, 4);
+    expect(o.terrain.relief).toBe(relief);
+    expect(o.creatures.length).toBeGreaterThan(0);
+    if (biome !== 'city') {
+      expect(o.terrain.settled).toBeLessThan(0.3);
+      expect(o.buildings.length).toBeLessThanOrEqual(3);
+      expect(o.npcs.length).toBeLessThanOrEqual(4);
+    } else expect(o.buildings.length).toBeGreaterThanOrEqual(6);
+    const spec = mergeSpec(p, 4, o, mockLook(p, 4, theme, o), mockStory(theme, o));
+    const v = validateSpec(spec);
+    expect(v.ok).toBe(true);
+    const played = repairQuest(normalizeSpec(spec));
+    expect(verifyQuest(played).winnable).toBe(true);
+    const ids = new Set(played.buildings.map((b) => b.id));
+    for (const c of played.creatures ?? []) expect(['sky', 'water', 'wild', 'plaza'].includes(c.haunt) || ids.has(c.haunt)).toBe(true);
+    for (const b of played.buildings) expect(played.blueprints?.some((x) => x.id === b.blueprint)).toBe(true);
+    // Skeleton families were expanded into parts on normalisation.
+    for (const bp of played.blueprints ?? []) expect(bp.parts.length).toBeGreaterThan(0);
+  });
+
+  it('keeps a town when the prompt names one in a biome, and reads the sky from the prompt', () => {
+    const o = mockOutline('a desert town under two suns', 1);
+    expect(o.buildings.length).toBeGreaterThanOrEqual(6);
+    expect(o.terrain.relief).toBe('dunes');
+    expect(o.terrain.settled).toBeGreaterThanOrEqual(0.7);
+    expect(o.skyFeatures.map((f) => f.kind)).toContain('second_sun');
+  });
 });

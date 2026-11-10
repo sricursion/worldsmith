@@ -73,8 +73,9 @@ export function createViewport(canvas: HTMLCanvasElement): Viewport | null {
   renderer.shadowMap.autoUpdate = true;
 
   const scene = new Scene();
-  const camera = new PerspectiveCamera(55, 1, 0.1, 6000);
-  camera.position.set(0, 4, 10);
+  // The camera rig sets the lens every frame; this is the first-person default so the first frame matches.
+  const camera = new PerspectiveCamera(75, 1, 0.1, 6000);
+  camera.position.set(0, 1.65, 10);
 
   if (canvas.style.width === '') canvas.style.width = '100%';
   if (canvas.style.height === '') canvas.style.height = '100%';

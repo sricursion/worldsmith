@@ -80,7 +80,9 @@ const snow: TexelFn = (u, v, t, c) => {
   const spark = ss(0.972, 0.985, grain);
   shade(t, c, 0.93 + 0.1 * drift + 0.05 * spark);
   tint(t, c.base[0] * 0.78, c.base[1] * 0.87, c.base[2], 0.35 * (1 - ss(0.3, 0.6, drift)));
-  t.h = 0.35 + 0.4 * drift + 0.2 * crust + (grain - 0.5) * 0.04;
+  // Wind-packed ridges run across the drifts.
+  const ridge = fbm(u, v, 9, 30, 2, c.seed + 8);
+  t.h = 0.3 + 0.36 * drift + 0.2 * crust + 0.14 * ridge + (grain - 0.5) * 0.04;
   t.rough = lerp(0.78, 0.12, spark);
 };
 
@@ -176,8 +178,8 @@ export const GROUND_SURFACES = {
   moss: { fn: moss, scale: 2.0, relief: 0.035, family: 'ground' },
   snow: { fn: snow, scale: 4.0, relief: 0.08, family: 'ground' },
   mud: { fn: mud, scale: 3.0, relief: 0.06, family: 'ground' },
-  asphalt: { fn: asphalt, scale: 4.0, relief: 0.02, family: 'ground' },
+  asphalt: { fn: asphalt, scale: 4.0, relief: 0.03, family: 'ground' },
   gravel: { fn: gravel, scale: 2.0, relief: 0.03, family: 'ground' },
   regolith: { fn: regolith, scale: 4.0, relief: 0.06, family: 'ground' },
-  ash: { fn: ash, scale: 3.0, relief: 0.05, family: 'ground' },
+  ash: { fn: ash, scale: 3.0, relief: 0.065, family: 'ground' },
 } satisfies Record<string, SurfaceDef>;

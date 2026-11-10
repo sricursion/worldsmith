@@ -127,17 +127,17 @@ const PRESET_KEYS: SkyPreset[] = ['dawn', 'day', 'dusk', 'night', 'overcast'];
 const HOURS = [0, 3, 5, 6.5, 8, 10, 12, 14, 16, 17.5, 19, 21, 23];
 
 describe('sky look', () => {
-  it('keeps exposure within 0.25..1.1 for every preset and hour, and within 0.25..1.45 over any ground', () => {
+  it('keeps exposure within 0.5..1.8 for every preset and hour, and within 0.4..2.3 over any ground', () => {
     for (const k of PRESET_KEYS) {
       for (const h of HOURS) {
         const e = exposureFor(k, h);
-        expect(e).toBeGreaterThanOrEqual(0.25);
-        expect(e).toBeLessThanOrEqual(1.1);
+        expect(e).toBeGreaterThanOrEqual(0.5);
+        expect(e).toBeLessThanOrEqual(1.8);
         expect(skyLookFor(k, h).exposure).toBe(e);
         for (const ground of [0.01, 0.18, 0.8]) {
           const g = exposureFor(k, h, ground);
-          expect(g).toBeGreaterThanOrEqual(0.25);
-          expect(g).toBeLessThanOrEqual(1.45);
+          expect(g).toBeGreaterThanOrEqual(0.4);
+          expect(g).toBeLessThanOrEqual(2.3);
           expect(skyLookFor(k, h, ground).exposure).toBe(g);
         }
       }
@@ -244,10 +244,14 @@ describe('cinematic key light', () => {
 
   it('holds a strong key over a thin fill, and sharper shadows at higher tiers', () => {
     expect(LIGHT_RATIOS.cinematic.key).toBe(4);
-    expect(LIGHT_RATIOS.cinematic.fill).toBe(0.25);
-    expect(LIGHT_RATIOS.cinematic.rim).toBe(0.4);
+    expect(LIGHT_RATIOS.cinematic.fill).toBeLessThanOrEqual(0.4);
+    expect(LIGHT_RATIOS.cinematic.rim).toBeLessThanOrEqual(0.3);
     expect(LIGHT_RATIOS.cinematic.key / LIGHT_RATIOS.cinematic.fill).toBeGreaterThan(LIGHT_RATIOS.plain.key / LIGHT_RATIOS.plain.fill);
     expect(SHADOW_TIERS[2].map).toBe(4096);
+    // Every tier covers 120 m; the top one resolves under 4 cm at the player's feet with a filter of about a texel.
+    for (const t of SHADOW_TIERS) expect(t.box).toBeGreaterThanOrEqual(120);
+    expect(SHADOW_TIERS[2].box / SHADOW_TIERS[2].map).toBeLessThan(0.04);
+    expect(SHADOW_TIERS[2].radius).toBeLessThanOrEqual(1.5);
     for (let q = 1; q < 3; q++) {
       const a = SHADOW_TIERS[q - 1];
       const b = SHADOW_TIERS[q];

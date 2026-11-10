@@ -1,0 +1,652 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "the Sahara desert at dusk",
+  "title": "Last Light at the Wells",
+  "tagline": "Heat leaves the dunes; the camp counts its camels.",
+  "theme": "western",
+  "era": "present day",
+  "palette": {
+    "ground": "#b89f72",
+    "accent": "#6b4a3a",
+    "sky": "dusk",
+    "fog": 0.3
+  },
+  "time": {
+    "startHour": 17.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "caravan_camp",
+      "role": "house",
+      "label": "Camp of Seven Wells",
+      "size": "medium",
+      "keyBuilding": true,
+      "blueprint": "goat_hair_tent"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "idir",
+      "name": "Idir",
+      "role": "camel drover",
+      "persona": "Lean and sun-cured, he speaks little and trusts the herd over people. He wants the camels across before the cold nights thin them.",
+      "knowledge": [
+        "The camels drink one last time at the wells, then nothing for six days.",
+        "The next oasis lies past the dune sea, beyond the Sahel road.",
+        "A hawk has circled the camp every dusk since the water dropped."
+      ],
+      "secrets": [
+        "He sold two water skins to a passing trader for dirhams and never told Tamast."
+      ],
+      "home": "caravan_camp",
+      "work": "caravan_camp",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "caravan_camp",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "caravan_camp",
+          "activity": "rest"
+        },
+        {
+          "hour": 17,
+          "place": "caravan_camp",
+          "activity": "work"
+        },
+        {
+          "hour": 21,
+          "place": "caravan_camp",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "tamast",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "ranger",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": -0.2,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 0.8,
+        "rate": 0.9
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "tamast",
+      "name": "Tamast",
+      "role": "water keeper",
+      "persona": "Sharp-eyed and precise, she measures every cup and forgives no waste. She guards the wells because she knows how fast they are failing.",
+      "knowledge": [
+        "The seven wells gave a full day's water last season; now they give half.",
+        "Each camel needs two skins a day to cross the dune sea.",
+        "The deepest well still seeps, but only if the sand is cleared by hand."
+      ],
+      "secrets": [
+        "She has been rationing the drovers' own water in secret to save more for the camels."
+      ],
+      "home": "caravan_camp",
+      "work": "caravan_camp",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "caravan_camp",
+          "activity": "work"
+        },
+        {
+          "hour": 13,
+          "place": "caravan_camp",
+          "activity": "eat"
+        },
+        {
+          "hour": 16,
+          "place": "caravan_camp",
+          "activity": "guard"
+        },
+        {
+          "hour": 22,
+          "place": "caravan_camp",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "idir",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "rogue_hooded",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 1.1,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0.2,
+          "follow_player": 0,
+          "work": 0.5
+        }
+      },
+      "voice": {
+        "pitch": 1.2,
+        "rate": 1
+      },
+      "mood": "calm"
+    }
+  ],
+  "items": [
+    {
+      "id": "water_skins",
+      "name": "Goat-hide water skins",
+      "description": "Four patched skins, stiff and dry. They must be filled before the crossing.",
+      "holder": "caravan_camp"
+    },
+    {
+      "id": "hawk_feather",
+      "name": "Desert hawk feather",
+      "description": "A barred feather shed by the hawk. Drovers read the circling birds for water.",
+      "holder": "caravan_camp"
+    },
+    {
+      "id": "dirham_pouch",
+      "name": "Pouch of dirhams",
+      "description": "Coins Idir got for the skins he sold. Heavy with guilt.",
+      "holder": "idir"
+    }
+  ],
+  "quest": {
+    "id": "last_light_wells",
+    "title": "Last Light at the Wells",
+    "hook": "The seven wells are giving half what they did, and the cold nights are coming. The caravan must cross the dune sea to the next oasis, and it cannot do it on what is left. Tamast and Idir will take any stranger's help they can get, if the stranger can bear the truth about the water.",
+    "giver": "tamast",
+    "steps": [
+      {
+        "id": "s1",
+        "kind": "talk",
+        "target": "tamast",
+        "requires": [],
+        "objective": "Speak to Tamast about the failing wells.",
+        "beat": "Tamast shows you the wells, one by one. The deepest still seeps, but the sand keeps filling it.",
+        "reveals": [
+          "tamast:0"
+        ]
+      },
+      {
+        "id": "s2",
+        "kind": "visit",
+        "target": "caravan_camp",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Check the seep in the deepest well at the Camp of Seven Wells.",
+        "beat": "The low goat-hair tent throws a long shadow over the well. The seep is real, but slow, and the dust is already closing it."
+      },
+      {
+        "id": "s3",
+        "kind": "fetch",
+        "target": "water_skins",
+        "requires": [
+          "s2"
+        ],
+        "objective": "Gather the water skins from the camp.",
+        "beat": "The skins are dry and cracked. Four will not carry a caravan, and Idir will not meet your eye when you count them.",
+        "item": "water_skins"
+      },
+      {
+        "id": "s4",
+        "kind": "talk",
+        "target": "idir",
+        "requires": [
+          "s3"
+        ],
+        "objective": "Ask Idir why the skins are so few.",
+        "beat": "The camels graze nearby while the hawk circles overhead. Idir admits he traded two skins for dirhams and hands you the pouch.",
+        "reveals": [
+          "idir:0"
+        ]
+      },
+      {
+        "id": "s5",
+        "kind": "choose",
+        "target": "tamast",
+        "requires": [
+          "s4"
+        ],
+        "objective": "Decide what to do about Idir's trade.",
+        "beat": "Tamast waits for your answer with the pouch in view. The dune sea is turning gold and then grey.",
+        "choices": [
+          {
+            "label": "Hand the dirhams to Tamast and tell her everything",
+            "unlocks": [
+              "s6a"
+            ]
+          },
+          {
+            "label": "Keep it quiet and trade the dirhams for skins yourself",
+            "unlocks": [
+              "s6b"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s6a",
+        "kind": "deliver",
+        "target": "tamast",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Give Tamast the skins and the truth.",
+        "beat": "Tamast takes the skins and the coins without a word, then sets Idir to clearing the deepest well at first light.",
+        "item": "water_skins"
+      },
+      {
+        "id": "s6b",
+        "kind": "deliver",
+        "target": "idir",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Give Idir the skins and keep the secret.",
+        "beat": "Idir takes the skins and nods once. The caravan will leave short of water and long on silence.",
+        "item": "water_skins"
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s6a",
+        "label": "The caravan crosses with the wells cleared and the truth told.",
+        "tone": "good"
+      },
+      {
+        "stepId": "s6b",
+        "label": "The caravan crosses thirsty, held together by a lie.",
+        "tone": "bitter"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r1",
+      "text": "Water is rationed by the keeper; nobody draws from the wells without her word.",
+      "effect": {
+        "type": "ban",
+        "what": "drawing water",
+        "where": "caravan_camp",
+        "enforcer": "tamast"
+      },
+      "source": "world"
+    },
+    {
+      "id": "r2",
+      "text": "By custom, no fire is lit once the moon is up, to save the last brush.",
+      "effect": {
+        "type": "custom",
+        "summary": "No fires after moonrise; brush is saved for the crossing."
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "dirham",
+    "dune",
+    "oasis",
+    "camel",
+    "tent",
+    "Sahel"
+  ],
+  "style": {
+    "name": "Sahel Dusk Muted Realism",
+    "wall": "#a8997e",
+    "wall2": "#8a7a62",
+    "roof": "#5c4a38",
+    "trim": "#7a6a55",
+    "accent": "#6b4a3a",
+    "dark": "#2a2420",
+    "glass": "#2c3238",
+    "glow": "#ffb36b",
+    "ground": "#b89f72",
+    "road": "#a38c66",
+    "variety": 0.15,
+    "surfaces": {
+      "wall": "canvas",
+      "wall2": "timber",
+      "roof": "canvas",
+      "trim": "timber",
+      "ground": "sand",
+      "road": "sand",
+      "wear": 0.7,
+      "wet": 0
+    }
+  },
+  "site": {
+    "pattern": "wild",
+    "wild": 0.1,
+    "paths": "track",
+    "spacing": 14
+  },
+  "mood": {
+    "weather": "dust",
+    "intensity": 0.3,
+    "grade": "golden",
+    "haze": 0.6,
+    "ambience": [
+      "wind",
+      "desert"
+    ],
+    "music": "lonely oud"
+  },
+  "terrain": {
+    "relief": "dunes",
+    "ruggedness": 0.6,
+    "water": "none",
+    "waterAmount": 0,
+    "horizon": "dune sea in heat haze",
+    "settled": 0.05
+  },
+  "skyFeatures": [
+    {
+      "kind": "moon",
+      "size": 0.08,
+      "color": "#e8dcc4"
+    }
+  ],
+  "creatures": [
+    {
+      "id": "camels",
+      "name": "dromedary camels",
+      "family": "quadruped",
+      "dials": {},
+      "size": 2.2,
+      "count": 4,
+      "behaviour": "graze",
+      "haunt": "caravan_camp",
+      "body": "#b8956a",
+      "accent": "#8a6a48",
+      "glow": "#000000",
+      "note": "Hobbled, chewing, unimpressed by you."
+    },
+    {
+      "id": "hawk",
+      "name": "desert hawk",
+      "family": "bird",
+      "dials": {},
+      "size": 0.45,
+      "count": 1,
+      "behaviour": "circle",
+      "haunt": "sky",
+      "body": "#7a6a55",
+      "accent": "#d8cbb0",
+      "glow": "#000000",
+      "note": "Riding the warm air over the dunes."
+    }
+  ],
+  "folk": {
+    "name": "Tuareg drovers",
+    "height": 1.72,
+    "bulk": 0.4,
+    "head": 1,
+    "features": [
+      "hood",
+      "cloak"
+    ],
+    "skin": [
+      "#8d6a4f",
+      "#6b4c36"
+    ],
+    "cloth": [
+      "#2f3d5c",
+      "#d8cbb0"
+    ],
+    "trim": [
+      "#a85a32"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "goat_hair_tent",
+      "summary": "low black goat-hair tent, 2.6 m ridge, open flap to the east",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.7,
+          "h": 0.12,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.4,
+          "z": 0.2,
+          "y": 0,
+          "w": 0.03,
+          "d": 0.03,
+          "h": 2.2,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 3,
+          "gap": 0.4
+        },
+        {
+          "shape": "cone",
+          "x": 0.45,
+          "z": 0.35,
+          "y": 0,
+          "w": 0.03,
+          "d": 0.03,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 4,
+          "gap": 0.2
+        },
+        {
+          "shape": "box",
+          "x": 0.1,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.25,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.5,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 0.35,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 2,
+          "gap": 0.6
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.5,
+          "z": -0.38,
+          "y": 0,
+          "w": 0.14,
+          "d": 0.14,
+          "h": 0.45,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.5,
+          "z": 0.45,
+          "y": 0.12,
+          "w": 0.14,
+          "d": 0.1,
+          "h": 0.18,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.5,
+          "z": -0.3,
+          "y": 0,
+          "w": 0.3,
+          "d": 0.12,
+          "h": 0.25,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0.1,
+      "family": "tent",
+      "dials": {
+        "form": "ridge",
+        "poles": 2,
+        "sag": 0.55,
+        "flaps": 1
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "dune_scrub",
+      "size": 1.2,
+      "parts": [],
+      "weight": 5,
+      "family": "tree",
+      "dials": {
+        "trunk": 0.4,
+        "crown": "bush",
+        "crownSize": 0.6,
+        "lean": 0.3
+      }
+    },
+    {
+      "kind": "dead_acacia",
+      "size": 5,
+      "parts": [],
+      "weight": 2,
+      "family": "tree",
+      "dials": {
+        "trunk": 1.6,
+        "crown": "dead",
+        "crownSize": 0.7,
+        "lean": 0.5
+      }
+    },
+    {
+      "kind": "wind_scoured_rock",
+      "size": 3,
+      "parts": [],
+      "weight": 3,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 3,
+        "height": 0.5,
+        "jagged": 0.6,
+        "flat": 0.4
+      }
+    },
+    {
+      "kind": "camel_saddle_packs",
+      "size": 1.4,
+      "parts": [],
+      "weight": 2,
+      "family": "container",
+      "dials": {
+        "form": "sacks",
+        "count": 3,
+        "height": 0.5
+      }
+    },
+    {
+      "kind": "drover_fire_brazier",
+      "size": 2.2,
+      "parts": [
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.5,
+          "h": 0.15,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 0.15,
+          "w": 0.35,
+          "d": 0.35,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 1,
+      "family": "pole",
+      "dials": {
+        "head": "lamp",
+        "height": 1.6,
+        "arms": 1
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "seven_wells_curb",
+      "prompt": "Ancient desert well head, circular rim of rough-hewn sandstone blocks with a worn rope groove, a weathered acacia-wood crossbeam and a frayed goat-hair rope, a leather bucket resting on the lip, realistic proportions, weathered",
+      "place": "caravan_camp",
+      "height": 3
+    }
+  ]
+}

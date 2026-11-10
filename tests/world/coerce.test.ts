@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { coerceSpec, explainInvalid, lookSpec } from '../../app/src/world/coerce';
 import { FIXTURES } from '../../app/src/world/fixtures';
 import { normalizeSpec, validateSpec } from '../../app/src/world/schema';
+import { repairQuest, verifyQuest } from '../../app/src/world/verify';
 
 type Rec = Record<string, unknown>;
 
@@ -142,9 +143,10 @@ describe('lookSpec', () => {
     if (!w) return;
     expect(validateSpec(w).ok).toBe(true);
     expect(validateSpec(normalizeSpec(w)).ok).toBe(true);
-    expect(w.quest.steps).toHaveLength(1);
-    expect(w.quest.steps[0]?.kind).toBe('visit');
-    expect(w.quest.steps[0]?.target).toBe('spire_one');
+    expect(w.quest.steps.map((x) => x.kind)).toEqual(['talk', 'visit']);
+    expect(w.quest.steps[0]?.target).toBe('ada');
+    expect(w.quest.steps[1]?.target).toBe('spire_one');
+    expect(verifyQuest(repairQuest(w)).winnable).toBe(true);
     expect(w.quest.endings).toHaveLength(1);
     expect(w.npcs).toHaveLength(2);
     expect(w.npcs[0]?.schedule).toHaveLength(3);
@@ -168,9 +170,44 @@ describe('lookSpec', () => {
     expect(w?.blueprints).toBeUndefined();
   });
 
-  it('still yields a playable world from empty events', () => {
+  it('still yields a playable world from empty events: no structures, and the spirit of the place to talk to', () => {
     const w = lookSpec(undefined, undefined, 'anything', 1);
     expect(w).not.toBeNull();
-    if (w) expect(validateSpec(w).ok).toBe(true);
+    if (!w) return;
+    expect(validateSpec(w).ok).toBe(true);
+    expect(w.buildings).toHaveLength(0);
+    expect(w.npcs.map((n) => n.id)).toEqual(['spirit_of_the_place']);
+    expect(verifyQuest(repairQuest(w)).winnable).toBe(true);
+  });
+
+  it('carries the land, sky, creatures, folk, mood and hour of the outline into the preview', () => {
+    const wild = {
+      title: 'Erg', theme: 'western',
+      terrain: { relief: 'dunes', ruggedness: 0.6, water: 'none', waterAmount: 0, horizon: 'dune sea', settled: 0.05 },
+      site: { pattern: 'wild', wild: 0.1, paths: 'none', spacing: 14 },
+      time: { startHour: 17 }, palette: { sky: 'dusk', fog: 0.3 },
+      mood: { weather: 'dust', intensity: 0.3, grade: 'golden', haze: 0.6, ambience: ['wind'], music: '' },
+      skyFeatures: [{ kind: 'moon', size: 0.1, color: '#eeeeee' }],
+      folk: { name: 'drovers', height: 1.75, bulk: 0.4, head: 1, features: ['hood'], skin: ['#8d5f43'], cloth: ['#2f4a6a'], trim: ['#2a2420'] },
+      creatures: [
+        { id: 'camels', name: 'camels', family: 'quadruped', dials: {}, size: 2.2, count: 4, behaviour: 'graze', haunt: 'camp', body: '#b8956a', accent: '#8a6a48', glow: '#000000', note: 'Chewing.' },
+        { id: 'fish', name: 'fish', family: 'swimmer', dials: {}, size: 0.3, count: 9, behaviour: 'flock', haunt: 'water', body: '#888888', accent: '#666666', glow: '#000000', note: '' },
+      ],
+      buildings: [{ id: 'camp', role: 'house', label: 'Camp', size: 'medium', keyBuilding: true }],
+      npcs: [],
+    };
+    const w = lookSpec(wild, { style: { name: 'sand', wall: '#b9a98a', ground: '#c2a97c' } }, 'the Sahara', 3);
+    expect(w).not.toBeNull();
+    if (!w) return;
+    expect(w.terrain).toMatchObject({ relief: 'dunes', settled: 0.05 });
+    expect(w.site?.pattern).toBe('wild');
+    expect(w.skyFeatures).toHaveLength(1);
+    expect(w.folk?.name).toBe('drovers');
+    expect(w.creatures?.map((x) => x.haunt)).toEqual(['camp', 'wild']);
+    expect(w.mood?.weather).toBe('dust');
+    expect(w.time.startHour).toBe(17);
+    expect(w.palette.sky).toBe('dusk');
+    expect(w.buildings).toHaveLength(1);
+    expect(verifyQuest(repairQuest(w)).winnable).toBe(true);
   });
 });

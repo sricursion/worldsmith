@@ -1,6 +1,9 @@
 // Forgiving pre-pass for model output, run before validateSpec, plus a minimal-world builder
 // for the early outline/look stream events. Pure: no I/O, no randomness.
-import { validateSpec, WorldSpecSchema, normalizeSpec, slugify } from './schema';
+import {
+  validateSpec, WorldSpecSchema, normalizeSpec, slugify, coerceMood, coerceTerrain, coerceSkyFeatures, coerceCreatures, coerceFolk,
+  SITE_PATTERNS, WILD_PATTERNS,
+} from './schema';
 import type {
   BuildingRole, BuildingSpec, CharacterBase, NpcSpec, SiteSpec, StyleSpec, ThemeId, WorldSpec,
 } from './spec';
@@ -15,7 +18,7 @@ function isRec(v: unknown): v is Rec {
 const NUMERIC_KEYS = new Set([
   'seed', 'fog', 'startHour', 'minutesPerRealSecond', 'hour', 'x', 'z', 'y', 'w', 'd', 'h', 'rot', 'rotY', 'repeat', 'gap',
   'doorX', 'weight', 'tau', 'pitch', 'rate', 'fromHour', 'toHour', 'multiplier', 'variety', 'height', 'wild', 'spacing',
-  'version',
+  'version', 'ruggedness', 'waterAmount', 'settled', 'bulk', 'head', 'count', 'intensity', 'haze',
 ]);
 
 /** Keys holding a lower-case enum token. */
@@ -149,22 +152,31 @@ function buildStyle(v: unknown): StyleSpec | undefined {
 
 function buildSite(v: unknown): SiteSpec | undefined {
   if (!isRec(v)) return undefined;
-  const pattern = pick(v['pattern'], ['street', 'ring', 'scatter', 'grid', 'terraces'] as const);
+  const pattern = pick(v['pattern'], SITE_PATTERNS);
   if (!pattern) return undefined;
+  const open = WILD_PATTERNS.includes(pattern);
   return {
     pattern,
-    wild: clamp(num(v['wild'], 0.3), 0, 1),
-    paths: pick(v['paths'], ['road', 'track', 'none'] as const) ?? 'road',
-    spacing: clamp(num(v['spacing'], 8), 2, 14),
+    wild: clamp(num(v['wild'], open ? 0.7 : 0.3), 0, 1),
+    paths: pick(v['paths'], ['road', 'track', 'none'] as const) ?? (open ? 'track' : 'road'),
+    spacing: clamp(num(v['spacing'], open ? 12 : 8), 2, 14),
   };
 }
 
-/** Builds a minimal valid spec from the outline and look stream events, or null when they are unusable. */
+/** The id the quest names when nobody lives in the world; normalizeSpec turns it into the spirit of the place. */
+const SPIRIT_ID = 'spirit_of_the_place';
+
+/**
+ * Builds a minimal valid spec from the outline and look stream events, or null when they are unusable.
+ * The land, the sky, the creatures and the folk decided in the outline are carried through, so the preview
+ * already stands on the right ground under the right sky. A place may have no structures and no people.
+ */
 export function lookSpec(outline: unknown, look: unknown, prompt: string, seed: number): WorldSpec | null {
   const o = isRec(outline) ? outline : {};
   const l = isRec(look) ? look : {};
   const style = buildStyle(l['style']);
-  const site = buildSite(l['site']);
+  const site = buildSite(l['site']) ?? buildSite(o['site']);
+  const op = isRec(o['palette']) ? o['palette'] : {};
   const lp = isRec(l['palette']) ? l['palette'] : {};
 
   const buildings: BuildingSpec[] = [];
@@ -181,8 +193,7 @@ export function lookSpec(outline: unknown, look: unknown, prompt: string, seed: 
     if (raw['keyBuilding'] === true) b.keyBuilding = true;
     buildings.push(b);
   });
-  if (buildings.length === 0) buildings.push({ id: 'cottage_1', role: 'house', label: 'Cottage', size: 'small' });
-  const first = buildings[0] as BuildingSpec;
+  const first = buildings[0];
   const resolveBuilding = (v: unknown, fallback: string): string => {
     if (typeof v !== 'string') return fallback;
     const s = slugify(v, '');
@@ -191,11 +202,10 @@ export function lookSpec(outline: unknown, look: unknown, prompt: string, seed: 
 
   const npcs: NpcSpec[] = [];
   const stubs = asList(o['npcs']).filter(isRec).slice(0, 10);
-  if (stubs.length === 0) stubs.push({ id: 'wanderer', name: 'Wanderer', role: 'wanderer' });
   stubs.forEach((raw, i) => {
-    const name = str(raw['name'], `Villager ${i + 1}`);
-    const role = str(raw['role'], 'villager');
-    const home = resolveBuilding(raw['home'], (buildings[i % buildings.length] as BuildingSpec).id);
+    const name = str(raw['name'], `Local ${i + 1}`);
+    const role = str(raw['role'], 'local');
+    const home = resolveBuilding(raw['home'], buildings[i % Math.max(1, buildings.length)]?.id ?? 'street');
     const w = raw['work'];
     const work = w === 'street' || w === 'plaza' ? w : resolveBuilding(w, 'street');
     npcs.push({
@@ -219,7 +229,15 @@ export function lookSpec(outline: unknown, look: unknown, prompt: string, seed: 
       mood: 'calm',
     });
   });
-  const giver = (npcs[0] as NpcSpec).id;
+  // Nobody here: the quest names the spirit of the place, and normalizeSpec gives it a body.
+  const giver = npcs[0]?.id ?? SPIRIT_ID;
+  const giverName = npcs[0]?.name ?? 'the spirit of the place';
+  const steps: Rec[] = [
+    { id: 'first_words', kind: 'talk', target: giver, requires: [], objective: `Speak with ${giverName}`, beat: 'You are told what this place is.' },
+  ];
+  if (first) steps.push({ id: 'look_around', kind: 'visit', target: first.id, requires: ['first_words'], objective: `Visit ${first.label}`, beat: 'You take in the place.' });
+  const lastStep = String((steps[steps.length - 1] as Rec)['id']);
+  const hour = num(isRec(o['time']) ? o['time']['startHour'] : undefined, 9);
 
   const base: Rec = {
     version: 1,
@@ -232,10 +250,10 @@ export function lookSpec(outline: unknown, look: unknown, prompt: string, seed: 
     palette: {
       ground: hex(lp['ground'], style?.ground ?? NEUTRAL_STYLE.ground),
       accent: hex(lp['accent'], style?.accent ?? NEUTRAL_STYLE.accent),
-      sky: pick(lp['sky'] ?? l['sky'], SKIES) ?? 'day',
-      fog: clamp(num(lp['fog'] ?? l['fog'], 0.2), 0, 1),
+      sky: pick(lp['sky'] ?? l['sky'] ?? op['sky'], SKIES) ?? 'day',
+      fog: clamp(num(lp['fog'] ?? l['fog'] ?? op['fog'], 0.2), 0, 1),
     },
-    time: { startHour: 9, minutesPerRealSecond: 2 },
+    time: { startHour: clamp(hour, 0, 23), minutesPerRealSecond: 2 },
     buildings,
     npcs,
     items: [],
@@ -244,10 +262,8 @@ export function lookSpec(outline: unknown, look: unknown, prompt: string, seed: 
       title: 'Settling in',
       hook: 'The tale of this place is still being written. Look around while it arrives.',
       giver,
-      steps: [
-        { id: 'look_around', kind: 'visit', target: first.id, requires: [], objective: `Visit ${first.label}`, beat: 'You take in the place.' },
-      ],
-      endings: [{ stepId: 'look_around', label: 'You find your bearings', tone: 'neutral' }],
+      steps,
+      endings: [{ stepId: lastStep, label: 'You find your bearings', tone: 'neutral' }],
     },
     rules: [],
     lexicon: [],
@@ -256,6 +272,13 @@ export function lookSpec(outline: unknown, look: unknown, prompt: string, seed: 
   const arch: Rec = {};
   if (style) arch['style'] = style;
   if (site) arch['site'] = site;
+  // The land, sky and life come from the outline (the look may restate them); each is coerced, so none can fail the spec.
+  const land = (k: string): unknown => l[k] ?? o[k];
+  if (isRec(o['mood'])) arch['mood'] = coerceMood(o['mood']);
+  if (isRec(land('terrain'))) arch['terrain'] = coerceTerrain(land('terrain'));
+  if (Array.isArray(land('skyFeatures'))) arch['skyFeatures'] = coerceSkyFeatures(land('skyFeatures'));
+  if (Array.isArray(land('creatures'))) arch['creatures'] = coerceCreatures(land('creatures'));
+  if (isRec(land('folk'))) arch['folk'] = coerceFolk(land('folk'));
   const model: Rec = {};
   if (Array.isArray(l['blueprints']) && l['blueprints'].length > 0) model['blueprints'] = l['blueprints'];
   if (Array.isArray(l['props'])) model['props'] = l['props'];

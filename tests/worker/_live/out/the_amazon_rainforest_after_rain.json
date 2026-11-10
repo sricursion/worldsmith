@@ -1,0 +1,645 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "the Amazon rainforest after rain",
+  "title": "Green Hush After Rain",
+  "tagline": "The canopy drips, the river rises, something watches.",
+  "theme": "modern",
+  "era": "Present day",
+  "palette": {
+    "ground": "#35402b",
+    "accent": "#6e4a36",
+    "sky": "overcast",
+    "fog": 0.4
+  },
+  "time": {
+    "startHour": 17.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "kapok_trunk",
+      "role": "house",
+      "label": "Fallen Giant",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "fallen_kapok"
+    },
+    {
+      "id": "stilt_hut",
+      "role": "house",
+      "label": "Lone Stilt Hut",
+      "size": "small",
+      "blueprint": "stilt_hut"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "tonho",
+      "name": "Tonho",
+      "role": "rubber tapper",
+      "persona": "Lean, quiet seringal man who counts everything in trees and reais. He distrusts strangers but distrusts the river more.",
+      "knowledge": [
+        "The varadouro ran along the bank past the old tapping trees; the river took the low half overnight.",
+        "The hollow kapok trunk is dry inside and keeps his latex cups and smoking gear.",
+        "The jaguar prowls the bank at dusk, and the macaws scream before it moves."
+      ],
+      "secrets": [
+        "He owes the patrão eleven hundred reais in rubber and cannot lose the trail without losing the debt's cover."
+      ],
+      "home": "stilt_hut",
+      "work": "kapok_trunk",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "kapok_trunk",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "stilt_hut",
+          "activity": "eat"
+        },
+        {
+          "hour": 15,
+          "place": "kapok_trunk",
+          "activity": "work"
+        },
+        {
+          "hour": 20,
+          "place": "stilt_hut",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [],
+      "appearance": {
+        "base": "rogue_hooded",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 0.8,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": -0.2,
+          "idle": 0,
+          "flee": 0.2,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 0.9,
+        "rate": 0.9
+      },
+      "mood": "tense"
+    }
+  ],
+  "items": [
+    {
+      "id": "latex_cups",
+      "name": "Bundle of Latex Cups",
+      "description": "Clay cups crusted with white rubber, Tonho's season of work.",
+      "holder": "kapok_trunk"
+    },
+    {
+      "id": "macaw_feather",
+      "name": "Scarlet Macaw Feather",
+      "description": "A red tail feather dropped where the flock roosts by the trunk.",
+      "holder": "kapok_trunk"
+    },
+    {
+      "id": "tapping_knife",
+      "name": "Tapping Knife",
+      "description": "Short curved blade, wrapped handle, worn to Tonho's grip.",
+      "holder": "stilt_hut"
+    }
+  ],
+  "quest": {
+    "id": "far_bank",
+    "title": "The Trail the River Took",
+    "hook": "The igarapé swallowed the varadouro overnight, three metres of brown water over Tonho's whole rubber trail. He stands on his stilt hut's ladder watching the current, and he needs someone who reads the forest to get him and his season's work to the far bank before the water finishes the job.",
+    "giver": "tonho",
+    "steps": [
+      {
+        "id": "s1",
+        "kind": "talk",
+        "target": "tonho",
+        "requires": [],
+        "objective": "Hear Tonho out at the stilt hut.",
+        "beat": "Tonho points to where the trail ran and now only treetops show. He says the cups must cross before dark."
+      },
+      {
+        "id": "s2",
+        "kind": "visit",
+        "target": "kapok_trunk",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Go to the Fallen Giant and check the high ground.",
+        "beat": "The macaws wheel overhead, shrieking at something on the bank. The hollow trunk is dry and the jaguar's tracks cross the mud outside.",
+        "reveals": [
+          "tonho:0"
+        ]
+      },
+      {
+        "id": "s3",
+        "kind": "fetch",
+        "target": "latex_cups",
+        "requires": [
+          "s2"
+        ],
+        "objective": "Take the latex cups from the trunk.",
+        "beat": "The cups are heavy and sticky. The howlers bark in the canopy while you work, loud and nervous.",
+        "item": "latex_cups"
+      },
+      {
+        "id": "s4",
+        "kind": "deliver",
+        "target": "tonho",
+        "requires": [
+          "s3"
+        ],
+        "objective": "Bring the cups back to Tonho.",
+        "beat": "Tonho counts them twice, mutters a sum in reais, then nods toward the water. Together you pick the shallow line through the flooded trees.",
+        "item": "latex_cups"
+      },
+      {
+        "id": "s5",
+        "kind": "talk",
+        "target": "tonho",
+        "requires": [
+          "s4"
+        ],
+        "objective": "Cross with Tonho and speak to him on the far bank.",
+        "beat": "He sets the cups on dry ground and says nothing for a while. The river keeps rising behind you."
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s5",
+        "label": "The season's rubber reaches the far bank. The trail is gone, but Tonho is not.",
+        "tone": "good"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r1",
+      "text": "Nobody crosses the flooded varadouro after dark.",
+      "effect": {
+        "type": "curfew",
+        "fromHour": 19,
+        "toHour": 5,
+        "exemptRoles": []
+      },
+      "source": "world"
+    },
+    {
+      "id": "r2",
+      "text": "Nobody tempts the jaguar. Food is not left out near the bank.",
+      "effect": {
+        "type": "custom",
+        "summary": "Food and fires are kept away from the bank where the jaguar stalks."
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "igarapé",
+    "caboclo",
+    "seringal",
+    "açaí",
+    "reais",
+    "varadouro"
+  ],
+  "style": {
+    "name": "Green Hush After Rain",
+    "wall": "#5c4d3b",
+    "wall2": "#7a6a50",
+    "roof": "#7d6c46",
+    "trim": "#4a3f31",
+    "accent": "#6e4a36",
+    "dark": "#1c1d17",
+    "glass": "#2a3230",
+    "glow": "#ffd9a0",
+    "ground": "#35402b",
+    "road": "#4a3b2c",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "bark",
+      "wall2": "timber",
+      "roof": "thatch",
+      "trim": "timber",
+      "ground": "moss",
+      "road": "mud",
+      "wear": 0.65,
+      "wet": 0.8
+    }
+  },
+  "site": {
+    "pattern": "path",
+    "wild": 0.95,
+    "paths": "track",
+    "spacing": 14
+  },
+  "mood": {
+    "weather": "rain",
+    "intensity": 0.4,
+    "grade": "verdant",
+    "haze": 0.7,
+    "ambience": [
+      "rain",
+      "frogs",
+      "birds",
+      "water"
+    ],
+    "music": "low marimba drone"
+  },
+  "terrain": {
+    "relief": "rolling",
+    "ruggedness": 0.5,
+    "water": "river",
+    "waterAmount": 0.25,
+    "horizon": "unbroken jungle canopy in mist",
+    "settled": 0.02
+  },
+  "skyFeatures": [],
+  "creatures": [
+    {
+      "id": "howlers",
+      "name": "howler monkeys",
+      "family": "biped",
+      "dials": {
+        "bulk": 0.4,
+        "shoulders": 0.5,
+        "hips": 0.4,
+        "limbs": 0.5,
+        "arms": 0.6,
+        "head": 0.6,
+        "posture": 0.3,
+        "hair": 0.5,
+        "outfit": "bare",
+        "hat": "cap",
+        "tool": "none",
+        "features": 0
+      },
+      "size": 0.7,
+      "count": 5,
+      "behaviour": "roam",
+      "haunt": "wild",
+      "body": "#7a6248",
+      "accent": "#c9b08a",
+      "glow": "#000000",
+      "note": "Their roar rolls across the valley after rain."
+    },
+    {
+      "id": "macaws",
+      "name": "scarlet macaws",
+      "family": "bird",
+      "dials": {
+        "wingspan": 0.7,
+        "neck": 0.3,
+        "legs": 0.2,
+        "beak": 0.5,
+        "tail": 0.8,
+        "bulk": 0.5,
+        "head": 0.5,
+        "crest": 0.2
+      },
+      "size": 0.9,
+      "count": 8,
+      "behaviour": "flock",
+      "haunt": "sky",
+      "body": "#c0463a",
+      "accent": "#4085d6",
+      "glow": "#000000",
+      "note": "A loud flash of red and blue through the gaps."
+    },
+    {
+      "id": "jaguar",
+      "name": "jaguar",
+      "family": "quadruped",
+      "dials": {
+        "legs": 0.3,
+        "body": 0.7,
+        "neck": 0.4,
+        "head": 0.5,
+        "snout": 0.4,
+        "ears": 0.3,
+        "tail": 0.5,
+        "tailw": 0.4,
+        "bulk": 0.6,
+        "slope": 0.4,
+        "sprawl": 0.3,
+        "horns": "none"
+      },
+      "size": 1.9,
+      "count": 1,
+      "behaviour": "stalk",
+      "haunt": "wild",
+      "body": "#c49a3c",
+      "accent": "#3a2a16",
+      "glow": "#000000",
+      "note": "Low on the mud, watching the path behind you."
+    }
+  ],
+  "folk": {
+    "name": "riverine caboclos",
+    "height": 1.68,
+    "bulk": 0.45,
+    "head": 1,
+    "features": [
+      "hood",
+      "pack"
+    ],
+    "skin": [
+      "#8d5e3c",
+      "#a46f4c"
+    ],
+    "cloth": [
+      "#4f5b3e",
+      "#6b5a3f"
+    ],
+    "trim": [
+      "#c9a24a"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "fallen_kapok",
+      "summary": "hollow fallen kapok trunk, 30 m long, roots and buttress ends",
+      "parts": [
+        {
+          "shape": "wedge",
+          "x": -0.5,
+          "z": 0,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.5,
+          "h": 7,
+          "rot": 90,
+          "tone": "wall",
+          "repeat": 4,
+          "gap": 0.1
+        },
+        {
+          "shape": "dome",
+          "x": -0.5,
+          "z": 0,
+          "y": 1.5,
+          "w": 0.18,
+          "d": 0.6,
+          "h": 5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "arch",
+          "x": 0.5,
+          "z": 0,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.3,
+          "h": 3,
+          "rot": 90,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.1,
+          "z": 0,
+          "y": 3.6,
+          "w": 0.12,
+          "d": 0.2,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 3,
+          "gap": 0.12
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 3.2,
+          "w": 0.7,
+          "d": 0.2,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cone",
+          "x": -0.35,
+          "z": 0.1,
+          "y": 3.4,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 2.2,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 3,
+          "gap": 0.1
+        }
+      ],
+      "doorX": 0,
+      "family": "hull",
+      "dials": {
+        "ratio": 4.5,
+        "sheer": 0.08,
+        "masts": 0,
+        "cabin": "none"
+      }
+    },
+    {
+      "id": "stilt_hut",
+      "summary": "palm-thatch hut on 2.5 m stilts, ridge 5 m, lit window",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.1,
+          "y": 2.5,
+          "w": 0.9,
+          "d": 0.7,
+          "h": 0.25,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "gable",
+          "x": 0,
+          "z": 0,
+          "y": 4.4,
+          "w": 1.05,
+          "d": 0.9,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.48,
+          "y": 3.1,
+          "w": 0.12,
+          "d": 0.03,
+          "h": 0.7,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.42,
+          "z": 0,
+          "y": 2.5,
+          "w": 0.12,
+          "d": 0.5,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.38,
+          "z": 0.35,
+          "y": 0,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "stilts",
+      "dials": {
+        "legHeight": 2.5,
+        "legs": 6,
+        "hut": 0.8,
+        "access": "ladder"
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "kapok_emergent",
+      "size": 13,
+      "parts": [
+        {
+          "shape": "wedge",
+          "x": -0.5,
+          "z": 0,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.2,
+          "h": 0.18,
+          "rot": 90,
+          "tone": "wall",
+          "repeat": 4,
+          "gap": 0.28
+        }
+      ],
+      "weight": 2,
+      "family": "tree",
+      "dials": {
+        "trunk": 2,
+        "crown": "umbrella",
+        "crownSize": 0.85,
+        "lean": 0.1
+      }
+    },
+    {
+      "kind": "canopy_buttress_tree",
+      "size": 8,
+      "parts": [],
+      "weight": 4,
+      "family": "tree",
+      "dials": {
+        "trunk": 1.7,
+        "crown": "ball",
+        "crownSize": 0.7,
+        "lean": 0.2
+      }
+    },
+    {
+      "kind": "assai_palm",
+      "size": 4.5,
+      "parts": [],
+      "weight": 4,
+      "family": "tree",
+      "dials": {
+        "trunk": 2,
+        "crown": "palm",
+        "crownSize": 0.6,
+        "lean": 0.3
+      }
+    },
+    {
+      "kind": "fern_understory",
+      "size": 1.6,
+      "parts": [],
+      "weight": 5,
+      "family": "tree",
+      "dials": {
+        "trunk": 0.3,
+        "crown": "fern",
+        "crownSize": 0.8,
+        "lean": 0.2
+      }
+    },
+    {
+      "kind": "mossy_buttress_stones",
+      "size": 2.5,
+      "parts": [],
+      "weight": 2,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 3,
+        "height": 0.5,
+        "jagged": 0.3,
+        "flat": 0.4
+      }
+    },
+    {
+      "kind": "drowned_snag",
+      "size": 3,
+      "parts": [],
+      "weight": 2,
+      "family": "tree",
+      "dials": {
+        "trunk": 1.4,
+        "crown": "dead",
+        "crownSize": 0.5,
+        "lean": 0.5
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "tapping_post",
+      "prompt": "A weathered rubber tapper's tree trunk scored with diagonal tapping grooves, a rusted tin collecting cup wired to it, dark latex stains running down grey bark, realistic proportions, weathered",
+      "place": "stilt_hut",
+      "height": 4
+    }
+  ]
+}

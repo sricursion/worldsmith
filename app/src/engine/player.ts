@@ -1,5 +1,6 @@
 // Player controller: camera-relative movement on the navmesh with eased starts and stops, driving the camera rig
-// (over-the-shoulder third person or first person) and exposing step cadence for audio.
+// (first person by default, over-the-shoulder third person on V) and exposing step cadence for audio. In first
+// person the body is not drawn but still casts its shadow.
 import * as THREE from 'three';
 import { MeshBVH } from 'three-mesh-bvh';
 import { angleDelta, bvhCollider, createCameraRig } from './camera-rig';
@@ -8,6 +9,7 @@ import type { CharacterRig } from './character';
 import type { Input } from './input';
 import { mergeWorldGeometry } from './nav';
 import type { NavWorld } from './nav';
+import { AIR } from './post';
 
 export { angleDelta } from './camera-rig';
 
@@ -26,8 +28,13 @@ export interface Player {
   readonly firstPerson?: boolean;
   /** Switches between third and first person (also on the V key). */
   toggleView?(): void;
-  /** Eases the camera to a two-shot of the player and an NPC standing at `target` (feet); null eases back. */
+  /**
+   * Eases the camera to the NPC standing at `target` (feet): the view turns to them in first person, a two-shot
+   * in third. The top quality tier pulls focus to their face. null eases back.
+   */
   frameTarget?(target: THREE.Vector3 | null): void;
+  /** First-person eye height over the feet, metres: call it with the folk's height times 0.94 for non-human folk. */
+  setEyeHeight?(h: number): void;
 }
 
 export const WALK_SPEED = 2.2;
@@ -42,6 +49,7 @@ const FP_STRAFE_FACTOR = 0.85;
 const STRIDE_WALK = 1.0; // metres per footfall at walking speed
 const STRIDE_RUN = 1.6;
 const RIG_HIDE_DISTANCE = 0.7; // the body is hidden when the camera is pushed this close to the head
+const FOCUS_HEIGHT = 1.5; // the lens focuses this far above the feet of whoever is spoken to
 const CONE_HALF_ANGLE = Math.PI / 3; // 120 degree cone in front
 
 /** Metres covered per footfall at a given ground speed. */
@@ -103,6 +111,7 @@ export function createPlayer(
   camera: THREE.PerspectiveCamera,
   input: Input,
   statics: THREE.Mesh[],
+  options: { firstPerson?: boolean; eyeHeight?: number } = {},
 ): Player {
   const position = new THREE.Vector3();
   let heading = 0;
@@ -112,14 +121,48 @@ export function createPlayer(
 
   const bvhGeometry = mergeWorldGeometry(statics);
   const bvh = bvhGeometry ? new MeshBVH(bvhGeometry) : null;
-  const cam = createCameraRig(camera, bvh ? bvhCollider(bvh) : null);
+  const cam = createCameraRig(camera, bvh ? bvhCollider(bvh) : null, options);
   const subject: CameraSubject = { position, vx: 0, vz: 0, speed: 0, running: false, stepPhase: 0 };
   const delta = new THREE.Vector3();
 
+  // More than one listener may be bound to the view key: only the first call between two updates switches.
+  let toggled = false;
   const toggleView = (): void => {
-    if (!disposed) cam.setFirstPerson(!cam.firstPerson);
+    if (disposed || toggled) return;
+    toggled = true;
+    cam.setFirstPerson(!cam.firstPerson);
   };
   const offViewKey = input.onKey('KeyV', toggleView);
+
+  // First person: every mesh of the body takes a material that writes neither colour nor depth. The shadow pass
+  // uses its own depth material, so the body still throws its shadow on the ground in front of the camera.
+  const shadowOnly = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+  shadowOnly.name = 'player-shadow-only';
+  const bodyMeshes: THREE.Mesh[] = [];
+  const bodyMaterials: (THREE.Material | THREE.Material[])[] = [];
+  let bodyShadowOnly = false;
+  const collectBody = (o: THREE.Object3D): void => {
+    const mesh = o as THREE.Mesh;
+    if (mesh.isMesh !== true || mesh.material === shadowOnly) return;
+    bodyMeshes.push(mesh);
+    bodyMaterials.push(mesh.material);
+    mesh.material = shadowOnly;
+  };
+  function setBodyShadowOnly(on: boolean): void {
+    if (on === bodyShadowOnly) return;
+    bodyShadowOnly = on;
+    if (on) {
+      rig.root.traverse(collectBody);
+      return;
+    }
+    for (let i = 0; i < bodyMeshes.length; i++) {
+      const mesh = bodyMeshes[i];
+      const material = bodyMaterials[i];
+      if (mesh !== undefined && material !== undefined) mesh.material = material;
+    }
+    bodyMeshes.length = 0;
+    bodyMaterials.length = 0;
+  }
 
   function play(name: 'idle' | 'walk' | 'run'): void {
     if (anim === name) return;
@@ -130,7 +173,9 @@ export function createPlayer(
   function syncRig(): void {
     rig.root.position.copy(position);
     rig.root.rotation.y = heading;
-    rig.root.visible = cam.viewBlend < 0.5 && cam.headDistance >= RIG_HIDE_DISTANCE;
+    const eyeView = cam.viewBlend >= 0.5;
+    setBodyShadowOnly(eyeView);
+    rig.root.visible = eyeView || cam.headDistance >= RIG_HIDE_DISTANCE;
   }
 
   return {
@@ -152,10 +197,18 @@ export function createPlayer(
     frameTarget(target: THREE.Vector3 | null): void {
       if (disposed) return;
       cam.frame(target);
-      if (target !== null) input.exitLock?.(); // free the cursor for the conversation panel
+      AIR.focusOn = target !== null;
+      if (target !== null) {
+        AIR.focus.set(target.x, target.y + FOCUS_HEIGHT, target.z);
+        input.exitLock?.(); // free the cursor for the conversation panel
+      }
+    },
+    setEyeHeight(h: number): void {
+      if (!disposed) cam.setEyeHeight(h);
     },
     update(dt: number): void {
       if (disposed) return;
+      toggled = false;
       const look = input.pointerDelta();
       cam.look(look.dx, look.dy);
       const wheel = input.wheelDelta();
@@ -238,6 +291,9 @@ export function createPlayer(
       if (disposed) return;
       disposed = true;
       offViewKey();
+      setBodyShadowOnly(false);
+      shadowOnly.dispose();
+      AIR.focusOn = false;
       rig.root.visible = true;
       bvhGeometry?.dispose();
     },

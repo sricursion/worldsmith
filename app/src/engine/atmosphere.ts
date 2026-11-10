@@ -1,17 +1,112 @@
-// The air of a town: fog that lies on the ground and takes the colour of the horizon, light scattered
-// towards the sun, drifting cloud shadow, weather, lightning and how wet the ground is. It turns a
+// The air of a place: fog that lies on the ground and takes the colour of the horizon, light scattered
+// towards the sun, drifting cloud shadow, weather, lightning and how wet every surface is. It turns a
 // MoodSpec into numbers; the film pipeline (engine/post) and the weather layers do the drawing.
 
 import { Color, Vector3 } from 'three';
+import type { Material, Mesh, MeshStandardMaterial, Object3D, SkinnedMesh } from 'three';
 import type { GradeKind, MoodSpec, SkyPreset, StyleSpec, SurfaceKind, ThemeId, WeatherKind } from '../world/spec';
 import { makeRng } from '../world/rng';
 import type { Viewport } from './renderer';
-import { AIR, GRADES, applyGrade, gradeTint, onQuality, resetAirMods } from './post';
+import { AIR, AIR_UNIFORMS, GRADES, applyGrade, gradeTint, onQuality, resetAirMods } from './post';
 import { REFERENCE_ALBEDO, acesDisplay, lightRigFor, playerFillIrradiance, skyLookFor, sunFromHour, type SkyRig } from './sky';
 import { createWeather, type WeatherTint } from './weather';
 
 /** 0 dry .. 1 soaked. The atmosphere sets it; a ground material may read `WET.value` or hold the object as a uniform. */
 export const WET = { value: 0 };
+
+// ---- Wet look ------------------------------------------------------------------------------------
+// Once the world is wetter than WET_LOOK_FROM, every standard material in the scene is given a patch: faces
+// that look up darken and turn glossy, and they mirror the horizon at a grazing angle, which is the sheen of
+// a wet street. The patch is added once per material, on top of whatever hook the material already has.
+
+/** Wetness where the look starts, and where it is complete. */
+export const WET_LOOK_FROM = 0.4;
+export const WET_LOOK_FULL = 0.8;
+/** 0..1 strength of the wet look, held as a uniform by every patched material. */
+export const WET_LOOK = { value: 0 };
+
+export function wetLookFor(wet: number): number {
+  const t = Math.min(1, Math.max(0, ((Number.isFinite(wet) ? wet : 0) - WET_LOOK_FROM) / (WET_LOOK_FULL - WET_LOOK_FROM)));
+  return t * t * (3 - 2 * t);
+}
+
+const WET_COMMON = '#include <common>';
+const WET_LIGHTS = '#include <lights_physical_fragment>';
+const WET_OUTPUT = '#include <opaque_fragment>';
+const WET_PARS = /* glsl */ `
+uniform float uWetLook;
+uniform vec3 uWetSky;
+`;
+const WET_SURFACE = /* glsl */ `
+	float wetLookK = uWetLook * smoothstep( 0.45, 0.9, inverseTransformDirection( normal, viewMatrix ).y );
+`;
+const WET_SOAK = /* glsl */ `
+	diffuseColor.rgb *= 1.0 - 0.38 * wetLookK;
+	roughnessFactor = mix( roughnessFactor, min( roughnessFactor, 0.14 ), 0.85 * wetLookK );
+`;
+const WET_SHEEN = /* glsl */ `
+	{
+		vec3 wetN = inverseTransformDirection( normal, viewMatrix );
+		vec3 wetV = inverseTransformDirection( normalize( vViewPosition ), viewMatrix );
+		float wetF = 0.02 + 0.98 * pow( 1.0 - clamp( dot( wetN, wetV ), 0.0, 1.0 ), 5.0 );
+		float wetGloss = 1.0 - clamp( roughnessFactor, 0.0, 1.0 );
+		float wetUp = clamp( reflect( -wetV, wetN ).y, 0.0, 1.0 );
+		outgoingLight += uWetSky * ( mix( 1.0, 0.55, wetUp ) * wetF * wetGloss * wetGloss * wetLookK );
+	}
+`;
+
+/**
+ * Adds the wet look to the fragment shader of a standard material, or returns null when the source is not
+ * one (an anchor is missing) or is already patched. A shader that handles wetness itself (it declares uWet)
+ * keeps its own albedo and roughness and only gains the sheen.
+ */
+export function wetLookFragment(source: string): string | null {
+  if (source.includes('uWetLook')) return null;
+  if (!source.includes(WET_COMMON) || !source.includes(WET_LIGHTS) || !source.includes(WET_OUTPUT)) return null;
+  const own = /\buWet\b/.test(source);
+  return source
+    .replace(WET_COMMON, WET_COMMON + WET_PARS)
+    .replace(WET_LIGHTS, WET_SURFACE + (own ? '' : WET_SOAK) + WET_LIGHTS)
+    .replace(WET_OUTPUT, WET_SHEEN + WET_OUTPUT);
+}
+
+const wetPatched = new WeakSet<Material>();
+
+function patchWetMaterial(material: Material): number {
+  if ((material as MeshStandardMaterial).isMeshStandardMaterial !== true || wetPatched.has(material)) return 0;
+  wetPatched.add(material);
+  if (material.userData['dry'] === true) return 0;
+  const hook = material.onBeforeCompile;
+  // Taken before the hook is replaced: a material without its own key is keyed by the text of its hook.
+  const key = material.customProgramCacheKey();
+  material.onBeforeCompile = function (shader, renderer) {
+    hook.call(this, shader, renderer);
+    const patched = wetLookFragment(shader.fragmentShader);
+    if (patched === null) return;
+    shader.fragmentShader = patched;
+    shader.uniforms['uWetLook'] = WET_LOOK;
+    shader.uniforms['uWetSky'] = AIR_UNIFORMS.uFogColor;
+  };
+  material.customProgramCacheKey = () => `${key}|wet-look`;
+  material.needsUpdate = true;
+  return 1;
+}
+
+/**
+ * Gives the wet look to every standard material under `root` that does not have it yet; returns how many
+ * were patched. Skinned meshes (people, creatures) are left alone, as is a material with userData.dry set.
+ */
+export function applyWetLook(root: Object3D): number {
+  let n = 0;
+  root.traverse((o) => {
+    const mesh = o as Mesh;
+    if (mesh.isMesh !== true || (o as SkinnedMesh).isSkinnedMesh === true) return;
+    const m = mesh.material;
+    if (Array.isArray(m)) for (const one of m) n += patchWetMaterial(one);
+    else if (m !== undefined) n += patchWetMaterial(m);
+  });
+  return n;
+}
 
 export interface Atmosphere {
   /** Applies a mood; with none, one is inferred from the sky preset and the look of the town. */
@@ -154,20 +249,24 @@ interface WeatherAir {
   cloud: number;
   /** Fog takes this share of the tint colour at full intensity. */
   tint: number;
+  /** Multiplier on the light shafts at full intensity: thick still air throws them, rain breaks them up. */
+  shaft: number;
+  /** 0..1: how much lamp light the air catches at full intensity. */
+  halo: number;
 }
 
 export const WEATHER_AIR: Record<WeatherKind, WeatherAir> = {
-  clear: { add: 0, mul: 1, falloff: 0.07, exposure: 1, wet: 0, wind: 0.8, cloud: 1, tint: 0 },
-  rain: { add: 0.004, mul: 1.4, falloff: 0.045, exposure: 0.92, wet: 0.9, wind: 2.2, cloud: 0.3, tint: 0 },
-  storm: { add: 0.008, mul: 1.8, falloff: 0.035, exposure: 0.8, wet: 1, wind: 5.5, cloud: 0, tint: 0 },
-  snow: { add: 0.005, mul: 1.3, falloff: 0.04, exposure: 1.04, wet: 0.15, wind: 1.4, cloud: 0.3, tint: 0 },
-  fog: { add: 0.022, mul: 1.5, falloff: 0.03, exposure: 0.96, wet: 0.25, wind: 0.4, cloud: 0, tint: 0 },
-  mist: { add: 0.007, mul: 1.2, falloff: 0.16, exposure: 1, wet: 0.2, wind: 0.5, cloud: 0.6, tint: 0 },
-  dust: { add: 0.004, mul: 1.5, falloff: 0.05, exposure: 1.03, wet: 0, wind: 2.6, cloud: 0.8, tint: 0.6 },
-  ash: { add: 0.006, mul: 1.6, falloff: 0.04, exposure: 0.86, wet: 0, wind: 1.2, cloud: 0.2, tint: 0.5 },
-  spores: { add: 0.004, mul: 1.2, falloff: 0.12, exposure: 0.97, wet: 0.1, wind: 0.3, cloud: 0.7, tint: 0.22 },
-  embers: { add: 0.003, mul: 1.3, falloff: 0.05, exposure: 0.93, wet: 0, wind: 1, cloud: 0.5, tint: 0.25 },
-  fireflies: { add: 0.001, mul: 1.1, falloff: 0.12, exposure: 1, wet: 0, wind: 0.3, cloud: 1, tint: 0 },
+  clear: { add: 0, mul: 1, falloff: 0.07, exposure: 1, wet: 0, wind: 0.8, cloud: 1, tint: 0, shaft: 1, halo: 0.15 },
+  rain: { add: 0.004, mul: 1.4, falloff: 0.045, exposure: 0.92, wet: 0.9, wind: 2.2, cloud: 0.3, tint: 0, shaft: 0.6, halo: 0.85 },
+  storm: { add: 0.008, mul: 1.8, falloff: 0.035, exposure: 0.8, wet: 1, wind: 5.5, cloud: 0, tint: 0, shaft: 0.3, halo: 0.9 },
+  snow: { add: 0.005, mul: 1.3, falloff: 0.04, exposure: 1.04, wet: 0.15, wind: 1.4, cloud: 0.3, tint: 0, shaft: 0.7, halo: 0.6 },
+  fog: { add: 0.022, mul: 1.5, falloff: 0.03, exposure: 0.96, wet: 0.25, wind: 0.4, cloud: 0, tint: 0, shaft: 1.5, halo: 1 },
+  mist: { add: 0.007, mul: 1.2, falloff: 0.16, exposure: 1, wet: 0.2, wind: 0.5, cloud: 0.6, tint: 0, shaft: 1.5, halo: 0.8 },
+  dust: { add: 0.004, mul: 1.5, falloff: 0.05, exposure: 1.03, wet: 0, wind: 2.6, cloud: 0.8, tint: 0.6, shaft: 1.4, halo: 0.4 },
+  ash: { add: 0.006, mul: 1.6, falloff: 0.04, exposure: 0.86, wet: 0, wind: 1.2, cloud: 0.2, tint: 0.5, shaft: 1.1, halo: 0.5 },
+  spores: { add: 0.004, mul: 1.2, falloff: 0.12, exposure: 0.97, wet: 0.1, wind: 0.3, cloud: 0.7, tint: 0.22, shaft: 1.2, halo: 0.5 },
+  embers: { add: 0.003, mul: 1.3, falloff: 0.05, exposure: 0.93, wet: 0, wind: 1, cloud: 0.5, tint: 0.25, shaft: 1, halo: 0.4 },
+  fireflies: { add: 0.001, mul: 1.1, falloff: 0.12, exposure: 1, wet: 0, wind: 0.3, cloud: 1, tint: 0, shaft: 1, halo: 0.3 },
 };
 
 export interface AirSettings {
@@ -180,6 +279,8 @@ export interface AirSettings {
   exposureMul: number;
   wet: number;
   wind: number;
+  shaftGain: number;
+  halo: number;
 }
 
 /** The numbers a mood asks of the air. `baseWet` is the style's own wetness (surfaces.wet). */
@@ -197,6 +298,8 @@ export function airFor(mood: MoodSpec, baseWet = 0): AirSettings {
     exposureMul: 1 + (w.exposure - 1) * i,
     wet: Math.min(1, Math.max(Number.isFinite(baseWet) ? Math.max(0, baseWet) : 0, w.wet * i)),
     wind: w.wind * (0.5 + 0.5 * i),
+    shaftGain: 1 + (w.shaft - 1) * i,
+    halo: WEATHER_AIR.clear.halo + (w.halo - WEATHER_AIR.clear.halo) * i,
   };
 }
 
@@ -276,6 +379,8 @@ const NEUTRAL_AIR = airFor({ weather: 'clear', intensity: 0, grade: 'neutral', h
 /** How fast the air moves towards a new mood, per second. */
 const EASE = 0.6;
 const WET_RISE = 0.07;
+/** How often the scene is searched for materials that do not have the wet look yet, while it is wet. */
+const WET_SCAN_SECONDS = 3;
 const WET_FALL = 0.02;
 const WIND_X = 0.92;
 const WIND_Z = 0.39;
@@ -305,6 +410,7 @@ export function createAtmosphere(viewport: Viewport, sky: SkyRig): Atmosphere {
   const heading = new Vector3();
   let groundY = 0;
   let grounded = false;
+  let wetScan = 0;
 
   return {
     setMood(next, style, sitePattern) {
@@ -312,6 +418,9 @@ export function createAtmosphere(viewport: Viewport, sky: SkyRig): Atmosphere {
       mood = next ?? defaultMood(theme ?? inferTheme(style), sky.getPreset?.() ?? 'day', sky.getFogHint?.() ?? 0, sitePattern);
       target = airFor(mood, style?.surfaces?.wet ?? 0);
       wetOverride = undefined;
+      // A place that is wet when the player arrives is wet at once; only a change of weather soaks in slowly.
+      WET.value = Math.max(WET.value, 0.85 * target.wet);
+      wetScan = 0.2;
       tint = {
         ...(style !== undefined && HEX6.test(style.glow) ? { glow: style.glow } : {}),
         ...(style !== undefined && HEX6.test(style.ground) ? { dust: style.ground } : {}),
@@ -339,6 +448,8 @@ export function createAtmosphere(viewport: Viewport, sky: SkyRig): Atmosphere {
       now.cloudShadow = ease(now.cloudShadow, target.cloudShadow, k);
       now.exposureMul = ease(now.exposureMul, target.exposureMul, k);
       now.wind = ease(now.wind, target.wind, k);
+      now.shaftGain = ease(now.shaftGain, target.shaftGain, k);
+      now.halo = ease(now.halo, target.halo, k);
 
       // The fog floor follows the ground the player stands on, slowly, so stairs do not pump it.
       if (!grounded) {
@@ -384,6 +495,15 @@ export function createAtmosphere(viewport: Viewport, sky: SkyRig): Atmosphere {
 
       const wetTarget = wetOverride ?? target.wet;
       WET.value = WET.value < wetTarget ? Math.min(wetTarget, WET.value + WET_RISE * h) : Math.max(wetTarget, WET.value - WET_FALL * h);
+      WET_LOOK.value = wetLookFor(WET.value);
+      // While the world is wet enough to show it, new materials (a landmark, a prop that streamed in) are picked up.
+      if (wetTarget > WET_LOOK_FROM) {
+        wetScan -= h;
+        if (wetScan <= 0) {
+          wetScan = WET_SCAN_SECONDS;
+          applyWetLook(viewport.scene);
+        }
+      }
 
       AIR.densityMul = now.densityMul;
       AIR.densityAdd = now.densityAdd;
@@ -393,6 +513,8 @@ export function createAtmosphere(viewport: Viewport, sky: SkyRig): Atmosphere {
       AIR.haze = now.haze;
       AIR.cloudShadow = now.cloudShadow;
       AIR.exposureMul = now.exposureMul * (1 + 0.5 * flash);
+      AIR.shaftGain = now.shaftGain;
+      AIR.halo = now.halo;
       AIR.flash = flash;
       AIR.groundY = groundY;
       AIR.cloudSpeed.set(WIND_X * 0.004 * (0.5 + now.wind * 0.35), WIND_Z * 0.004 * (0.5 + now.wind * 0.35));
@@ -420,6 +542,7 @@ export function createAtmosphere(viewport: Viewport, sky: SkyRig): Atmosphere {
       resetAirMods();
       AIR.groundY = 0;
       WET.value = 0;
+      WET_LOOK.value = 0;
     },
   };
 }

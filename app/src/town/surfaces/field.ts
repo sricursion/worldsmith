@@ -2,7 +2,12 @@
 // roughness, metalness, crease), then a shared weathering pass applies wear and wetness and the result
 // is packed into three RGBA byte arrays: albedo (sRGB), tangent-space normal (linear, +Y up in v) and
 // a data map (R height, G roughness, B metalness). Nothing here touches the DOM or three.js.
-import { fbm, sat, ss } from './noise';
+//
+// After the generator has run, three passes work on the whole tile, on typed arrays: cavity shading
+// (texels lying below their surroundings are darkened and roughened, the way a joint or a valley sits
+// in its own shadow; proud arrises are rubbed paler as the surface wears), the normal map from the
+// height field, and a fine grain in the normal that keeps a highlight from lying dead flat.
+import { fbm, hash2, sat, ss, vnoise } from './noise';
 
 /** One texel while it is being generated. Colours are sRGB 0..1. */
 export interface Texel {
@@ -39,6 +44,10 @@ export interface SurfaceDef {
   /** Depth of the relief in metres between height 0 and height 1. */
   relief: number;
   family: SurfaceFamily;
+  /** 0..1: how dark the hollows of the relief are drawn. Default by family. */
+  cavity?: number;
+  /** Strength of the fine grain added to the normal map, as a slope. Default by family. */
+  micro?: number;
 }
 
 export interface SurfacePixels {
@@ -74,8 +83,10 @@ export function mul(t: Texel, k: number): void {
   t.b *= k;
 }
 
-const RUST: readonly [number, number, number] = [0.42, 0.2, 0.09];
+const RUST: readonly [number, number, number] = [0.4, 0.2, 0.09];
+const RUST_DARK: readonly [number, number, number] = [0.2, 0.105, 0.06];
 const MOSS: readonly [number, number, number] = [0.2, 0.27, 0.1];
+const mix = (a: number, b: number, t: number): number => a + (b - a) * t;
 
 /** How strongly each family takes each kind of weathering. */
 interface Weather { stain: number; streak: number; moss: number; chip: number; rust: number; soak: number }
@@ -96,41 +107,52 @@ const WEATHER: Record<SurfaceFamily, Weather> = {
 function weather(u: number, v: number, t: Texel, c: GenCtx, w: Weather): void {
   const wear = c.wear;
   if (wear > 0) {
-    // Broad uneven staining, and dirt packed into every joint.
+    // Broad uneven staining, and dirt packed into every joint. Where dust has settled the surface is matte.
     const blot = fbm(u, v, 3, 3, 3, c.seed + 901);
-    mul(t, 1 - wear * w.stain * ss(0.35, 0.75, blot));
+    const dust = ss(0.35, 0.75, blot);
+    mul(t, 1 - wear * w.stain * dust);
+    t.rough += (1 - t.rough) * 0.3 * wear * dust;
     mul(t, 1 - t.crease * (0.1 + 0.35 * wear));
-    // Run-off: narrow streaks that follow gravity (down v), strongest where the blotches are.
+    // Paint and render failing in patches: the coat is gone, the substrate shows a step lower. On metal
+    // the patches smear down the sheet column by column, the way rust runs.
+    let chipNear = 0;
+    if (w.chip > 0 && wear > 0.15) {
+      const smear = w.rust > 0 ? 0.11 * (vnoise(u, 0.5, 48, 1, c.seed + 919) - 0.5) + 0.02 * vnoise(u, 0.5, 160, 1, c.seed + 923) : 0;
+      const chip = fbm(u, v + smear, 7, 7, 4, c.seed + 911);
+      const edge = 0.8 - 0.3 * wear * w.chip;
+      const m = ss(edge, edge + 0.025, chip);
+      chipNear = ss(edge - 0.16, edge, chip);
+      if (m > 0) {
+        if (w.rust > 0) {
+          // Two-toned: dark scale in the middle of a patch, an orange bloom at its rim.
+          const k = 0.75 + 0.5 * vnoise(u, v, 96, 96, c.seed + 913);
+          const core = ss(edge + 0.02, edge + 0.09, chip);
+          tint(t, mix(RUST[0], RUST_DARK[0], core) * k, mix(RUST[1], RUST_DARK[1], core) * k, mix(RUST[2], RUST_DARK[2], core) * k, m);
+          t.metal *= 1 - m;
+          t.rough += (0.92 - t.rough) * m;
+        } else {
+          const l = (t.r + t.g + t.b) / 3;
+          const grit = 0.9 + 0.2 * vnoise(u, v, 112, 112, c.seed + 913);
+          tint(t, (l * 0.78 + 0.06) * grit, (l * 0.7 + 0.05) * grit, (l * 0.62 + 0.04) * grit, m);
+          t.rough += (0.95 - t.rough) * m;
+        }
+        t.h -= 0.22 * m;
+        t.crease = Math.max(t.crease, m * (1 - m) * 4 * 0.6);
+      }
+    }
+    // Run-off: narrow streaks that follow gravity (down v), strongest where the blotches are and, on
+    // metal, around every rusting patch. Wet streaks shine; dry ones are a matte deposit.
     if (w.streak > 0) {
       const run = fbm(u, v, 40, 2, 3, c.seed + 907);
-      const m = ss(0.6, 0.82, run) * ss(0.25, 0.6, blot) * wear * w.streak;
+      const where = w.rust > 0 ? Math.max(ss(0.25, 0.6, blot) * 0.6, chipNear) : ss(0.25, 0.6, blot);
+      const m = ss(0.58, 0.82, run) * where * wear * w.streak;
       if (w.rust > 0) {
-        tint(t, RUST[0], RUST[1], RUST[2], m * 1.4 > 1 ? 1 : m * 1.4);
+        tint(t, RUST[0], RUST[1], RUST[2], m * 1.3 > 0.85 ? 0.85 : m * 1.3);
         t.rough += (0.85 - t.rough) * m;
         t.metal *= 1 - m;
       } else {
         mul(t, 1 - 0.6 * m);
-      }
-    }
-    // Paint and render failing in patches: the coat is gone, the substrate shows a step lower.
-    if (w.chip > 0 && wear > 0.15) {
-      const chip = fbm(u, v, 7, 7, 5, c.seed + 911);
-      const edge = 0.8 - 0.3 * wear * w.chip;
-      const m = ss(edge, edge + 0.025, chip);
-      if (m > 0) {
-        if (w.rust > 0) {
-          const k = 0.7 + 0.6 * fbm(u, v, 48, 48, 2, c.seed + 913);
-          tint(t, RUST[0] * k, RUST[1] * k, RUST[2] * k, m);
-          t.metal *= 1 - m;
-          t.rough += (0.9 - t.rough) * m;
-        } else {
-          const l = (t.r + t.g + t.b) / 3;
-          const grit = 0.9 + 0.2 * fbm(u, v, 56, 56, 2, c.seed + 913);
-          tint(t, (l * 0.78 + 0.06) * grit, (l * 0.7 + 0.05) * grit, (l * 0.62 + 0.04) * grit, m);
-          t.rough += (0.95 - t.rough) * m;
-        }
-        t.h -= 0.18 * m;
-        t.crease = Math.max(t.crease, m * (1 - m) * 4 * 0.6);
+        t.rough += c.wet > 0.05 ? -0.35 * m * t.rough : 0.1 * m;
       }
     }
     // Moss and algae where water sits.
@@ -181,24 +203,63 @@ export function sampleSurface(def: SurfaceDef, base: readonly [number, number, n
   return t;
 }
 
-/** Runs a generator over a size x size tile and packs albedo, normal and data maps. */
-export function renderSurface(def: SurfaceDef, base: readonly [number, number, number], opts: RenderOpts): SurfacePixels {
+/** Darkness of hollows, strength of the normal grain and how far proud edges rub pale, by family. */
+const FINISH: Record<SurfaceFamily, { cavity: number; micro: number; rub: number }> = {
+  wood: { cavity: 0.55, micro: 0.09, rub: 0.1 },
+  masonry: { cavity: 0.6, micro: 0.13, rub: 0.14 },
+  render: { cavity: 0.5, micro: 0.12, rub: 0.08 },
+  metal: { cavity: 0.5, micro: 0.045, rub: 0.2 },
+  glass: { cavity: 0.3, micro: 0.008, rub: 0 },
+  roof: { cavity: 0.6, micro: 0.1, rub: 0.1 },
+  fabric: { cavity: 0.35, micro: 0.04, rub: 0 },
+  organic: { cavity: 0.5, micro: 0.03, rub: 0 },
+  mineral: { cavity: 0.3, micro: 0.015, rub: 0 },
+  ground: { cavity: 0.45, micro: 0.1, rub: 0 },
+  paint: { cavity: 0.3, micro: 0.05, rub: 0.15 },
+};
+
+/** Steepest slope a normal may take: keeps z above 0.3 so a texel never faces along the wall. */
+const MAX_SLOPE = 3;
+
+// Scratch fields for the blurred height, kept between renders of the same size.
+let fieldSize = 0;
+let fieldH = new Float32Array(0);
+let fieldA = new Float32Array(0);
+let fieldB = new Float32Array(0);
+
+/** A render in progress: rows are generated over any number of calls, then finished once. */
+export interface SurfaceJob {
+  readonly size: number;
+  /** Rows generated so far. */
+  rows: number;
+  readonly pixels: SurfacePixels;
+  readonly def: SurfaceDef;
+  readonly ctx: GenCtx;
+  readonly height: Float32Array;
+}
+
+export function beginSurface(def: SurfaceDef, base: readonly [number, number, number], opts: RenderOpts): SurfaceJob {
   const size = opts.size;
   const n = size * size;
-  const albedo = new Uint8ClampedArray(n * 4);
-  const normal = new Uint8ClampedArray(n * 4);
-  const data = new Uint8ClampedArray(n * 4);
-  const height = new Float32Array(n);
-  const ctx = context(base, opts);
+  return {
+    size, rows: 0, def, ctx: context(base, opts), height: new Float32Array(n),
+    pixels: { size, albedo: new Uint8ClampedArray(n * 4), normal: new Uint8ClampedArray(n * 4), data: new Uint8ClampedArray(n * 4) },
+  };
+}
+
+/** Generates up to `count` more rows; returns true while rows remain. */
+export function stepSurface(job: SurfaceJob, count: number): boolean {
+  const { size, def, ctx, height } = job;
+  const { albedo, data } = job.pixels;
   const t = SCRATCH;
-  for (let y = 0; y < size; y++) {
+  const end = Math.min(size, job.rows + count);
+  for (let y = job.rows; y < end; y++) {
     const v = (y + 0.5) / size;
     for (let x = 0; x < size; x++) {
-      const u = (x + 0.5) / size;
-      texel(def, u, v, t, ctx);
+      texel(def, (x + 0.5) / size, v, t, ctx);
       const i = y * size + x;
       const o = i * 4;
-      const h = sat(t.h);
+      const h = t.h < 0 ? 0 : t.h > 1 ? 1 : t.h;
       height[i] = h;
       albedo[o] = t.r * 255;
       albedo[o + 1] = t.g * 255;
@@ -210,8 +271,84 @@ export function renderSurface(def: SurfaceDef, base: readonly [number, number, n
       data[o + 3] = 255;
     }
   }
+  job.rows = end;
+  return end < size;
+}
+
+/** One wrapped box blur of radius `r` along x, written transposed, so two calls blur both ways. */
+function blurT(src: Float32Array, dst: Float32Array, size: number, r: number): void {
+  const inv = 1 / (2 * r + 1);
+  for (let y = 0; y < size; y++) {
+    const row = y * size;
+    let sum = 0;
+    for (let k = -r; k <= r; k++) sum += src[row + ((k + size) % size)] as number;
+    for (let x = 0; x < size; x++) {
+      dst[x * size + y] = sum * inv;
+      const add = x + r + 1;
+      const drop = x - r;
+      sum += (src[row + (add >= size ? add - size : add)] as number) - (src[row + (drop < 0 ? drop + size : drop)] as number);
+    }
+  }
+}
+
+/** Cavity shading, the normal map and its grain. Call once, after the last row. */
+export function finishSurface(job: SurfaceJob): SurfacePixels {
+  const { size, def, ctx, height } = job;
+  const { albedo, normal, data } = job.pixels;
+  const n = size * size;
+  if (fieldSize !== size) {
+    fieldSize = size;
+    fieldH = new Float32Array(n);
+    fieldA = new Float32Array(n);
+    fieldB = new Float32Array(n);
+  }
+  const fin = FINISH[def.family];
+  const cavity = def.cavity ?? fin.cavity;
+  const micro = def.micro ?? fin.micro;
+  const rub = fin.rub * ctx.wear;
+  // Mean height of the neighbourhood: two box passes each way, a few percent of the tile wide.
+  const r = Math.max(1, Math.round(size / 80));
+  blurT(height, fieldA, size, r);
+  blurT(fieldA, fieldB, size, r);
+  blurT(fieldB, fieldA, size, r);
+  blurT(fieldA, fieldH, size, r);
+  const gain = 5.5;
+  // Shading the hollows must not shift the tile's overall colour away from the one asked for: the
+  // mean darkening is measured first and given back to every texel (within reason).
+  let shadeSum = 0;
+  for (let i = 0; i < n; i++) {
+    const d = ((fieldH[i] as number) - (height[i] as number)) * gain;
+    if (d > 0) shadeSum += cavity * (d > 1 ? 1 : d);
+  }
+  const lift = Math.min(1.3, 1 / (1 - shadeSum / n));
+  for (let i = 0; i < n; i++) {
+    const d = (fieldH[i] as number) - (height[i] as number);
+    const o = i * 4;
+    if (d > 0) {
+      const c = d * gain > 1 ? 1 : d * gain;
+      const k = (1 - cavity * c) * lift;
+      albedo[o] = (albedo[o] as number) * k;
+      albedo[o + 1] = (albedo[o + 1] as number) * k;
+      albedo[o + 2] = (albedo[o + 2] as number) * k;
+      data[o + 1] = (data[o + 1] as number) + (255 - (data[o + 1] as number)) * 0.35 * c;
+    } else {
+      // Proud arrises wear first: the colour lifts toward a paler, greyer version of itself.
+      const e = -d * gain * 1.4 > 1 ? 1 : -d * gain * 1.4;
+      const a = rub * e;
+      const r0 = (albedo[o] as number) * lift;
+      const g0 = (albedo[o + 1] as number) * lift;
+      const b0 = (albedo[o + 2] as number) * lift;
+      const grey = ((r0 + g0 + b0) / 3) * 1.25 + 14;
+      albedo[o] = r0 + (grey - r0) * a;
+      albedo[o + 1] = g0 + (grey - g0) * a;
+      albedo[o + 2] = b0 + (grey - b0) * a;
+    }
+  }
   // Normal from the height field with a wrapped Sobel kernel. Slope = relief / texel size, both in metres.
   const k = (def.relief / (def.scale / size)) / 8;
+  // The grain is specified at 512 texels; a 256 map carries half the slope so both look alike.
+  const grain = micro * (size / 512);
+  const seed = ctx.seed + 4099;
   for (let y = 0; y < size; y++) {
     const ym = ((y + size - 1) % size) * size;
     const yc = y * size;
@@ -223,8 +360,14 @@ export function renderSurface(def: SurfaceDef, base: readonly [number, number, n
         - (height[ym + xm] as number) - 2 * (height[yc + xm] as number) - (height[yp + xm] as number);
       const gy = (height[yp + xm] as number) + 2 * (height[yp + x] as number) + (height[yp + xp] as number)
         - (height[ym + xm] as number) - 2 * (height[ym + x] as number) - (height[ym + xp] as number);
-      const nx = -gx * k;
-      const ny = -gy * k;
+      let nx = -gx * k + (hash2(x, y, seed) - 0.5) * grain;
+      let ny = -gy * k + (hash2(x, y, seed + 1) - 0.5) * grain;
+      const steep = nx * nx + ny * ny;
+      if (steep > MAX_SLOPE * MAX_SLOPE) {
+        const f = MAX_SLOPE / Math.sqrt(steep);
+        nx *= f;
+        ny *= f;
+      }
       const inv = 1 / Math.sqrt(nx * nx + ny * ny + 1);
       const o = (yc + x) * 4;
       normal[o] = (nx * inv * 0.5 + 0.5) * 255;
@@ -233,7 +376,14 @@ export function renderSurface(def: SurfaceDef, base: readonly [number, number, n
       normal[o + 3] = 255;
     }
   }
-  return { size, albedo, normal, data };
+  return job.pixels;
+}
+
+/** Runs a generator over a size x size tile and packs albedo, normal and data maps. */
+export function renderSurface(def: SurfaceDef, base: readonly [number, number, number], opts: RenderOpts): SurfacePixels {
+  const job = beginSurface(def, base, opts);
+  stepSurface(job, opts.size);
+  return finishSurface(job);
 }
 
 /** Parses "#rrggbb" to sRGB 0..1; anything else gives mid grey. */

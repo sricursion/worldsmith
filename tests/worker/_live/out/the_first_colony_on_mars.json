@@ -1,0 +1,888 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "the first colony on Mars",
+  "title": "First Light on Mars",
+  "tagline": "Four colonists keep the dome lit against the red dark.",
+  "theme": "scifi",
+  "era": "near future",
+  "palette": {
+    "ground": "#585f68",
+    "accent": "#ff9330",
+    "sky": "dusk",
+    "fog": 0.3
+  },
+  "time": {
+    "startHour": 17.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "hab_one",
+      "role": "house",
+      "label": "Hab One",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "hab_dome_form"
+    },
+    {
+      "id": "hab_two",
+      "role": "lab",
+      "label": "Greenhouse Dome",
+      "size": "medium",
+      "blueprint": "lab_stack_form"
+    },
+    {
+      "id": "comms_mast",
+      "role": "command",
+      "label": "Relay Mast",
+      "size": "medium",
+      "blueprint": "comms_mast_form"
+    },
+    {
+      "id": "ore_store",
+      "role": "warehouse",
+      "label": "Ore Store",
+      "size": "small",
+      "blueprint": "comms_mast_form"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "commander_vance",
+      "name": "Commander Rhea Vance",
+      "role": "commander",
+      "persona": "Clipped and precise, she counts everything in hours of margin and never uses first names. She wants all ninety-one crew alive when the supply ship docks in nine days. She is afraid the company will sell Cinder to the Orion Combine if the reactor fails.",
+      "knowledge": [
+        "The reactor coolant loop is bleeding pressure and the spare injector is somewhere in Cold Stores.",
+        "The supply ship arrives in nine days and can carry thirty people at most.",
+        "Orion Combine has offered to buy the lease at a fraction of its worth."
+      ],
+      "secrets": [
+        "She has already drafted an evacuation order that leaves the refinery crew behind, and has shown it to no one."
+      ],
+      "home": "comms_mast",
+      "work": "comms_mast",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "comms_mast",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "hab_two",
+          "activity": "eat"
+        },
+        {
+          "hour": 13,
+          "place": "comms_mast",
+          "activity": "work"
+        },
+        {
+          "hour": 18,
+          "place": "hab_one",
+          "activity": "patrol"
+        },
+        {
+          "hour": 22,
+          "place": "comms_mast",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "chief_oku",
+          "stance": "friend"
+        },
+        {
+          "npcId": "pilot_dax",
+          "stance": "neutral"
+        },
+        {
+          "npcId": "dr_bright",
+          "stance": "neutral"
+        }
+      ],
+      "appearance": {
+        "base": "knight",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0.4,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0.5,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.9,
+        "rate": 1
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "chief_oku",
+      "name": "Chief Engineer Tomas Oku",
+      "role": "engineer",
+      "persona": "Wiry and sleepless, he talks to the reactor like a skittish animal and swears in three languages. He wants one clean week of readings so he can stop doubting his own hands. He is afraid the failure will be blamed on him because his badge was used at the valve.",
+      "knowledge": [
+        "The primary coolant valve was set to bleed by a hand-entered override at 03:10 two nights ago.",
+        "His access badge shows as the one that opened the override, but he was asleep.",
+        "The replacement coolant injector must be installed by hand in suits."
+      ],
+      "secrets": [
+        "He once fudged a safety log to keep the station on schedule, so he fears an audit more than the reactor."
+      ],
+      "home": "comms_mast",
+      "work": "hab_one",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "hab_one",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "hab_two",
+          "activity": "eat"
+        },
+        {
+          "hour": 13,
+          "place": "hab_one",
+          "activity": "work"
+        },
+        {
+          "hour": 19,
+          "place": "hab_two",
+          "activity": "drink"
+        },
+        {
+          "hour": 23,
+          "place": "comms_mast",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "commander_vance",
+          "stance": "friend"
+        },
+        {
+          "npcId": "dr_bright",
+          "stance": "friend"
+        },
+        {
+          "npcId": "pilot_dax",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "ranger",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 0.9,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0.3,
+          "follow_player": 0,
+          "work": 0.6
+        }
+      },
+      "voice": {
+        "pitch": 1.1,
+        "rate": 1.2
+      },
+      "mood": "afraid"
+    },
+    {
+      "id": "dr_bright",
+      "name": "Dr. Imani Bright",
+      "role": "scientist",
+      "persona": "Dry-witted and absent-minded, she narrates her own thoughts and leaves cold coffee on every surface. She wants the regolith samples published before the lease is sold. She is afraid of being proved wrong in public.",
+      "knowledge": [
+        "She keeps a mirror of the station door-access log in the lab, because she distrusts the main server.",
+        "The override at the reactor was entered from a terminal in the hangar corridor.",
+        "Her samples show the moon’s ice is richer than the company reports admit."
+      ],
+      "secrets": [
+        "She sold early data to the Orion Combine a year ago for equipment money and has regretted it ever since."
+      ],
+      "home": "comms_mast",
+      "work": "hab_two",
+      "schedule": [
+        {
+          "hour": 8,
+          "place": "hab_two",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "hab_two",
+          "activity": "eat"
+        },
+        {
+          "hour": 13,
+          "place": "hab_two",
+          "activity": "work"
+        },
+        {
+          "hour": 18,
+          "place": "hab_one",
+          "activity": "wander"
+        },
+        {
+          "hour": 23,
+          "place": "comms_mast",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "chief_oku",
+          "stance": "friend"
+        },
+        {
+          "npcId": "mika_tanaka",
+          "stance": "friend"
+        },
+        {
+          "npcId": "commander_vance",
+          "stance": "neutral"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 1.1,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0.2,
+          "flee": 0,
+          "investigate": 0.6,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.2,
+        "rate": 1.1
+      },
+      "mood": "calm"
+    },
+    {
+      "id": "pilot_dax",
+      "name": "Dax Orlov",
+      "role": "pilot",
+      "persona": "Easy grin, hard eyes, and a habit of tapping two fingers on any surface when he is thinking about leaving. He wants his debts to the Combine cleared and a berth off Kestrel. He is afraid the commander will find out he took their money.",
+      "knowledge": [
+        "The hangar corridor terminal is the only one without a camera.",
+        "The supply ship can take thirty people, and he is a certified pilot for it.",
+        "He drinks at the Slag Heap most evenings."
+      ],
+      "secrets": [
+        "The Orion Combine paid him to slow the coolant loop just enough to force a sale, never to melt it down; the override went further than he intended."
+      ],
+      "home": "comms_mast",
+      "work": "hab_one",
+      "schedule": [
+        {
+          "hour": 8,
+          "place": "hab_one",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "hab_two",
+          "activity": "eat"
+        },
+        {
+          "hour": 14,
+          "place": "hab_one",
+          "activity": "work"
+        },
+        {
+          "hour": 19,
+          "place": "hab_two",
+          "activity": "drink"
+        },
+        {
+          "hour": 23,
+          "place": "comms_mast",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "mika_tanaka",
+          "stance": "friend"
+        },
+        {
+          "npcId": "chief_oku",
+          "stance": "suspicious"
+        },
+        {
+          "npcId": "commander_vance",
+          "stance": "neutral"
+        }
+      ],
+      "appearance": {
+        "base": "rogue",
+        "palette": 3
+      },
+      "temperament": {
+        "tau": 1.2,
+        "bias": {
+          "continue": 0,
+          "go_to": 0.3,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": 0.5,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.95,
+        "rate": 1.05
+      },
+      "mood": "afraid"
+    },
+    {
+      "id": "mika_tanaka",
+      "name": "Mika Tanaka",
+      "role": "bartender",
+      "persona": "Calm and unflappable, she pours with one hand and keeps a ledger with the other. She calls everyone 'crew' and means it. She wants the Slag Heap to stay the one place nobody talks shop, and she is afraid of a fight on her floor.",
+      "knowledge": [
+        "Dax drank alone two nights ago and left at 02:50 in a hurry.",
+        "The cantina sells rationed synth-whiskey on a strict ledger.",
+        "The reactor crew drinks here after shift and gossips freely."
+      ],
+      "secrets": [
+        "She watched Dax leave toward the hangar corridor and said nothing, because he is her friend."
+      ],
+      "home": "comms_mast",
+      "work": "hab_two",
+      "schedule": [
+        {
+          "hour": 2,
+          "place": "comms_mast",
+          "activity": "sleep"
+        },
+        {
+          "hour": 10,
+          "place": "hab_two",
+          "activity": "work"
+        },
+        {
+          "hour": 15,
+          "place": "ore_store",
+          "activity": "trade"
+        },
+        {
+          "hour": 17,
+          "place": "hab_two",
+          "activity": "work"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "pilot_dax",
+          "stance": "friend"
+        },
+        {
+          "npcId": "dr_bright",
+          "stance": "friend"
+        },
+        {
+          "npcId": "brannock_hauler",
+          "stance": "neutral"
+        }
+      ],
+      "appearance": {
+        "base": "barbarian",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 1,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.5,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.3
+        }
+      },
+      "voice": {
+        "pitch": 1,
+        "rate": 0.95
+      },
+      "mood": "calm"
+    },
+    {
+      "id": "brannock_hauler",
+      "name": "Brannock Teague",
+      "role": "hauler",
+      "persona": "A broad, taciturn loader who answers in grunts and then, unexpectedly, in full sentences about cargo. He wants to be left alone with his manifests. He is afraid of heights and of the new override that keeps locking his doors.",
+      "knowledge": [
+        "The spare coolant injector is in the third cold locker, behind the oxygen cylinders.",
+        "The warehouse door logged a manual lock at 03:05 two nights ago.",
+        "Dax asked him last week which locker held the spare injector."
+      ],
+      "secrets": [
+        "He saw Dax in Cold Stores at three in the morning two nights ago and let him pass, assuming it was an errand for the commander."
+      ],
+      "home": "comms_mast",
+      "work": "ore_store",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "ore_store",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "hab_two",
+          "activity": "eat"
+        },
+        {
+          "hour": 13,
+          "place": "ore_store",
+          "activity": "work"
+        },
+        {
+          "hour": 19,
+          "place": "ore_store",
+          "activity": "wander"
+        },
+        {
+          "hour": 22,
+          "place": "comms_mast",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "mika_tanaka",
+          "stance": "neutral"
+        },
+        {
+          "npcId": "pilot_dax",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "barbarian",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 0.9,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0.2,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.7
+        }
+      },
+      "voice": {
+        "pitch": 0.55,
+        "rate": 0.8
+      },
+      "mood": "calm"
+    }
+  ],
+  "items": [
+    {
+      "id": "coolant_injector",
+      "name": "Spare coolant injector",
+      "description": "A heavy brass-and-ceramic injector assembly in a foam cradle.",
+      "holder": "ore_store"
+    },
+    {
+      "id": "access_log",
+      "name": "Door-access log mirror",
+      "description": "A data slate with a copy of the station door-access log.",
+      "holder": "dr_bright"
+    }
+  ],
+  "quest": {
+    "id": "failing_reactor",
+    "title": "Coolant Loop",
+    "hook": "Reactor Hall 1 is bleeding coolant faster than the engineers can patch it, and the override that did it was entered by hand. Commander Vance needs the loop stabilised and the hand identified before the supply ship arrives.",
+    "giver": "commander_vance",
+    "steps": [
+      {
+        "id": "briefing",
+        "kind": "talk",
+        "target": "commander_vance",
+        "requires": [],
+        "objective": "Take the commander’s briefing on Command Deck.",
+        "beat": "Vance gives you nine days, a spare injector somewhere in Cold Stores, and a warning that the sabotage was an inside job.",
+        "reveals": [
+          "commander_vance:0"
+        ]
+      },
+      {
+        "id": "inspect_reactor",
+        "kind": "visit",
+        "target": "hab_one",
+        "requires": [
+          "briefing"
+        ],
+        "objective": "Inspect the failing coolant loop in Reactor Hall 1.",
+        "beat": "The coolant manifold hisses. The override log shows a hand-entered command at 03:10 under Oku’s badge."
+      },
+      {
+        "id": "get_injector",
+        "kind": "fetch",
+        "target": "coolant_injector",
+        "item": "coolant_injector",
+        "requires": [
+          "inspect_reactor"
+        ],
+        "objective": "Take the spare injector from Cold Stores.",
+        "beat": "Brannock grunts, nods at the third locker and watches you lift the foam cradle out.",
+        "reveals": [
+          "brannock_hauler:0"
+        ]
+      },
+      {
+        "id": "fit_injector",
+        "kind": "deliver",
+        "target": "chief_oku",
+        "item": "coolant_injector",
+        "requires": [
+          "get_injector"
+        ],
+        "objective": "Bring the injector to Chief Oku.",
+        "beat": "Oku installs it in suits, swearing the whole time. The loop stabilises and the alarm falls silent for the first time in days.",
+        "reveals": [
+          "chief_oku:0"
+        ]
+      },
+      {
+        "id": "get_log",
+        "kind": "fetch",
+        "target": "access_log",
+        "item": "access_log",
+        "requires": [
+          "fit_injector"
+        ],
+        "objective": "Collect the door-access log mirror from Dr. Bright.",
+        "beat": "Bright hands over the slate and points to a hangar-corridor entry at 03:07, badge cloned.",
+        "reveals": [
+          "dr_bright:0"
+        ]
+      },
+      {
+        "id": "face_dax",
+        "kind": "confront",
+        "target": "pilot_dax",
+        "requires": [
+          "get_log"
+        ],
+        "objective": "Confront Dax Orlov at the hangar.",
+        "beat": "Dax taps the console, then breaks. The Combine paid him to slow the loop, and the override went further than he meant.",
+        "reveals": [
+          "pilot_dax:0",
+          "mika_tanaka:0"
+        ]
+      },
+      {
+        "id": "end_report",
+        "kind": "deliver",
+        "target": "commander_vance",
+        "item": "access_log",
+        "requires": [
+          "face_dax"
+        ],
+        "objective": "Report to the commander with the access log.",
+        "beat": "Vance reads the log, orders Dax into holding, and cancels her evacuation draft. The station survives with its crew intact."
+      },
+      {
+        "id": "end_run",
+        "kind": "talk",
+        "target": "pilot_dax",
+        "requires": [
+          "face_dax"
+        ],
+        "objective": "Offer Dax a chance to fly the supply run first.",
+        "beat": "Dax accepts, flies the repair burn, and disappears on the first ship out. The station lives; the Combine learns nothing."
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "end_report",
+        "label": "The saboteur held, the station kept",
+        "tone": "good"
+      },
+      {
+        "stepId": "end_run",
+        "label": "The reactor holds and the culprit walks free",
+        "tone": "bitter"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "night_cycle_lockdown",
+      "text": "Night cycle: crew stay in the habitat ring between 23:00 and 05:00, except command staff and reactor crew.",
+      "effect": {
+        "type": "curfew",
+        "fromHour": 23,
+        "toHour": 5,
+        "exemptRoles": [
+          "commander",
+          "engineer"
+        ]
+      },
+      "source": "world"
+    },
+    {
+      "id": "no_suits_cantina",
+      "text": "No vacuum suits in the Slag Heap; the commander enforces it.",
+      "effect": {
+        "type": "ban",
+        "what": "wearing vacuum suits",
+        "where": "hab_two",
+        "enforcer": "commander_vance"
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "sol",
+    "regolith",
+    "airlock",
+    "hab",
+    "Olympus",
+    "scrubber"
+  ],
+  "style": {
+    "name": "brushed alloy and amber",
+    "wall": "#b9c0c8",
+    "wall2": "#6a7480",
+    "roof": "#39424e",
+    "trim": "#e6ebf0",
+    "accent": "#ff9330",
+    "dark": "#11151a",
+    "glass": "#1a3548",
+    "glow": "#58e0ff",
+    "ground": "#585f68",
+    "road": "#343a42",
+    "variety": 0.12,
+    "surfaces": {
+      "wall": "hull_plate",
+      "wall2": "metal_panel",
+      "roof": "hull_plate",
+      "trim": "metal_panel",
+      "ground": "regolith",
+      "road": "metal_panel",
+      "wear": 0.3,
+      "wet": 0
+    }
+  },
+  "site": {
+    "pattern": "scatter",
+    "wild": 0.1,
+    "paths": "track",
+    "spacing": 12
+  },
+  "mood": {
+    "weather": "dust",
+    "intensity": 0.4,
+    "grade": "crimson",
+    "haze": 0.6,
+    "ambience": [
+      "wind",
+      "machinery"
+    ],
+    "music": "low synth drone"
+  },
+  "terrain": {
+    "relief": "craggy",
+    "ruggedness": 0.6,
+    "water": "none",
+    "waterAmount": 0,
+    "horizon": "rust-red crater rim under thin pink sky",
+    "settled": 0.15
+  },
+  "skyFeatures": [
+    {
+      "kind": "moon",
+      "size": 0.06,
+      "color": "#d8c8b0"
+    },
+    {
+      "kind": "moon",
+      "size": 0.04,
+      "color": "#b8a890"
+    }
+  ],
+  "creatures": [
+    {
+      "id": "rover_a",
+      "name": "survey rover",
+      "family": "crawler",
+      "dials": {
+        "legs": 0.3,
+        "pairs": 3
+      },
+      "size": 2.4,
+      "count": 3,
+      "behaviour": "patrol",
+      "haunt": "wild",
+      "body": "#c9b79c",
+      "accent": "#d98641",
+      "glow": "#ffb347",
+      "note": "Six wheels, dust on its sensor mast."
+    },
+    {
+      "id": "drone_a",
+      "name": "scout drone",
+      "family": "floater",
+      "dials": {
+        "shape": "disc",
+        "tentacles": 0,
+        "hover": 6
+      },
+      "size": 0.6,
+      "count": 2,
+      "behaviour": "circle",
+      "haunt": "sky",
+      "body": "#e6e6e6",
+      "accent": "#306f9f",
+      "glow": "#7fd6ff",
+      "note": "Blinks red when it logs a sample."
+    }
+  ],
+  "folk": {
+    "name": "colonists",
+    "height": 1.75,
+    "bulk": 0.5,
+    "head": 1,
+    "features": [
+      "visor",
+      "pack"
+    ],
+    "skin": [
+      "#c8a282",
+      "#8d5e42"
+    ],
+    "cloth": [
+      "#e8e4dc",
+      "#5a6470"
+    ],
+    "trim": [
+      "#d98641",
+      "#3d4a57"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "hab_dome_form",
+      "summary": "pressurised dome with airlock pods",
+      "family": "dome",
+      "dials": {
+        "flatness": 0.4,
+        "drum": 2,
+        "oculus": 0.7,
+        "ribs": 4,
+        "pods": 3
+      },
+      "parts": [],
+      "doorX": 0
+    },
+    {
+      "id": "lab_stack_form",
+      "summary": "stacked habitat modules",
+      "family": "block",
+      "dials": {
+        "modules": 5,
+        "offset": 0.4,
+        "cantilever": 0.2
+      },
+      "parts": [],
+      "doorX": 0
+    },
+    {
+      "id": "comms_mast_form",
+      "summary": "tall lattice mast with dish",
+      "family": "tower",
+      "dials": {
+        "height": 22,
+        "section": "square",
+        "taper": 0.8,
+        "bands": 4,
+        "top": "needle",
+        "flare": 0.3
+      },
+      "parts": [],
+      "doorX": 0
+    }
+  ],
+  "props": [
+    {
+      "kind": "regolith_boulders",
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 4,
+        "height": 0.6,
+        "jagged": 0.6,
+        "flat": 0.3
+      },
+      "size": 3,
+      "weight": 5,
+      "parts": []
+    },
+    {
+      "kind": "antenna_post",
+      "family": "pole",
+      "dials": {
+        "head": "antenna",
+        "height": 3,
+        "arms": 2
+      },
+      "size": 2.5,
+      "weight": 1,
+      "parts": []
+    },
+    {
+      "kind": "supply_tanks",
+      "family": "container",
+      "dials": {
+        "form": "tank",
+        "count": 2,
+        "height": 1
+      },
+      "size": 1.6,
+      "weight": 2,
+      "parts": []
+    }
+  ],
+  "landmarks": []
+}

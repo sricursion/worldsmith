@@ -1,94 +1,116 @@
 // Stage A of POST /api/compile: the look. The model picks a structural skeleton and dial settings for each
-// building archetype, then adds the parts that make it belong to this world, plus palette, surface materials,
-// props and landmarks. It runs in parallel with the story stage and needs only the outline.
+// structure archetype, then adds the parts that make it belong to this world, plus the colour style, surface
+// materials, vegetation and other props, and landmarks. It runs in parallel with the story stage and needs
+// only the outline. The art direction is grounded realism: muted material-true colour, real scale, weight.
 import { skeletonCatalogText } from '../../../app/src/world/skeletons';
 import { outlineBrief } from './compile';
 import type { Outline } from './compilemerge';
 
-const ROLE = `You are the art director for Townforge, a browser game that turns a short prompt into a small playable low-poly world. An outline of the world is given: the kind of place, its layout and its structures. Design how it looks, as data: a colour style, what every surface is made of, building blueprints, props and landmarks. Reply with ONE JSON object and nothing else: no prose, no code fence. The engine builds the geometry from your data in one flat-shaded low-poly style, so whatever the player typed (a forest of giant mushrooms, a city of glass needles, a caravan camp) must come out looking like that world and no other.`;
+const ROLE = `You are the art director for a first-person browser game that turns a short prompt into a small playable world. An outline of the world is given: the land, how built-up it is, its structures and what lives there. Design how it looks, as data: a colour style, what every surface is made of, structure blueprints, vegetation and other props, and landmarks. Reply with ONE JSON object and nothing else: no prose, no code fence.
+
+The look is GROUNDED REALISM, the opposite of a toy. Colours are natural, muted and true to the material. Structures have real proportions and real scale, and they are weathered. Contrast comes from value (light against dark), never from saturation. Nothing glows unless it is a real light source. Whatever the player typed, a rainforest, a dune sea, a colony on Mars, a gothic city, must read as that place photographed in that light, not as a play set.`;
 
 const PRINCIPLE = `Skeletons and bodies. A blueprint has two layers.
-- The SKELETON is a family from the catalogue below, with dials. It fixes only structure: massing, proportions, where the roof and the openings go. Every human shares nearly the same skeleton, and the skeleton never decides how a person looks. Likewise a family never decides what a building looks like in this world.
-- The BODY is everything you add: dial settings chosen boldly, the colours, and 3 to 8 extra parts that give this building this world's character (a mushroom's gills and spots, a tent's tassels, glowing fins on a spire). The skeleton already supplies a sound body, roof and front openings, so do not rebuild them; add what is specific to this world.
-Blueprints use the structure families; props use the nature and object families. Method for every blueprint: (1) read the outline's "form" for the structure and pick the family whose structure fits (a tall slim form needs a tall slim family, a round pod a round family); (2) set the dials boldly so the silhouette differs from the others: push height, width, taper and roof style to the ends of their ranges when the world calls for it; (3) ADD parts for character.
+- The SKELETON is a family from the catalogue below, with dials. It fixes only structure: massing, proportions, where the roof and the openings go. A family never decides what a structure looks like in this world.
+- The BODY is everything you add: the dial settings, the materials and colours, and 3 to 8 extra parts that give this structure this world's character (buttresses and a rose window on a cathedral, guy wires and a dish on a mast, roots and a hollow on a fallen tree). The skeleton already supplies a sound body, roof and front openings, so do not rebuild them.
+Blueprints use the structure families; props use the nature and object families. Method for every blueprint: (1) read the outline's "form" and pick the family whose structure fits; (2) set the dials so the silhouette and height match the form; (3) ADD parts for character.
 Hard rules:
 - Never leave two blueprints with the same family and near-identical dials. If you reuse a family, move at least two dials by a third of their range or more.
-- The same ten buildings must not appear in every world. Do not reach for a house with a pitched roof, a chimney and a door unless the world is made of such houses.
-- Worlds made of one kind of thing are welcome: only great trees, only spires, only tents, only caves, only pods. Several blueprints can still share a family if the dials and extra parts differ strongly.
-- Props are the same: skeleton family plus dials plus extra parts. A forest world has a high wild value, so its props are its trees, mushrooms, rocks and ferns.`;
+- Natural and ruined points of interest are built from the same skeletons with natural surfaces: a cave mouth is an arch (thickness 0.3, pointed or round lintel) in stone with boulder parts around it; a rock arch is an arch with no towers; a giant standing tree or termite mound is a tower or spire in bark or organic; a fallen trunk is a hull with no masts in bark; a nest or crater shelter is a dome with flatness 1; standing stones are a spire with sharpness 0; ruins are a wall or tiers with high wear. Never give a cave a door, windows, a chimney or a sign.
+- If the outline has no structures, "blueprints" and "buildings" are empty arrays and the props carry the whole look.`;
+
+const SCALE = `Scale. Real places tower over a person 1.7 m tall and fill the view.
+- A storey is about 3.2 m. A door is 2.1 m. A cottage ridge is 6 m, a town house 10 m, a church nave 18 m, its tower 30 m, a grain silo 20 m, a harbour crane 30 m, a rainforest emergent 35 m.
+- Important structures stand 10 to 40 m. Reach height with the tall families: tower and spire (height up to 24 before your parts), tiers (levels 5 to 7), block (modules 8 to 12), stilts (legHeight 6 to 8), hall with 4 storeys. Then stack extra parts on top: the part limits are y 0 to 30 and h up to 30, so a spire part on a 24 m tower reaches 40 m.
+- In a settled world (settled 0.5 or more) at least TWO blueprints are taller than 12 m, and the tallest belongs to the key structure. Glass towers of a modern city use tower or block at full height with glass_curtain walls; the far skyline beyond is drawn by the engine from the outline's horizon.
+- In a wild world the tall things are natural: a rock spire 20 m, a cave mouth 10 m high, a dead tree 15 m. A camp tent stays 2.5 m: small things next to huge land is what makes the land feel vast.
+- Never shrink a structure to make it cute. Never use glow parts as decoration.`;
 
 const VOCAB = `Extra part vocabulary. A part is a compact row: [shape, x, z, y, w, d, h, rot, tone, repeat, gap].
-- shape: box (walls, floors, beams, signs), cylinder (pillars, trunks, tanks, chimneys), cone (spires, tent tops, finials), pyramid (square roofs), gable (pitched roof, ridge along local x), dome (caps, bubbles, cupolas), sphere (lamps, fruit, buoys), wedge (ramps, lean-to roofs; slope rises toward +x), arch (doorways, bridges, gates), ring (hoops, halos, rims, discs).
+- shape: box (walls, floors, beams, signs), cylinder (pillars, trunks, tanks, chimneys), cone (spires, tent tops, finials), pyramid (square roofs), gable (pitched roof, ridge along local x), dome (caps, vaults, boulders), sphere (lamps, boulders, buoys), wedge (ramps, lean-to roofs, buttresses; slope rises toward +x), arch (doorways, bridges, gates, cave mouths), ring (hoops, rims, discs).
 - x and z: the part's centre as fractions of the footprint, -0.5 to 0.5. +z is the front (the street side), -z the back, +x to the right when you face the front.
 - y: height of the part's base above ground in metres (0 to 30). w and d: fractions of the footprint (0.02 to 1.4; cylinders, cones, domes, spheres and rings use them as diameters). h: height in metres (0.05 to 30). rot: degrees about the vertical axis.
-- tone: wall, wall2 (a contrasting second wall colour), roof, trim, accent (the one bold colour), dark (doors, voids), glass (windows, dark and glossy), glow (emissive: lamps, lit windows, spores, neon).
-- repeat (1 to 12) copies the part along its local x axis, spaced gap apart (a fraction of the footprint), centred on x; use it for windows, posts, fins, spots, rungs. When repeat is 1, gap is 0.
-- Extra parts are added to the skeleton in the same footprint coordinates. A part must touch something: its base y sits on the ground or on the top of the part below it. Roof-level additions use y equal to the skeleton's top, which your dials determine (hall: storeys x 3 m; tower and spire: the height dial; shell: the stalk dial plus about 2); small errors are snapped down onto what is underneath, but parts hung in empty air are not welcome.
-- Details that sell the world: a lit door and windows on the front face (z about 0.5), signs, flags, lamps, tassels, ladders, vines, spots, fins, antennas. Skeletons put their door at the centre of the front face, so doorX is 0 unless you move it; it is the door's x on the front face, -0.4 to 0.4, and the engine sends people there.`;
+- tone: wall, wall2 (the second material), roof, trim, accent (the one worn pigment), dark (doors, voids, cave shadow), glass (windows, dark and glossy), glow (emissive: ONLY a real light source: a lamp, a lit window, a fire, a screen, lava, a beacon).
+- repeat (1 to 12) copies the part along its local x axis, spaced gap apart (a fraction of the footprint), centred on x; use it for windows, posts, buttresses, ribs, rungs. When repeat is 1, gap is 0.
+- A part must touch something: its base y sits on the ground or on the top of the part below it. Roof-level additions use y equal to the skeleton's top, which your dials determine (hall: storeys x 3 m; tower and spire: the height dial; shell: the stalk dial plus about 2).
+- Details that add weight and age: plinths and footings, buttresses, lintels, eaves, gutters and downpipes, vents, tanks, ladders, guy wires, patched panels, lean-to sheds, stacked goods, a single sign. Skeletons put their door at the centre of the front face, so doorX is 0 unless you move it; it is the door's x on the front face, -0.4 to 0.4.`;
 
-const EXAMPLE = `Worked example (a mushroom inn in a fungus-forest world; copy the method, not the values):
-{"id":"cap_inn","summary":"wide red-capped mushroom inn with glowing gills","family":"shell","dials":{"stalk":3.5,"cap":0.95,"droop":0.7,"lobes":3},"parts":[["sphere",0,0.4,2.2,0.08,0.08,0.3,0,"glow",3,0.2],["box",0.3,0.5,0,0.14,0.03,2,0,"accent",1,0],["cylinder",0.35,0.35,0,0.06,0.06,5,0,"trim",1,0]],"doorX":0}
-A second blueprint in the same world should differ in structure and in dials, for example {"id":"stalk_home","family":"tower","dials":{"height":10,"section":"round","taper":0.6,"top":"dome"},...} for a thin stalk house.`;
+const EXAMPLE = `Worked examples (copy the method, not the values):
+{"id":"cathedral","summary":"soot-black stone cathedral, nave 18 m with a 34 m west tower","family":"hall","dials":{"storeys":4,"roof":"gable","overhang":0.05,"front":"plain","rhythm":6,"chimney":0,"taper":0},"parts":[["box",0,0.42,0,0.34,0.3,26,0,"wall",1,0],["cone",0,0.42,26,0.3,0.26,8,0,"roof",1,0],["wedge",-0.5,0,0,0.12,0.08,9,90,"wall2",5,0.2],["arch",0,0.5,0,0.2,0.04,5,0,"dark",1,0],["ring",0,0.58,13,0.18,0.02,3,0,"glass",1,0],["box",0,0.5,6,0.03,0.02,2.6,0,"glow",3,0.12]],"doorX":0}
+{"id":"cave_mouth","summary":"jagged basalt cave mouth 11 m high in a rock face","family":"arch","dials":{"span":0.7,"thickness":0.3,"lintel":"pointed","towers":0},"parts":[["dome",-0.4,-0.1,0,0.5,0.6,7,0,"wall",1,0],["dome",0.42,-0.05,0,0.45,0.55,9,0,"wall",1,0],["box",0,-0.2,0,0.6,0.5,8,0,"dark",1,0],["sphere",0.3,0.4,0,0.2,0.2,1.4,0,"wall2",2,0.5]],"doorX":0}`;
 
 const STYLE = `Style. style has name, wall, wall2, roof, trim, accent, dark, glass, glow, ground, road, variety and surfaces; every colour is a #rrggbb hex.
-- Eight harmonious hexes, not a rainbow: wall and wall2 clearly different in lightness or hue, roof distinct from the walls, trim a little lighter or darker than the walls, one bold accent used sparingly, dark nearly black with a tint, glass a dark cool tint, ground and road matching the terrain of this world (moss, sand, wet stone, metal deck, snow).
-- glow is a lit colour (lantern amber, neon magenta, bioluminescent teal). variety is 0.1 to 0.4; lower for uniform places. Let the colours come from the prompt, not from convention: a mushroom forest is not brown.`;
+- Each hex is the colour of that material on an overcast day, as a camera would record it: weathered timber #6e5d4b, limewash #b9b2a2, sandstone #a8997e, soot-dark stone #4a4744, fired brick #7d5546, rusted steel #6b4a38, galvanised sheet #8b8f90, concrete #86857f, slate #45484d, thatch #8a7a55, dry sand #c2a97c, wet sand #8f7d5e, forest floor #3e4630, turf #5b6a3e, snow #dfe4e6, glacier ice #a9c3cf, Mars regolith #8c5a43, basalt #3a3837, ash #5a5653, asphalt #3b3c3e.
+- Keep saturation low. No pure or candy colours; nothing brighter than the real material. wall, wall2 and roof differ in VALUE (one light, one mid, one dark) more than in hue.
+- trim is a little lighter or darker than the walls. accent is one worn pigment used sparingly (oxblood, faded teal, ochre, verdigris), never neon unless the world is lit by signs. dark is near black with a tint. glass is a dark cool tint.
+- ground and road are the land the outline describes: sand for dunes, snow for an icefield, leaf litter or moss for forest, regolith for Mars, asphalt and concrete for a city, ash for a volcano. They cover most of the screen, so get them right.
+- glow is the colour of this world's actual lamps or fire: sodium #ffb347, tungsten #ffd9a0, cold fluorescent #dfefff, lava #ff5a1e, a screen #7ad0ff. It appears only on light sources.
+- variety is 0.1 to 0.3.`;
 
-const SURFACES = `Surfaces. style.surfaces says what each tone is made of. The engine generates a textured, weathered material for each kind and tints it with your hex, so the kind decides whether a wall reads as rusted steel, wet plaster or living fungus. Fields wall, wall2, roof, trim, ground and road each take one kind from this list:
+const SURFACES = `Surfaces. style.surfaces says what each tone is made of. The engine generates a textured, weathered material for each kind and tints it with your hex, so the kind decides whether a wall reads as rusted steel, wet plaster or living bark. Fields wall, wall2, roof, trim, ground and road each take one kind from this list:
 - timber: squared beams and boards with grain; frames, posts, barns.
 - planks: nailed board siding with gaps; frontier fronts, shacks, decks, boardwalks.
 - log: stacked round logs; cabins, palisades, lodges.
-- plaster: smooth limewash or stucco with hairline cracks; Edo townhouses, Tudor infill, Mediterranean walls.
+- plaster: smooth limewash or stucco with hairline cracks; townhouses, Mediterranean walls.
 - adobe: hand-smoothed mud brick with soft edges; desert pueblos, kasbahs.
 - brick: coursed fired brick; mills, terraces, city blocks.
-- stone: rough-cut masonry blocks; castles, monasteries, temples, ruins.
-- cobble: rounded setts; old streets and yards, rustic wall bases.
-- concrete: cast grey slabs with stains and seams; bunkers, docks, brutalist blocks, pavements.
+- stone: rough-cut masonry or living rock; castles, cathedrals, ruins, cave mouths, rock arches.
+- cobble: rounded setts; old streets and yards.
+- concrete: cast grey slabs with stains and seams; bunkers, docks, city blocks, pavements.
 - metal_panel: clean seamed or riveted sheet; labs, stations, modern cladding, deck plates.
 - corrugated: ribbed sheet steel; shipping containers, sheds, warehouses, shanty roofs.
 - rusted: flaking oxidised steel; scrapyards, wrecks, old cranes and tanks.
-- hull_plate: heavy welded plating with hatches; ships, spacecraft, armoured habitats.
-- glass_curtain: mirrored glazing grid; towers, greenhouses, arcologies.
+- hull_plate: heavy welded plating with hatches; ships, spacecraft, pressure habitats.
+- glass_curtain: mirrored glazing grid; office towers, greenhouses.
 - shingle: overlapping wood shakes; frontier and cottage roofs.
-- tile: fired clay or glazed roof tiles; Edo, Chinese and Mediterranean roofs.
-- thatch: bundled straw or reed; village huts, tropical roofs.
+- tile: fired clay or glazed roof tiles; Japanese, Chinese and Mediterranean roofs.
+- thatch: bundled straw, reed or palm; village huts, tropical roofs.
 - slate: thin dark stone roofing; gothic, alpine and mill-town roofs.
-- canvas: stitched cloth; tents, awnings, sails, market stalls.
-- paper_screen: pale panels in a thin lattice; shoji walls, lantern skins.
-- organic: smooth living tissue; mushroom caps, pods, gourds, grown houses.
-- bark: furrowed tree bark; trunk dwellings, stalks, roots.
+- canvas: stitched cloth or hide; tents, awnings, sails, market stalls.
+- paper_screen: pale panels in a thin lattice; shoji walls.
+- organic: smooth living tissue; fungus, pods, alien growth, nests.
+- bark: furrowed tree bark; trunks, roots, fallen giants.
 - chitin: glossy segmented shell; hives, insect cities.
 - crystal: faceted translucent mineral; geodes, shard spires.
-- ice: blue-white frozen blocks; igloos, glacier halls.
-- coral: porous branching reef rock; reef and seabed towns.
-- dirt: packed bare earth; yards, frontier streets, tracks.
-- sand: fine rippled sand; deserts, beaches, seabeds.
-- grass: short turf; meadows, village greens.
-- moss: soft deep green carpet; forest floors, damp ruins.
+- ice: blue-white frozen blocks; glacier walls, igloos.
+- coral: porous branching reef rock; reefs and seabeds.
+- dirt: packed bare earth; yards, tracks, dry riverbeds.
+- sand: fine rippled sand; dunes, beaches, seabeds.
+- grass: short turf; meadows, steppe, village greens.
+- moss: soft deep green carpet; forest and jungle floors, damp ruins.
 - snow: fresh drifted snow; winter ground and snow-laden roofs.
-- mud: wet churned earth; swamps, trenches, monsoon lanes.
+- mud: wet churned earth; swamps, riverbanks, monsoon lanes.
 - asphalt: dark patched tarmac; city streets, ports, lots.
-- gravel: loose crushed stone; paths, rail beds, courtyards, raked gardens.
-- regolith: grey dusty rubble; moons, asteroids, wastelands.
+- gravel: loose crushed stone; scree, paths, rail beds, courtyards.
+- regolith: dusty rubble; moons, Mars, asteroids, wastelands.
 - ash: pale grey powder; volcanic slopes, burnt lands.
-wear is 0 (pristine) to 1 (ruined): grime, stains, rust streaks, chipped edges, moss in the creases. wet is 0 (dry) to 1 (soaked): it darkens and glosses the ground and low walls, with puddles above 0.5. wet follows the outline's weather: rain or storm 0.6 to 0.9, mist or fog about 0.3, snow about 0.15, dust or clear 0 unless the place is a swamp or a shore.
-Choose by the world, never by habit. A container port is corrugated walls, rusted wall2, corrugated roof, metal_panel trim, concrete ground, asphalt road, wear 0.7, wet 0.8. An Edo street is plaster, timber, tile, timber, gravel ground, cobble road, wear 0.3. A mushroom grove is organic, bark, organic roof, bark trim, moss ground, dirt road. A glass needle city is glass_curtain, metal_panel, metal_panel roof and trim, concrete, asphalt, wear 0.1. A snowbound monastery is stone, timber, snow on the roof, timber trim, snow ground, stone road. Any kind may go in any field when the world calls for it (a snow roof, a moss road, an ice wall). Hexes and kinds must agree: moss ground is green, rusted steel is orange-brown, snow is near white.`;
+wear is 0 (pristine) to 1 (ruined): grime, stains, rust streaks, chipped edges, moss in the creases. Real places are worn: 0.4 to 0.8 almost everywhere; under 0.2 only for new glass and fresh habitats. wet is 0 (dry) to 1 (soaked): it darkens and glosses the ground and low walls, with puddles above 0.5. wet follows the outline's weather: rain or storm 0.6 to 0.9, mist or fog about 0.3, snow about 0.15, dust or clear 0 unless the place is a swamp or a shore.
+Choose by the world, never by habit. A container port: corrugated, rusted, corrugated roof, metal_panel trim, concrete ground, asphalt road, wear 0.7, wet 0.8. The Sahara: canvas, timber, canvas roof, timber trim, sand ground, sand road. A rainforest: bark, organic, thatch roof, timber trim, moss ground, mud road, wet 0.7. Mars: hull_plate, metal_panel, hull_plate roof, metal_panel trim, regolith ground, regolith road. An Arctic outpost: metal_panel, corrugated, snow roof, metal_panel trim, snow ground, ice road. A gothic city: stone, brick, slate, stone, cobble ground, cobble road, wear 0.75. A dragon's caldera: stone, stone, stone roof, stone trim, ash ground, gravel road. Hexes and kinds must agree: moss is a dark green, rust is brown, snow is near white.`;
 
-const LIGHT = `Light and skyline.
-- glow parts bloom on screen, so they are this world's light sources: lamps, lit windows and doorways, signs, braziers, spores, screens, beacons. The outline's Air line gives the weather and the arrival hour. At dawn, dusk or night, and in rain, fog, snow or storm, every blueprint carries 2 or more glow parts (a row of lit windows made with repeat, a lamp by the door, a sign) and at least one prop is a standing light. Match style.glow to the source: sodium orange, cold fluorescent, lantern amber, bioluminescent teal.
-- A skyline is not only houses. When the outline names a set piece (crane, gantry, mast, pylon, water tower, windmill, derrick, arch, bell tower), give it its own blueprint and build it tall and open: a tower, stilts or arch family for the legs, then parts for a long box boom or beam high up (use rot to swing it), thin cylinders for cables, stays and tanks, and a glow lamp at the top. Put vertical extras on ordinary blueprints too: masts, antennas, chimneys, flagpoles, vents, signal lamps. One tall prop (size 4 to 6: a lamp pylon, a mast, a totem, a dead tree) breaks the roofline between structures.`;
+const LIGHT = `Light. The engine lights the world with one hard key (sun or moon), deep readable shadow, and a few warm practicals; you place the practicals.
+- glow parts are the only practicals. The outline's Air line gives the weather and the arrival hour. At dawn, dusk or night, and in rain, fog, snow or storm, each inhabited blueprint carries 1 to 3 glow parts where a real light would be: a lit window row (repeat), a lamp over the door, a fire. Natural structures carry none, unless it is lava, fire or something that truly emits light.
+- Few lights, well placed, beat many. A wilderness at night may have a single campfire. A city has many lit windows but they are small.
+- At least one prop is a standing light where people live (a street lamp, a lantern post, a brazier, a floodlight mast). In a place with no people there is none.`;
 
-const PROPS = `Props: 3 to 6 small scenery kinds scattered between structures: kind (snake_case slug), family and dials (from the catalogue, like blueprints), extra parts (0 to 4 rows, relative to a 1 by 1 footprint, y and h in metres relative to size), size (longest dimension in metres, 0.3 to 6) and weight (1 to 5, how common). Pick things that tell this world: trees, mushrooms, crystals, reeds, hitching posts, lanterns, crates, banners, antenna masts. At least one prop is a light source with a glow part. Make the common props (high weight) the world's ground cover: in a forest world, trees and ferns; in a needle city, signs and light posts.`;
+const PROPS = `Props: 3 to 6 kinds of scenery scattered over the open ground. In wild worlds they ARE the world: the outline's site "wild" value says how thickly they cover the land. Each has kind (snake_case slug), family and dials (from the catalogue), extra parts (0 to 3 rows, on a 1 by 1 footprint, y and h in footprint units), size and weight (1 to 5, how common).
+- size is the prop's footprint width in METRES, 0.3 to 16, and every height dial in the nature and object catalogue is in footprint units, so real height = size x the height dials. Work the sum out for each prop:
+  a rainforest emergent: tree, trunk 2, crown umbrella, crownSize 0.85, size 13 -> about 33 m tall with a 13 m crown.
+  an oak: tree, trunk 1.2, crown ball, size 8 -> about 15 m. A pine: trunk 1.6, crown cone, size 7 -> about 17 m. A date palm: trunk 2, crown palm, size 5 -> 14 m. A saguaro: crown cactus, trunk 1.6, size 3 -> 6 m.
+  ferns, reeds, scrub and flowers: size 0.8 to 2. A boulder field: rock, height 0.6, size 2 to 5. A rock stack or ice shard cluster: rock, height 1, size 6 to 10.
+  a street lamp: pole, head lamp, height 3, size 2 -> 6 m. Pole props (lamps, banners, signposts, antennas) stand 5 to 8 m and never above 9 m, unless the world is industrial (a port, a refinery, a base), where a floodlight or radio mast may reach 16 m.
+- Vegetation is the biome's own, at its real size: rainforest (emergents 30 m and more, palms, ferns, buttress trees), temperate forest (oak, pine, undergrowth), savanna (flat umbrella acacias, dry grass), desert (dead acacia, scrub, wind-cut rock; almost nothing), swamp (weeping cypress, reeds, dead snags), tundra and ice (rocks, ice shards; no trees), shore (palms or pines, tide rocks, dune grass), city (street trees, lamps, benches, bins, hydrants).
+- A world with no life has NO plants at all: Mars, a moon, an asteroid, a lava field get rocks, crystals, tanks, antennas and wreckage only. Never put a tree, bush, fern, flower or reed there.
+- The common props (weight 4 or 5) are the ground cover and the canopy; man-made props (crates, lamps, carts) are rare in the wild and common in town.`;
 
-const LANDMARKS = `Landmarks: 1 or 2 set pieces. Each has id, prompt, place ("plaza" or a structure id) and height (2 to 14 metres). The prompt goes to a text-to-3D model: describe exactly one physical object, its form, material, state and one or two details, ending with "low-poly stylised". No scene, no ground, no people, no text. Choose the world's skyline object: a great tree, a statue, a shipwreck hull, a beacon.`;
+const LANDMARKS = `Landmarks: 0 to 2 set pieces. Each has id, prompt, place ("plaza" or a structure id) and height (2 to 14 metres). The prompt goes to a text-to-3D model: describe exactly one physical object, its form, material, age and one or two details, ending with "realistic proportions, weathered". No scene, no ground, no people, no text. Choose the object a traveller would remember: a wrecked rover, a totem, a statue, a beached hull, a well. A pure wilderness may have none.`;
 
-const BUDGET = `Budget. The whole reply must stay under about 2800 output tokens. Write numbers with at most two decimals. Summaries are under 80 characters. Write 4 to 7 blueprints, each with 3 to 8 extra part rows, and 3 to 5 props with 0 to 3 rows each. Prefer repeat over copying rows.`;
+const BUDGET = `Budget. The whole reply must stay under about 2800 output tokens. Write numbers with at most two decimals. Summaries are under 80 characters and state the real height. Write one blueprint per distinct structure form, 7 at most, each with 3 to 8 extra part rows, and 3 to 6 props with 0 to 3 rows each. Prefer repeat over copying rows.`;
 
 const SHAPE = `OUTPUT FORMAT
-{"style":{"name":str,"wall":"#rrggbb","wall2":"#rrggbb","roof":"#rrggbb","trim":"#rrggbb","accent":"#rrggbb","dark":"#rrggbb","glass":"#rrggbb","glow":"#rrggbb","ground":"#rrggbb","road":"#rrggbb","variety":0.25,"surfaces":{"wall":kind,"wall2":kind,"roof":kind,"trim":kind,"ground":kind,"road":kind,"wear":0.5,"wet":0.2}},
+{"style":{"name":str,"wall":"#rrggbb","wall2":"#rrggbb","roof":"#rrggbb","trim":"#rrggbb","accent":"#rrggbb","dark":"#rrggbb","glass":"#rrggbb","glow":"#rrggbb","ground":"#rrggbb","road":"#rrggbb","variety":0.2,"surfaces":{"wall":kind,"wall2":kind,"roof":kind,"trim":kind,"ground":kind,"road":kind,"wear":0.6,"wet":0.2}},
 "blueprints":[{"id":snake_case,"summary":str,"family":str,"dials":{"<dial>":number or string},"parts":[[shape,x,z,y,w,d,h,rot,tone,repeat,gap],...],"doorX":0}],
 "buildings":[{"id":"<structure id from the outline>","blueprint":"<blueprint id>"}],
-"props":[{"kind":snake_case,"family":str,"dials":{...},"parts":[[...],...],"size":1.5,"weight":3}],
+"props":[{"kind":snake_case,"family":str,"dials":{...},"parts":[[...],...],"size":8,"weight":3}],
 "landmarks":[{"id":snake_case,"prompt":str,"place":"plaza","height":8}]}
 Write style first (with its surfaces), then blueprints, then buildings, props and landmarks. Every structure in the outline gets exactly one entry in "buildings", and every blueprint is used at least once. Structures with different forms get different blueprints; structures with the same form may share one. Use every dial name exactly as the catalogue spells it, with a value inside the listed range or from the listed choices.`;
 
@@ -96,10 +118,17 @@ let cached: string | null = null;
 
 /** Stable across requests so the prompt cache can hit; the outline and the player's prompt go in the user turn. */
 export function lookSystemPrompt(): string {
-  if (!cached) cached = [ROLE, PRINCIPLE, `SKELETON CATALOGUE\n${skeletonCatalogText()}`, VOCAB, EXAMPLE, STYLE, SURFACES, LIGHT, PROPS, LANDMARKS, BUDGET, SHAPE].join('\n\n');
+  if (!cached) cached = [ROLE, PRINCIPLE, SCALE, `SKELETON CATALOGUE\n${skeletonCatalogText()}`, VOCAB, EXAMPLE, STYLE, SURFACES, LIGHT, PROPS, LANDMARKS, BUDGET, SHAPE].join('\n\n');
   return cached;
 }
 
 export function lookUserMessage(prompt: string, seed: number, outline: Outline): string {
-  return `${outlineBrief(outline)}\n\nSeed: ${seed}\nPlayer prompt: ${prompt}\nDesign the look now: style with surfaces that fit this world and its weather, 4 to 7 blueprints (skeleton family, bold dials, extra parts), a blueprint for every structure, 3 to 5 props, 1 or 2 landmarks.`;
+  const n = outline.buildings.length;
+  const settled = outline.terrain.settled >= 0.5;
+  const structures = n === 0
+    ? 'no blueprints (nothing is built here)'
+    : settled
+      ? `a blueprint for every structure form (at least two taller than 12 m)`
+      : `a blueprint for each of the ${n} point${n === 1 ? '' : 's'} of interest, natural where the form is natural`;
+  return `${outlineBrief(outline)}\n\nSeed: ${seed}\nPlayer prompt: ${prompt}\nDesign the look now, in grounded realism: a muted, material-true style with surfaces that fit this land and its weather, ${structures}, 3 to 6 props at real sizes that are this land's own cover, 0 to 2 landmarks.`;
 }

@@ -85,7 +85,8 @@ const canvas: TexelFn = (u, v, t, c) => {
   const seam = 1 - ss(0.006, 0.008, d);
   const stitch = (1 - ss(0.001, 0.002, Math.abs(d - 0.004))) * (wave(v * 48) > 0.3 ? 1 : 0);
   shade(t, c, (0.84 + 0.2 * weave) * (0.94 + 0.12 * slub) * (0.9 + 0.2 * fold) * (1 - 0.35 * stitch));
-  t.h = 0.25 + 0.5 * weave + 0.2 * seam + 0.2 * stitch;
+  // The cloth hangs in soft folds a centimetre deep; the weave is a fraction of that.
+  t.h = 0.12 + 0.16 * weave + 0.55 * fold + 0.08 * seam + 0.08 * stitch;
   t.rough = 0.94;
   t.crease = stitch * 0.5;
 };
@@ -206,16 +207,16 @@ const coral: TexelFn = (u, v, t, c) => {
 };
 
 export const COVER_SURFACES = {
-  shingle: { fn: shingle, scale: 1.6, relief: 0.02, family: 'roof' },
-  tile: { fn: tile, scale: 1.4, relief: 0.035, family: 'roof' },
-  thatch: { fn: thatch, scale: 1.6, relief: 0.03, family: 'roof' },
-  slate: { fn: slate, scale: 1.6, relief: 0.02, family: 'roof' },
-  canvas: { fn: canvas, scale: 1.0, relief: 0.004, family: 'fabric' },
+  shingle: { fn: shingle, scale: 1.6, relief: 0.03, family: 'roof' },
+  tile: { fn: tile, scale: 1.4, relief: 0.05, family: 'roof' },
+  thatch: { fn: thatch, scale: 1.6, relief: 0.05, family: 'roof' },
+  slate: { fn: slate, scale: 1.6, relief: 0.024, family: 'roof' },
+  canvas: { fn: canvas, scale: 1.0, relief: 0.012, family: 'fabric' },
   paper_screen: { fn: paperScreen, scale: 1.8, relief: 0.01, family: 'fabric' },
   organic: { fn: organic, scale: 2.5, relief: 0.04, family: 'organic' },
   bark: { fn: bark, scale: 1.5, relief: 0.05, family: 'wood' },
   chitin: { fn: chitin, scale: 2.0, relief: 0.025, family: 'organic' },
   crystal: { fn: crystal, scale: 2.0, relief: 0.06, family: 'mineral' },
-  ice: { fn: ice, scale: 3.0, relief: 0.03, family: 'mineral' },
+  ice: { fn: ice, scale: 3.0, relief: 0.045, family: 'mineral' },
   coral: { fn: coral, scale: 1.8, relief: 0.03, family: 'organic' },
 } satisfies Record<string, SurfaceDef>;

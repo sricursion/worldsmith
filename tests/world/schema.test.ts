@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { FIXTURES } from '../../app/src/world/fixtures';
 import {
-  GRADE_KINDS, NPC_ACTION_IDS, SURFACE_KINDS, WEATHER_KINDS, normalizeSpec, slugify, validateSpec, worldSpecJsonSchema,
+  GRADE_KINDS, NPC_ACTION_IDS, SITE_PATTERNS, SURFACE_KINDS, WEATHER_KINDS, coerceCreatures, coerceFolk, coerceSkyFeatures,
+  coerceTerrain, normalizeSpec, slugify, validateSpec, worldSpecJsonSchema,
 } from '../../app/src/world/schema';
+import { repairQuest, verifyQuest } from '../../app/src/world/verify';
 import type { WorldSpec } from '../../app/src/world/spec';
 
 const clone = (s: WorldSpec): WorldSpec => structuredClone(s);
@@ -166,7 +168,7 @@ describe('normalizeSpec architecture', () => {
     const p = n.blueprints![0]!.parts[0]!;
     expect(p).toMatchObject({ shape: 'box', tone: 'wall', x: 0.5, z: -0.5, y: 0, w: 1.4, d: 0.02, h: 30, rot: 90, repeat: 12, gap: 1.4 });
     expect(n.blueprints![0]!.doorX).toBe(0.4);
-    expect(n.props![0]!.size).toBe(6);
+    expect(n.props![0]!.size).toBe(16);
     expect(n.props![0]!.weight).toBe(1);
     expect(n.style!.variety).toBe(1);
     expect(validateSpec(n).ok).toBe(true);
@@ -432,7 +434,7 @@ describe('normalizeSpec', () => {
     expect(n.lexicon.length).toBe(30);
   });
 
-  it('trims oversized lists and pads small towns', () => {
+  it('trims oversized lists and leaves small places small', () => {
     const big = clone(FIXTURES.medieval);
     for (let i = 0; i < 12; i++) big.buildings.push({ id: `h${i}`, role: 'house', label: `H${i}`, size: 'small' });
     for (let i = 0; i < 8; i++) big.npcs.push({ ...structuredClone(big.npcs[0]!), id: `extra${i}` });
@@ -442,7 +444,7 @@ describe('normalizeSpec', () => {
 
     const tiny = clone(FIXTURES.medieval);
     tiny.buildings = tiny.buildings.slice(0, 3);
-    expect(normalizeSpec(tiny).buildings.length).toBeGreaterThanOrEqual(6);
+    expect(normalizeSpec(tiny).buildings).toHaveLength(3);
   });
 
   it('fills short schedules from role defaults and dedupes npc ids', () => {
@@ -453,5 +455,179 @@ describe('normalizeSpec', () => {
     expect(n.npcs[0]!.schedule.length).toBeGreaterThanOrEqual(3);
     expect(n.npcs[0]!.schedule.some((e) => e.activity === 'sleep')).toBe(true);
     expect(new Set(n.npcs.map((x) => x.id)).size).toBe(n.npcs.length);
+  });
+});
+
+describe('land, sky, creatures and folk', () => {
+  const wild = (): WorldSpec => ({
+    ...clone(FIXTURES.western),
+    terrain: { relief: 'dunes', ruggedness: 0.6, water: 'none', waterAmount: 0, horizon: 'dune sea', settled: 0.05 },
+    skyFeatures: [{ kind: 'moon', size: 0.1, color: '#eeeeee' }],
+    folk: { name: 'drovers', height: 1.75, bulk: 0.4, head: 1, features: ['hood', 'cloak'], skin: ['#8d5f43'], cloth: ['#2f4a6a'], trim: ['#2a2420'] },
+    creatures: [{
+      id: 'camels', name: 'camels', family: 'quadruped', dials: { hump: 0.8 }, size: 2.2, count: 4, behaviour: 'graze',
+      haunt: 'wild', body: '#b8956a', accent: '#8a6a48', glow: '#000000', note: 'Chewing.',
+    }],
+  });
+
+  it('validates and survives normalisation unchanged, twice', () => {
+    const s = wild();
+    expect(validateSpec(s).ok).toBe(true);
+    const n = normalizeSpec(s);
+    expect(n.terrain).toEqual(s.terrain);
+    expect(n.skyFeatures).toEqual(s.skyFeatures);
+    expect(n.folk).toEqual(s.folk);
+    expect(n.creatures).toEqual(s.creatures);
+    expect(normalizeSpec(n)).toEqual(n);
+  });
+
+  it('old specs without the new fields still validate and gain none', () => {
+    const n = normalizeSpec(clone(FIXTURES.medieval));
+    expect(n.terrain).toBeUndefined();
+    expect(n.creatures).toBeUndefined();
+    expect(n.folk).toBeUndefined();
+    expect(n.skyFeatures).toBeUndefined();
+  });
+
+  it('accepts every site pattern, wilderness included', () => {
+    for (const pattern of SITE_PATTERNS) {
+      const s = clone(FIXTURES.western);
+      s.site = { pattern, wild: 0.5, paths: 'track', spacing: 12 };
+      const v = validateSpec(s);
+      expect(v.ok).toBe(true);
+      expect(normalizeSpec(s).site?.pattern).toBe(pattern);
+    }
+    expect(SITE_PATTERNS).toEqual(expect.arrayContaining(['wild', 'path', 'shoreline', 'cliffside']));
+  });
+
+  it('a slip in a new field never rejects the world', () => {
+    const raw = JSON.parse(JSON.stringify(wild())) as Record<string, unknown>;
+    raw.terrain = { relief: 'Mountains', ruggedness: 7, water: 'the sea', waterAmount: 'lots', settled: -1 };
+    raw.skyFeatures = [{ kind: 'two suns', size: 9, color: 'yellow' }, { kind: 'blimp' }, 'eclipse', ['aurora', 0.5, '#0f0'], { kind: 'moon' }];
+    raw.creatures = [
+      { name: 'Ash Dragon', family: 'dragon', size: 900, count: 0, behaviour: 'sleeping', haunt: 'Nowhere Special', body: 'grey' },
+      { id: 'x' }, 7, null,
+      ...Array.from({ length: 9 }, (_, i) => ({ id: 'gull', name: 'gull', family: 'bird', size: 0.01, count: 99.6 + i })),
+    ];
+    raw.folk = { name: '', height: 40, bulk: 'x', head: 9, features: ['hood', 'hood', 'laser'], skin: 'red', cloth: [] };
+    const v = validateSpec(raw);
+    expect(v.ok).toBe(true);
+    if (!v.ok) return;
+    const n = normalizeSpec(v.value);
+    expect(n.terrain).toEqual({ relief: 'craggy', ruggedness: 1, water: 'shore', waterAmount: 0.25, horizon: '', settled: 0 });
+    expect(n.skyFeatures).toEqual([
+      { kind: 'second_sun', size: 1, color: '#e6e2d6' }, { kind: 'eclipse', size: 0.3, color: '#e6e2d6' }, { kind: 'aurora', size: 0.5, color: '#00ff00' },
+    ]);
+    expect(n.creatures).toHaveLength(6);
+    expect(n.creatures![0]).toMatchObject({ id: 'ash_dragon', family: 'winged', size: 40, count: 1, behaviour: 'sleep', haunt: 'wild', body: '#6b5d4f' });
+    expect(n.creatures![1]).toMatchObject({ id: 'x', name: 'x', family: 'quadruped' });
+    expect(n.creatures![2]).toMatchObject({ id: 'gull', family: 'bird', size: 0.2, count: 24 });
+    expect(new Set(n.creatures!.map((c) => c.id)).size).toBe(6);
+    expect(n.folk).toMatchObject({ name: 'people', height: 3, bulk: 0.4, head: 2, features: ['hood'] });
+    expect(n.folk!.skin.length).toBeGreaterThan(0);
+    expect(n.folk!.cloth.length).toBeGreaterThan(0);
+    for (const bad of ['nope', 4, null]) {
+      const junk = { ...JSON.parse(JSON.stringify(wild())) as Record<string, unknown>, terrain: bad, folk: bad, creatures: bad, skyFeatures: bad };
+      const r = validateSpec(junk);
+      expect(r.ok).toBe(true);
+      if (r.ok) expect(r.value.terrain).toBeUndefined();
+    }
+  });
+
+  it('repairs a haunt to a building id, a haunt word or the wild, and water only where there is water', () => {
+    const s = wild();
+    const first = s.buildings[0]!.id;
+    const mk = (id: string, haunt: string) => ({ ...s.creatures![0]!, id, haunt });
+    s.creatures = [mk('a', first), mk('b', 'sky'), mk('c', 'water'), mk('d', 'the old mill'), mk('e', 'plaza')];
+    expect(normalizeSpec(s).creatures!.map((c) => c.haunt)).toEqual([first, 'sky', 'wild', 'wild', 'plaza']);
+    s.terrain = { ...s.terrain!, water: 'river', waterAmount: 0.2 };
+    expect(normalizeSpec(s).creatures![2]!.haunt).toBe('water');
+  });
+
+  it('coercers return full values from nothing', () => {
+    expect(coerceTerrain(undefined).relief).toBe('flat');
+    expect(coerceTerrain({ water: 'none', waterAmount: 0.9 }).waterAmount).toBe(0);
+    expect(coerceTerrain({ water: 'lake', waterAmount: 0 }).waterAmount).toBe(0.05);
+    expect(coerceSkyFeatures('x')).toEqual([]);
+    expect(coerceCreatures(undefined)).toEqual([]);
+    expect(coerceFolk(null).height).toBe(1.7);
+  });
+
+  it('the model schema lists the new fields as required', () => {
+    const schema = worldSpecJsonSchema() as { required: string[]; properties: Record<string, { properties?: Record<string, unknown>; items?: { properties?: Record<string, unknown> } }> };
+    for (const k of ['terrain', 'skyFeatures', 'creatures', 'folk']) expect(schema.required).toContain(k);
+    expect(Object.keys(schema.properties.terrain!.properties!)).toEqual(['relief', 'ruggedness', 'water', 'waterAmount', 'horizon', 'settled']);
+    expect(Object.keys(schema.properties.creatures!.items!.properties!)).toContain('haunt');
+    expect(Object.keys(schema.properties.folk!.properties!)).toContain('features');
+  });
+});
+
+describe('places with few people or none', () => {
+  it('keeps zero buildings and zero people when the quest needs nobody', () => {
+    const s = clone(FIXTURES.western);
+    s.buildings = [];
+    s.npcs = [];
+    s.items = [{ id: 'bell', name: 'Bell', description: 'Bronze.', holder: 'player' }];
+    s.rules = [];
+    s.quest = {
+      id: 'q', title: 'Alone', hook: 'Nobody is here.', giver: '',
+      steps: [{ id: 'take', kind: 'fetch', target: 'bell', item: 'bell', requires: [], objective: 'Take the bell.', beat: 'It rings.' }],
+      endings: [{ stepId: 'take', label: 'Done', tone: 'neutral' }],
+    };
+    expect(validateSpec(s).ok).toBe(true);
+    const n = normalizeSpec(s);
+    expect(n.buildings).toHaveLength(0);
+    expect(n.npcs).toHaveLength(0);
+    expect(n.quest.giver).toBe('');
+    // repairQuest and verifyQuest run safely on it; nothing is unreachable.
+    const r = repairQuest(n);
+    expect(r.quest.steps).toHaveLength(1);
+    expect(verifyQuest(r).unreachable).toEqual([]);
+  });
+
+  it('gives the place a spirit only when the quest needs someone to talk to', () => {
+    const s = clone(FIXTURES.western);
+    s.npcs = [];
+    s.rules = [];
+    s.items = [];
+    const hut = s.buildings[0]!.id;
+    s.quest = {
+      id: 'q', title: 'Alone', hook: 'Nobody is here.', giver: 'spirit_of_the_place',
+      steps: [
+        { id: 'hear', kind: 'talk', target: 'spirit_of_the_place', requires: [], objective: 'Listen.', beat: 'Wind.' },
+        { id: 'go', kind: 'visit', target: hut, requires: ['hear'], objective: 'Go.', beat: 'There.' },
+      ],
+      endings: [{ stepId: 'go', label: 'Done', tone: 'neutral' }],
+    };
+    const n = normalizeSpec(s);
+    expect(n.npcs).toHaveLength(1);
+    expect(n.npcs[0]).toMatchObject({ id: 'spirit_of_the_place', role: 'spirit of the place' });
+    expect(n.quest.giver).toBe('spirit_of_the_place');
+    expect(validateSpec(n).ok).toBe(true);
+    expect(verifyQuest(repairQuest(n)).winnable).toBe(true);
+    expect(normalizeSpec(n)).toEqual(n);
+  });
+
+  it('two hermits are enough', () => {
+    const s = clone(FIXTURES.medieval);
+    s.npcs = s.npcs.slice(0, 2);
+    s.buildings = s.buildings.slice(0, 2);
+    const n = repairQuest(normalizeSpec(s));
+    expect(n.npcs).toHaveLength(2);
+    expect(n.buildings).toHaveLength(2);
+    expect(validateSpec(n).ok).toBe(true);
+  });
+
+  it('keeps pole props to a real height unless the place is industrial', () => {
+    const s = clone(FIXTURES.western);
+    s.props = [
+      { kind: 'lamp', family: 'pole', dials: { head: 'lamp', height: 3, arms: 1 }, size: 6, weight: 2, parts: [] },
+      { kind: 'giant_tree', family: 'tree', dials: { trunk: 2, crown: 'umbrella' }, size: 13, weight: 4, parts: [] },
+    ];
+    const n = normalizeSpec(s);
+    expect(n.props![0]!.size).toBe(3);
+    expect(n.props![1]!.size).toBe(13);
+    s.style = { ...s.style!, surfaces: { wall: 'corrugated', wall2: 'rusted', roof: 'corrugated', trim: 'metal_panel', ground: 'concrete', road: 'asphalt', wear: 0.7, wet: 0.5 } };
+    expect(normalizeSpec(s).props![0]!.size).toBe(6);
   });
 });

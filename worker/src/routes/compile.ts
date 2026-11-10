@@ -1,10 +1,12 @@
 // POST /api/compile: prompt -> world spec, in three streamed stages over one SSE response.
-//   outline  a fast model names the place, its layout, structures, people and quest premise (seconds)
+//   outline  a fast model decides what kind of place this is: the land, how built-up, the layout, the few or
+//            many structures, the people and their body plan, the creatures, the sky, the air, a quest premise (seconds)
 //   look     skeleton families + dials + extra parts, palette, props, landmarks (parallel with story)
 //   story    people, items, quest, rules, written against the outline's ids (parallel with look)
 // SSE events:  partial {text}   raw text deltas of whichever stage is writing
 //              ping {}          keepalive, at least every few seconds
-//              outline {...}    the coerced outline, with mood (weather, grade, haze, ambience, music) and time.startHour
+//              outline {...}    the coerced outline, with terrain, skyFeatures, creatures, folk, mood (weather, grade,
+//                               haze, ambience, music) and time.startHour
 //              look {...}       style (with surfaces), site, blueprints, props, landmarks, buildings (with blueprint ids)
 //              spec {...}       the merged WorldSpec
 //              error {error, reason?}
@@ -31,7 +33,7 @@ import { storySystemPrompt, storyUserMessage } from '../prompts/compilestory';
 const MOCK_GAP_MS = 400;
 const PING_EVERY_MS = 3000;
 const PARTIAL_EVERY_MS = 120;
-const OUTLINE_MS = 20_000;
+const OUTLINE_MS = 25_000;
 const LOOK_MS = 75_000;
 const STORY_MS = 75_000;
 
@@ -115,7 +117,7 @@ async function runOutline(run: Run, prompt: string, seed: number): Promise<{ ok:
   let last: FailReason = 'upstream';
   for (let attempt = 0; attempt < 2; attempt++) {
     const r = await streamStage(run, {
-      model: HAIKU, max_tokens: 1400, thinking: { type: 'disabled' }, system: cached(outlineSystemPrompt()),
+      model: HAIKU, max_tokens: 2200, thinking: { type: 'disabled' }, system: cached(outlineSystemPrompt()),
       messages: [{ role: 'user', content: outlineUserMessage(prompt, seed) }],
     }, OUTLINE_MS);
     if (!r.ok) {

@@ -25,7 +25,8 @@ const timber: TexelFn = (u, v, t, c) => {
   tint(t, grey * 1.08, grey * 1.05, grey, c.wear * 0.45 * figure);
   const nail = 1 - ss(0.0014, 0.0032, Math.hypot(B.ex - 0.012, Math.min(Math.abs(B.fy - 0.28), Math.abs(B.fy - 0.72)) / 12));
   tint(t, 0.1, 0.09, 0.08, nail * 0.85);
-  t.h = 0.75 - 0.5 * B.fy + (grain - 0.5) * 0.14 - 0.5 * butt + 0.08 * nail;
+  // Each board leans out to its lower edge and is cupped a little across its width.
+  t.h = 0.78 - 0.56 * B.fy + (grain - 0.5) * 0.2 + 0.07 * wave(B.fy) * (B.id - 0.3) - 0.5 * butt + 0.08 * nail;
   t.rough = 0.76 + 0.18 * grain;
   t.crease = Math.max(butt, under * 0.6);
 };
@@ -43,7 +44,8 @@ const planks: TexelFn = (u, v, t, c) => {
   shade(t, c, k);
   const grey = (t.r + t.g + t.b) / 3;
   tint(t, grey * 1.06, grey * 1.04, grey, c.wear * 0.4 * grain);
-  t.h = 0.6 + (grain - 0.5) * 0.16 + 0.1 * (wave(B.fy) - 0.5) - 0.6 * gap - 0.3 * butt + 0.1 * knot;
+  // Boards cup as they dry, some standing proud of their neighbours; the gaps between go right through.
+  t.h = 0.56 + (grain - 0.5) * 0.18 + 0.2 * (wave(B.fy) - 0.5) * (0.4 + B.id) + 0.14 * (frac(B.id * 5.3) - 0.5) - 0.7 * gap - 0.3 * butt + 0.1 * knot;
   t.rough = 0.78 + 0.16 * grain;
   t.crease = Math.max(gap, butt);
 };
@@ -166,13 +168,16 @@ const concrete: TexelFn = (u, v, t, c) => {
   const fine = fbm(u, v, 96, 96, 2, c.seed + 2);
   const seam = 1 - ss(0.0008, 0.0022, Math.min(B.ex, B.ey));
   const board = hash2(Math.floor(frac(v) * 24), 3, c.seed + 3);
+  // Grout fins where the form boards met.
+  const fv = frac(frac(v) * 24);
+  const fin = (1 - ss(0, 0.05, Math.min(fv, 1 - fv))) * ss(0.3, 0.6, fbm(u, v, 6, 24, 2, c.seed + 6));
   const tie = 1 - ss(0.0024, 0.004, Math.hypot(Math.min(Math.abs(B.fx - 0.12), Math.abs(B.fx - 0.88)) / 2, Math.min(Math.abs(B.fy - 0.2), Math.abs(B.fy - 0.8)) / 3));
   const blow = ss(0.87, 0.91, vnoise(u, v, 200, 200, c.seed + 4));
   const run = ss(0.6, 1, B.fy) * ss(0.45, 0.75, fbm(u, v, 30, 1, 2, c.seed + 5));
   let k = 0.9 + 0.2 * (cloud - 0.5) * 2 * 0.5 + (fine - 0.5) * 0.08 + 0.05 * (board - 0.5);
   k *= (1 - 0.5 * seam) * (1 - 0.75 * tie) * (1 - 0.3 * blow) * (1 - 0.14 * run * (0.5 + c.wear));
   shade(t, c, k);
-  t.h = 0.5 + (cloud - 0.5) * 0.2 + (fine - 0.5) * 0.25 + 0.06 * (board - 0.5) - 0.5 * seam - 0.6 * tie - 0.3 * blow;
+  t.h = 0.5 + (cloud - 0.5) * 0.2 + (fine - 0.5) * 0.25 + 0.16 * (board - 0.5) + 0.14 * fin - 0.5 * seam - 0.6 * tie - 0.3 * blow;
   t.rough = 0.8 + 0.14 * fine;
   t.crease = Math.max(seam, tie);
 };
@@ -196,7 +201,8 @@ const metalPanel: TexelFn = (u, v, t, c) => {
   const brushed = fbm(u, v, 4, 160, 2, c.seed + 1);
   const can = fbm(u + B.id * 2, v, 3, 3, 2, c.seed + 2);
   shade(t, c, (0.94 + 0.12 * B.id) * (0.93 + 0.14 * brushed) * (1 - 0.6 * seam) * (1 + 0.1 * rivet) * (1 - 0.2 * ring));
-  t.h = 0.5 + (can - 0.5) * 0.16 + 0.15 * lip + 0.45 * rivet - 0.4 * seam;
+  // Thin sheet pillows between its fixings and oil-cans across the panel.
+  t.h = 0.4 + (can - 0.5) * 0.3 + 0.12 * ss(0, 0.07, edge) + 0.15 * lip + 0.4 * rivet - 0.4 * seam;
   t.metal = (c.bare ? 0.6 : 0.12) * (1 - seam);
   t.rough = (c.bare ? 0.36 : 0.5) + 0.2 * brushed + 0.3 * seam;
   t.crease = Math.max(seam, ring * 0.5);
@@ -204,7 +210,8 @@ const metalPanel: TexelFn = (u, v, t, c) => {
 
 /** Corrugated sheet: 7.5 cm pitch, sheets lapped side and end, a screw on every other crest. */
 const corrugated: TexelFn = (u, v, t, c) => {
-  bricks(u, v, 2, 1, 0, c.seed, B);
+  // One sheet is the height of the tile; its end lap is kept off the tile edge.
+  bricks(u, v + 0.37, 2, 1, 0, c.seed, B);
   const prof = wave(u * 16);
   const side = 1 - ss(0, 0.004, B.ex);
   const lap = 1 - ss(0, 0.012, B.fy);
@@ -213,7 +220,7 @@ const corrugated: TexelFn = (u, v, t, c) => {
   worley(u, v, 24, 24, c.seed + 1, 1, W);
   const dent = fbm(u, v, 3, 3, 2, c.seed + 2);
   const spangle = c.bare ? 0.12 * (W.id - 0.5) : 0.03 * (W.id - 0.5);
-  shade(t, c, (0.82 + 0.2 * prof + spangle) * (0.96 + 0.08 * B.id) * (1 - 0.5 * side) * (1 - 0.55 * under) * (1 - 0.6 * screw));
+  shade(t, c, (0.84 + 0.18 * prof + spangle) * (0.9 + 0.2 * B.id) * (1 - 0.5 * side) * (1 - 0.55 * under) * (1 - 0.6 * screw));
   t.h = 0.14 + 0.56 * prof + (dent - 0.5) * 0.12 + 0.2 * lap + 0.1 * screw;
   t.metal = c.bare ? 0.6 : 0.12;
   t.rough = (c.bare ? 0.4 : 0.5) + 0.12 * W.id;
@@ -290,19 +297,19 @@ const paint: TexelFn = (u, v, t, c) => {
 };
 
 export const WALL_SURFACES = {
-  timber: { fn: timber, scale: 2.2, relief: 0.02, family: 'wood' },
-  planks: { fn: planks, scale: 2.0, relief: 0.02, family: 'wood' },
-  log: { fn: log, scale: 2.4, relief: 0.06, family: 'wood' },
-  plaster: { fn: plaster, scale: 3.0, relief: 0.02, family: 'render' },
-  adobe: { fn: adobe, scale: 3.0, relief: 0.03, family: 'render' },
-  brick: { fn: brick, scale: 1.6, relief: 0.012, family: 'masonry' },
-  stone: { fn: stone, scale: 2.4, relief: 0.03, family: 'masonry' },
+  timber: { fn: timber, scale: 2.2, relief: 0.034, family: 'wood' },
+  planks: { fn: planks, scale: 2.0, relief: 0.03, family: 'wood' },
+  log: { fn: log, scale: 2.4, relief: 0.08, family: 'wood' },
+  plaster: { fn: plaster, scale: 3.0, relief: 0.03, family: 'render' },
+  adobe: { fn: adobe, scale: 3.0, relief: 0.045, family: 'render' },
+  brick: { fn: brick, scale: 1.6, relief: 0.018, family: 'masonry' },
+  stone: { fn: stone, scale: 2.4, relief: 0.045, family: 'masonry' },
   cobble: { fn: cobble, scale: 2.0, relief: 0.04, family: 'masonry' },
-  concrete: { fn: concrete, scale: 4.0, relief: 0.02, family: 'masonry' },
-  metal_panel: { fn: metalPanel, scale: 2.4, relief: 0.012, family: 'metal' },
-  corrugated: { fn: corrugated, scale: 1.2, relief: 0.018, family: 'metal' },
-  rusted: { fn: rusted, scale: 2.0, relief: 0.02, family: 'metal' },
-  hull_plate: { fn: hullPlate, scale: 3.0, relief: 0.02, family: 'metal' },
+  concrete: { fn: concrete, scale: 4.0, relief: 0.028, family: 'masonry', cavity: 0.4 },
+  metal_panel: { fn: metalPanel, scale: 2.4, relief: 0.022, family: 'metal' },
+  corrugated: { fn: corrugated, scale: 1.2, relief: 0.03, family: 'metal', cavity: 0.62 },
+  rusted: { fn: rusted, scale: 2.0, relief: 0.034, family: 'metal', micro: 0.1 },
+  hull_plate: { fn: hullPlate, scale: 3.0, relief: 0.032, family: 'metal' },
   glass_curtain: { fn: glassCurtain, scale: 3.0, relief: 0.012, family: 'glass' },
-  paint: { fn: paint, scale: 2.0, relief: 0.006, family: 'paint' },
+  paint: { fn: paint, scale: 2.0, relief: 0.009, family: 'paint' },
 } satisfies Record<string, SurfaceDef>;

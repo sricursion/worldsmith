@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { buildNav } from '../../app/src/engine/nav';
-import { CAMERA_RADIUS, FP_EYE_HEIGHT, LOOK_SENSITIVITY, TP_BOOM } from '../../app/src/engine/camera-rig';
+import { BREATH_Y, CAMERA_RADIUS, FP_EYE_HEIGHT, FP_FOV, LOOK_SENSITIVITY, TP_BOOM } from '../../app/src/engine/camera-rig';
+import { AIR } from '../../app/src/engine/post';
 import {
   angleDelta,
   cameraRelativeMove,
@@ -61,10 +62,17 @@ describe('cameraRelativeMove', () => {
   });
 });
 
-function fakeRig(): CharacterRig & { played: string[] } {
+function fakeRig(): CharacterRig & { played: string[]; body: THREE.Mesh; skin: THREE.Material } {
   const played: string[] = [];
+  const skin = new THREE.MeshStandardMaterial();
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.7, 0.3), skin);
+  body.castShadow = true;
+  const root = new THREE.Group();
+  root.add(body);
   return {
-    root: new THREE.Group(),
+    root,
+    body,
+    skin,
     mixer: new THREE.AnimationMixer(new THREE.Group()),
     play: (n: string) => void played.push(n),
     setPalette: () => undefined,
@@ -72,7 +80,7 @@ function fakeRig(): CharacterRig & { played: string[] } {
     update: () => undefined,
     dispose: () => undefined,
     played,
-  } as unknown as CharacterRig & { played: string[] };
+  } as unknown as CharacterRig & { played: string[]; body: THREE.Mesh; skin: THREE.Material };
 }
 
 interface InputState {
@@ -112,9 +120,10 @@ describe('createPlayer', () => {
     const camera = new THREE.PerspectiveCamera();
     const state: InputState = { axis: { x: 0, y: 0 }, shift: false, dx: 0, dy: 0, keys: new Map(), unlocked: 0 };
     const rig = fakeRig();
-    const player = createPlayer(rig, nav, camera, fakeInput(state), statics);
+    const player = createPlayer(rig, nav, camera, fakeInput(state), statics, { firstPerson: false });
 
     player.teleport(new THREE.Vector3(0, 0, 5), Math.PI); // facing -Z, toward the wall
+    expect(rig.body.material).toBe(rig.skin); // over the shoulder the body is drawn as it is
     // Close over the right shoulder, near head height.
     expect(camera.position.z).toBeGreaterThan(player.position.z + 2.5);
     expect(camera.position.z).toBeLessThan(player.position.z + TP_BOOM + 0.01);
@@ -172,14 +181,21 @@ describe('createPlayer', () => {
     expect(player.nearestNpc(npcs.slice(0, 1), 5)).toBeNull();
     expect(player.nearestNpc(npcs.slice(2), 5)).toBeNull();
 
-    // V switches to first person: eye height at the player's position, body hidden, wider lens.
+    // V switches to first person: eye height at the player's position, wider lens, and the body drawn only
+    // into the shadow map. A second listener on the same key press must not switch straight back.
     state.keys.get('KeyV')?.();
+    player.toggleView?.();
     expect(player.firstPerson).toBe(true);
     for (let i = 0; i < 90; i++) player.update(1 / 60);
-    expect(camera.position.y).toBeCloseTo(player.position.y + FP_EYE_HEIGHT, 2);
+    expect(Math.abs(camera.position.y - (player.position.y + FP_EYE_HEIGHT))).toBeLessThan(BREATH_Y + 0.005);
     expect(Math.hypot(camera.position.x - player.position.x, camera.position.z - player.position.z)).toBeLessThan(0.05);
-    expect(rig.root.visible).toBe(false);
-    expect(camera.fov).toBeCloseTo(72, 1);
+    expect(rig.root.visible).toBe(true);
+    expect(rig.body.castShadow).toBe(true);
+    const drawn = rig.body.material as THREE.Material;
+    expect(drawn).not.toBe(rig.skin);
+    expect(drawn.colorWrite).toBe(false);
+    expect(drawn.depthWrite).toBe(false);
+    expect(camera.fov).toBeCloseTo(FP_FOV, 1);
     // Sideways input strafes: the body keeps facing the view.
     const facing = rig.root.rotation.y;
     state.shift = false;
@@ -193,15 +209,53 @@ describe('createPlayer', () => {
     state.keys.get('KeyV')?.();
     for (let i = 0; i < 90; i++) player.update(1 / 60);
     expect(player.firstPerson).toBe(false);
+    expect(rig.body.material).toBe(rig.skin);
 
+    // A conversation frees the cursor and hands the lens its focus point, at the speaker's head.
     player.frameTarget?.(new THREE.Vector3(player.position.x + 1, 0, player.position.z + 2));
     expect(state.unlocked).toBe(1);
+    expect(AIR.focusOn).toBe(true);
+    expect(AIR.focus.x).toBeCloseTo(player.position.x + 1, 6);
+    expect(AIR.focus.y).toBeGreaterThan(1.2);
     player.frameTarget?.(null);
+    expect(AIR.focusOn).toBe(false);
     for (let i = 0; i < 120; i++) player.update(1 / 60);
 
     player.dispose();
     expect(state.keys.has('KeyV')).toBe(false);
     expect(rig.root.visible).toBe(true);
+    nav.dispose();
+    disposeMeshes([ground, ...statics]);
+  });
+
+  it('starts in first person with the body shadow-only, and gives the body back when disposed', async () => {
+    const { ground, statics } = makeWorld([[0, -6, 12, 2, 4]]);
+    const nav = await buildNav(statics, ground);
+    const camera = new THREE.PerspectiveCamera();
+    const state: InputState = { axis: { x: 0, y: 0 }, shift: false, dx: 0, dy: 0, keys: new Map(), unlocked: 0 };
+    const rig = fakeRig();
+    const player = createPlayer(rig, nav, camera, fakeInput(state), statics);
+    expect(player.firstPerson).toBe(true);
+    player.teleport(new THREE.Vector3(0, 0, 5), Math.PI);
+    expect(camera.position.y).toBeCloseTo(player.position.y + FP_EYE_HEIGHT, 5);
+    expect(camera.fov).toBeCloseTo(FP_FOV, 5);
+    expect(camera.getWorldDirection(new THREE.Vector3()).z).toBeLessThan(-0.99);
+    expect(rig.root.visible).toBe(true);
+    expect((rig.body.material as THREE.Material).colorWrite).toBe(false);
+
+    // Forward is where the view points; the body turns with the view.
+    state.axis.y = 1;
+    for (let i = 0; i < 60; i++) player.update(1 / 60);
+    expect(player.position.z).toBeLessThan(5 - 1.2);
+    expect(Math.abs(player.position.x)).toBeLessThan(0.05);
+    state.axis.y = 0;
+
+    player.setEyeHeight?.(1.1);
+    for (let i = 0; i < 120; i++) player.update(1 / 60);
+    expect(Math.abs(camera.position.y - (player.position.y + 1.1))).toBeLessThan(BREATH_Y + 0.005);
+
+    player.dispose();
+    expect(rig.body.material).toBe(rig.skin);
     nav.dispose();
     disposeMeshes([ground, ...statics]);
   });

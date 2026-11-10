@@ -38,7 +38,8 @@ export class GeoBatch {
    * Takes ownership of `geo` and stores it non-indexed with position, normal, uv and colour, moved by
    * `matrix` when one is given (omit it for geometry already in world space). Missing UVs are zero and
    * missing colours white, so every bucket merges and surface materials that read vertex colour work
-   * with any geometry.
+   * with any geometry. Materials that weather in the shader (`userData.wearing`, see surfaces.ts) also
+   * keep the four-component `wearing` attribute, filled with "far from any edge" where it is missing.
    */
   add(geo: THREE.BufferGeometry, material: THREE.Material, matrix?: THREE.Matrix4): void {
     let g = geo;
@@ -46,13 +47,15 @@ export class GeoBatch {
       g = geo.toNonIndexed();
       geo.dispose();
     }
+    const wearing = material.userData.wearing === true;
     for (const name of Object.keys(g.attributes)) {
-      if (name !== 'position' && name !== 'normal' && name !== 'uv' && name !== 'color') g.deleteAttribute(name);
+      if (name !== 'position' && name !== 'normal' && name !== 'uv' && name !== 'color' && !(wearing && name === 'wearing')) g.deleteAttribute(name);
     }
     const count = g.getAttribute('position').count;
     if (!g.getAttribute('normal')) g.computeVertexNormals();
     if (!g.getAttribute('uv')) g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(count * 2), 2));
     if (!g.getAttribute('color')) g.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(count * 3).fill(1), 3));
+    if (wearing && !g.getAttribute('wearing')) g.setAttribute('wearing', new THREE.Float32BufferAttribute(new Float32Array(count * 4).fill(9), 4));
     g.clearGroups();
     if (matrix) g.applyMatrix4(matrix);
     let b = this.buckets.get(material.uuid);
@@ -82,8 +85,11 @@ export class GeoBatch {
 
   private mesh(geo: THREE.BufferGeometry, material: THREE.Material): THREE.Mesh {
     const m = new THREE.Mesh(geo, material);
-    m.castShadow = true;
-    m.receiveShadow = true;
+    // Stain decals and the like neither cast nor take shadow.
+    const flat = material.userData.noShadow === true;
+    m.castShadow = !flat;
+    m.receiveShadow = !flat;
+    if (flat) m.renderOrder = 1;
     m.matrixAutoUpdate = false;
     return m;
   }

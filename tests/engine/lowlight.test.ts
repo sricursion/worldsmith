@@ -3,9 +3,13 @@ import { Color } from 'three';
 import { shownLuminance } from '../../app/src/engine/atmosphere';
 import { GRADES, NIGHT_FOG_LIFT, accentWeight, applyGrade, bloomThresholdFor, gradeTint, nightFogGain } from '../../app/src/engine/post';
 import {
+  DAY_EXPOSURE,
   GROUND_LIFT_MAX,
   GROUND_LIFT_MIN,
+  LIGHT_RATIOS,
   PLAYER_FILL,
+  PRACTICAL_LEVEL,
+  contrastFor,
   REFERENCE_ALBEDO,
   exposureFor,
   groundLift,
@@ -87,29 +91,40 @@ describe('low-light levels', () => {
         const v = shownLuminance({ preset, hour: h, mood: CLEAR }).encoded;
         expect(v, `${preset} ${h.toFixed(1)}`).toBeGreaterThan(0.17);
         expect(v, `${preset} ${h.toFixed(1)}`).toBeLessThan(0.46);
-        if (Number.isFinite(prev)) expect(Math.abs(v - prev), `${preset} ${h.toFixed(1)}`).toBeLessThan(0.035);
+        // The largest step is where the key passes from the moon to the low sun.
+        if (Number.isFinite(prev)) expect(Math.abs(v - prev), `${preset} ${h.toFixed(1)}`).toBeLessThan(0.04);
         prev = v;
       }
     }
   });
 
-  it('leaves the full day as it was', () => {
+  it('builds the full day on the key alone: no low-light fill, no player fill', () => {
     for (const preset of ['dawn', 'day', 'dusk'] as const) {
       const rig = lightRigFor(preset, 12);
       expect(rig.dark).toBe(0);
       expect(rig.twilight).toBe(0);
       expect(rig.fillCandela).toBe(0);
-      expect(rig.hemiLevel).toBeCloseTo(0.25, 9);
-      expect(rig.keyIntensity).toBeCloseTo(4, 9);
-      expect(exposureFor(preset, 12)).toBeCloseTo(0.46, 2);
+      expect(rig.hemiLevel).toBeCloseTo(LIGHT_RATIOS.cinematic.fill, 9);
+      expect(rig.keyIntensity).toBeCloseTo(LIGHT_RATIOS.cinematic.key, 9);
+      expect(rig.bounce).toBeGreaterThan(1);
+      expect(exposureFor(preset, 12)).toBeCloseTo(DAY_EXPOSURE, 2);
       expect(exposureFor(preset, 12, 0.02)).toBe(exposureFor(preset, 12));
     }
+    // An eclipse dims the sun's key and nothing else.
+    const dimmed = lightRigFor('day', 12, { keyDim: 0.25 });
+    expect(dimmed.keyIntensity).toBeCloseTo(1, 9);
+    expect(dimmed.hemiLevel).toBe(lightRigFor('day', 12).hemiLevel);
+    expect(lightRigFor('night', 0, { keyDim: 0.25 }).keyIntensity).toBe(lightRigFor('night', 0).keyIntensity);
   });
 
   it('weights dark and twilight by the sun elevation', () => {
     expect(lowLight(-40)).toEqual({ dark: 1, twilight: 0 });
-    expect(lowLight(0).dark).toBeGreaterThan(0.95);
-    expect(lowLight(0).twilight).toBe(1);
+    expect(lowLight(0).dark).toBeGreaterThan(0.8);
+    expect(lowLight(0).twilight).toBeGreaterThan(0.95);
+    expect(lowLight(-7).twilight).toBe(1);
+    // The golden hour is a hard low key, not low light: neither weight is in play.
+    expect(lowLight(9).dark).toBeLessThan(0.25);
+    expect(lowLight(9).twilight).toBeLessThan(0.2);
     expect(lowLight(40)).toEqual({ dark: 0, twilight: 0 });
     expect(lowLight(40, 0.5).dark).toBe(0.5);
     let prev = lowLight(-60).dark;
@@ -120,17 +135,66 @@ describe('low-light levels', () => {
     }
   });
 
-  it('keeps the moon the key at night, with a fill strong enough to read the shadow side', () => {
+  it('keeps the moon the key at night, over a fill that reads the shadow side without matching it', () => {
     const rig = lightRigFor('night', 0);
+    const moon = LIGHT_RATIOS.cinematic.moon;
     expect(rig.sunUp).toBe(false);
-    expect(rig.keyIntensity).toBeCloseTo(1.6, 9);
-    expect(rig.hemiLevel).toBeGreaterThan(1.5);
+    expect(rig.keyIntensity).toBeCloseTo(moon, 9);
+    expect(rig.hemiLevel).toBeGreaterThan(1.2);
     expect(rig.hemiSky.b).toBeGreaterThan(rig.hemiSky.r * 3);
+    // The fill on level ground stays under half of what the moon puts there.
+    const lum = (c: Color): number => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+    expect(rig.hemiLevel * lum(rig.hemiSky)).toBeLessThan(0.5 * rig.keyIntensity * lum(rig.keyColor) * rig.keyDirection[1]);
     const dusk = lightRigFor('dusk', 18.5);
     expect(dusk.hemiLevel).toBeGreaterThan(rig.hemiLevel);
     // Pale ground turns the moon down; dark ground never turns it up.
-    expect(lightRigFor('night', 0, { groundLuminance: 0.7 }).keyIntensity).toBeLessThan(1.6);
-    expect(lightRigFor('night', 0, { groundLuminance: 0.02 }).keyIntensity).toBeCloseTo(1.6, 9);
+    expect(lightRigFor('night', 0, { groundLuminance: 0.7 }).keyIntensity).toBeLessThan(moon);
+    expect(lightRigFor('night', 0, { groundLuminance: 0.02 }).keyIntensity).toBeCloseTo(moon, 9);
+  });
+});
+
+describe('contrast', () => {
+  it('holds at least four to one, lit to shadow, on mid-grey at noon', () => {
+    for (const preset of ['dawn', 'day', 'dusk'] as const) {
+      const c = contrastFor(preset, 12);
+      expect(c.ground, preset).toBeGreaterThanOrEqual(4);
+      expect(c.wall, preset).toBeGreaterThanOrEqual(4);
+      // Roughly six to one, key to fill.
+      expect(c.keyToFill, preset).toBeGreaterThan(5);
+      expect(c.keyToFill, preset).toBeLessThan(9);
+    }
+    for (const h of [9, 10.5, 13.5, 15]) expect(contrastFor('day', h).best, `day ${h}`).toBeGreaterThanOrEqual(4);
+  });
+
+  it('holds at least three to one at dusk and dawn, on the walls the low sun reaches', () => {
+    expect(contrastFor('dusk', 17.5).best).toBeGreaterThanOrEqual(3);
+    expect(contrastFor('dusk', 17).best).toBeGreaterThanOrEqual(3);
+    expect(contrastFor('dawn', 6.5).best).toBeGreaterThanOrEqual(3);
+    expect(contrastFor('dawn', 7).best).toBeGreaterThanOrEqual(3);
+    // The low sun rakes: it is the walls that carry it, the ground lies mostly in long shadow.
+    const c = contrastFor('dusk', 17.5);
+    expect(c.wall).toBeGreaterThan(c.ground);
+  });
+
+  it('keeps a moonlit night on a key too, and overcast soft but not flat', () => {
+    for (const h of [21, 22, 0, 2, 3]) expect(contrastFor('night', h).best, `night ${h}`).toBeGreaterThanOrEqual(2.5);
+    const grey = contrastFor('overcast', 12);
+    expect(grey.best).toBeGreaterThan(1.8);
+    expect(grey.best).toBeLessThan(4);
+  });
+
+  it('lets a lamp pool carry the frame once the sun is down', () => {
+    const lum = (c: Color): number => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+    for (const [preset, hour] of [['dusk', 18.5], ['night', 22], ['overcast', 5.75], ['overcast', 19.5]] as const) {
+      const rig = lightRigFor(preset, hour);
+      const ambient = rig.keyIntensity * lum(rig.keyColor) * rig.keyDirection[1] + rig.hemiLevel * lum(rig.hemiSky);
+      // Half a radius from a lamp: its light over everything else that reaches the ground there.
+      const lamp = PRACTICAL_LEVEL * 4 * rig.practicalGain * lum(new Color('#ffb469'));
+      expect((lamp + ambient) / ambient, `${preset} ${hour}`).toBeGreaterThanOrEqual(2);
+      expect(rig.practicalGain).toBe(1);
+    }
+    // By day a lamp is a faint spill.
+    expect(lightRigFor('day', 12).practicalGain).toBeLessThan(0.2);
   });
 });
 

@@ -31,14 +31,33 @@ export function vnoise(u: number, v: number, px: number, py: number, seed: numbe
   const fy = y - iy;
   const sx = fx * fx * (3 - 2 * fx);
   const sy = fy * fy * (3 - 2 * fy);
-  const x0 = wrap(ix, px);
-  const x1 = wrap(ix + 1, px);
-  const y0 = wrap(iy, py);
-  const y1 = wrap(iy + 1, py);
-  const a = hash2(x0, y0, seed);
-  const b = hash2(x1, y0, seed);
-  const c = hash2(x0, y1, seed);
-  const d = hash2(x1, y1, seed);
+  // Samples inside the unit square (nearly all of them) skip the modulo.
+  const x0 = ix >= 0 && ix < px ? ix : wrap(ix, px);
+  const y0 = iy >= 0 && iy < py ? iy : wrap(iy, py);
+  const x1 = x0 + 1 === px ? 0 : x0 + 1;
+  const y1 = y0 + 1 === py ? 0 : y0 + 1;
+  // hash2 on the four corners, with the shared products taken once.
+  const s = Math.imul(seed | 0, 0x9e3779b1);
+  const hx0 = Math.imul(x0, 0x27d4eb2d);
+  const hx1 = Math.imul(x1, 0x27d4eb2d);
+  const hy0 = Math.imul(y0, 0x165667b1) ^ s;
+  const hy1 = Math.imul(y1, 0x165667b1) ^ s;
+  let h = hx0 ^ hy0;
+  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+  const a = ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  h = hx1 ^ hy0;
+  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+  const b = ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  h = hx0 ^ hy1;
+  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+  const c = ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  h = hx1 ^ hy1;
+  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+  const d = ((h ^ (h >>> 16)) >>> 0) / 4294967296;
   return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
 }
 

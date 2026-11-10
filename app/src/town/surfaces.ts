@@ -14,9 +14,9 @@ import * as THREE from 'three';
 import type { MoodSpec, StyleSpec, SurfaceKind, SurfaceSet, ThemeId } from '../world/spec';
 import { COVER_SURFACES } from './surfaces/covers';
 import type { SurfaceDef, SurfaceFamily, SurfacePixels, Texel } from './surfaces/field';
-import { hexToRgb, renderSurface, sampleSurface } from './surfaces/field';
+import { beginSurface, finishSurface, hexToRgb, renderSurface, sampleSurface, stepSurface } from './surfaces/field';
 import { GROUND_SURFACES } from './surfaces/ground';
-import { fbm, ss } from './surfaces/noise';
+import { fbm, ss, vnoise } from './surfaces/noise';
 import { WALL_SURFACES } from './surfaces/walls';
 
 export type Quality = 0 | 1 | 2;
@@ -40,6 +40,11 @@ export interface SurfaceOpts {
   seed: number;
   /** When true the material multiplies by the geometry's `color` attribute (per-building drift, ground grime). */
   tint?: boolean;
+  /**
+   * When true the material weathers in world space (see patchSurfaceShader) and reads the geometry's
+   * `wearing` attribute. Geometry must come through a GeoBatch, which supplies the attribute where it is missing.
+   */
+  worn?: boolean;
 }
 
 /**
@@ -47,7 +52,13 @@ export interface SurfaceOpts {
  * surfaces and its quality when it asks for the ground; buildings and props added afterwards without
  * options follow the same town instead of a fixed default.
  */
-export interface SurfaceDefaults { quality: Quality; theme: ThemeId; mood: MoodSpec | undefined }
+export interface SurfaceDefaults {
+  quality: Quality; theme: ThemeId; mood: MoodSpec | undefined;
+  /** The style and surfaces of the building most recently built, for things made beside it (its sign). */
+  style?: StyleSpec; surfaces?: SurfaceSet;
+  /** Free words for the period, e.g. WorldSpec.era; signs choose their lettering from it. */
+  era?: string;
+}
 const defaults: SurfaceDefaults = { quality: 2, theme: 'medieval', mood: undefined };
 
 export function setSurfaceDefaults(next: Partial<SurfaceDefaults>): void {
@@ -129,15 +140,17 @@ function releaseSet(s: MapSet): void {
   s.data.dispose();
 }
 
-function mapSet(kind: SurfaceId, hex: string, wear: number, wet: number, size: number, seed: number): MapSet {
-  const key = `${kind}|${hex}|${wear}|${wet}|${size}|${seed}`;
+const setKey = (kind: SurfaceId, hex: string, wear: number, wet: number, size: number, seed: number): string => `${kind}|${hex}|${wear}|${wet}|${size}|${seed}`;
+
+function mapSet(kind: SurfaceId, hex: string, wear: number, wet: number, size: number, seed: number, ready?: SurfacePixels): MapSet {
+  const key = setKey(kind, hex, wear, wet, size, seed);
   let s = sets.get(key);
   if (s) {
     sets.delete(key);
     sets.set(key, s);
     return s;
   }
-  const px = surfacePixels(kind, hex, { wear, wet, size, seed });
+  const px = ready ?? surfacePixels(kind, hex, { wear, wet, size, seed });
   s = { albedo: toTexture(px.albedo, size, true), normal: toTexture(px.normal, size, false), data: toTexture(px.data, size, false), mats: new Map() };
   sets.set(key, s);
   if (sets.size > MAX_SETS) {
@@ -171,10 +184,18 @@ function standard(s: MapSet, variant: string, make: (m: THREE.MeshStandardMateri
 export function getSurface(kind: SurfaceId, baseHex: string, opts: SurfaceOpts): THREE.MeshStandardMaterial {
   const id: SurfaceId = kind in DEFS ? kind : 'plaster';
   const s = mapSet(id, cleanHex(baseHex), step(opts.wear), step(opts.wet), sizeFor(opts.quality), opts.seed | 0);
-  return standard(s, opts.tint ? 'tint' : 'plain', (m) => {
+  const wear = step(opts.wear);
+  const wet = step(opts.wet);
+  return standard(s, `${opts.tint ? 'tint' : 'plain'}${opts.worn ? '+worn' : ''}`, (m) => {
     m.vertexColors = opts.tint === true;
     m.name = `surface:${id}`;
     m.userData.baseHex = cleanHex(baseHex);
+    if (opts.worn) {
+      const look = wearLook(DEFS[id].family, wear, wet);
+      m.userData.wearing = true;
+      m.onBeforeCompile = (shader) => patchSurfaceShader(shader as unknown as ShaderSource, look);
+      m.customProgramCacheKey = () => 'townforge-surface';
+    }
   });
 }
 
@@ -300,6 +321,319 @@ export function patchGroundShader(shader: ShaderSource, tile: number, wet: numbe
 	normal = normalize( mix( normal, nonPerturbedNormal, gPuddle ) );`);
 }
 
+// ---- weathering in world space ----------------------------------------------------------------
+
+const SURFACE_GLSL = /* glsl */ `
+float sHash3( vec3 p ) {
+	p = fract( p * vec3( 0.1031, 0.1030, 0.0973 ) );
+	p += dot( p, p.yxz + 33.33 );
+	return fract( ( p.x + p.y ) * p.z );
+}
+float sNoise3( vec3 p ) {
+	vec3 i = floor( p );
+	vec3 f = fract( p );
+	f = f * f * ( 3.0 - 2.0 * f );
+	float a = mix( sHash3( i ), sHash3( i + vec3( 1.0, 0.0, 0.0 ) ), f.x );
+	float b = mix( sHash3( i + vec3( 0.0, 1.0, 0.0 ) ), sHash3( i + vec3( 1.0, 1.0, 0.0 ) ), f.x );
+	float c = mix( sHash3( i + vec3( 0.0, 0.0, 1.0 ) ), sHash3( i + vec3( 1.0, 0.0, 1.0 ) ), f.x );
+	float d = mix( sHash3( i + vec3( 0.0, 1.0, 1.0 ) ), sHash3( i + vec3( 1.0, 1.0, 1.0 ) ), f.x );
+	return mix( mix( a, b, f.y ), mix( c, d, f.y ), f.z );
+}
+float sNoise2( vec2 p ) {
+	return sNoise3( vec3( p, 17.3 ) );
+}
+`;
+
+/** How a surface material weathers in the shader; see patchSurfaceShader. */
+export interface WearLook {
+  /** Paler exposed material along convex edges, 0..1. */
+  edge: number;
+  /** Run-off under top edges and dirt at the foot of upright faces, 0..1. */
+  grime: number;
+  /** Sun-bleach and dust on faces that look up, 0..1. */
+  bleach: number;
+  /** How much a run-off streak lowers roughness (wet) or, negative, raises it (dry deposit). */
+  dripGloss: number;
+  /** How much a worn edge lowers roughness: bare metal shines, chipped stone does not. */
+  edgeGloss: number;
+}
+
+const EDGE_BY_FAMILY: Record<SurfaceFamily, number> = {
+  wood: 0.8, masonry: 0.7, render: 0.5, metal: 1, glass: 0.2, roof: 0.5, fabric: 0.2, organic: 0.2, mineral: 0.3, ground: 0.3, paint: 1,
+};
+
+function wearLook(family: SurfaceFamily, wear: number, wet: number): WearLook {
+  return {
+    edge: EDGE_BY_FAMILY[family] * (0.25 + 0.75 * wear),
+    grime: family === 'glass' ? 0.3 * wear : 0.3 + 0.7 * wear,
+    bleach: family === 'glass' || family === 'mineral' ? 0.15 : 0.4 + 0.6 * wear,
+    dripGloss: wet > 0.05 ? 0.3 : -0.08,
+    edgeGloss: family === 'metal' || family === 'paint' ? 0.16 : 0,
+  };
+}
+
+/**
+ * Rewrites a standard material's shader so the surface weathers where it stands rather than where its
+ * texture repeats. In world space: a slow drift of value, warmth and roughness that no tile boundary
+ * follows. From the geometry's `wearing` attribute (distance in metres from the fragment to the left,
+ * right, bottom and top edge of its face; see blueprint-mesh.ts): paler exposed material along convex
+ * edges, broken up by noise; dark run-off hanging from the top edge of every upright face; dirt packed
+ * along its foot. From the world normal: sun-bleach and dust on faces that look up, shade under ones
+ * that look down.
+ */
+export function patchSurfaceShader(shader: ShaderSource, look: WearLook): void {
+  shader.uniforms.uSurf = { value: new THREE.Vector4(look.edge, look.grime, look.bleach, look.dripGloss) };
+  shader.uniforms.uSurfGloss = { value: look.edgeGloss };
+  shader.vertexShader = shader.vertexShader
+    .replace('#include <common>', '#include <common>\nattribute vec4 wearing;\nvarying vec4 vWearing;\nvarying vec3 vSurfP;\nvarying vec3 vSurfN;')
+    .replace('#include <uv_vertex>', `#include <uv_vertex>
+	vWearing = wearing;
+	vSurfP = ( modelMatrix * vec4( position, 1.0 ) ).xyz;
+	vSurfN = normalize( mat3( modelMatrix ) * normal );`);
+  shader.fragmentShader = shader.fragmentShader
+    .replace('#include <common>', `#include <common>\nuniform vec4 uSurf;\nuniform float uSurfGloss;\nvarying vec4 vWearing;\nvarying vec3 vSurfP;\nvarying vec3 vSurfN;\n${SURFACE_GLSL}`)
+    .replace('#include <map_fragment>', `#include <map_fragment>
+	float sUp = vSurfN.y;
+	float sMacro = sNoise3( vSurfP * 0.31 ) * 0.6 + sNoise3( vSurfP * 1.17 + 11.0 ) * 0.4;
+	float sTone = sNoise3( vSurfP * 0.07 + 31.0 ) - 0.5;
+	diffuseColor.rgb *= 0.86 + 0.28 * sMacro;
+	diffuseColor.rgb *= vec3( 1.0 + 0.05 * sTone, 1.0, 1.0 - 0.07 * sTone );
+	float sBreak = sNoise3( vSurfP * 13.0 ) * 0.65 + sNoise3( vSurfP * 41.0 ) * 0.35;
+	float sUpright = 1.0 - smoothstep( 0.3, 0.6, abs( sUp ) );
+	float sTop = smoothstep( 0.4, 0.7, sUp );
+	float sDown = smoothstep( 0.4, 0.7, - sUp );
+	float sFaceW = vWearing.x + vWearing.y;
+	float sFaceH = vWearing.z + vWearing.w;
+	float sSide = min( vWearing.x, vWearing.y );
+	float sNear = mix( min( sSide, min( vWearing.z, vWearing.w ) ), sSide, sUpright );
+	float sBand = clamp( 0.22 * min( sFaceW, sFaceH ), 0.008, 0.07 );
+	float sEdge = ( 1.0 - smoothstep( 0.0, sBand * ( 0.25 + 1.5 * sBreak ), sNear ) ) * uSurf.x * ( 1.0 - sDown );
+	float sLum = dot( diffuseColor.rgb, vec3( 0.3, 0.59, 0.11 ) );
+	diffuseColor.rgb = mix( diffuseColor.rgb, mix( diffuseColor.rgb, vec3( sLum ), 0.5 ) * 1.5 + 0.035, sEdge * 0.6 );
+	float sAlong = vSurfP.x * vSurfN.z - vSurfP.z * vSurfN.x;
+	float sRun = sNoise2( vec2( sAlong * 9.0, vSurfP.y * 0.35 ) );
+	float sLen = min( 0.15 + 1.5 * sNoise2( vec2( sAlong * 2.3, 3.7 ) ), 0.6 * sFaceH );
+	float sDrip = sUpright * ( 1.0 - smoothstep( 0.0, sLen, vWearing.w ) ) * smoothstep( 0.42, 0.75, sRun ) * uSurf.y;
+	float sFoot = sUpright * ( 1.0 - smoothstep( 0.0, min( 0.1 + 0.35 * sBreak, 0.5 * sFaceH ), vWearing.z ) ) * uSurf.y;
+	diffuseColor.rgb *= 1.0 - 0.42 * sDrip - 0.3 * sFoot - 0.22 * sDown;
+	float sBleach = sTop * uSurf.z * ( 0.5 + 0.5 * sMacro );
+	diffuseColor.rgb = mix( diffuseColor.rgb, vec3( sLum ) * 1.15 + 0.03, 0.3 * sBleach );`)
+    .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+	roughnessFactor = clamp( roughnessFactor + ( sMacro - 0.5 ) * 0.22 + 0.12 * sBleach + 0.1 * sFoot - uSurf.w * sDrip - uSurfGloss * sEdge, 0.04, 1.0 );`);
+}
+
+/** Name of the per-vertex attribute patchSurfaceShader reads, and the value that means "far from any edge". */
+export const WEARING = 'wearing';
+export const WEARING_FAR = 9;
+
+// ---- run-off stains ---------------------------------------------------------------------------
+
+let stainMaps: { stain: THREE.Texture; rust: THREE.Texture } | null = null;
+const stainMats = new Map<string, THREE.MeshBasicMaterial>();
+
+/**
+ * The multiply colour of a run-off stain hanging from v = 1: ragged streaks that thin out and fade
+ * toward v = 0 and toward both sides. White where there is no stain. RGBA, row 0 is v = 0.
+ */
+export function stainPixels(width: number, height: number, tone: readonly [number, number, number], seed: number): Uint8ClampedArray {
+  const px = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    const v = (y + 0.5) / height;
+    for (let x = 0; x < width; x++) {
+      const u = (x + 0.5) / width;
+      const side = ss(0, 0.16, Math.min(u, 1 - u));
+      const reach = 0.25 + 0.75 * vnoise(u, 0.5, 6, 1, seed) * (0.6 + 0.4 * vnoise(u, 0.5, 23, 1, seed + 1));
+      const fall = 1 - ss(0, reach, 1 - v);
+      const strand = 0.35 + 0.65 * ss(0.3, 0.7, fbm(u, v, 14, 1, 2, seed + 2));
+      const a = Math.min(1, side * fall * fall * strand * (0.75 + 0.5 * vnoise(u, v, 9, 5, seed + 3)));
+      const o = (y * width + x) * 4;
+      px[o] = 255 * (1 - a * (1 - tone[0]));
+      px[o + 1] = 255 * (1 - a * (1 - tone[1]));
+      px[o + 2] = 255 * (1 - a * (1 - tone[2]));
+      px[o + 3] = 255;
+    }
+  }
+  return px;
+}
+
+function stainTexture(tone: readonly [number, number, number], seed: number): THREE.Texture {
+  const tex = new THREE.DataTexture(stainPixels(64, 128, tone, seed), 64, 128, THREE.RGBAFormat, THREE.UnsignedByteType);
+  tex.flipY = false;
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.ClampToEdgeWrapping;
+  tex.magFilter = THREE.LinearFilter;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.generateMipmaps = true;
+  tex.colorSpace = THREE.NoColorSpace;
+  tex.needsUpdate = true;
+  return tex;
+}
+
+/**
+ * The material for run-off stains: quads laid a few millimetres proud of a wall, whose colour multiplies
+ * what is behind them (order-independent, no depth write, no shadow). 'rust' is the brown that runs from
+ * iron fixings; 'stain' is the grey-brown of dirty water. UV v = 1 is the top of the stain. One draw per kind.
+ */
+export function stainMaterial(kind: 'stain' | 'rust' = 'stain'): THREE.MeshBasicMaterial {
+  let m = stainMats.get(kind);
+  if (!m) {
+    if (!stainMaps) stainMaps = { stain: stainTexture([0.5, 0.47, 0.43], 5), rust: stainTexture([0.6, 0.4, 0.27], 9) };
+    m = new THREE.MeshBasicMaterial({
+      map: stainMaps[kind], transparent: true, depthWrite: false, toneMapped: false,
+      blending: THREE.CustomBlending, blendEquation: THREE.AddEquation, blendSrc: THREE.ZeroFactor, blendDst: THREE.SrcColorFactor,
+      polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
+    });
+    m.name = `stain:${kind}`;
+    m.userData.noShadow = true;
+    // In fog a stain fades to nothing (white under multiply) instead of taking the fog colour.
+    m.onBeforeCompile = (shader) => {
+      shader.fragmentShader = shader.fragmentShader.replace('#include <fog_fragment>', `#ifdef USE_FOG
+	#ifdef FOG_EXP2
+		float stainFog = 1.0 - exp( - fogDensity * fogDensity * vFogDepth * vFogDepth );
+	#else
+		float stainFog = smoothstep( fogNear, fogFar, vFogDepth );
+	#endif
+	gl_FragColor.rgb = mix( gl_FragColor.rgb, vec3( 1.0 ), stainFog );
+#endif`);
+    };
+    m.customProgramCacheKey = () => 'townforge-stain';
+    stainMats.set(kind, m);
+  }
+  return m;
+}
+
+// ---- colour restraint -------------------------------------------------------------------------
+
+/**
+ * The colours a material is found in, in HSL. Inside `hue` (degrees, may run below 0 to wrap through
+ * red) a tone may be as saturated as `sat`. Outside it the tone is read as a paint, dye or tint over
+ * the material and keeps its hue at no more than `off` saturation; with no `off` the hue is pulled to
+ * the nearest end of the band, because nobody paints a log or a dune. `l` bounds lightness.
+ */
+interface ToneRange { hue?: readonly [number, number]; sat: number; off?: number; l: readonly [number, number] }
+
+const TONE_RANGES: Record<SurfaceId, ToneRange> = {
+  timber: { hue: [14, 46], sat: 0.42, off: 0.32, l: [0.1, 0.8] },
+  planks: { hue: [14, 46], sat: 0.42, off: 0.32, l: [0.1, 0.8] },
+  log: { hue: [14, 42], sat: 0.4, l: [0.08, 0.52] },
+  bark: { hue: [14, 44], sat: 0.38, off: 0.2, l: [0.07, 0.5] },
+  plaster: { hue: [18, 62], sat: 0.3, off: 0.3, l: [0.25, 0.9] },
+  adobe: { hue: [12, 42], sat: 0.45, l: [0.22, 0.74] },
+  brick: { hue: [-10, 30], sat: 0.5, off: 0.22, l: [0.14, 0.62] },
+  stone: { hue: [14, 56], sat: 0.28, off: 0.13, l: [0.12, 0.82] },
+  cobble: { hue: [14, 56], sat: 0.24, off: 0.12, l: [0.12, 0.7] },
+  concrete: { hue: [18, 62], sat: 0.12, off: 0.08, l: [0.18, 0.8] },
+  metal_panel: { sat: 0.45, l: [0.1, 0.82] },
+  corrugated: { sat: 0.45, l: [0.1, 0.8] },
+  rusted: { hue: [6, 36], sat: 0.5, off: 0.3, l: [0.1, 0.62] },
+  hull_plate: { sat: 0.38, l: [0.1, 0.8] },
+  glass_curtain: { sat: 0.4, l: [0.1, 0.7] },
+  shingle: { hue: [14, 46], sat: 0.38, off: 0.2, l: [0.1, 0.56] },
+  tile: { hue: [0, 34], sat: 0.52, off: 0.34, l: [0.14, 0.62] },
+  thatch: { hue: [26, 56], sat: 0.45, l: [0.22, 0.7] },
+  slate: { sat: 0.18, l: [0.1, 0.52] },
+  canvas: { hue: [24, 56], sat: 0.35, off: 0.4, l: [0.14, 0.86] },
+  paper_screen: { hue: [28, 62], sat: 0.3, off: 0.3, l: [0.35, 0.92] },
+  organic: { sat: 0.5, l: [0.08, 0.8] },
+  chitin: { sat: 0.5, l: [0.05, 0.7] },
+  crystal: { sat: 0.55, l: [0.1, 0.85] },
+  coral: { sat: 0.52, l: [0.12, 0.82] },
+  ice: { hue: [165, 235], sat: 0.45, off: 0.22, l: [0.42, 0.95] },
+  dirt: { hue: [10, 46], sat: 0.42, l: [0.1, 0.56] },
+  mud: { hue: [10, 50], sat: 0.36, l: [0.08, 0.45] },
+  sand: { hue: [16, 54], sat: 0.5, off: 0.32, l: [0.18, 0.86] },
+  grass: { hue: [52, 145], sat: 0.42, off: 0.34, l: [0.1, 0.5] },
+  moss: { hue: [56, 150], sat: 0.42, off: 0.34, l: [0.08, 0.46] },
+  snow: { sat: 0.22, l: [0.6, 0.97] },
+  asphalt: { sat: 0.1, l: [0.07, 0.42] },
+  gravel: { hue: [14, 52], sat: 0.22, off: 0.1, l: [0.14, 0.72] },
+  regolith: { hue: [2, 48], sat: 0.46, off: 0.2, l: [0.1, 0.76] },
+  ash: { sat: 0.1, l: [0.08, 0.62] },
+  paint: { sat: 0.55, l: [0.12, 0.8] },
+};
+
+/** No surface, however it is painted, is more saturated than this; only light sources are. */
+export const MAX_SURFACE_SATURATION = 0.55;
+
+const hslScratch = { h: 0, s: 0, l: 0 };
+const colScratch = new THREE.Color();
+
+function clampTone(hex: string, range: ToneRange, wear: number, lShift = 0, ceiling = MAX_SURFACE_SATURATION): string {
+  colScratch.set(cleanHex(hex)).getHSL(hslScratch, THREE.SRGBColorSpace);
+  let h = hslScratch.h * 360;
+  let s = hslScratch.s;
+  // Age takes the colour out of everything: a ruin keeps three quarters of what a new wall may have.
+  const age = 1 - 0.25 * clamp01(wear);
+  let cap = range.sat;
+  if (range.hue && s > 0.08) {
+    const [lo, hi] = range.hue;
+    const mid = (lo + hi) / 2;
+    // Hue as an offset from the middle of the band, -180..180.
+    const d = ((((h - mid) % 360) + 540) % 360) - 180;
+    const half = (hi - lo) / 2;
+    if (Math.abs(d) > half) {
+      if (range.off === undefined) h = (mid + Math.sign(d) * half + 360) % 360;
+      else cap = range.off;
+    }
+  }
+  s = Math.min(s, cap * age, ceiling);
+  const l = Math.min(range.l[1], Math.max(range.l[0], hslScratch.l + lShift));
+  return `#${colScratch.setHSL(h / 360, s, l, THREE.SRGBColorSpace).getHexString(THREE.SRGBColorSpace)}`;
+}
+
+const lightness = (hex: string): number => colScratch.set(cleanHex(hex)).getHSL(hslScratch, THREE.SRGBColorSpace).l;
+
+/** One colour pulled into the natural range of a surface kind; `wear` 0..1 ages it further. */
+export function groundTone(kind: SurfaceId, hex: string, wear = 0): string {
+  return clampTone(hex, TONE_RANGES[kind in TONE_RANGES ? kind : 'paint'], wear);
+}
+
+/**
+ * The colour of a small painted accent or a sign: the one place fresh paint may pass the surface limit,
+ * though still short of a pure hue, and less the more the place has aged.
+ */
+export function signTone(hex: string, wear = 0): string {
+  return clampTone(hex, { sat: 0.72, l: [0.14, 0.72] }, wear, 0, 0.72);
+}
+
+const DARK_RANGE: ToneRange = { sat: 0.32, l: [0.04, 0.26] };
+const GLASS_RANGE: ToneRange = { sat: 0.4, l: [0.14, 0.6] };
+
+/**
+ * The realism rule. Returns the style with every tone pulled toward the colours its SurfaceKind is
+ * found in: timber cannot be bright orange, concrete stays neutral, a painted accent is allowed but
+ * aged, and nothing but `glow` passes MAX_SURFACE_SATURATION. Hue is kept wherever the material could
+ * carry it (as paint, dye or a tint in the stone), and where clamping would flatten the difference in
+ * lightness between the wall and its second wall, roof or trim, the second tone is moved back apart.
+ * Applying it twice changes nothing more.
+ */
+export function groundedPalette(style: StyleSpec, surfaces: SurfaceSet): StyleSpec {
+  const wear = clamp01(surfaces.wear);
+  const tone = (kind: SurfaceKind, hex: string): string => clampTone(hex, TONE_RANGES[isSurfaceKind(kind) ? kind : 'plaster'], wear);
+  const out: StyleSpec = {
+    ...style,
+    wall: tone(surfaces.wall, style.wall),
+    wall2: tone(surfaces.wall2, style.wall2),
+    roof: tone(surfaces.roof, style.roof),
+    trim: tone(surfaces.trim, style.trim),
+    accent: clampTone(style.accent, TONE_RANGES.paint, wear),
+    dark: clampTone(style.dark, DARK_RANGE, wear),
+    glass: clampTone(style.glass, GLASS_RANGE, 0),
+    ground: tone(surfaces.ground, style.ground),
+    road: tone(surfaces.road, style.road),
+  };
+  const wallWas = lightness(style.wall);
+  const wallNow = lightness(out.wall);
+  for (const key of ['wall2', 'roof', 'trim'] as const) {
+    const was = lightness(style[key]) - wallWas;
+    const now = lightness(out[key]) - wallNow;
+    if (Math.abs(was) < 0.06 || (Math.sign(now) === Math.sign(was) && Math.abs(now) >= 0.6 * Math.abs(was))) continue;
+    const kind = surfaces[key];
+    out[key] = clampTone(out[key], TONE_RANGES[isSurfaceKind(kind) ? kind : 'plaster'], wear, 0.8 * was - now);
+  }
+  return out;
+}
+
 export interface GroundOpts { quality?: Quality; seed?: number }
 export interface RoadOpts extends GroundOpts {
   /** 'road' is the paved or beaten way; 'track' is half worn back into the ground; 'plaza' is a lighter, tidier apron. */
@@ -310,7 +644,7 @@ function mixHex(a: string, b: string, t: number): string {
   return `#${new THREE.Color(cleanHex(a)).lerp(new THREE.Color(cleanHex(b)), t).getHexString()}`;
 }
 
-function worldMaterial(kind: SurfaceKind, hex: string, wear: number, wet: number, opts: GroundOpts, offset: number): THREE.MeshStandardMaterial {
+function worldMaterial(kind: SurfaceKind, hex: string, wear: number, wet: number, opts: GroundOpts, offset: number, styleHex: string): THREE.MeshStandardMaterial {
   const w = step(wet);
   const s = mapSet(kind, cleanHex(hex), step(wear), w, sizeFor(opts.quality ?? defaults.quality), (opts.seed ?? 0) | 0);
   return standard(s, `world${offset}`, (m) => {
@@ -318,7 +652,9 @@ function worldMaterial(kind: SurfaceKind, hex: string, wear: number, wet: number
     m.onBeforeCompile = (shader) => patchGroundShader(shader as unknown as ShaderSource, tile, w);
     m.customProgramCacheKey = () => 'townforge-ground';
     m.name = `ground:${kind}`;
-    m.userData.baseHex = cleanHex(hex);
+    // baseHex is the colour the style asked for; bakedHex is the colour in the map, after restraint.
+    m.userData.baseHex = cleanHex(styleHex);
+    m.userData.bakedHex = cleanHex(hex);
     if (offset !== 0) {
       m.polygonOffset = true;
       m.polygonOffsetFactor = offset;
@@ -329,22 +665,80 @@ function worldMaterial(kind: SurfaceKind, hex: string, wear: number, wet: number
 
 /**
  * The ground: `surfaces.ground` in `style.ground`, sampled by world position, so any mesh lying in the
- * xz plane (whatever its UVs or size) shows the texture at true scale. The colour is baked into the
- * map; `material.color` stays white and `material.userData.baseHex` records the style colour.
+ * xz plane (whatever its UVs or size) shows the texture at true scale. The colour, held to the natural
+ * range of the ground kind (groundTone), is baked into the map; `material.color` stays white,
+ * `material.userData.baseHex` records the style colour and `userData.bakedHex` the colour in the map.
  */
 export function groundMaterial(surfaces: SurfaceSet, style: StyleSpec, opts: GroundOpts = {}): THREE.MeshStandardMaterial {
-  const kind = isSurfaceKind(surfaces.ground) ? surfaces.ground : 'dirt';
   if (opts.quality !== undefined) defaults.quality = opts.quality;
-  return worldMaterial(kind, style.ground, surfaces.wear, surfaces.wet, opts, 0);
+  const g = groundLook(surfaces, style, 'ground');
+  return worldMaterial(g.kind, g.hex, g.wear, surfaces.wet, opts, 0, style.ground);
+}
+
+/** Kind, baked colour and wear of the ground or one road variant. The colour is held to the kind's natural range. */
+function groundLook(surfaces: SurfaceSet, style: StyleSpec, variant: 'ground' | 'road' | 'track' | 'plaza'): { kind: SurfaceKind; hex: string; wear: number } {
+  if (variant === 'ground') {
+    const kind = isSurfaceKind(surfaces.ground) ? surfaces.ground : 'dirt';
+    return { kind, hex: groundTone(kind, style.ground, surfaces.wear), wear: surfaces.wear };
+  }
+  const kind = isSurfaceKind(surfaces.road) ? surfaces.road : 'dirt';
+  const road = groundTone(kind, style.road, surfaces.wear);
+  if (variant === 'track') return { kind, hex: mixHex(road, groundLook(surfaces, style, 'ground').hex, 0.5), wear: Math.min(1, surfaces.wear + 0.2) };
+  if (variant === 'plaza') return { kind, hex: mixHex(road, '#d6cfc2', 0.3), wear: surfaces.wear * 0.6 };
+  return { kind, hex: road, wear: surfaces.wear };
 }
 
 /** Roads, tracks and plazas: `surfaces.road` in `style.road`, world-sampled, with polygon offset so they can lie 1 to 3 cm above the ground. */
 export function roadMaterial(surfaces: SurfaceSet, style: StyleSpec, opts: RoadOpts = {}): THREE.MeshStandardMaterial {
-  const kind = isSurfaceKind(surfaces.road) ? surfaces.road : 'dirt';
   const variant = opts.variant ?? 'road';
-  if (variant === 'track') return worldMaterial(kind, mixHex(style.road, style.ground, 0.5), Math.min(1, surfaces.wear + 0.2), surfaces.wet, opts, -2);
-  if (variant === 'plaza') return worldMaterial(kind, mixHex(style.road, '#d6cfc2', 0.3), surfaces.wear * 0.6, surfaces.wet, opts, -3);
-  return worldMaterial(kind, style.road, surfaces.wear, surfaces.wet, opts, -2);
+  const g = groundLook(surfaces, style, variant);
+  return worldMaterial(g.kind, g.hex, g.wear, surfaces.wet, opts, variant === 'plaza' ? -3 : -2, variant === 'road' ? style.road : g.hex);
+}
+
+// ---- warming ----------------------------------------------------------------------------------
+
+/** One surface a world is about to need. Wear and wet are 0..1; quality and seed default as in getSurface. */
+export interface SurfaceRequest { kind: SurfaceId; hex: string; wear: number; wet: number; quality?: Quality; seed?: number }
+
+/** The ground, road, track and plaza surfaces groundMaterial and roadMaterial will ask for. */
+export function groundRequests(surfaces: SurfaceSet, style: StyleSpec, opts: GroundOpts = {}): SurfaceRequest[] {
+  return (['ground', 'road', 'track', 'plaza'] as const).map((variant) => {
+    const g = groundLook(surfaces, style, variant);
+    return { kind: g.kind, hex: g.hex, wear: g.wear, wet: surfaces.wet, quality: opts.quality, seed: opts.seed };
+  });
+}
+
+const now = (): number => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+const breathe = (): Promise<void> => new Promise((resolve) => { setTimeout(resolve, 0); });
+
+/**
+ * Generates the maps for every surface in `list` that is not cached yet, a few rows at a time, handing
+ * the thread back to the page every `sliceMs` milliseconds, so a world can load behind a moving
+ * progress screen without a hitch. Afterwards getSurface, groundMaterial and roadMaterial find the same
+ * surfaces ready. Safe to call again or alongside the synchronous path; duplicates are generated once.
+ */
+export async function warmSurfaces(list: readonly SurfaceRequest[], sliceMs = 7): Promise<void> {
+  let t0 = now();
+  for (const req of list) {
+    const kind: SurfaceId = req.kind in DEFS ? req.kind : 'plaster';
+    const hex = cleanHex(req.hex);
+    const wear = step(req.wear);
+    const wet = step(req.wet);
+    const size = sizeFor(req.quality ?? defaults.quality);
+    const seed = (req.seed ?? 0) | 0;
+    if (sets.has(setKey(kind, hex, wear, wet, size, seed))) continue;
+    const job = beginSurface(DEFS[kind], hexToRgb(hex), { wear, wet, size, seed });
+    while (stepSurface(job, 8)) {
+      if (now() - t0 >= sliceMs) {
+        await breathe();
+        t0 = now();
+      }
+    }
+    await breathe();
+    t0 = now();
+    // Another caller may have built it synchronously while this one was waiting.
+    if (!sets.has(setKey(kind, hex, wear, wet, size, seed))) mapSet(kind, hex, wear, wet, size, seed, finishSurface(job));
+  }
 }
 
 // ---- inference --------------------------------------------------------------------------------
@@ -468,4 +862,9 @@ export function disposeSurfaces(): void {
   glassMats.clear();
   glowMap?.dispose();
   glowMap = null;
+  for (const m of stainMats.values()) m.dispose();
+  stainMats.clear();
+  stainMaps?.stain.dispose();
+  stainMaps?.rust.dispose();
+  stainMaps = null;
 }

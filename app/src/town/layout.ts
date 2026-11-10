@@ -2,10 +2,15 @@
 // With no WorldSpec.site: main street along X through the origin, cross streets along Z. With a site the
 // pattern (street, ring, scatter, grid, terraces) decides. Buildings face their route; rotations are always
 // multiples of 90 degrees (rotY 0 faces -Z, PI faces +Z, PI/2 faces -X, -PI/2 faces +X).
+//
+// A spec that carries WorldSpec.terrain is laid out for land rather than for a town: footprints grow, lots
+// tighten or spread with terrain.settled, the wilderness patterns (wild, path, shoreline, cliffside) put a few
+// points of interest among trails instead of streets, zero buildings is a valid world, and the water the
+// terrain asks for is planned here as plain shapes (see WaterBody) so the land can be carved to hold it.
 import PoissonDiskSampling from 'poisson-disk-sampling';
 import { makeRng } from '../world/rng';
 import type { Rng } from '../world/rng';
-import type { BuildingRole, BuildingSize, BuildingSpec, SitePattern, SiteSpec, ThemeId, WorldSpec } from '../world/spec';
+import type { BuildingRole, BuildingSize, BuildingSpec, SitePattern, SiteSpec, TerrainSpec, ThemeId, WaterKind, WorldSpec } from '../world/spec';
 
 export interface PlacedBuilding {
   id: string; role: BuildingRole; size: BuildingSize;
@@ -20,6 +25,31 @@ export interface TownLayout {
   plaza: { x: number; z: number; r: number }; spawn: { x: number; z: number; rotY: number };
   bounds: { minX: number; maxX: number; minZ: number; maxZ: number };
   walkable: { x: number; z: number }[];
+  /** Winding footpaths (wilderness patterns): polylines the land grades to a walkable slope. Absent on towns. */
+  trails?: Trail[];
+  /** Water the terrain asks for, as shapes. Absent when there is none. */
+  water?: WaterBody[];
+  /** Open ground kept clear and level: the spawn clearing of a wilderness, a camp circle. */
+  clearings?: { x: number; z: number; r: number }[];
+  /** Level benches a cliffside site steps up: flat between s0 and s1 along (nx, nz), `level` steps above the first. */
+  benches?: { nx: number; nz: number; steps: { s0: number; s1: number; level: number }[] };
+}
+/** A footpath. 'path' is the one drawn route of a path site; 'trail' is a faint worn line. */
+export interface Trail { pts: { x: number; z: number }[]; width: number; kind: 'trail' | 'path' }
+export type WaterShape =
+  | { shape: 'disc'; x: number; z: number; r: number; wobble: number; phase: number }
+  | { shape: 'band'; pts: { x: number; z: number }[]; half: number }
+  /** Water where x * nx + z * nz exceeds `offset` (a wobbling shoreline). */
+  | { shape: 'half'; nx: number; nz: number; offset: number; wobble: number; phase: number }
+  /** Water (or mist) everywhere further than `margin` from the rectangle. */
+  | { shape: 'outside'; rect: Rect; margin: number }
+  /** Water wherever the land lies below the water level: the pools of a swamp, the channels between islands. */
+  | { shape: 'sheet' };
+export interface WaterBody {
+  kind: Exclude<WaterKind, 'none'>;
+  area: WaterShape;
+  /** A disc that stands for the body, for audio and life: the point of it nearest the middle of the place. */
+  x: number; z: number; r: number;
 }
 export interface Rect { minX: number; maxX: number; minZ: number; maxZ: number }
 
@@ -27,6 +57,13 @@ export const FOOTPRINTS: Record<BuildingSize, { w: number; d: number }> = {
   small: { w: 6, d: 6 },
   medium: { w: 9, d: 8 },
   large: { w: 12, d: 10 },
+};
+
+/** Footprints of a world that carries terrain: structures a person looks up at. */
+export const GROWN_FOOTPRINTS: Record<BuildingSize, { w: number; d: number }> = {
+  small: { w: 7, d: 7 },
+  medium: { w: 11, d: 9 },
+  large: { w: 16, d: 12 },
 };
 
 export const MAIN_WIDTH = 8;
@@ -48,6 +85,11 @@ export function footprintFor(
   const fp = kit?.footprint(role, size);
   if (fp && fp.w > 0 && fp.d > 0) return { w: fp.w, d: fp.d };
   return { ...FOOTPRINTS[size] };
+}
+
+/** Footprint of a building in this world: grown when the spec carries terrain, the classic sizes otherwise. */
+function fpFor(spec: WorldSpec, s: { role: BuildingRole; size: BuildingSize }): { w: number; d: number } {
+  return spec.terrain ? { ...GROWN_FOOTPRINTS[s.size] } : footprintFor(s.role, s.size);
 }
 
 const PROP_KINDS: Record<ThemeId, [string, number][]> = {
@@ -108,6 +150,7 @@ type Paths = SiteSpec['paths'];
 interface Plan {
   placed: PlacedBuilding[]; boxes: Rect[]; routes: RoadSegment[];
   plaza: TownLayout['plaza']; spawn: TownLayout['spawn']; walkable: Pt[];
+  trails?: Trail[]; clearings?: { x: number; z: number; r: number }[]; benches?: TownLayout['benches']; water?: WaterBody[];
 }
 
 const clampN = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v));
@@ -116,8 +159,10 @@ const widthFor = (paths: Paths, normal: number): number => (paths === 'road' ? n
 const faceToward = (x: number, z: number, tx: number, tz: number): number => Math.atan2(-(tx - x), -(tz - z));
 const rectOf = (x: number, z: number): Rect => ({ minX: x, maxX: x, minZ: z, maxZ: z });
 
-function streetPlan(spec: WorldSpec, ordered: BuildingSpec[], o: { mainW: number; crossW: number; gap: number }): Plan {
+function streetPlan(spec: WorldSpec, ordered: BuildingSpec[], o: { mainW: number; crossW: number; gap: number; setback?: number; jitter?: number }): Plan {
   const { mainW, crossW, gap } = o;
+  const setback = o.setback ?? SETBACK;
+  const jitter = o.jitter ?? 1.5;
   const rng = makeRng(spec.seed, 'layout');
   const count = ordered.length;
   const nCross = crossStreetCount(count);
@@ -160,7 +205,7 @@ function streetPlan(spec: WorldSpec, ordered: BuildingSpec[], o: { mainW: number
     for (let step = 0; step < 1200; step++, c += 0.5) {
       const cand = make(c);
       if (fits(cand.r)) {
-        cursors.set(key, c + extent + rng.range(0, 1.5));
+        cursors.set(key, c + extent + rng.range(0, jitter));
         return { x: cand.x, z: cand.z };
       }
     }
@@ -173,13 +218,13 @@ function streetPlan(spec: WorldSpec, ordered: BuildingSpec[], o: { mainW: number
   for (let i = 0; i < mainCount; i++) {
     const s = ordered[i];
     if (!s) continue;
-    const { w, d } = footprintFor(s.role, s.size);
+    const { w, d } = fpFor(spec, s);
     const side = ((i % 2 === 0 ? 1 : -1) * mainStart) as 1 | -1;
     const k = perSide[side] ?? 0;
     perSide[side] = k + 1;
     const dir: 1 | -1 = k % 2 === 0 ? 1 : -1;
     const rotY = side > 0 ? 0 : Math.PI;
-    const z = side * (mainW / 2 + SETBACK + d / 2);
+    const z = side * (mainW / 2 + setback + d / 2);
     const pos = slide(`m:${side}:${dir}`, w, (c) => {
       const x = dir * (c + w / 2);
       return { x, z, r: buildingAabb({ x, z, rotY, w, d }) };
@@ -197,9 +242,9 @@ function streetPlan(spec: WorldSpec, ordered: BuildingSpec[], o: { mainW: number
     const arm = arms[j]?.[Math.floor((i - mainCount) / nCross) % 4];
     const cx = crossXs[j];
     if (!arm || cx === undefined) continue;
-    const { w, d } = footprintFor(s.role, s.size);
+    const { w, d } = fpFor(spec, s);
     const rotY = arm.side > 0 ? Math.PI / 2 : -Math.PI / 2;
-    const x = cx + arm.side * (crossW / 2 + SETBACK + d / 2);
+    const x = cx + arm.side * (crossW / 2 + setback + d / 2);
     const pos = slide(`c:${j}:${arm.side}:${arm.dir}`, w, (c) => {
       const z = arm.dir * (c + w / 2);
       return { x, z, r: buildingAabb({ x, z, rotY, w, d }) };
@@ -350,7 +395,7 @@ function ringPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: 
     for (let j = 0; j < k; j++, index++) {
       const s = ordered[index];
       if (!s) continue;
-      const { w, d } = footprintFor(s.role, s.size);
+      const { w, d } = fpFor(spec, s);
       let best: { r: number; x: number; z: number; rotY: number } | null = null;
       for (const dTheta of [0, 0.12, -0.12, 0.25, -0.25, 0.4, -0.4, 0.55, -0.55]) {
         const th = a0 + (Math.PI * 2 * j) / k + dTheta;
@@ -385,14 +430,14 @@ function ringPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: 
 }
 
 /** 2x2 to 3x3 city blocks; buildings line the block edges and face the streets. */
-function gridPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: Paths): Plan {
+function gridPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: Paths, jitter = 2): Plan {
   const rng = makeRng(spec.seed, 'layout');
   const n = ordered.length;
   const W = widthFor(paths, 6);
   const h = W / 2;
   const [nx, ny] = n <= 8 ? [2, 2] : n <= 11 ? [3, 2] : [3, 3];
   let maxD = 6;
-  for (const s of ordered) maxD = Math.max(maxD, footprintFor(s.role, s.size).d);
+  for (const s of ordered) maxD = Math.max(maxD, fpFor(spec, s).d);
   const B = Math.max(28, 2 * maxD + gap + 3.2 + 4);
   const pitch = B + W;
   const xs = Array.from({ length: nx + 1 }, (_, j) => (j - nx / 2) * pitch);
@@ -436,7 +481,7 @@ function gridPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: 
       else if (e === 3) { z = along; x = b.minX + SET + d / 2; rotY = Math.PI / 2; }
       else { z = along; x = b.maxX - SET - d / 2; rotY = -Math.PI / 2; }
       if (ctxFits(c, buildingAabb({ x, z, rotY, w, d }))) {
-        cursors.set(key, cur + w + rng.range(0, 2));
+        cursors.set(key, cur + w + rng.range(0, jitter));
         return { x, z, rotY };
       }
     }
@@ -444,7 +489,7 @@ function gridPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: 
   };
 
   ordered.forEach((s, i) => {
-    const { w, d } = footprintFor(s.role, s.size);
+    const { w, d } = fpFor(spec, s);
     const e0 = (Math.floor(i / nb) + rng.int(0, 3)) % 4;
     for (let off = 0; off < nb; off++) {
       for (let k = 0; k < 4; k++) {
@@ -462,7 +507,7 @@ function gridPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: 
 }
 
 /** 2 or 3 parallel rows behind one front road, all facing the same way, each row served by a lane. */
-function terracePlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: Paths): Plan {
+function terracePlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: Paths, jitter = 1.5): Plan {
   const rng = makeRng(spec.seed, 'layout');
   const n = ordered.length;
   const mainW = widthFor(paths, 8);
@@ -473,7 +518,7 @@ function terracePlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, path
   const rows: BuildingSpec[][] = [];
   let at = 0;
   for (const sz of sizes) { rows.push(ordered.slice(at, at + sz)); at += sz; }
-  const depth = rows.map((r) => r.reduce((m, s) => Math.max(m, footprintFor(s.role, s.size).d), 0));
+  const depth = rows.map((r) => r.reduce((m, s) => Math.max(m, fpFor(spec, s).d), 0));
   const base: number[] = [mainW / 2 + 1.6];
   for (let k = 1; k < rowsN; k++) base.push((base[k - 1] ?? 0) + (depth[k - 1] ?? 0) + laneW + 3.2);
   const laneZ = base.map((b, k) => (k === 0 ? 0 : b - 1.6 - laneW / 2));
@@ -486,7 +531,7 @@ function terracePlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, path
   const cursors = new Map<string, number>();
   rows.forEach((row, k) => {
     row.forEach((s, j) => {
-      const { w, d } = footprintFor(s.role, s.size);
+      const { w, d } = fpFor(spec, s);
       const dir: 1 | -1 = j % 2 === 0 ? 1 : -1;
       const z = (base[k] ?? 0) + d / 2;
       const key = `${k}:${dir}`;
@@ -495,7 +540,7 @@ function terracePlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, path
         const x = dir * (cur + w / 2);
         if (ctxFits(c, buildingAabb({ x, z, rotY: 0, w, d }))) {
           ctxCommit(c, s, x, z, 0, w, d);
-          cursors.set(key, cur + w + rng.range(0, 1.5));
+          cursors.set(key, cur + w + rng.range(0, jitter));
           return;
         }
       }
@@ -578,7 +623,7 @@ function scatterPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, path
   const diag: number[] = [];
   // Two centres stay at least half of each diagonal apart plus the spacing, so footprints never come closer than the spacing.
   for (const s of ordered) {
-    const { w, d } = footprintFor(s.role, s.size);
+    const { w, d } = fpFor(spec, s);
     const dg = Math.hypot(w, d);
     const rMin = plazaR + dg / 2 + 1.5;
     let R = rMin + 6;
@@ -619,25 +664,471 @@ function scatterPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, path
   return { placed: c.placed, boxes: c.boxes, routes, plaza, spawn: pickSpawn(plaza, c.boxes), walkable };
 }
 
-function normaliseSite(site: SiteSpec): { pattern: SitePattern; wild: number; paths: Paths; gap: number } {
-  const patterns: SitePattern[] = ['street', 'ring', 'scatter', 'grid', 'terraces'];
+// ---- Trails and wilderness patterns ------------------------------------------------------------
+
+const WILD_PATTERNS: readonly SitePattern[] = ['wild', 'path', 'shoreline', 'cliffside'];
+
+/** Distance from a point to the centre line of a polyline. */
+export function distanceToPolyline(pts: readonly Pt[], x: number, z: number): number {
+  let best = Infinity;
+  for (let i = 0; i + 1 < pts.length; i++) {
+    const a = pts[i] as Pt;
+    const b = pts[i + 1] as Pt;
+    const dx = b.x - a.x;
+    const dz = b.z - a.z;
+    const len2 = dx * dx + dz * dz;
+    const t = len2 > 0 ? clampN(((x - a.x) * dx + (z - a.z) * dz) / len2, 0, 1) : 0;
+    const d = Math.hypot(x - a.x - dx * t, z - a.z - dz * t);
+    if (d < best) best = d;
+  }
+  if (pts.length === 1) best = Math.hypot(x - (pts[0] as Pt).x, z - (pts[0] as Pt).z);
+  return best;
+}
+
+const rectDistance = (r: Rect, x: number, z: number): number => Math.hypot(Math.max(r.minX - x, 0, x - r.maxX), Math.max(r.minZ - z, 0, z - r.maxZ));
+
+/** Moves a point that lies inside a rectangle to its nearest edge. */
+function pushOut(p: Pt, r: Rect): void {
+  if (!inside(r, p.x, p.z)) return;
+  const dl = p.x - r.minX;
+  const dr = r.maxX - p.x;
+  const dn = p.z - r.minZ;
+  const df = r.maxZ - p.z;
+  const m = Math.min(dl, dr, dn, df);
+  if (m === dl) p.x = r.minX; else if (m === dr) p.x = r.maxX; else if (m === dn) p.z = r.minZ; else p.z = r.maxZ;
+}
+
+/** A footpath from a to b that wanders off the straight line and bends round every footprint. */
+function windingTrail(a: Pt, b: Pt, rng: Rng, boxes: readonly Rect[], width: number, kind: Trail['kind'] = 'trail'): Trail {
+  const len = Math.hypot(b.x - a.x, b.z - a.z);
+  const n = Math.max(2, Math.ceil(len / 2));
+  const px = len > 0 ? -(b.z - a.z) / len : 0;
+  const pz = len > 0 ? (b.x - a.x) / len : 0;
+  const amp = Math.min(7, len * 0.16);
+  const p1 = rng.range(0, Math.PI * 2);
+  const p2 = rng.range(0, Math.PI * 2);
+  const k1 = rng.range(0.8, 1.6);
+  const k2 = rng.range(2.2, 3.4);
+  const grown = boxes.map((r) => grow(r, width / 2 + 1.2));
+  const pts: Pt[] = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const off = amp * Math.sin(Math.PI * t) * (0.7 * Math.sin(k1 * Math.PI * 2 * t + p1) + 0.3 * Math.sin(k2 * Math.PI * 2 * t + p2));
+    const p = { x: a.x + (b.x - a.x) * t + px * off, z: a.z + (b.z - a.z) * t + pz * off };
+    if (i > 0 && i < n) for (const r of grown) pushOut(p, r);
+    pts.push(p);
+  }
+  return { pts, width, kind };
+}
+
+function trailWalkable(trails: readonly Trail[], extra: readonly Pt[]): Pt[] {
+  const out: Pt[] = [...extra];
+  for (const t of trails) {
+    let run = 3;
+    for (let i = 0; i < t.pts.length; i++) {
+      const p = t.pts[i] as Pt;
+      const q = t.pts[i - 1];
+      if (q) run += Math.hypot(p.x - q.x, p.z - q.z);
+      if (run >= 3 || i === t.pts.length - 1) { out.push({ x: p.x, z: p.z }); run = 0; }
+    }
+  }
+  return out;
+}
+
+/** The trail point nearest to p. */
+function nearestOn(trail: Trail, p: Pt): Pt {
+  let best = trail.pts[0] as Pt;
+  let bd = Infinity;
+  for (const q of trail.pts) {
+    const d = Math.hypot(q.x - p.x, q.z - p.z);
+    if (d < bd) { bd = d; best = q; }
+  }
+  return best;
+}
+
+/** Untouched land: points of interest far apart, each reached by a faint trail from the clearing or from a neighbour. */
+function wildPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number): Plan {
+  const rng = makeRng(spec.seed, 'layout');
+  const n = ordered.length;
+  const c = newCtx(rng, gap, 0, []);
+  const sep = clampN(34 - n * 1.5, 16, 30);
+  const centres: Pt[] = [];
+  for (const s of ordered) {
+    const { w, d } = fpFor(spec, s);
+    const dg = Math.hypot(w, d) / 2;
+    let R = 26 + n * 5;
+    let done = false;
+    for (let attempt = 0; attempt < 400 && !done; attempt++) {
+      if (attempt % 12 === 11) R += 6;
+      const ang = rng.range(0, Math.PI * 2);
+      const r = rng.range(16, R);
+      const x = Math.cos(ang) * r;
+      const z = Math.sin(ang) * r;
+      if (centres.some((p) => Math.hypot(p.x - x, p.z - z) < sep + dg)) continue;
+      const rotY = snapRot(x, z, 0, 0);
+      if (!ctxFits(c, buildingAabb({ x, z, rotY, w, d }))) continue;
+      ctxCommit(c, s, x, z, rotY, w, d);
+      centres.push({ x, z });
+      done = true;
+    }
+    if (!done) {
+      const before = c.placed.length;
+      fallbackPlace(c, s, w, d);
+      const b = c.placed[c.placed.length - 1];
+      if (b && c.placed.length > before) centres.push({ x: b.x, z: b.z });
+    }
+  }
+  const width = 1.4;
+  const trails: Trail[] = [];
+  const nodes: Pt[] = [{ x: 0, z: 0 }];
+  const order = [...c.placed].sort((a, b) => Math.hypot(a.x, a.z) - Math.hypot(b.x, b.z));
+  for (const b of order) {
+    let to = nodes[0] as Pt;
+    for (const q of nodes) if (Math.hypot(q.x - b.door.x, q.z - b.door.z) < Math.hypot(to.x - b.door.x, to.z - b.door.z)) to = q;
+    trails.push(windingTrail(b.door, to, rng, c.boxes, width));
+    nodes.push(b.door);
+  }
+  // Game trails that lead out of the clearing and peter out among the trees.
+  const strays = n === 0 ? 3 : rng.int(1, 2);
+  const a0 = rng.range(0, Math.PI * 2);
+  for (let k = 0; k < strays; k++) {
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const ang = a0 + (k / strays) * Math.PI * 2 + rng.range(-0.5, 0.5);
+      const len = rng.range(28, 46);
+      const end = { x: Math.cos(ang) * len, z: Math.sin(ang) * len };
+      if (c.boxes.some((r) => inside(grow(r, 3), end.x, end.z))) continue;
+      trails.push(windingTrail({ x: 0, z: 0 }, end, rng, c.boxes, width));
+      break;
+    }
+  }
+  const first = trails[trails.length - 1]?.pts;
+  const look = first ? first[Math.min(3, first.length - 1)] : undefined;
+  const spawn = { x: 0, z: 0, rotY: look ? faceToward(0, 0, look.x, look.z) : 0 };
+  return {
+    placed: c.placed, boxes: c.boxes, routes: [], plaza: { x: 0, z: 0, r: 0 }, spawn, trails,
+    walkable: trailWalkable(trails, [{ x: 0, z: 0 }]), clearings: [{ x: 0, z: 0, r: 5 }],
+  };
+}
+
+/** One winding trail through the land with the points of interest strung along it. */
+function pathPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: Paths): Plan {
+  const rng = makeRng(spec.seed, 'layout');
+  const n = ordered.length;
+  const width = paths === 'road' ? 3 : TRACK_WIDTH;
+  const stride = clampN(11 + gap, 13, 26);
+  const half = (56 + n * stride) / 2;
+  const a1 = rng.range(7, 12);
+  const l1 = rng.range(10, 14);
+  const p1 = rng.range(0, Math.PI * 2);
+  const a2 = rng.range(2, 3.5);
+  const l2 = rng.range(4.5, 6.5);
+  const p2 = rng.range(0, Math.PI * 2);
+  const zAt = (x: number): number => a1 * Math.sin(x / l1 + p1) + a2 * Math.sin(x / l2 + p2);
+  const main: Trail = { pts: [], width, kind: 'path' };
+  for (let x = -half - 12; x <= half + 12 + 1e-6; x += 2) main.pts.push({ x, z: zAt(x) });
+  const c = newCtx(rng, Math.min(gap, 4), 0, []);
+  c.plaza = { x: 0, z: zAt(0), r: 0 };
+  const trails: Trail[] = [main];
+  ordered.forEach((s, i) => {
+    const { w, d } = fpFor(spec, s);
+    const x0 = -half + ((i + 0.5) * 2 * half) / n + rng.range(-2, 2);
+    const side = (i % 2 === 0 ? 1 : -1) * (rng.chance(0.85) ? 1 : -1);
+    const t = { x: x0, z: zAt(x0) };
+    const slope = zAt(x0 + 0.5) - zAt(x0 - 0.5);
+    const nl = Math.hypot(slope, 1);
+    const nx = (-slope / nl) * side;
+    const nz = (1 / nl) * side;
+    const before = c.placed.length;
+    for (let off = width / 2 + 2.5 + Math.min(w, d) / 2; off < 40 && c.placed.length === before; off += 1) {
+      const x = t.x + nx * off;
+      const z = t.z + nz * off;
+      const rotY = snapRot(x, z, t.x, t.z);
+      const r = buildingAabb({ x, z, rotY, w, d });
+      if (main.pts.some((q) => rectDistance(r, q.x, q.z) < width / 2 + 1.6)) continue;
+      if (ctxFits(c, r)) ctxCommit(c, s, x, z, rotY, w, d);
+    }
+    if (c.placed.length === before) fallbackPlace(c, s, w, d);
+  });
+  for (const b of c.placed) {
+    const to = nearestOn(main, b.door);
+    if (Math.hypot(to.x - b.door.x, to.z - b.door.z) > 1.2) trails.push(windingTrail(b.door, to, rng, c.boxes, 1.4));
+  }
+  const sp = nearestOn(main, { x: -half * 0.8, z: zAt(-half * 0.8) });
+  const ahead = { x: sp.x + 4, z: zAt(sp.x + 4) };
+  return {
+    placed: c.placed, boxes: c.boxes, routes: [], plaza: c.plaza, spawn: { x: sp.x, z: sp.z, rotY: faceToward(sp.x, sp.z, ahead.x, ahead.z) },
+    trails, walkable: trailWalkable(trails, []), clearings: [{ x: sp.x, z: sp.z, r: 4 }],
+  };
+}
+
+const wobble = (t: number, phase: number): number => 0.5 * Math.sin(t + phase) + 0.3 * Math.sin(t * 2.3 + phase * 1.7) + 0.2 * Math.sin(t * 4.1 + phase * 2.9);
+
+/** Points of interest in one or two rows along a waterline, all facing the water, with a beach trail past their doors. */
+function shorelinePlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number): Plan {
+  const rng = makeRng(spec.seed, 'layout');
+  const n = ordered.length;
+  const sign: 1 | -1 = rng.chance(0.5) ? 1 : -1;
+  const phase = rng.range(0, Math.PI * 2);
+  const W = 16; // the waterline, metres along the shore normal from the origin
+  const trailV = (x: number): number => W - 5.5 + 1.1 * Math.sin(x / 9 + phase);
+  const c = newCtx(rng, gap, 0, []);
+  const rotY = sign > 0 ? Math.PI : 0;
+  const front = n > 6 ? Math.ceil(n * 0.6) : n;
+  const cursors = [0, 0, 0, 0];
+  let depth0 = 0;
+  for (let i = 0; i < front; i++) depth0 = Math.max(depth0, fpFor(spec, ordered[i] as BuildingSpec).d);
+  ordered.forEach((s, i) => {
+    const { w, d } = fpFor(spec, s);
+    const row = i < front ? 0 : 1;
+    const dir = i % 2 === 0 ? 1 : -1;
+    const slot = row * 2 + (dir > 0 ? 0 : 1);
+    const v = row === 0 ? W - 5.5 - 3.4 - d / 2 - rng.range(0, 2.5) : W - 5.5 - 3.4 - depth0 - Math.max(6, gap) - d / 2 - rng.range(0, 3);
+    let cur = (cursors[slot] ?? 0) + (row === 1 ? 4 : 0);
+    const before = c.placed.length;
+    for (let step = 0; step < 800 && c.placed.length === before; step++, cur += 0.5) {
+      const x = dir * (cur + w / 2 + (row === 0 ? 2.5 : 0));
+      if (ctxFits(c, buildingAabb({ x, z: v * sign, rotY, w, d }))) {
+        ctxCommit(c, s, x, v * sign, rotY, w, d);
+        cursors[slot] = cur + w + gap * rng.range(0.6, 1.2);
+      }
+    }
+    if (c.placed.length === before) fallbackPlace(c, s, w, d);
+  });
+  let minX = -24;
+  let maxX = 24;
+  for (const r of c.boxes) { minX = Math.min(minX, r.minX - 14); maxX = Math.max(maxX, r.maxX + 14); }
+  const beach: Trail = { pts: [], width: 1.8, kind: 'trail' };
+  for (let x = minX; x <= maxX + 1e-6; x += 2) beach.pts.push({ x, z: trailV(x) * sign });
+  const trails: Trail[] = [beach];
+  for (const b of c.placed) {
+    const to = nearestOn(beach, b.door);
+    if (Math.hypot(to.x - b.door.x, to.z - b.door.z) > 1.2) trails.push(windingTrail(b.door, to, rng, c.boxes, 1.4));
+  }
+  const sp = nearestOn(beach, { x: 0, z: trailV(0) * sign });
+  const kind: WaterBody['kind'] = spec.terrain && spec.terrain.water !== 'none' ? spec.terrain.water : 'shore';
+  const water: WaterBody = { kind, area: { shape: 'half', nx: 0, nz: sign, offset: W, wobble: 2.2, phase }, x: 0, z: (W + 20) * sign, r: 40 };
+  return {
+    placed: c.placed, boxes: c.boxes, routes: [], plaza: { x: sp.x, z: sp.z, r: 0 }, spawn: { x: sp.x, z: sp.z, rotY: Math.PI / 2 },
+    trails, walkable: trailWalkable(trails, []), clearings: [{ x: sp.x, z: sp.z, r: 3 }], water: [water],
+  };
+}
+
+/** Rows on level benches stepping up a rise, each with a lane along its front; hairpin trails climb from bench to bench. */
+function cliffsidePlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number): Plan {
+  const rng = makeRng(spec.seed, 'layout');
+  const n = ordered.length;
+  const rowsN = n <= 4 ? 2 : n <= 9 ? 3 : 4;
+  const rows: BuildingSpec[][] = Array.from({ length: rowsN }, () => []);
+  ordered.forEach((s, i) => (rows[i % rowsN] as BuildingSpec[]).push(s));
+  const depth = rows.map((r) => r.reduce((m, s) => Math.max(m, fpFor(spec, s).d), 6));
+  const base: number[] = [4];
+  for (let k = 1; k < rowsN; k++) base.push((base[k - 1] ?? 0) + (depth[k - 1] ?? 0) + 9);
+  const lane = base.map((b) => b - 2.4);
+  const c = newCtx(rng, gap, 0, lane.map((z) => ({ minX: -FAR, maxX: FAR, minZ: z - 0.7, maxZ: z + 0.7 })));
+  c.plaza = { x: 0, z: lane[0] ?? 0, r: 0 };
+  rows.forEach((row, k) => {
+    const cursors = [k * 2.5, k * 2.5 + 3];
+    row.forEach((s, j) => {
+      const { w, d } = fpFor(spec, s);
+      const dir = j % 2 === 0 ? 1 : -1;
+      const z = (base[k] ?? 0) + d / 2;
+      let cur = cursors[dir > 0 ? 0 : 1] ?? 0;
+      const before = c.placed.length;
+      for (let step = 0; step < 800 && c.placed.length === before; step++, cur += 0.5) {
+        const x = dir * (cur + w / 2);
+        if (ctxFits(c, buildingAabb({ x, z, rotY: 0, w, d }))) {
+          ctxCommit(c, s, x, z, 0, w, d);
+          cursors[dir > 0 ? 0 : 1] = cur + w + gap * rng.range(0.5, 1.1);
+        }
+      }
+      if (c.placed.length === before) fallbackPlace(c, s, w, d);
+    });
+  });
+  let minX = -18;
+  let maxX = 18;
+  for (const r of c.boxes) { minX = Math.min(minX, r.minX - 8); maxX = Math.max(maxX, r.maxX + 8); }
+  const trails: Trail[] = [];
+  for (const z of lane) {
+    const t: Trail = { pts: [], width: 2, kind: 'path' };
+    const steps = Math.max(1, Math.ceil((maxX - minX) / 2));
+    for (let i = 0; i <= steps; i++) t.pts.push({ x: minX + ((maxX - minX) * i) / steps, z });
+    trails.push(t);
+  }
+  for (let k = 0; k + 1 < rowsN; k++) {
+    const dir = k % 2 === 0 ? 1 : -1;
+    const e = dir > 0 ? maxX : minX;
+    const z0 = lane[k] ?? 0;
+    const z1 = lane[k + 1] ?? 0;
+    const t: Trail = { pts: [], width: 1.8, kind: 'path' };
+    for (let i = 0; i <= 24; i++) {
+      const u = i / 24;
+      t.pts.push({ x: e + dir * 18 * Math.sin(Math.PI * u), z: z0 + ((z1 - z0) * (1 - Math.cos(Math.PI * u))) / 2 });
+    }
+    trails.push(t);
+  }
+  const steps = base.map((b, k) => ({ s0: (lane[k] ?? 0) - 2.6, s1: b + (depth[k] ?? 0) + 1.6, level: k }));
+  const sp = { x: 0, z: lane[0] ?? 0 };
+  return {
+    placed: c.placed, boxes: c.boxes, routes: [], plaza: c.plaza, spawn: { x: sp.x, z: sp.z, rotY: Math.PI / 2 },
+    trails, walkable: trailWalkable(trails, []), clearings: [{ x: sp.x, z: sp.z, r: 3 }], benches: { nx: 0, nz: 1, steps },
+  };
+}
+
+// ---- Water -------------------------------------------------------------------------------------
+
+/**
+ * How far inside a water body a point lies, metres: positive in the water, negative on land, 0 at the edge.
+ * A sheet has no edge of its own (the land decides where it shows), so it reports +Infinity everywhere.
+ */
+export function waterInside(body: WaterBody, x: number, z: number): number {
+  const a = body.area;
+  switch (a.shape) {
+    case 'disc': {
+      const dx = x - a.x;
+      const dz = z - a.z;
+      return a.r * (1 + a.wobble * wobble(Math.atan2(dz, dx) * 2, a.phase)) - Math.hypot(dx, dz);
+    }
+    case 'band': return a.half - distanceToPolyline(a.pts, x, z);
+    case 'half': return x * a.nx + z * a.nz - a.offset - a.wobble * wobble((x * a.nz - z * a.nx) / 7, a.phase);
+    case 'outside': return rectDistance(a.rect, x, z) - a.margin;
+    default: return Number.POSITIVE_INFINITY;
+  }
+}
+
+/** Where the water goes: beside or among what was placed, never under it. Deterministic from the seed. */
+function planWater(spec: WorldSpec, terrain: TerrainSpec, wilderness: boolean, plan: Plan, bounds: Rect): WaterBody[] {
+  const sheet = terrain.relief === 'swamp' || terrain.relief === 'islands';
+  if (terrain.water === 'none' && !sheet) return [];
+  const rng = makeRng(spec.seed, 'water');
+  const amount = clampN(finiteOr(terrain.waterAmount, 0.3), 0, 1);
+  const cx = (bounds.minX + bounds.maxX) / 2;
+  const cz = (bounds.minZ + bounds.maxZ) / 2;
+  const reach = Math.hypot(bounds.maxX - bounds.minX, bounds.maxZ - bounds.minZ) / 2;
+  const kind: WaterBody['kind'] = terrain.water === 'none' ? 'pond' : terrain.water;
+  if (sheet) return [{ kind, area: { shape: 'sheet' }, x: cx, z: cz, r: reach }];
+  if (kind === 'mist_sea') return [{ kind, area: { shape: 'outside', rect: { ...bounds }, margin: 3 }, x: cx, z: cz, r: reach + 60 }];
+
+  // What the water must stay off, as points with a radius.
+  const keep: { x: number; z: number; r: number }[] = [{ x: plan.spawn.x, z: plan.spawn.z, r: 5 }, { x: plan.plaza.x, z: plan.plaza.z, r: plan.plaza.r + 3 }];
+  for (const b of plan.boxes) {
+    const hx = (b.maxX - b.minX) / 2;
+    const hz = (b.maxZ - b.minZ) / 2;
+    keep.push({ x: (b.minX + b.maxX) / 2, z: (b.minZ + b.maxZ) / 2, r: Math.hypot(hx, hz) + 4 });
+  }
+  for (const b of plan.placed) keep.push({ x: b.door.x, z: b.door.z, r: 4 });
+  const support = (nx: number, nz: number): number => keep.reduce((m, k) => Math.max(m, k.x * nx + k.z * nz + k.r), -Infinity);
+
+  if (kind === 'shore') {
+    const [nx, nz] = rng.pick<[number, number]>([[1, 0], [-1, 0], [0, 1], [0, -1]]);
+    let far = support(nx, nz);
+    for (const t of plan.trails ?? []) for (const p of t.pts) far = Math.max(far, p.x * nx + p.z * nz + 2);
+    const offset = far + 12 - 7 * amount;
+    return [{ kind, area: { shape: 'half', nx, nz, offset, wobble: 2.5, phase: rng.range(0, 6.28) }, x: nx * (offset + 25), z: nz * (offset + 25), r: 45 }];
+  }
+
+  const banded = kind === 'river' || ((kind === 'lava' || kind === 'acid') && (terrain.relief === 'canyon' || terrain.relief === 'craggy'));
+  if (banded) {
+    const half = 2.5 + 6.5 * amount;
+    const meander = 5;
+    // A canyon's river keeps to the canyon floor, which runs along the longer side of the place.
+    const along = bounds.maxX - bounds.minX >= bounds.maxZ - bounds.minZ ? 0 : Math.PI / 2;
+    let best: { th: number; off: number } | null = null;
+    if (wilderness) {
+      for (let attempt = 0; attempt < 60 && !best; attempt++) {
+        const th = terrain.relief === 'canyon' ? along + rng.range(-0.12, 0.12) : rng.range(0, Math.PI);
+        const off = rng.range(-0.3, 0.3) * reach;
+        const nx = -Math.sin(th);
+        const nz = Math.cos(th);
+        if (keep.every((k) => Math.abs((k.x - cx) * nx + (k.z - cz) * nz - off) > k.r + half + meander + 2)) best = { th, off };
+      }
+    }
+    if (!best) {
+      const th = terrain.relief === 'canyon' ? along : rng.range(0, Math.PI);
+      const nx = -Math.sin(th);
+      const nz = Math.cos(th);
+      best = { th, off: support(nx, nz) - (cx * nx + cz * nz) + half + meander + 3 };
+    }
+    const ux = Math.cos(best.th);
+    const uz = Math.sin(best.th);
+    const nx = -uz;
+    const nz = ux;
+    const ph = rng.range(0, 6.28);
+    const run = reach + 260;
+    const pts: Pt[] = [];
+    for (let t = -run; t <= run; t += 6) {
+      const lat = best.off + meander * (0.7 * Math.sin(t / 31 + ph) + 0.3 * Math.sin(t / 13 + ph * 2));
+      pts.push({ x: cx + ux * t + nx * lat, z: cz + uz * t + nz * lat });
+    }
+    return [{ kind, area: { shape: 'band', pts, half }, x: cx + nx * best.off, z: cz + nz * best.off, r: half }];
+  }
+
+  const count = kind === 'pond' || kind === 'lava' || kind === 'acid' ? 1 + Math.round(amount * 2) : 1;
+  const radius = (): number => (kind === 'pond' ? 4 + 8 * amount : kind === 'lake' ? 14 + 28 * amount : kind === 'ice_sheet' ? 16 + 32 * amount : 5 + 11 * amount) * rng.range(0.85, 1.15);
+  const out: WaterBody[] = [];
+  const trailPts: Pt[] = [];
+  for (const t of plan.trails ?? []) for (const p of t.pts) trailPts.push(p);
+  for (let k = 0; k < count; k++) {
+    const r = radius();
+    let spot: Pt | null = null;
+    for (let attempt = 0; attempt < 240 && !spot; attempt++) {
+      // Later attempts look further out, so a crowded place still gets its water at the edge.
+      const grown = grow(bounds, Math.max(0, attempt - 120) * 0.4 - Math.min(r, 12) * 0.5);
+      const x = rng.range(grown.minX, grown.maxX);
+      const z = rng.range(grown.minZ, grown.maxZ);
+      if (keep.some((q) => Math.hypot(q.x - x, q.z - z) < q.r + r * 1.25 + 3)) continue;
+      if (plan.routes.some((rd) => distanceToRoad(rd, x, z) < r * 1.25 + 2)) continue;
+      if (trailPts.some((q) => Math.hypot(q.x - x, q.z - z) < r * 1.25 + 2.5)) continue;
+      if (out.some((o) => Math.hypot(o.x - x, o.z - z) < o.r + r + 6)) continue;
+      spot = { x, z };
+    }
+    if (!spot) continue;
+    out.push({ kind, area: { shape: 'disc', x: spot.x, z: spot.z, r, wobble: 0.2, phase: rng.range(0, 6.28) }, x: spot.x, z: spot.z, r });
+  }
+  return out;
+}
+
+interface Site { pattern: SitePattern; wild: number; paths: Paths; gap: number; setback: number; jitter: number }
+
+/**
+ * Lot spacing from the site and, when the world carries terrain, from how settled it is: above 0.8 walls
+ * close in (1.5 to 3 m between neighbours, shallow setbacks); below 0.3 structures stand well apart.
+ * A jitter below zero means "as the pattern always did".
+ */
+function normaliseSite(site: SiteSpec, terrain?: TerrainSpec): Site {
+  const patterns: SitePattern[] = ['street', 'ring', 'scatter', 'grid', 'terraces', ...WILD_PATTERNS];
   const pattern = patterns.includes(site.pattern) ? site.pattern : 'street';
   const paths: Paths = site.paths === 'track' || site.paths === 'none' ? site.paths : 'road';
-  return { pattern, wild: clampN(finiteOr(site.wild, 0.3), 0, 1), paths, gap: clampN(finiteOr(site.spacing, 6), 3, 14) };
+  const wild = clampN(finiteOr(site.wild, 0.3), 0, 1);
+  const spacing = clampN(finiteOr(site.spacing, 6), 3, 14);
+  if (!terrain) return { pattern, wild, paths, gap: spacing, setback: SETBACK, jitter: -1 };
+  const settled = clampN(finiteOr(terrain.settled, 0.7), 0, 1);
+  if (settled > 0.8) return { pattern, wild, paths, gap: 1.5 + ((1 - settled) / 0.2) * 1.5, setback: 1.2, jitter: 0.6 };
+  if (settled < 0.3) return { pattern, wild, paths, gap: clampN(spacing * 1.6, 10, 18), setback: SETBACK, jitter: 3 };
+  const t = (settled - 0.3) / 0.5;
+  return { pattern, wild, paths, gap: clampN(spacing * (1.3 - 0.75 * t), 3, 12), setback: SETBACK - 1.1 * t, jitter: 1.5 };
 }
+
+const NEUTRAL_SITE: SiteSpec = { pattern: 'street', wild: 0.3, paths: 'road', spacing: 6 };
 
 export function generateLayout(spec: WorldSpec): TownLayout {
   const ordered = [...spec.buildings.filter((b) => b.keyBuilding), ...spec.buildings.filter((b) => !b.keyBuilding)];
-  const site = spec.site ? normaliseSite(spec.site) : null;
+  const terrain = spec.terrain;
+  const site = spec.site ? normaliseSite(spec.site, terrain) : terrain ? normaliseSite(NEUTRAL_SITE, terrain) : null;
+  const wilderness = !!site && WILD_PATTERNS.includes(site.pattern);
+  const j = site && site.jitter >= 0 ? site.jitter : undefined;
   let plan: Plan;
   if (!site) plan = streetPlan(spec, ordered, { mainW: MAIN_WIDTH, crossW: CROSS_WIDTH, gap: GAP });
   else if (site.pattern === 'ring') plan = ringPlan(spec, ordered, site.gap, site.paths);
   else if (site.pattern === 'scatter') plan = scatterPlan(spec, ordered, site.gap, site.paths);
-  else if (site.pattern === 'grid') plan = gridPlan(spec, ordered, site.gap, site.paths);
-  else if (site.pattern === 'terraces') plan = terracePlan(spec, ordered, site.gap, site.paths);
+  else if (site.pattern === 'grid') plan = gridPlan(spec, ordered, site.gap, site.paths, j);
+  else if (site.pattern === 'terraces') plan = terracePlan(spec, ordered, site.gap, site.paths, j);
+  else if (site.pattern === 'wild') plan = wildPlan(spec, ordered, site.gap);
+  else if (site.pattern === 'path') plan = pathPlan(spec, ordered, site.gap, site.paths);
+  else if (site.pattern === 'shoreline') plan = shorelinePlan(spec, ordered, site.gap);
+  else if (site.pattern === 'cliffside') plan = cliffsidePlan(spec, ordered, site.gap);
   else {
     plan = streetPlan(spec, ordered, {
-      mainW: widthFor(site.paths, MAIN_WIDTH), crossW: widthFor(site.paths, CROSS_WIDTH), gap: site.gap,
+      mainW: widthFor(site.paths, MAIN_WIDTH), crossW: widthFor(site.paths, CROSS_WIDTH), gap: site.gap, setback: site.setback, jitter: j,
     });
   }
   const { placed, boxes, routes, plaza, spawn, walkable } = plan;
@@ -645,10 +1136,12 @@ export function generateLayout(spec: WorldSpec): TownLayout {
   // Bounds: footprints plus a 20 m margin, widened if a road or the plaza reaches further.
   const foot = boxes.length > 0
     ? boxes.reduce(union)
-    : { minX: -PLAZA_RADIUS, maxX: PLAZA_RADIUS, minZ: -PLAZA_RADIUS, maxZ: PLAZA_RADIUS };
+    : wilderness
+      ? grow(rectOf(spawn.x, spawn.z), PLAZA_RADIUS)
+      : { minX: -PLAZA_RADIUS, maxX: PLAZA_RADIUS, minZ: -PLAZA_RADIUS, maxZ: PLAZA_RADIUS };
   let bounds = grow(foot, 20);
   for (const rd of routes) bounds = union(bounds, roadRect(rd));
-  bounds = union(bounds, { minX: -PLAZA_RADIUS, maxX: PLAZA_RADIUS, minZ: -PLAZA_RADIUS, maxZ: PLAZA_RADIUS });
+  if (!wilderness) bounds = union(bounds, { minX: -PLAZA_RADIUS, maxX: PLAZA_RADIUS, minZ: -PLAZA_RADIUS, maxZ: PLAZA_RADIUS });
 
   if (!site) {
     const props = scatterProps(spec, placed, routes, plaza, spawn, bounds);
@@ -662,10 +1155,31 @@ export function generateLayout(spec: WorldSpec): TownLayout {
   for (const b of placed) {
     if (!walkable.some((p) => Math.hypot(p.x - b.door.x, p.z - b.door.z) <= 3)) walkable.push({ x: b.door.x, z: b.door.z });
   }
+  const trails = plan.trails ?? [];
+  if (wilderness) {
+    // Land is the place here: the trails and a broad margin of nature around them are all inside it.
+    let land = rectOf(spawn.x, spawn.z);
+    for (const t of trails) for (const p of t.pts) land = union(land, rectOf(p.x, p.z));
+    bounds = union(bounds, grow(land, 16));
+  }
+  let water = plan.water ?? [];
+  if (terrain && water.length === 0) water = planWater(spec, terrain, wilderness, plan, bounds);
+  for (const w of water) if (w.area.shape === 'disc') bounds = union(bounds, grow(rectOf(w.area.x, w.area.z), w.area.r + 6));
   const band = site.wild >= 0.6;
   if (band) bounds = union(bounds, grow(foot, 25));
-  const props = scatterWild(spec, site.wild, band, placed, routes, plaza, spawn, bounds, foot);
-  return { buildings: placed, roads: site.paths === 'none' ? [] : routes, props, plaza, spawn, bounds, walkable };
+  const clearings = plan.clearings ?? [];
+  const avoid = trails.length > 0 || water.length > 0 || clearings.length > 0
+    ? (x: number, z: number): boolean => trails.some((t) => distanceToPolyline(t.pts, x, z) < t.width / 2 + 1)
+      || water.some((w) => w.area.shape !== 'sheet' && waterInside(w, x, z) > -1.5)
+      || clearings.some((q) => Math.hypot(x - q.x, z - q.z) < q.r)
+    : undefined;
+  const props = scatterWild(spec, site.wild, band && !wilderness, placed, routes, plaza, spawn, bounds, foot, avoid);
+  const layout: TownLayout = { buildings: placed, roads: site.paths === 'none' ? [] : routes, props, plaza, spawn, bounds, walkable };
+  if (trails.length > 0) layout.trails = trails;
+  if (water.length > 0) layout.water = water;
+  if (clearings.length > 0) layout.clearings = clearings;
+  if (plan.benches) layout.benches = plan.benches;
+  return layout;
 }
 
 function weightedKind(table: [string, number][], rng: Rng): string {
@@ -712,6 +1226,7 @@ function scatterProps(
 function scatterWild(
   spec: WorldSpec, wild: number, band: boolean, buildings: PlacedBuilding[], routes: RoadSegment[],
   plaza: TownLayout['plaza'], spawn: TownLayout['spawn'], bounds: Rect, foot: Rect,
+  avoid?: (x: number, z: number) => boolean,
 ): PlacedProp[] {
   const rng = makeRng(spec.seed, 'props');
   const minDistance = 5.5 - (5.5 - 1.8) * wild;
@@ -734,6 +1249,7 @@ function scatterWild(
     if (footBoxes.some((r) => inside(r, x, z))) continue;
     if (buildings.some((b) => Math.hypot(x - b.door.x, z - b.door.z) < 1.5)) continue;
     if (Math.hypot(x - spawn.x, z - spawn.z) < 2.5) continue;
+    if (avoid?.(x, z)) continue;
     kept.push({ kind: weightedKind(table, rng), x, z, rotY: rng.range(0, Math.PI * 2), scale: rng.range(0.85, 1.2) });
   }
   return kept.length > MAX_WILD_PROPS ? rng.shuffle(kept).slice(0, MAX_WILD_PROPS) : kept;

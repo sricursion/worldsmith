@@ -3,11 +3,15 @@ import { MeshBVH } from 'three-mesh-bvh';
 import { describe, expect, it } from 'vitest';
 import {
   angleDelta,
+  BREATH_PITCH,
+  BREATH_Y,
   bvhCollider,
   CAMERA_RADIUS,
   createCameraRig,
+  DIP_LIMIT,
   FP_EYE_HEIGHT,
   FP_FOV,
+  FP_FRAME_FOV,
   headBob,
   LOOK_SENSITIVITY,
   springStep,
@@ -77,6 +81,9 @@ describe('headBob', () => {
   });
 });
 
+/** The over-the-shoulder view; with no options the rig starts in first person. */
+const TP = { firstPerson: false } as const;
+
 function subjectAt(x: number, z: number): CameraSubject {
   return { position: new THREE.Vector3(x, 0, z), vx: 0, vz: 0, speed: 0, running: false, stepPhase: 0 };
 }
@@ -98,7 +105,7 @@ function forward(camera: THREE.PerspectiveCamera): THREE.Vector3 {
 describe('createCameraRig', () => {
   it('sits over the right shoulder at head height and looks past the player', () => {
     const camera = new THREE.PerspectiveCamera();
-    const rig = createCameraRig(camera, null);
+    const rig = createCameraRig(camera, null, TP);
     const s = subjectAt(2, -3);
     rig.reset(s, Math.PI); // facing -Z
     expect(camera.fov).toBeCloseTo(TP_FOV);
@@ -117,7 +124,7 @@ describe('createCameraRig', () => {
 
   it('lags behind a moving subject, settles, and leads slightly once up to speed', () => {
     const camera = new THREE.PerspectiveCamera();
-    const rig = createCameraRig(camera, null);
+    const rig = createCameraRig(camera, null, TP);
     const s = subjectAt(0, 0);
     rig.reset(s, Math.PI);
     const rest = camera.position.z - s.position.z;
@@ -152,7 +159,7 @@ describe('createCameraRig', () => {
     const geometry = new THREE.BoxGeometry(12, 4, 2).translate(centre.x, centre.y, centre.z);
     const bvh = new MeshBVH(geometry);
     const camera = new THREE.PerspectiveCamera();
-    const rig = createCameraRig(camera, bvhCollider(bvh));
+    const rig = createCameraRig(camera, bvhCollider(bvh), TP);
     const s = subjectAt(0, -4.4); // 0.6 m from the wall face at z = -5
     rig.reset(s, 0);
     let closest = Infinity;
@@ -183,7 +190,7 @@ describe('createCameraRig', () => {
     // A wall on the right takes the shoulder offset before it takes the boom.
     const side = new THREE.BoxGeometry(1, 4, 30).translate(0.5 + 0.5, 2, 20);
     const sideBvh = new MeshBVH(side);
-    const rig2 = createCameraRig(camera, bvhCollider(sideBvh));
+    const rig2 = createCameraRig(camera, bvhCollider(sideBvh), TP);
     const s2 = subjectAt(0, 20);
     rig2.reset(s2, Math.PI); // facing -Z, right is +X, wall face at x = 0.5
     expect(camera.position.x).toBeLessThanOrEqual(0.5 - CAMERA_RADIUS + 1e-6);
@@ -201,7 +208,7 @@ describe('createCameraRig', () => {
     const geometry = new THREE.BoxGeometry(12, 4, 2).translate(0, 2, 3);
     const bvh = new MeshBVH(geometry);
     const camera = new THREE.PerspectiveCamera();
-    const rig = createCameraRig(camera, bvhCollider(bvh));
+    const rig = createCameraRig(camera, bvhCollider(bvh), TP);
     const s = subjectAt(0, 0); // wall face 2 m behind the player
     rig.reset(s, Math.PI);
     expect(camera.position.z).toBeLessThanOrEqual(2 - CAMERA_RADIUS + 1e-6);
@@ -217,7 +224,7 @@ describe('createCameraRig', () => {
 
   it('zooms within limits and ignores the wheel in first person', () => {
     const camera = new THREE.PerspectiveCamera();
-    const rig = createCameraRig(camera, null);
+    const rig = createCameraRig(camera, null, TP);
     const s = subjectAt(0, 0);
     rig.reset(s, Math.PI);
     rig.zoom(100);
@@ -228,18 +235,24 @@ describe('createCameraRig', () => {
     expect(camera.position.distanceTo(new THREE.Vector3(TP_SHOULDER, TP_PIVOT_HEIGHT, 0))).toBeCloseTo(TP_BOOM_MIN, 2);
   });
 
-  it('first person puts the eye at 1.62 m, bobs with the step phase and kicks the lens when sprinting', () => {
+  it('starts in first person: the eye at 1.65 m behind a 75 degree lens, bobbing with the steps, kicked by a sprint', () => {
+    expect(FP_EYE_HEIGHT).toBe(1.65);
+    expect(FP_FOV).toBe(75);
     const camera = new THREE.PerspectiveCamera();
     const rig = createCameraRig(camera, null);
     const s = subjectAt(1, 1);
-    rig.reset(s, Math.PI);
-    rig.setFirstPerson(true);
     expect(rig.firstPerson).toBe(true);
+    rig.reset(s, Math.PI);
+    // The very first frame is already the eye view: nothing to blend in from.
+    expect(rig.viewBlend).toBe(1);
+    expect(camera.position.y).toBeCloseTo(FP_EYE_HEIGHT, 6);
+    expect(camera.fov).toBeCloseTo(FP_FOV, 6);
+    expect(forward(camera).z).toBeLessThan(-0.999);
     for (let i = 0; i < 120; i++) rig.update(1 / 60, s);
     expect(rig.viewBlend).toBe(1);
     expect(camera.position.x).toBeCloseTo(1, 6);
     expect(camera.position.z).toBeCloseTo(1, 6);
-    expect(camera.position.y).toBeCloseTo(FP_EYE_HEIGHT, 6);
+    expect(Math.abs(camera.position.y - FP_EYE_HEIGHT)).toBeLessThanOrEqual(BREATH_Y + 1e-9);
     expect(camera.fov).toBeCloseTo(FP_FOV, 2);
 
     // Mouse right turns the view right; mouse down looks down, and pitch stops short of straight down.
@@ -284,13 +297,94 @@ describe('createCameraRig', () => {
     s.vz = 0;
     for (let i = 0; i < 240; i++) rig.update(1 / 60, s);
     expect(camera.fov).toBeCloseTo(FP_FOV, 2);
-    expect(camera.position.y).toBeCloseTo(FP_EYE_HEIGHT, 3);
+    expect(Math.abs(camera.position.y - FP_EYE_HEIGHT)).toBeLessThanOrEqual(BREATH_Y + 1e-3);
+
+    // V goes over the shoulder and back.
+    rig.setFirstPerson(false);
+    for (let i = 0; i < 120; i++) rig.update(1 / 60, s);
+    expect(rig.viewBlend).toBe(0);
+    expect(camera.fov).toBeCloseTo(TP_FOV, 2);
+    expect(rig.headDistance).toBeGreaterThan(TP_BOOM * 0.9);
+  });
+
+  it('carries weight in first person: breath at rest, a lean into a strafe, a dip where a descent ends', () => {
+    const camera = new THREE.PerspectiveCamera();
+    const rig = createCameraRig(camera, null);
+    const s = subjectAt(0, 0);
+    rig.reset(s, Math.PI); // facing -Z, right is +X
+
+    // Standing still the eye rides the breath: a few millimetres, slowly, with a trace of nod.
+    let lo = Infinity;
+    let hi = -Infinity;
+    let nod = 0;
+    for (let i = 0; i < 600; i++) {
+      rig.update(1 / 60, s);
+      lo = Math.min(lo, camera.position.y);
+      hi = Math.max(hi, camera.position.y);
+      nod = Math.max(nod, Math.abs(camera.rotation.x));
+    }
+    expect(hi - lo).toBeGreaterThan(BREATH_Y);
+    expect(hi - lo).toBeLessThanOrEqual(2 * BREATH_Y + 1e-9);
+    expect(nod).toBeGreaterThan(0);
+    expect(nod).toBeLessThanOrEqual(BREATH_PITCH + 1e-9);
+
+    // Strafing right rolls the view into the move and comes back level.
+    s.vx = 2.2;
+    s.speed = 2.2;
+    for (let i = 0; i < 90; i++) {
+      s.position.x += s.vx / 60;
+      rig.update(1 / 60, s);
+    }
+    const lean = camera.rotation.z;
+    expect(lean).toBeLessThan(-0.005);
+    expect(lean).toBeGreaterThan(-0.03);
+    s.vx = 0;
+    s.speed = 0;
+    for (let i = 0; i < 240; i++) rig.update(1 / 60, s);
+    expect(Math.abs(camera.rotation.z)).toBeLessThan(1e-3);
+
+    // Down a slope at walking pace, then onto the flat: the eye sinks under its rest height and recovers.
+    rig.reset(s, Math.PI);
+    for (let i = 0; i < 60; i++) {
+      s.position.y -= 1.5 / 60;
+      rig.update(1 / 60, s);
+    }
+    let sink = 0;
+    for (let i = 0; i < 40; i++) {
+      rig.update(1 / 60, s);
+      sink = Math.min(sink, camera.position.y - (s.position.y + FP_EYE_HEIGHT));
+    }
+    expect(sink).toBeLessThan(-0.01);
+    expect(sink).toBeGreaterThanOrEqual(-DIP_LIMIT - BREATH_Y - 1e-9);
+    for (let i = 0; i < 240; i++) rig.update(1 / 60, s);
+    expect(Math.abs(camera.position.y - (s.position.y + FP_EYE_HEIGHT))).toBeLessThanOrEqual(BREATH_Y + 1e-3);
+    // Climbing and stopping does not dip.
+    for (let i = 0; i < 60; i++) {
+      s.position.y += 1.5 / 60;
+      rig.update(1 / 60, s);
+    }
+    let after = 0;
+    for (let i = 0; i < 6; i++) {
+      rig.update(1 / 60, s);
+      after = Math.min(after, camera.position.y - (s.position.y + FP_EYE_HEIGHT));
+    }
+    expect(after).toBeGreaterThan(-0.2); // only the follow spring catching up, no kick below it
+
+    // A small folk sees from its own height; nonsense is refused.
+    rig.setEyeHeight(0.9);
+    expect(rig.eyeHeight).toBe(0.9);
+    rig.setEyeHeight(Number.NaN);
+    rig.setEyeHeight(40);
+    expect(rig.eyeHeight).toBe(3);
+    rig.setEyeHeight(0.9);
+    rig.reset(s, Math.PI);
+    expect(camera.position.y).toBeCloseTo(s.position.y + 0.9, 6);
   });
 
   it('frames a conversation as a two-shot and returns to the previous view', () => {
     const camera = new THREE.PerspectiveCamera();
     camera.aspect = 16 / 9;
-    const rig = createCameraRig(camera, null);
+    const rig = createCameraRig(camera, null, TP);
     const s = subjectAt(0, 0);
     rig.reset(s, Math.PI);
     const before = camera.position.clone();
@@ -325,5 +419,10 @@ describe('createCameraRig', () => {
     for (let i = 0; i < 240; i++) rig.update(1 / 60, s);
     expect(camera.position.y).toBeCloseTo(FP_EYE_HEIGHT, 4);
     expect(forward(camera).x).toBeGreaterThan(0.99);
+    // The lens closes in on the speaker and opens again afterwards.
+    expect(camera.fov).toBeCloseTo(FP_FRAME_FOV, 1);
+    rig.frame(null);
+    for (let i = 0; i < 360; i++) rig.update(1 / 60, s);
+    expect(camera.fov).toBeCloseTo(FP_FOV, 1);
   });
 });

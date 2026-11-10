@@ -1,5 +1,5 @@
-// Film pipeline: scene (HDR, MSAA) -> ambient occlusion -> air (fog, shafts, cloud shadow) -> weather
-// overlay -> bloom -> final grade. Tone mapping happens once, in the final pass. The numeric state the
+// Film pipeline: scene (HDR, MSAA) -> ambient occlusion -> air (fog, shafts, lamp halos, cloud shadow) ->
+// weather overlay -> focus pull (conversations, top tier) -> bloom -> final grade. Tone mapping happens once, in the final pass. The numeric state the
 // sky rig and the atmosphere write lives here so neither has to know about the composer.
 
 import {
@@ -48,12 +48,18 @@ export interface QualityTier {
   /** Bloom chain size relative to the frame. */
   bloomScale: number;
   chromatic: boolean;
+  /** How many of the nearest lamps get a halo in the air; 0 turns the halos off. */
+  haloLamps: number;
+  /** Lens dirt and halation on the bloom. */
+  lens: boolean;
+  /** Shallow focus while a conversation is framed. */
+  focusPull: boolean;
 }
 
 export const QUALITY_TIERS: readonly [QualityTier, QualityTier, QualityTier] = [
-  { pixelRatio: 1, msaa: 0, aoSamples: 0, aoPixels: 0, shaftTaps: 0, bloomScale: 0.5, chromatic: false },
-  { pixelRatio: 1.5, msaa: 2, aoSamples: 8, aoPixels: 520_000, shaftTaps: 10, bloomScale: 1, chromatic: true },
-  { pixelRatio: 2, msaa: 4, aoSamples: 16, aoPixels: 1_300_000, shaftTaps: 20, bloomScale: 1, chromatic: true },
+  { pixelRatio: 1, msaa: 0, aoSamples: 0, aoPixels: 0, shaftTaps: 0, bloomScale: 0.5, chromatic: false, haloLamps: 0, lens: false, focusPull: false },
+  { pixelRatio: 1.5, msaa: 2, aoSamples: 8, aoPixels: 520_000, shaftTaps: 12, bloomScale: 1, chromatic: true, haloLamps: 4, lens: true, focusPull: false },
+  { pixelRatio: 2, msaa: 4, aoSamples: 16, aoPixels: 1_300_000, shaftTaps: 24, bloomScale: 1, chromatic: true, haloLamps: 6, lens: true, focusPull: true },
 ];
 
 export const QUALITY_WINDOW_FRAMES = 90;
@@ -196,46 +202,50 @@ export const GRADE_KINDS: readonly GradeKind[] = [
   'neutral', 'golden', 'teal_orange', 'cold_steel', 'sepia', 'neon_noir', 'verdant', 'bleached', 'crimson', 'moonlit',
 ];
 
+/**
+ * Restrained looks: the split tones stay within about a tenth of neutral and no grade adds saturation to
+ * what the scene had, so a look colours the light without turning surfaces into poster paint.
+ */
 export const GRADES: Record<GradeKind, GradeParams> = {
   neutral: {
     lift: [0, 0, 0], gamma: [1, 1, 1], gain: [1, 1, 1], shadows: [1, 1, 1], highlights: [1, 1, 1],
-    saturation: 1.04, contrast: 0.18, exposure: 1, vignette: 0.26, grain: 0.022, keep: 0,
+    saturation: 0.94, contrast: 0.22, exposure: 1, vignette: 0.24, grain: 0.022, keep: 0,
   },
   golden: {
-    lift: [0.012, 0.006, 0], gamma: [1.03, 1.0, 0.96], gain: [1.04, 1.0, 0.93], shadows: [0.92, 1.0, 1.1], highlights: [1.06, 1.0, 0.88],
-    saturation: 1.06, contrast: 0.3, exposure: 1.04, vignette: 0.34, grain: 0.03, keep: 0.5,
+    lift: [0.008, 0.004, 0], gamma: [1.02, 1.0, 0.97], gain: [1.03, 1.0, 0.95], shadows: [0.95, 1.0, 1.06], highlights: [1.04, 1.0, 0.92],
+    saturation: 0.97, contrast: 0.3, exposure: 1.03, vignette: 0.3, grain: 0.028, keep: 0.5,
   },
   teal_orange: {
-    lift: [0, 0.004, 0.01], gamma: [1, 1, 1], gain: [1.03, 1.0, 0.95], shadows: [0.8, 1.02, 1.18], highlights: [1.14, 1.0, 0.84],
-    saturation: 1.14, contrast: 0.38, exposure: 1, vignette: 0.34, grain: 0.026, keep: 0.7,
+    lift: [0, 0.003, 0.008], gamma: [1, 1, 1], gain: [1.02, 1.0, 0.97], shadows: [0.86, 1.01, 1.12], highlights: [1.09, 1.0, 0.89],
+    saturation: 0.98, contrast: 0.34, exposure: 1, vignette: 0.3, grain: 0.026, keep: 0.7,
   },
   cold_steel: {
-    lift: [0, 0.004, 0.012], gamma: [0.97, 1.0, 1.03], gain: [0.94, 1.0, 1.07], shadows: [0.84, 0.98, 1.18], highlights: [0.96, 1.0, 1.06],
-    saturation: 0.72, contrast: 0.42, exposure: 0.97, vignette: 0.38, grain: 0.034, keep: 0.8,
+    lift: [0, 0.003, 0.01], gamma: [0.98, 1.0, 1.02], gain: [0.96, 1.0, 1.05], shadows: [0.88, 0.99, 1.12], highlights: [0.97, 1.0, 1.04],
+    saturation: 0.72, contrast: 0.38, exposure: 0.98, vignette: 0.34, grain: 0.032, keep: 0.8,
   },
   sepia: {
-    lift: [0.024, 0.014, 0.002], gamma: [1.03, 1.0, 0.95], gain: [1.08, 1.0, 0.82], shadows: [1.08, 0.98, 0.88], highlights: [1.06, 1.0, 0.86],
-    saturation: 0.34, contrast: 0.26, exposure: 1.03, vignette: 0.42, grain: 0.05, keep: 0,
+    lift: [0.016, 0.01, 0.002], gamma: [1.02, 1.0, 0.96], gain: [1.06, 1.0, 0.86], shadows: [1.05, 0.99, 0.91], highlights: [1.05, 1.0, 0.89],
+    saturation: 0.44, contrast: 0.28, exposure: 1.02, vignette: 0.36, grain: 0.044, keep: 0,
   },
   neon_noir: {
-    lift: [0, 0.002, 0.008], gamma: [0.98, 0.97, 1.02], gain: [1.03, 0.99, 1.05], shadows: [0.86, 0.95, 1.2], highlights: [1.1, 0.97, 1.04],
-    saturation: 1.16, contrast: 0.34, exposure: 1.18, vignette: 0.4, grain: 0.038, keep: 0.85,
+    lift: [0, 0.002, 0.008], gamma: [0.99, 0.98, 1.01], gain: [1.02, 0.99, 1.04], shadows: [0.9, 0.96, 1.14], highlights: [1.07, 0.98, 1.03],
+    saturation: 1.02, contrast: 0.36, exposure: 1.12, vignette: 0.36, grain: 0.034, keep: 0.85,
   },
   verdant: {
-    lift: [0.002, 0.008, 0.002], gamma: [0.98, 1.03, 0.97], gain: [0.97, 1.04, 0.94], shadows: [0.88, 1.04, 1.02], highlights: [1.06, 1.03, 0.88],
-    saturation: 1.12, contrast: 0.24, exposure: 1, vignette: 0.3, grain: 0.024, keep: 0.7,
+    lift: [0.002, 0.006, 0.002], gamma: [0.99, 1.02, 0.98], gain: [0.98, 1.03, 0.96], shadows: [0.92, 1.03, 1.02], highlights: [1.04, 1.02, 0.92],
+    saturation: 0.98, contrast: 0.26, exposure: 1, vignette: 0.28, grain: 0.024, keep: 0.7,
   },
   bleached: {
-    lift: [0.016, 0.016, 0.018], gamma: [1.02, 1.02, 1.02], gain: [1.05, 1.05, 1.04], shadows: [0.98, 1.0, 1.04], highlights: [1.02, 1.0, 0.97],
-    saturation: 0.52, contrast: 0.6, exposure: 1.08, vignette: 0.3, grain: 0.042, keep: 0,
+    lift: [0.012, 0.012, 0.014], gamma: [1.02, 1.02, 1.02], gain: [1.04, 1.04, 1.03], shadows: [0.98, 1.0, 1.03], highlights: [1.02, 1.0, 0.98],
+    saturation: 0.6, contrast: 0.5, exposure: 1.06, vignette: 0.28, grain: 0.038, keep: 0,
   },
   crimson: {
-    lift: [0.01, 0, 0.002], gamma: [1.03, 0.97, 0.97], gain: [1.08, 0.95, 0.92], shadows: [1.0, 0.86, 0.96], highlights: [1.14, 0.96, 0.88],
-    saturation: 1.06, contrast: 0.46, exposure: 0.98, vignette: 0.44, grain: 0.034, keep: 0.5,
+    lift: [0.008, 0, 0.002], gamma: [1.02, 0.98, 0.98], gain: [1.05, 0.97, 0.94], shadows: [1.0, 0.9, 0.97], highlights: [1.09, 0.97, 0.91],
+    saturation: 0.96, contrast: 0.4, exposure: 0.98, vignette: 0.38, grain: 0.032, keep: 0.5,
   },
   moonlit: {
-    lift: [0, 0.004, 0.014], gamma: [0.96, 1.0, 1.05], gain: [0.86, 0.97, 1.12], shadows: [0.76, 0.94, 1.26], highlights: [0.92, 1.0, 1.1],
-    saturation: 0.62, contrast: 0.34, exposure: 1.1, vignette: 0.4, grain: 0.04, keep: 0.85,
+    lift: [0, 0.003, 0.012], gamma: [0.97, 1.0, 1.04], gain: [0.9, 0.98, 1.1], shadows: [0.82, 0.95, 1.2], highlights: [0.94, 1.0, 1.08],
+    saturation: 0.66, contrast: 0.34, exposure: 1.08, vignette: 0.36, grain: 0.036, keep: 0.85,
   },
 };
 
@@ -361,6 +371,20 @@ export const AIR = {
   cloudCover: 0.35,
   /** 0..1: how much of the key reaches the ground as a beam (low under overcast). */
   beam: 1,
+  /** Tone-mapping exposure the sky rig set, before the weather and the grade. */
+  exposure: 0.5,
+
+  // ---- written by the sky features
+  /** Multiplier on the sun's key light and on the sky it lights; an eclipse lowers it. */
+  keyDim: 1,
+  /** False while a sky feature draws the moon, so the rig keeps its own disc hidden. */
+  rigMoon: true,
+
+  // ---- written by the player
+  /** True while a conversation is framed: the top tier pulls focus to `focus`. */
+  focusOn: false,
+  /** World point the lens focuses on. */
+  focus: new Vector3(),
 
   // ---- written by the pipeline when the grade changes
   /** Colour cast of the grade; the sky rig tints the player fill light with it. */
@@ -386,6 +410,22 @@ export const AIR = {
   /** Where the pattern has got to; the pipeline advances it. */
   cloudDrift: new Vector2(0, 0),
   exposureMul: 1,
+  /** Multiplier on the light shafts: thick air throws longer ones, rain breaks them up. */
+  shaftGain: 1,
+  /** 0..1: how much lamp light the air itself catches (fog, mist, rain). */
+  halo: 0.2,
+};
+
+/** How many of the nearest lit lamps are handed to shaders that draw their glow. */
+export const LAMP_COUNT = 6;
+/**
+ * The nearest lit lamps, nearest first, written by the sky rig: `pos` holds x, y, z, radius per lamp, `col`
+ * the colour times its slot weight, `gain` the day/night level. The air pass and the weather read them.
+ */
+export const LAMP_GLOW = {
+  pos: new Float32Array(LAMP_COUNT * 4),
+  col: new Float32Array(LAMP_COUNT * 3),
+  gain: 0,
 };
 
 /** Puts the atmosphere's half of AIR back to a clear day. */
@@ -400,6 +440,31 @@ export function resetAirMods(): void {
   AIR.cloudShadow = 0.4;
   AIR.cloudSpeed.set(0.0037, 0.0016);
   AIR.exposureMul = 1;
+  AIR.shaftGain = 1;
+  AIR.halo = 0.2;
+}
+
+/** Strength of the lamp halos in the air pass, from the lamp level, the haze and how much the air holds. */
+export function haloStrengthFor(lampGain: number, haze: number, halo: number): number {
+  const g = Number.isFinite(lampGain) ? clamp01(lampGain) : 0;
+  const h = Number.isFinite(haze) ? clamp01(haze) : 0;
+  const a = Number.isFinite(halo) ? clamp01(halo) : 0;
+  return g * (0.01 + 0.05 * h + 0.07 * a);
+}
+
+/** Colour the fog leans to looking away from the key; towards the key it leans to the key's own hue. */
+const FOG_COOL: Vec3 = [0.84, 0.95, 1.12];
+/** How far the fog colour leans warm on the key side and cool away from it, at a full beam. */
+export const FOG_SIDE_TINT = 0.5;
+
+/**
+ * Circle of confusion of the focus pull, 0 sharp .. 1 fully soft, for a view depth in metres. A band round the
+ * focus distance stays sharp; the background softens over a few focus distances, the foreground less.
+ */
+export function focusBlur(depth: number, focus: number): number {
+  const f = Math.max(0.5, focus);
+  if (depth >= f) return smooth01((depth - (f * 1.3 + 0.6)) / (f * 2.7 + 3.4));
+  return 0.6 * smooth01((f * 0.75 - depth) / (f * 0.5));
 }
 
 /**
@@ -423,6 +488,14 @@ export const AIR_UNIFORMS = {
 };
 
 const BLOOM_FLOOR = 0.8;
+/** Power the ambient occlusion is raised to before it darkens the fill. */
+export const AO_POWER = 1.6;
+/** Light-shaft strength at full haze, looking at the key. */
+export const SHAFT_STRENGTH = 0.4;
+/** How much of the bloom comes back through dirt on the lens and as halation. */
+const LENS_DIRT = 0.5;
+/** Rate the focus pull eases in and out, per second. */
+const FOCUS_EASE = 2.2;
 
 /** Radiance where bloom starts: above anything the key light can make a matt surface, and above the horizon haze. */
 export function bloomThresholdFor(keyLevel: number, fogLuminance: number): number {
@@ -559,6 +632,11 @@ const AIR_FRAGMENT = /* glsl */ `
   uniform float uSunGlow;
   uniform vec2 uSunUv;
   uniform float uShaft;
+  uniform vec3 uFogWarm;
+  uniform vec3 uFogCool;
+  uniform vec4 uLampPos[${LAMP_COUNT}];
+  uniform vec3 uLampCol[${LAMP_COUNT}];
+  uniform float uHalo;
   uniform float uAO;
   uniform vec3 uCloud;      // strength, coverage, 1 / pattern size in metres
   uniform vec2 uCloudDrift;
@@ -593,8 +671,10 @@ const AIR_FRAGMENT = /* glsl */ `
     } else {
       #if AO_ON
         // Occlusion belongs to the fill light: ease it off where the key or an emitter dominates.
+        // Raised to a power so creases and the foot of a wall go properly dark and objects sit on the ground.
         float direct = smoothstep(uKey * 0.2, uKey * 0.75, lum);
-        col *= mix(1.0, texture2D(tAO, vUv).r, uAO * (1.0 - 0.55 * direct));
+        float ao = pow(clamp(texture2D(tAO, vUv).r, 0.0, 1.0), uAO);
+        col *= mix(1.0, ao, 1.0 - 0.45 * direct);
       #endif
 
       // Cloud shadow: the pattern sits on a plane overhead and is projected down the key direction.
@@ -614,9 +694,34 @@ const AIR_FRAGMENT = /* glsl */ `
     float layer = ${(1 - FOG_FLOOR).toFixed(2)} * exp(-uFogFalloff * h) * integ * dist;
     float flo = ${FOG_FLOOR.toFixed(2)} * (sky ? min(dist, ${FOG_FLOOR_DEPTH.toFixed(1)} / max(abs(dir.y), 0.02)) : dist);
     float trans = exp(-uFogDensity * (layer + flo));
-    vec3 fogCol = uFogColor + uSunColor * (uSunGlow * (0.3 * pow(toSun, 4.0) + 0.7 * pow(toSun, 28.0)));
+    // The air is warm looking towards the key and cool looking away from it.
+    vec3 fogCol = uFogColor * mix(uFogCool, uFogWarm, smoothstep(-0.7, 0.9, dot(dir, uSunDir)));
+    fogCol += uSunColor * (uSunGlow * (0.3 * pow(toSun, 4.0) + 0.7 * pow(toSun, 28.0)));
     fogCol += FLASH_COLOR * (uFlash * 0.3);
+    if (!sky) {
+      // Aerial perspective: distance takes the colour out of a surface before it takes the surface.
+      float veil = 1.0 - trans * trans * trans;
+      col = mix(col, vec3(dot(col, LUMA)), 0.6 * veil);
+    }
     col = mix(fogCol, col, trans);
+
+    #if HALO_LAMPS > 0
+      if (uHalo > 0.0005) {
+        // Lamp halos: the light each lamp leaves in the air along this ray, greatest where the ray passes closest.
+        vec3 halo = vec3(0.0);
+        for (int i = 0; i < HALO_LAMPS; i++) {
+          vec4 lp = uLampPos[i];
+          vec3 toLamp = lp.xyz - uCamPos;
+          float along = clamp(dot(toLamp, dir), 0.0, dist);
+          vec3 off = toLamp - dir * along;
+          float r2 = max(lp.w * lp.w, 0.01);
+          float d2 = dot(off, off);
+          float reach = max(0.0, 1.0 - d2 / (1.44 * r2));
+          halo += uLampCol[i] * (reach * reach * lp.w / sqrt(d2 + 0.0025 * r2) / (1.0 + 0.012 * along));
+        }
+        col += halo * uHalo;
+      }
+    #endif
 
     #if SHAFT_TAPS > 0
       if (uShaft > 0.002) {
@@ -641,8 +746,58 @@ const AIR_FRAGMENT = /* glsl */ `
   }
 `;
 
+const FOCUS_TAPS = 12;
+const FOCUS_FRAGMENT = /* glsl */ `
+  uniform sampler2D tDiffuse;
+  uniform sampler2D tDepth;
+  uniform vec2 uResolution;
+  uniform float uNear;
+  uniform float uFar;
+  uniform float uFocus;
+  uniform float uAmount;
+  varying vec2 vUv;
+
+  float viewDepth(vec2 uv) {
+    float z = texture2D(tDepth, uv).x * 2.0 - 1.0;
+    return 2.0 * uNear * uFar / (uFar + uNear - z * (uFar - uNear));
+  }
+
+  // Kept in step with focusBlur.
+  float blurAt(float depth) {
+    float f = max(0.5, uFocus);
+    if (depth >= f) return smoothstep(0.0, 1.0, (depth - (f * 1.3 + 0.6)) / (f * 2.7 + 3.4));
+    return 0.6 * smoothstep(0.0, 1.0, (f * 0.75 - depth) / (f * 0.5));
+  }
+
+  void main() {
+    vec3 centre = texture2D(tDiffuse, vUv).rgb;
+    float c = blurAt(viewDepth(vUv)) * uAmount;
+    if (c < 0.01) {
+      gl_FragColor = vec4(centre, 1.0);
+      return;
+    }
+    vec2 radius = c * 9.0 * (uResolution.y / 1080.0) / uResolution;
+    vec3 sum = centre;
+    float wsum = 1.0;
+    for (int i = 0; i < ${FOCUS_TAPS}; i++) {
+      float fi = float(i);
+      float r = sqrt((fi + 0.5) / ${FOCUS_TAPS.toFixed(1)});
+      float a = fi * 2.39996323;
+      vec2 uv = vUv + vec2(cos(a), sin(a)) * r * radius;
+      // A tap that is sharper than this pixel is in focus or in front of the blur: it must not smear into it.
+      float w = clamp(blurAt(viewDepth(uv)) * uAmount / c, 0.0, 1.0);
+      sum += texture2D(tDiffuse, uv).rgb * w;
+      wsum += w;
+    }
+    gl_FragColor = vec4(sum / wsum, 1.0);
+  }
+`;
+
 const FINAL_FRAGMENT = /* glsl */ `
   uniform sampler2D tDiffuse;
+  uniform sampler2D tBloom;
+  uniform sampler2D tNoise;
+  uniform float uLens;
   uniform vec2 uResolution;
   uniform float uExposure;
   uniform vec3 uLift;
@@ -704,6 +859,15 @@ const FINAL_FRAGMENT = /* glsl */ `
         texture2D(tDiffuse, vUv - off).b);
     #else
       vec3 hdr = texture2D(tDiffuse, vUv).rgb;
+    #endif
+
+    #if LENS
+      // The glow again where the glass is dirty, and a red fringe of it as film halation. Both are faint.
+      vec3 glow = max(texture2D(tBloom, vUv).rgb, vec3(0.0));
+      vec2 luv = vUv * vec2(uResolution.x / uResolution.y, 1.0);
+      float smear = smoothstep(0.52, 0.92, texture2D(tNoise, luv * 0.9 + 0.13).b);
+      float specks = smoothstep(0.66, 0.9, texture2D(tNoise, luv * 4.3 + 0.41).g);
+      hdr += glow * (uLens * (0.5 * smear + 0.35 * specks)) + glow * vec3(0.22, 0.06, 0.02) * uLens;
     #endif
 
     vec3 col = applyGrade(toneMap(max(hdr, vec3(0.0))));
@@ -842,12 +1006,13 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
   gtao.setGBuffer(depthTexture, undefined);
   gtao.output = GTAOPass.OUTPUT.Off;
   gtao.needsSwap = false;
-  gtao.updateGtaoMaterial({ radius: 0.55, distanceExponent: 1.4, thickness: 1.2, distanceFallOff: 1, scale: 1.25, samples: 16, screenSpaceRadius: false });
+  // A wide radius for the shade under eaves and between crates, a strong scale so the foot of every object reads.
+  gtao.updateGtaoMaterial({ radius: 0.9, distanceExponent: 1.5, thickness: 1.2, distanceFallOff: 1, scale: 1.45, samples: 16, screenSpaceRadius: false });
   gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 8 });
 
   const airMaterial = new ShaderMaterial({
     name: 'film.air',
-    defines: { AO_ON: 1, SHAFT_TAPS: QUALITY_TIERS[quality].shaftTaps },
+    defines: { AO_ON: 1, SHAFT_TAPS: QUALITY_TIERS[quality].shaftTaps, HALO_LAMPS: QUALITY_TIERS[quality].haloLamps },
     uniforms: {
       tScene: { value: sceneTarget.texture },
       tDepth: { value: depthTexture },
@@ -865,7 +1030,12 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
       uSunGlow: { value: 0 },
       uSunUv: { value: new Vector2(0.5, 0.5) },
       uShaft: { value: 0 },
-      uAO: { value: 1 },
+      uFogWarm: { value: new Color(1, 1, 1) },
+      uFogCool: { value: new Color(1, 1, 1) },
+      uLampPos: { value: LAMP_GLOW.pos },
+      uLampCol: { value: LAMP_GLOW.col },
+      uHalo: { value: 0 },
+      uAO: { value: AO_POWER },
       uCloud: { value: [0, 0.35, 1 / 150] },
       uCloudDrift: { value: AIR.cloudDrift },
       uKey: { value: 4 },
@@ -884,14 +1054,44 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
 
   const overlayPass = new OverlayPass(overlay, camera);
 
+  // Focus pull: off (and skipped by the composer) except while a conversation is framed on the top tier.
+  const focusMaterial = new ShaderMaterial({
+    name: 'film.focus',
+    uniforms: {
+      tDiffuse: { value: null as Texture | null },
+      tDepth: { value: depthTexture },
+      uResolution: AIR_UNIFORMS.uResolution,
+      uNear: AIR_UNIFORMS.uNear,
+      uFar: AIR_UNIFORMS.uFar,
+      uFocus: { value: 3 },
+      uAmount: { value: 0 },
+    },
+    vertexShader: QUAD_VERTEX,
+    fragmentShader: FOCUS_FRAGMENT,
+    blending: NoBlending,
+    depthTest: false,
+    depthWrite: false,
+    toneMapped: false,
+  });
+  const focusPass = new QuadPass(focusMaterial, (read) => {
+    const u = focusMaterial.uniforms['tDiffuse'];
+    if (u !== undefined) u.value = read.texture;
+  });
+  focusPass.enabled = false;
+  let focusAmount = 0;
+  let focusDistance = 3;
+
   const bloom = new UnrealBloomPass(new Vector2(1, 1), 0.35, 0.62, 4);
 
   const startGrade = GRADES.neutral;
   const finalMaterial = new ShaderMaterial({
     name: 'film.final',
-    defines: { CHROMATIC: 1 },
+    defines: { CHROMATIC: 1, LENS: 1 },
     uniforms: {
       tDiffuse: { value: null as Texture | null },
+      tBloom: { value: (bloom.renderTargetsHorizontal[0]?.texture ?? null) as Texture | null },
+      tNoise: { value: noise },
+      uLens: { value: LENS_DIRT },
       uResolution: AIR_UNIFORMS.uResolution,
       uExposure: { value: 0.5 },
       uLift: { value: new Vector3(...startGrade.lift) },
@@ -925,6 +1125,7 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
   composer.addPass(gtao);
   composer.addPass(airPass);
   composer.addPass(overlayPass);
+  composer.addPass(focusPass);
   composer.addPass(bloom);
   composer.addPass(finalPass);
 
@@ -955,7 +1156,9 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
     if (tier.aoSamples > 0) gtao.updateGtaoMaterial({ samples: tier.aoSamples });
     setDefine(airMaterial, 'AO_ON', tier.aoSamples > 0 ? 1 : 0);
     setDefine(airMaterial, 'SHAFT_TAPS', tier.shaftTaps);
+    setDefine(airMaterial, 'HALO_LAMPS', tier.haloLamps);
     setDefine(finalMaterial, 'CHROMATIC', tier.chromatic ? 1 : 0);
+    setDefine(finalMaterial, 'LENS', tier.lens ? 1 : 0);
     applySize();
   };
   applyQuality();
@@ -968,6 +1171,9 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
   const sunColor = air['uSunColor']?.value as Color;
   const sunUv = air['uSunUv']?.value as Vector2;
   const cloud = air['uCloud']?.value as number[];
+  const fogWarm = air['uFogWarm']?.value as Color;
+  const fogCool = air['uFogCool']?.value as Color;
+  const foc = focusMaterial.uniforms;
   const viewSun = new Vector3();
   const tint = new Color();
 
@@ -999,7 +1205,19 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
     setNumber(air, 'uFogFalloff', Math.max(0.005, AIR.falloff));
     setNumber(air, 'uFogHeight', AIR.groundY);
     setNumber(air, 'uSunGlow', (0.06 + 0.4 * haze) * AIR.beam);
-    setNumber(air, 'uAO', 1);
+    setNumber(air, 'uHalo', haloStrengthFor(LAMP_GLOW.gain, haze, AIR.halo));
+
+    // Side tint: towards the key the fog takes a share of the key's hue, away from it a cool cast.
+    const side = FOG_SIDE_TINT * Math.min(1, Math.max(0, AIR.beam));
+    const keyTop = Math.max(AIR.keyColor.r, AIR.keyColor.g, AIR.keyColor.b, 1e-4);
+    fogWarm.setRGB(
+      1 + (AIR.keyColor.r / keyTop - 1) * side,
+      1 + (AIR.keyColor.g / keyTop - 1) * side,
+      1 + (AIR.keyColor.b / keyTop - 1) * side,
+    );
+    // Dimming two channels to make a warm cast would darken the horizon on the key side: put the level back.
+    fogWarm.multiplyScalar(1 / Math.max(0.5, 0.2126 * fogWarm.r + 0.7152 * fogWarm.g + 0.0722 * fogWarm.b));
+    fogCool.setRGB(1 + (FOG_COOL[0] - 1) * side, 1 + (FOG_COOL[1] - 1) * side, 1 + (FOG_COOL[2] - 1) * side);
     setNumber(air, 'uKey', Math.max(0.3, AIR.keyLevel));
     setNumber(air, 'uFlash', AIR.flash);
     setNumber(air, 'uFrame', frame);
@@ -1018,9 +1236,20 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
       const off = Math.max(Math.abs(nx), Math.abs(ny));
       const onScreen = 1 - Math.min(1, Math.max(0, (off - 0.9) / 0.9));
       const facing = Math.min(1, (-viewSun.z - 0.05) / 0.25);
-      shaft = haze * AIR.beam * onScreen * facing * 0.26;
+      shaft = haze * AIR.beam * onScreen * facing * SHAFT_STRENGTH * Math.min(2, Math.max(0, AIR.shaftGain));
     }
     setNumber(air, 'uShaft', shaft);
+
+    // Focus pull: eases in when a conversation is framed and out when it ends; the pass is skipped at rest.
+    const wantFocus = AIR.focusOn && QUALITY_TIERS[quality].focusPull ? 1 : 0;
+    focusAmount += (wantFocus - focusAmount) * (1 - Math.exp(-FOCUS_EASE * dt));
+    if (wantFocus === 0 && focusAmount < 0.01) focusAmount = 0;
+    focusPass.enabled = focusAmount > 0;
+    if (focusPass.enabled) {
+      if (AIR.focusOn) focusDistance += (Math.max(0.8, camPos.distanceTo(AIR.focus)) - focusDistance) * (1 - Math.exp(-6 * dt));
+      setNumber(foc, 'uFocus', focusDistance);
+      setNumber(foc, 'uAmount', focusAmount);
+    }
 
     bloom.threshold = threshold;
     bloom.strength = 0.16 + 0.3 * haze;
@@ -1085,6 +1314,7 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
       gtao.dispose();
       airPass.dispose();
       bloom.dispose();
+      focusPass.dispose();
       finalPass.dispose();
       composer.dispose();
       sceneTarget.dispose();

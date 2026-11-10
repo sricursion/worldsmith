@@ -2,13 +2,17 @@
 // section is parsed leniently, coerced into the shape of the spec, and merged into one WorldSpec.
 // Pure functions, no I/O.
 import type {
-  Blueprint, BlueprintPart, BuildingRole, BuildingSpec, ItemSpec, LandmarkSpec, Mood, MoodSpec, NpcSpec, PartShape, PartTone,
-  PropBlueprint, QuestSpec, QuestStep, RuleEffect, RuleSpec, ScheduleEntry, SitePattern, SiteSpec, SkyPreset, StyleSpec,
-  ThemeId, WorldSpec,
+  Blueprint, BlueprintPart, BuildingRole, BuildingSpec, CreatureSpec, FolkSpec, ItemSpec, LandmarkSpec, Mood, MoodSpec, NpcSpec,
+  PartShape, PartTone, PropBlueprint, QuestSpec, QuestStep, RuleEffect, RuleSpec, ScheduleEntry, SitePattern, SiteSpec,
+  SkyFeature, SkyPreset, StyleSpec, TerrainSpec, ThemeId, WorldSpec,
 } from '../../../app/src/world/spec';
 import { SPEC_VERSION } from '../../../app/src/world/spec';
-import { coerceMood, coerceSurfaces } from '../../../app/src/world/schema';
+import {
+  coerceCreatures, coerceFolk, coerceMood, coerceSkyFeatures, coerceSurfaces, coerceTerrain, HAUNT_WORDS, PROP_SIZE_MAX,
+  SITE_PATTERNS, WILD_PATTERNS,
+} from '../../../app/src/world/schema';
 import { isRecord } from '../lib/http';
+import { mockLand } from '../lib/mockland';
 import { fogFor, mockAir, mockSurfaces, skyFor } from '../lib/mockmood';
 
 // ---- Lenient JSON ------------------------------------------------------------------------------
@@ -76,6 +80,27 @@ const hex = (v: unknown, d: string): string => {
   return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(t) ? t : d;
 };
 
+/**
+ * Caps a colour's saturation (HSV) and keeps its value, so no surface, hide or cloth reads brighter than a real
+ * material would. Contrast in these worlds comes from value; only light sources are exempt.
+ */
+export function mute(colour: string, maxS: number): string {
+  const m = /^#([0-9a-f]{6})$/i.exec(colour.trim());
+  if (!m) return colour;
+  const n = parseInt(m[1] as string, 16);
+  const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  const hi = Math.max(...ch);
+  const lo = Math.min(...ch);
+  const sat = hi === 0 ? 0 : (hi - lo) / hi;
+  if (sat <= maxS) return colour.trim().toLowerCase();
+  const k = maxS / sat;
+  return `#${ch.map((c) => Math.round(hi - (hi - c) * k).toString(16).padStart(2, '0')).join('')}`;
+}
+
+const SURFACE_SAT = 0.5;
+const ACCENT_SAT = 0.65;
+const HIDE_SAT = 0.7;
+
 export const THEMES: readonly ThemeId[] = ['western', 'medieval', 'scifi', 'modern'];
 export const SKIES: readonly SkyPreset[] = ['dawn', 'day', 'dusk', 'night', 'overcast'];
 export const ROLES: readonly BuildingRole[] = [
@@ -84,7 +109,11 @@ export const ROLES: readonly BuildingRole[] = [
   'command', 'habitat', 'reactor', 'cafe', 'office', 'shop', 'garage', 'apartment', 'station', 'plaza',
 ];
 const SIZES = ['small', 'medium', 'large'] as const;
-const PATTERNS: readonly SitePattern[] = ['street', 'ring', 'scatter', 'grid', 'terraces'];
+const PATTERNS: readonly SitePattern[] = SITE_PATTERNS;
+/** The id a quest names when nobody lives in the world; the client's normalizeSpec gives it a body. */
+export const SPIRIT_ID = 'spirit_of_the_place';
+export const MAX_STRUCTURES = 12;
+export const MAX_PEOPLE = 8;
 const PATHS = ['road', 'track', 'none'] as const;
 const MOODS: readonly Mood[] = ['calm', 'tense', 'cheerful', 'grieving', 'drunk', 'angry', 'afraid'];
 const STANCES = ['friend', 'rival', 'family', 'debtor', 'suspicious', 'neutral'] as const;
@@ -103,7 +132,7 @@ const ROLE_WORDS: [RegExp, BuildingRole][] = [
   [/lab|study|alchem|observ|archive|library|school|academy/, 'lab'], [/doctor|heal|clinic|hospital|infirm/, 'doctor'],
   [/jail|prison|cell|watch|guard|barrack|sheriff|fort/, 'jail'], [/bank|vault|treasur|mint/, 'bank'], [/warehouse|store ?house|granary|silo|depot|dock/, 'warehouse'],
   [/work|mill|press|kiln|loom|craft/, 'workshop'], [/command|bridge|control|tower|beacon/, 'command'], [/hangar|port|pad/, 'hangar'],
-  [/cafe|kitchen|bakery|tea|noodle|canteen/, 'cafe'], [/office|bureau|exchange/, 'office'], [/home|house|hut|cottage|tent|pod|burrow|nest|den|dwell/, 'house'],
+  [/cafe|kitchen|bakery|tea|noodle|canteen/, 'cafe'], [/office|bureau|exchange/, 'office'], [/home|house|hut|cottage|tent|pod|burrow|nest|den|dwell|cave|lair|hollow/, 'house'],
   [/plaza|square|commons|green|fire ?pit|well/, 'plaza'],
 ];
 
@@ -136,19 +165,47 @@ export interface Outline {
   /** Weather, grade, haze and sound, chosen in the first seconds so the client can set the air before the look arrives. */
   mood: MoodSpec;
   time: { startHour: number };
+  /** The land itself: relief, water, the far distance, and how much of it is built on. */
+  terrain: TerrainSpec;
+  skyFeatures: SkyFeature[];
+  /** 0 to 6 kinds of wildlife, monster or machine. */
+  creatures: CreatureSpec[];
+  /** The body plan of whoever lives here; present even when nobody does. */
+  folk: FolkSpec;
+  /** 0 to 12 structures or natural points of interest, and 0 to 8 people. */
   buildings: OutlineBuilding[]; npcs: OutlineNpc[];
   quest: { title: string; premise: string }; lexicon: string[];
 }
 
-export function coerceSite(raw: unknown): SiteSpec {
+/**
+ * The layout. When the model names no usable pattern it follows the land: barely settled ground is wilderness
+ * (a shoreline when the water is a shore), anything else a street.
+ */
+export function coerceSite(raw: unknown, terrain?: TerrainSpec): SiteSpec {
   const r = rec(raw);
-  const pattern = oneOf(r.pattern, PATTERNS, 'street');
+  const byLand: SitePattern = terrain && terrain.settled < 0.3 ? (terrain.water === 'shore' ? 'shoreline' : 'wild') : 'street';
+  const pattern = oneOf(typeof r.pattern === 'string' ? r.pattern.trim().toLowerCase() : r.pattern, PATTERNS, byLand);
+  const open = WILD_PATTERNS.includes(pattern);
   return {
     pattern,
-    wild: clamp(num(r.wild, 0.3), 0, 1),
-    paths: oneOf(r.paths, PATHS, pattern === 'scatter' ? 'track' : 'road'),
-    spacing: clamp(num(r.spacing, 7), 2, 14),
+    wild: clamp(num(r.wild, open ? 0.7 : 0.3), 0, 1),
+    paths: oneOf(r.paths, PATHS, open || pattern === 'scatter' ? 'track' : 'road'),
+    spacing: clamp(num(r.spacing, open ? 12 : 7), 2, 14),
   };
+}
+
+function muteFolk(f: FolkSpec): FolkSpec {
+  return { ...f, skin: f.skin.map((c) => mute(c, ACCENT_SAT)), cloth: f.cloth.map((c) => mute(c, ACCENT_SAT)), trim: f.trim.map((c) => mute(c, HIDE_SAT)) };
+}
+
+/** Creatures keep to 'sky', 'water', 'wild', 'plaza' or one of the outline's structures; water only where there is some. */
+function settleCreatures(creatures: CreatureSpec[], places: ReadonlySet<string>, terrain: TerrainSpec): CreatureSpec[] {
+  return creatures.map((c) => {
+    const s = slug(c.haunt);
+    let haunt = HAUNT_WORDS.includes(c.haunt) ? c.haunt : places.has(s) ? s : 'wild';
+    if (haunt === 'water' && terrain.water === 'none') haunt = 'wild';
+    return { ...c, haunt };
+  });
 }
 
 /** Null when the outline is too thin to build a world on (fewer than three buildings). */
@@ -184,10 +241,14 @@ export function coerceAir(r: Record<string, unknown>, theme: ThemeId, prompt: st
   return { mood, time: { startHour: Math.min(23, hour) }, palette: { sky, fog: fogFor(mood, clamp(num(pal.fog, 0.2), 0, 1)) } };
 }
 
+/**
+ * Null when the reply says nothing usable about the place: no structures and no land. A world may have no
+ * structures and no people at all, so an empty list is not a failure.
+ */
 export function coerceOutline(raw: unknown, fallbackTheme: ThemeId, prompt = ''): Outline | null {
   const r = rec(raw);
-  const src = list(r.buildings).map((b) => fromRow(b, BUILDING_ROW)).filter((b): b is Record<string, unknown> => b !== null).slice(0, 14);
-  if (src.length < 3) return null;
+  const src = list(r.buildings ?? r.structures).map((b) => fromRow(b, BUILDING_ROW)).filter((b): b is Record<string, unknown> => b !== null).slice(0, MAX_STRUCTURES);
+  if (src.length === 0 && !isRecord(r.terrain)) return null;
   const ids = uniqueIds(src.map((b) => str(b.id) || str(b.label)), 'building');
   const buildings: OutlineBuilding[] = src.map((b, i) => {
     const id = ids[i] as string;
@@ -196,11 +257,11 @@ export function coerceOutline(raw: unknown, fallbackTheme: ThemeId, prompt = '')
   });
   if (!buildings.some((b) => b.keyBuilding)) for (const b of buildings.slice(0, 2)) b.keyBuilding = true;
   const bIds = new Set(buildings.map((b) => b.id));
-  const nsrc = list(r.npcs).map((n) => fromRow(n, NPC_ROW)).filter((n): n is Record<string, unknown> => n !== null).slice(0, 10);
+  const nsrc = list(r.npcs ?? r.people).map((n) => fromRow(n, NPC_ROW)).filter((n): n is Record<string, unknown> => n !== null).slice(0, MAX_PEOPLE);
   const nids = uniqueIds(nsrc.map((n) => str(n.id) || str(n.name)), 'npc');
   const homeOf = (v: unknown, i: number): string => {
     const t = slug(str(v));
-    return bIds.has(t) ? t : (buildings[i % buildings.length] as OutlineBuilding).id;
+    return bIds.has(t) ? t : (buildings[i % Math.max(1, buildings.length)]?.id ?? 'street');
   };
   const npcs: OutlineNpc[] = nsrc.map((n, i) => {
     const w = slug(str(n.work));
@@ -211,9 +272,18 @@ export function coerceOutline(raw: unknown, fallbackTheme: ThemeId, prompt = '')
   });
   const q = rec(r.quest);
   const theme = oneOf(r.theme, THEMES, fallbackTheme);
+  // Whatever the model left out about the land and its life is read from the prompt's own words.
+  const guess = mockLand(prompt, theme);
+  const terrain = isRecord(r.terrain) ? coerceTerrain(r.terrain, guess.terrain) : guess.terrain;
+  const sky = r.skyFeatures ?? r.sky;
+  const creatures = Array.isArray(r.creatures) ? coerceCreatures(r.creatures) : guess.creatures;
   return {
     title: str(r.title, 'Untitled place'), tagline: str(r.tagline), era: str(r.era, 'an unnamed age'),
-    theme, site: coerceSite(r.site), ...coerceAir(r, theme, prompt),
+    theme, site: coerceSite(r.site, terrain), ...coerceAir(r, theme, prompt),
+    terrain,
+    skyFeatures: Array.isArray(sky) ? coerceSkyFeatures(sky) : guess.skyFeatures,
+    creatures: settleCreatures(creatures, bIds, terrain).map((c) => ({ ...c, body: mute(c.body, HIDE_SAT), accent: mute(c.accent, HIDE_SAT) })),
+    folk: muteFolk(isRecord(r.folk) ? coerceFolk(r.folk) : guess.folk),
     buildings, npcs, quest: { title: str(q.title), premise: str(q.premise) }, lexicon: strs(Array.isArray(r.lexicon) ? r.lexicon : q.lexicon, 14),
   };
 }
@@ -268,7 +338,10 @@ const RAIN_WET_FLOOR = 0.4;
 export function coerceStyle(raw: unknown, fallback: StyleSpec, air?: { prompt: string; theme: ThemeId; mood: MoodSpec }): StyleSpec {
   const r = rec(raw);
   const out: StyleSpec = { ...fallback, name: str(r.name, fallback.name) || fallback.name, variety: clamp(num(r.variety, fallback.variety), 0, 1) };
-  for (const k of STYLE_KEYS) out[k] = hex(r[k], fallback[k]);
+  for (const k of STYLE_KEYS) {
+    const v = hex(r[k], fallback[k]);
+    out[k] = k === 'glow' ? v : mute(v, k === 'accent' ? ACCENT_SAT : SURFACE_SAT);
+  }
   const base = air ? mockSurfaces(air.prompt, air.theme, air.mood) : fallback.surfaces;
   const surfaces = coerceSurfaces(r.surfaces, base);
   const raining = air?.mood.weather === 'rain' || air?.mood.weather === 'storm';
@@ -297,7 +370,8 @@ export function coerceLook(raw: unknown, outline: Outline, fallbackStyle: StyleS
     if (dials) bp.dials = dials;
     blueprints.push(bp);
   });
-  if (blueprints.length === 0 || !styleIsReal(r.style)) return null;
+  // A land with nothing built on it needs no blueprints; a place with structures does.
+  if ((blueprints.length === 0 && outline.buildings.length > 0) || !styleIsReal(r.style)) return null;
 
   const psrc = list(r.props).filter(isRecord).slice(0, 6);
   const pkinds = uniqueIds(psrc.map((p) => str(p.kind)), 'prop');
@@ -306,7 +380,7 @@ export function coerceLook(raw: unknown, outline: Outline, fallbackStyle: StyleS
     const parts = coerceParts(p.parts, 8);
     const family = str(p.family);
     if (!family && parts.length === 0) return;
-    const pb: PropBlueprint = { kind: pkinds[i] as string, size: clamp(num(p.size, 1.5), 0.3, 6), parts, weight: clamp(num(p.weight, 2), 1, 5) };
+    const pb: PropBlueprint = { kind: pkinds[i] as string, size: clamp(num(p.size, 1.5), 0.3, PROP_SIZE_MAX), parts, weight: clamp(num(p.weight, 2), 1, 5) };
     if (family) pb.family = family;
     const dials = coerceDials(p.dials);
     if (dials) pb.dials = dials;
@@ -329,7 +403,7 @@ export function coerceLook(raw: unknown, outline: Outline, fallbackStyle: StyleS
     if (bIds.has(bid) && bpIds.has(bp)) picked.set(bid, bp);
   }
   let next = 0;
-  const buildings = outline.buildings.map((b) => ({ id: b.id, blueprint: picked.get(b.id) ?? (blueprints[next++ % blueprints.length] as Blueprint).id }));
+  const buildings = outline.buildings.map((b) => ({ id: b.id, blueprint: picked.get(b.id) ?? (blueprints[next++ % Math.max(1, blueprints.length)] as Blueprint).id }));
   const style = coerceStyle(r.style, fallbackStyle, { prompt, theme: outline.theme, mood: outline.mood });
   return { style, site: outline.site, blueprints, props, landmarks, buildings };
 }
@@ -360,7 +434,7 @@ export function coerceNpcs(raw: unknown, outline: Outline): NpcSpec[] {
   return src.map((n, i) => {
     const id = ids[i] as string;
     const stub = outline.npcs.find((s) => s.id === id);
-    const fallbackHome = stub?.home ?? (outline.buildings[i % outline.buildings.length] as OutlineBuilding).id;
+    const fallbackHome = stub?.home ?? outline.buildings[i % Math.max(1, outline.buildings.length)]?.id ?? 'street';
     const home = places.has(slug(str(n.home))) ? slug(str(n.home)) : fallbackHome;
     const w = slug(str(n.work));
     const work = places.has(w) || w === 'street' || w === 'plaza' ? w : (stub?.work ?? home);
@@ -413,8 +487,9 @@ function coerceEffect(raw: unknown): RuleEffect | null {
 
 export function coerceStory(raw: unknown, outline: Outline): StoryResult | null {
   const r = rec(raw);
-  const npcs = coerceNpcs(r.npcs, outline);
-  if (npcs.length < 3) return null;
+  // The cast is as large as the outline's: nobody at all in an empty land, never fewer than the outline planned for (up to three).
+  const npcs = coerceNpcs(r.npcs, outline).slice(0, outline.npcs.length === 0 ? 0 : 10);
+  if (npcs.length < Math.min(3, outline.npcs.length)) return null;
   const items: ItemSpec[] = list(r.items).filter(isRecord).slice(0, 20).map((it, i) => ({
     id: slug(str(it.id) || str(it.name)) || `item_${i + 1}`, name: str(it.name, 'Item'), description: str(it.description), holder: str(it.holder, 'player'),
   }));
@@ -431,7 +506,7 @@ export function coerceStory(raw: unknown, outline: Outline): StoryResult | null 
     if (reveals.length > 0) step.reveals = reveals;
     return step;
   });
-  if (steps.length < 2) return null;
+  if (steps.length < 1) return null;
   const endings = list(q.endings).filter(isRecord).slice(0, 4).map((e) => ({
     stepId: slug(str(e.stepId)), label: str(e.label, 'The end'), tone: oneOf(e.tone, ['good', 'bitter', 'neutral'] as const, 'neutral'),
   }));
@@ -442,7 +517,7 @@ export function coerceStory(raw: unknown, outline: Outline): StoryResult | null 
   });
   return {
     npcs, items,
-    quest: { id: slug(str(q.id)) || 'quest', title: str(q.title, outline.quest.title || 'A task'), hook: str(q.hook, outline.quest.premise), giver: slug(str(q.giver)) || (npcs[0] as NpcSpec).id, steps, endings },
+    quest: { id: slug(str(q.id)) || 'quest', title: str(q.title, outline.quest.title || 'A task'), hook: str(q.hook, outline.quest.premise), giver: npcs.length === 0 ? SPIRIT_ID : slug(str(q.giver)) || (npcs[0] as NpcSpec).id, steps, endings },
     rules,
   };
 }
@@ -465,6 +540,8 @@ export function mergeSpec(prompt: string, seed: number, outline: Outline, look: 
     palette: { ground: look.style.ground, accent: look.style.accent, sky: outline.palette.sky, fog: outline.palette.fog },
     time: { startHour: outline.time.startHour, minutesPerRealSecond: 4 },
     buildings, npcs: story.npcs, items: story.items, quest: story.quest, rules: story.rules, lexicon: outline.lexicon,
-    style: look.style, site: look.site, mood: outline.mood, blueprints: look.blueprints, props: look.props, landmarks: look.landmarks,
+    style: look.style, site: look.site, mood: outline.mood,
+    terrain: outline.terrain, skyFeatures: outline.skyFeatures, creatures: outline.creatures, folk: outline.folk,
+    blueprints: look.blueprints, props: look.props, landmarks: look.landmarks,
   };
 }

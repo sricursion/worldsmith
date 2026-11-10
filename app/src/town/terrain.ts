@@ -8,9 +8,9 @@
 import * as THREE from 'three';
 import { makeRng } from '../world/rng';
 import type { Rng } from '../world/rng';
-import type { SiteSpec, SurfaceKind, SurfaceSet, ThemeId } from '../world/spec';
-import { TRACK_WIDTH, buildingAabb, distanceToRoad, roadRect } from './layout';
-import type { PlacedBuilding, Rect, RoadSegment, TownLayout } from './layout';
+import type { ReliefKind, SiteSpec, SurfaceKind, SurfaceSet, TerrainSpec, ThemeId } from '../world/spec';
+import { TRACK_WIDTH, buildingAabb, distanceToPolyline, distanceToRoad, roadRect, waterInside } from './layout';
+import type { PlacedBuilding, Rect, RoadSegment, TownLayout, WaterBody } from './layout';
 
 export type Quality = 0 | 1 | 2;
 
@@ -146,6 +146,559 @@ export function terrainHeight(f: TerrainField, x: number, z: number): number {
   const ramp = smoothstep(0, 75, e);
   const tilt = f.form === 'flats' ? 5 : 11;
   return ramp * (relief(f, x, z) + tilt * (e / 160) ** 1.4);
+}
+
+// ---- The land ----------------------------------------------------------------------------------------------
+// A world that carries WorldSpec.terrain has relief inside the playable area, not only around it. The height
+// at a point is built in layers:
+//   1. relief by kind (rolling, dunes, craggy, ...), `ruggedness` setting its amplitude: up to 6 m inside the
+//      bounds, several times that outside them;
+//   2. calm: the small-scale part of the relief is damped near buildings, roads and clearings, so a settlement
+//      sits on gently undulating ground while the land between and around it keeps its full shape;
+//   3. benches (a cliffside site steps up level terraces) and water (the land is carved to hold each body);
+//   4. routes: every road and trail gets a profile along its length whose grade is limited, and the ground
+//      beside it is blended to that profile, so there is always a walkable way between points of interest;
+//   5. pads: the ground under every footprint, and out past its door, is exactly level.
+// Buildings therefore stand at y = heightAt(centre): the builder lifts each one onto its pad.
+// Inside the bounds (plus LAND_MARGIN) the layers are baked once into a grid and heightAt interpolates it with
+// the same triangles the walk mesh and the visible ground use, so what is placed on heightAt sits on the mesh.
+// Heights are shifted so the spawn point is at y = 0.
+
+/** Metres of baked height grid kept around the bounds. */
+export const LAND_MARGIN = 32;
+/** How deep a ford lies under the water surface, and the deepest water the walk mesh still covers. */
+export const FORD_DEPTH = 0.1;
+export const WADE_DEPTH = 0.28;
+/** The steepest grade a road or trail keeps along its length (rise over run). */
+export const ROUTE_GRADE = 0.24;
+const PAD_FULL = 1.7;
+const PAD_BLEND = 4.5;
+const ROUTE_BLEND = 4.5;
+
+export interface LandWater { body: WaterBody; kind: WaterBody['kind']; level: number }
+
+export interface LandGrid { x0: number; z0: number; cell: number; nx: number; nz: number; h: Float32Array }
+
+export interface Land {
+  /** True when the spec carried terrain: the playable area has relief and may hold water. */
+  readonly shaped: boolean;
+  readonly bounds: Rect;
+  heightAt(x: number, z: number): number;
+  /** Depth of water standing over the land at a point, metres; 0 on dry land. */
+  waterDepthAt(x: number, z: number): number;
+  /** Surface height of the water a point lies in or beside (within `reach` metres of its edge), or null. */
+  waterLevelNear(x: number, z: number, reach: number): number | null;
+  readonly water: readonly LandWater[];
+  readonly grid: LandGrid | null;
+}
+
+interface RouteLayer { xs: Float64Array; zs: Float64Array; hs: Float64Array; half: number; box: Rect }
+interface Pad { rect: Rect | null; x: number; z: number; r: number; h: number; box: Rect }
+
+const growRect = (r: Rect, m: number): Rect => ({ minX: r.minX - m, maxX: r.maxX + m, minZ: r.minZ - m, maxZ: r.maxZ + m });
+const inRect = (r: Rect, x: number, z: number): boolean => x >= r.minX && x <= r.maxX && z >= r.minZ && z <= r.maxZ;
+const rectDist = (r: Rect, x: number, z: number): number => Math.hypot(Math.max(r.minX - x, 0, x - r.maxX), Math.max(r.minZ - z, 0, z - r.maxZ));
+const frac = (v: number): number => v - Math.floor(v);
+
+/** How the shape of each water kind is cut into the land: bank width, bed slope and greatest depth, metres. */
+function carveFor(kind: WaterBody['kind'], shape: WaterBody['area']['shape']): { bank: number; slope: number; deep: number } {
+  if (shape === 'outside') return { bank: 14, slope: 1.3, deep: 60 };
+  if (shape === 'half') return { bank: 16, slope: 0.16, deep: kind === 'lava' || kind === 'acid' ? 2 : 7 };
+  switch (kind) {
+    case 'pond': return { bank: 6, slope: 0.3, deep: 1.1 };
+    case 'lake': return { bank: 9, slope: 0.25, deep: 3 };
+    case 'river': return { bank: 8, slope: 0.35, deep: 1.5 };
+    case 'ice_sheet': return { bank: 8, slope: 0.3, deep: 0.5 };
+    default: return { bank: 7, slope: 0.35, deep: 1.4 };
+  }
+}
+
+// Scratch for the two parts of the relief: the broad shape, and the detail that calm ground damps.
+let reliefLow = 0;
+let reliefDetail = 0;
+
+interface ReliefFrame { kind: ReliefKind; seed: number; cx: number; cz: number; reach: number; alongX: boolean; cross: number }
+
+function shapeRelief(f: ReliefFrame, x: number, z: number, a: number, big: number): void {
+  const s = f.seed;
+  switch (f.kind) {
+    case 'rolling':
+      reliefLow = 0.9 * a * (fbm(x / 120, z / 120, s + 1, 3) - 0.5);
+      reliefDetail = 0.9 * a * (fbm(x / 42, z / 42, s + 2, 4) - 0.5);
+      return;
+    case 'dunes': {
+      // Crests run across the wind: a long windward rise, then a short slip face.
+      const warp = 20 * (fbm(x / 130, z / 130, s + 5, 3) - 0.5);
+      const t = frac((x * 0.82 + z * 0.57 + warp) / 46);
+      const prof = t < 0.7 ? 0.5 - 0.5 * Math.cos((Math.PI * t) / 0.7) : 0.5 + 0.5 * Math.cos((Math.PI * (t - 0.7)) / 0.3);
+      const tall = 0.4 + 0.8 * fbm(x / 150, z / 150, s + 9, 2);
+      reliefLow = 0.3 * a * (fbm(x / 170, z / 170, s + 1, 2) - 0.5);
+      reliefDetail = 0.85 * a * tall * prof + 0.05 * a * fbm(x / 7, z / 7, s + 3, 2);
+      return;
+    }
+    case 'craggy': {
+      // Outcrops: stepped rock masses on a rough base.
+      const cell = 24;
+      const gx = Math.floor(x / cell);
+      const gz = Math.floor(z / cell);
+      let top = 0;
+      const rag = 1 + 0.3 * (valueNoise(x / 5, z / 5, s + 13) - 0.5);
+      for (let j = -1; j <= 1; j++) {
+        for (let i = -1; i <= 1; i++) {
+          const k = hash2(gx + i, gz + j, s + 17);
+          if (k < 0.45) continue;
+          const ox = (gx + i + 0.2 + 0.6 * hash2(gx + i, gz + j, s + 19)) * cell;
+          const oz = (gz + j + 0.2 + 0.6 * hash2(gx + i, gz + j, s + 23)) * cell;
+          const r = 5 + 8 * hash2(gx + i, gz + j, s + 29);
+          const q = (1 - smoothstep(0.5 * r, r, Math.hypot(x - ox, z - oz) * rag)) * 3;
+          const stepped = (Math.floor(q) + smoothstep(0.3, 0.7, q - Math.floor(q))) / 3;
+          top = Math.max(top, (0.35 + 0.65 * k) * stepped);
+        }
+      }
+      reliefLow = 0.5 * a * (fbm(x / 110, z / 110, s + 1, 3) - 0.5);
+      reliefDetail = a * top + 0.12 * a * (fbm(x / 9, z / 9, s + 3, 3) - 0.5);
+      return;
+    }
+    case 'terraced': {
+      // Level benches with short risers, climbing and falling across the land.
+      const t = (x * 0.6 + z * 0.8 + 16 * (fbm(x / 90, z / 90, s + 3, 2) - 0.5)) / 24;
+      const k = Math.floor(t);
+      const level = k + smoothstep(0.76, 1, t - k);
+      const wave = 3 - Math.abs((((level % 6) + 6) % 6) - 3);
+      reliefLow = 0;
+      reliefDetail = (a / 3) * wave + 0.04 * a * (fbm(x / 8, z / 8, s + 5, 2) - 0.5);
+      return;
+    }
+    case 'crater': {
+      // The place lies on the floor of one great crater; small ones pock the floor.
+      const d = Math.hypot(x - f.cx, z - f.cz);
+      const r0 = f.reach + 14;
+      const rim = big * 1.3 * (smoothstep(r0, r0 + 55, d) - 0.55 * smoothstep(r0 + 60, r0 + 190, d));
+      reliefLow = 0.5 * a * Math.min(1, d / r0) ** 3 + rim;
+      const cell = 30;
+      const gx = Math.floor(x / cell);
+      const gz = Math.floor(z / cell);
+      let pock = 0;
+      for (let j = -1; j <= 1; j++) {
+        for (let i = -1; i <= 1; i++) {
+          const ox = (gx + i + 0.2 + 0.6 * hash2(gx + i, gz + j, s + 11)) * cell;
+          const oz = (gz + j + 0.2 + 0.6 * hash2(gx + i, gz + j, s + 23)) * cell;
+          const r = 3 + 6 * hash2(gx + i, gz + j, s + 37);
+          const dd = Math.hypot(x - ox, z - oz);
+          pock += 0.3 * Math.exp(-(((dd - r) / (r * 0.4)) ** 2)) - (dd < r ? 0.35 * (1 - (dd / r) ** 2) : 0);
+        }
+      }
+      reliefDetail = 0.5 * a * pock + 0.3 * a * (fbm(x / 34, z / 34, s + 2, 3) - 0.5);
+      return;
+    }
+    case 'canyon': {
+      // A floor between two walls, running the long way through the place.
+      const u = f.alongX ? x - f.cx : z - f.cz;
+      const v = (f.alongX ? z - f.cz : x - f.cx) + 12 * (fbm(u / 80, 3.7, s + 5, 2) - 0.5);
+      const wall = smoothstep(f.cross + 8, f.cross + 34, Math.abs(v));
+      const raw = big * 1.7 * wall * (0.75 + 0.5 * fbm(x / 45, z / 45, s + 7, 3));
+      reliefLow = 0.5 * raw + 0.5 * Math.round(raw / 7) * 7;
+      reliefDetail = 0.6 * a * (fbm(x / 30, z / 30, s + 2, 3) - 0.5) * (1 - wall);
+      return;
+    }
+    case 'icefield': {
+      // Flat pans of ice, broken by pressure ridges where the plates meet.
+      const n = fbm(x / 38, z / 38, s + 2, 2);
+      const ridge = smoothstep(0.88, 0.985, 1 - Math.abs(2 * n - 1)) * smoothstep(0.38, 0.58, fbm(x / 55 + 9, z / 55, s + 4, 2));
+      reliefLow = 0.25 * a * (fbm(x / 160, z / 160, s + 1, 2) - 0.5);
+      reliefDetail = 0.7 * a * ridge * (0.5 + 0.5 * valueNoise(x / 6, z / 6, s + 6));
+      return;
+    }
+    case 'swamp':
+      reliefLow = 0.12 * a * (fbm(x / 120, z / 120, s + 1, 2) - 0.5);
+      reliefDetail = (0.5 + 0.14 * a) * 2 * (fbm(x / 15, z / 15, s + 2, 3) - 0.5);
+      return;
+    case 'islands':
+      reliefLow = 0;
+      reliefDetail = (1.2 + 0.5 * a) * 2.2 * (fbm(x / 58, z / 58, s + 2, 4) - 0.5);
+      return;
+    default:
+      reliefLow = 0.35 * a * (fbm(x / 140, z / 140, s + 1, 3) - 0.5);
+      reliefDetail = 0.12 * a * (fbm(x / 23, z / 23, s + 2, 3) - 0.5);
+  }
+}
+
+/** A G-Lipschitz version of a height profile sampled at stations `st` (metres along): the mean of its upper and lower envelopes. */
+function limitGrade(h: Float64Array, st: Float64Array, g: number): Float64Array {
+  const n = h.length;
+  const up = Float64Array.from(h);
+  const lo = Float64Array.from(h);
+  for (let i = 1; i < n; i++) {
+    const d = g * ((st[i] as number) - (st[i - 1] as number));
+    up[i] = Math.min(up[i] as number, (up[i - 1] as number) + d);
+    lo[i] = Math.max(lo[i] as number, (lo[i - 1] as number) - d);
+  }
+  for (let i = n - 2; i >= 0; i--) {
+    const d = g * ((st[i + 1] as number) - (st[i] as number));
+    up[i] = Math.min(up[i] as number, (up[i + 1] as number) + d);
+    lo[i] = Math.max(lo[i] as number, (lo[i + 1] as number) - d);
+  }
+  for (let i = 0; i < n; i++) up[i] = ((up[i] as number) + (lo[i] as number)) / 2;
+  return up;
+}
+
+/** Flat land: the legacy field (level over the town, rising beyond it), no water, no grid. */
+function flatLand(layout: TownLayout, ground: SurfaceKind, seed: number): Land {
+  const field = makeTerrainField(layout.bounds, ground, seed);
+  return {
+    shaped: false, bounds: field.bounds, water: [], grid: null,
+    heightAt: (x, z) => terrainHeight(field, x, z),
+    waterDepthAt: () => 0,
+    waterLevelNear: () => null,
+  };
+}
+
+export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, ground: SurfaceKind, seed: number): Land {
+  if (!terrain) return flatLand(layout, ground, seed);
+  const b = layout.bounds;
+  const cx = (b.minX + b.maxX) / 2;
+  const cz = (b.minZ + b.maxZ) / 2;
+  const reach = Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) / 2;
+  const unit = (v: number, d: number): number => (Number.isFinite(v) ? clamp(v, 0, 1) : d);
+  const rug = unit(terrain.ruggedness, 0.3);
+  const settled = unit(terrain.settled, 0.7);
+  const aIn = 0.5 + 5.5 * rug;
+  const aOut = 10 + 30 * rug;
+  const alongX = b.maxX - b.minX >= b.maxZ - b.minZ;
+  const frame: ReliefFrame = {
+    kind: terrain.relief, seed: seed | 0, cx, cz, reach, alongX, cross: (alongX ? b.maxZ - b.minZ : b.maxX - b.minX) / 2,
+  };
+  const sheetBody = (layout.water ?? []).find((w) => w.area.shape === 'sheet');
+  const sheetLevel = terrain.relief === 'swamp' ? -0.2 * (0.5 + 0.14 * aIn) : -0.15;
+  const sunk = !!sheetBody || (layout.water ?? []).some((w) => w.area.shape === 'outside' || w.area.shape === 'half');
+
+  // Calm ground: near anything built.
+  const rects = layout.buildings.map((bd) => buildingAabb(bd));
+  const roadRects = layout.roads.map((r) => roadRect(r));
+  const discs = [...(layout.plaza.r > 0 ? [layout.plaza] : []), ...(layout.clearings ?? [])];
+  const calm1 = 15 + 14 * settled;
+  const calmBox = growRect(b, calm1);
+  const calmAt = (x: number, z: number): number => {
+    if (!inRect(calmBox, x, z)) return 0;
+    let d = 1e9;
+    for (const r of rects) d = Math.min(d, rectDist(r, x, z));
+    for (const r of roadRects) d = Math.min(d, rectDist(r, x, z));
+    for (const q of discs) d = Math.min(d, Math.max(0, Math.hypot(x - q.x, z - q.z) - q.r));
+    return 1 - smoothstep(3, calm1, d);
+  };
+
+  // Benches of a cliffside site: level between s0 and s1, a riser from each to the next, a last rise behind the top one.
+  const benches = layout.benches;
+  const rise = 1.8 + 3.2 * rug;
+  const benchAt = (x: number, z: number): number => {
+    if (!benches || benches.steps.length === 0) return 0;
+    const st = benches.steps;
+    const s = x * benches.nx + z * benches.nz;
+    const first = st[0] as { s0: number; s1: number; level: number };
+    if (s <= first.s1) return first.level * rise - 0.6 * rise * smoothstep(first.s0, first.s0 - 14, s);
+    for (let k = 0; k + 1 < st.length; k++) {
+      const a = st[k] as { s0: number; s1: number; level: number };
+      const c = st[k + 1] as { s0: number; s1: number; level: number };
+      if (s <= c.s0) return rise * mix(a.level, c.level, smoothstep(a.s1, c.s0, s));
+      if (s <= c.s1) return rise * c.level;
+    }
+    const last = st[st.length - 1] as { s0: number; s1: number; level: number };
+    return rise * (last.level + 1.6 * smoothstep(last.s1, last.s1 + 7, s));
+  };
+
+  // Layer 1 to 3 without water: relief, calm, benches.
+  const dry = (x: number, z: number): number => {
+    const e = outsideDistance(b, x, z);
+    const grow = smoothstep(8, 170, e);
+    const a = aIn + (aOut - aIn) * grow;
+    shapeRelief(frame, x, z, a, aOut);
+    const c = calmAt(x, z);
+    let h = reliefLow + reliefDetail * (1 - 0.85 * c) * (benches ? 0.4 : 1);
+    // Land that is not ringed by water climbs with distance, so the far ground stands above eye level.
+    if (!sunk) h += 9 * (Math.max(0, e - 30) / 160) ** 1.4;
+    if (sheetBody && c > 0) h = mix(h, Math.max(h, sheetLevel + 0.5), c);
+    return h + benchAt(x, z);
+  };
+
+  // Water levels, then the carve.
+  const held: LandWater[] = [];
+  const carves: { w: LandWater; bank: number; slope: number; deep: number; box: Rect | null }[] = [];
+  for (const body of layout.water ?? []) {
+    const a = body.area;
+    let level = sheetLevel;
+    if (a.shape === 'disc') {
+      level = dry(a.x, a.z) - 0.5;
+      for (let k = 0; k < 8; k++) level = Math.min(level, dry(a.x + Math.cos(k * 0.785) * a.r, a.z + Math.sin(k * 0.785) * a.r) - 0.25);
+    } else if (a.shape === 'band') {
+      level = Infinity;
+      for (const p of a.pts) if (outsideDistance(b, p.x, p.z) < 30) level = Math.min(level, dry(p.x, p.z) - 0.6);
+      if (!Number.isFinite(level)) level = dry(body.x, body.z) - 0.6;
+    } else if (a.shape === 'half') {
+      level = Infinity;
+      for (let t = -2 * reach; t <= 2 * reach; t += 8) {
+        const px = a.nx * a.offset + a.nz * t;
+        const pz = a.nz * a.offset - a.nx * t;
+        if (outsideDistance(b, px, pz) < 25) level = Math.min(level, dry(px - a.nx * 6, pz - a.nz * 6) - 0.5);
+      }
+      if (!Number.isFinite(level)) level = dry(cx, cz) - 1;
+    } else if (a.shape === 'outside') {
+      level = Math.min(dry(cx, cz), dry(b.minX, b.minZ), dry(b.maxX, b.maxZ), dry(b.minX, b.maxZ), dry(b.maxX, b.minZ)) - (5 + 9 * rug);
+    }
+    const w: LandWater = { body, kind: body.kind, level };
+    held.push(w);
+    if (a.shape !== 'sheet') {
+      const cv = carveFor(body.kind, a.shape);
+      carves.push({ w, ...cv, box: a.shape === 'disc' ? growRect({ minX: a.x - a.r * 1.3, maxX: a.x + a.r * 1.3, minZ: a.z - a.r * 1.3, maxZ: a.z + a.r * 1.3 }, cv.bank) : null });
+    }
+  }
+  const base = (x: number, z: number): number => {
+    let h = dry(x, z);
+    for (const cv of carves) {
+      if (cv.box && !inRect(cv.box, x, z)) continue;
+      const d = waterInside(cv.w.body, x, z);
+      if (d <= -cv.bank) continue;
+      const edge = cv.w.level + 0.12;
+      h = d <= 0 ? mix(h, edge, smoothstep(-cv.bank, 0, d)) : edge - Math.min(cv.deep, d * cv.slope);
+    }
+    return h;
+  };
+  /** Level of the water whose region covers a point, or -Infinity on ground no water can stand on. */
+  const levelOver = (x: number, z: number): number => {
+    let level = -Infinity;
+    for (const w of held) {
+      if (w.body.area.shape === 'sheet' || waterInside(w.body, x, z) > 0) level = Math.max(level, w.level);
+    }
+    return level;
+  };
+
+  // Pads.
+  const pads: Pad[] = [];
+  const padDist = (p: Pad, x: number, z: number): number => (p.rect ? rectDist(p.rect, x, z) : Math.max(0, Math.hypot(x - p.x, z - p.z) - p.r));
+  const addPad = (rect: Rect | null, x: number, z: number, r: number): void => {
+    let h = Math.max(base(x, z), levelOver(x, z) + 0.45);
+    const p: Pad = { rect, x, z, r, h, box: growRect(rect ?? { minX: x - r, maxX: x + r, minZ: z - r, maxZ: z + r }, PAD_FULL + PAD_BLEND) };
+    // Neighbouring pads never differ by more than a walkable step over the ground between them.
+    for (const q of pads) {
+      const gap = q.rect && rect
+        ? Math.hypot(Math.max(0, rect.minX - q.rect.maxX, q.rect.minX - rect.maxX), Math.max(0, rect.minZ - q.rect.maxZ, q.rect.minZ - rect.maxZ))
+        : Math.max(0, padDist(q, x, z) - (rect ? Math.hypot(rect.maxX - rect.minX, rect.maxZ - rect.minZ) / 2 : r));
+      const lim = 0.15 + 0.4 * gap;
+      h = clamp(h, q.h - lim, q.h + lim);
+    }
+    p.h = h;
+    pads.push(p);
+  };
+  for (const q of discs) addPad(null, q.x, q.z, q.r);
+  if (discs.length === 0) addPad(null, layout.spawn.x, layout.spawn.z, 1.5);
+  layout.buildings.forEach((bd, i) => addPad(rects[i] as Rect, bd.x, bd.z, 0));
+
+  // Routes, in order: each is graded over the land as it stands with the ones before it.
+  const routes: RouteLayer[] = [];
+  let padW = 0;
+  let padH = 0;
+  const padsAt = (x: number, z: number): void => {
+    let wMax = 0;
+    let sum = 0;
+    let norm = 0;
+    for (const p of pads) {
+      if (!inRect(p.box, x, z)) continue;
+      const near = padDist(p, x, z);
+      const d = Math.max(0, near - PAD_FULL);
+      if (d >= PAD_BLEND) continue;
+      const w = 1 - smoothstep(0, PAD_BLEND, d);
+      // Weighted by the true distance, so the ground inside a footprint is that pad's height and nothing else's.
+      const u = w / (near * near + 1e-9);
+      sum += u * p.h;
+      norm += u;
+      if (w > wMax) wMax = w;
+    }
+    padW = wMax;
+    padH = norm > 0 ? sum / norm : 0;
+  };
+  let routeW = 0;
+  let routeH = 0;
+  const routesAt = (x: number, z: number): void => {
+    let wMax = 0;
+    let sum = 0;
+    let norm = 0;
+    for (const r of routes) {
+      if (!inRect(r.box, x, z)) continue;
+      let best = Infinity;
+      let bh = 0;
+      for (let i = 0; i + 1 < r.xs.length; i++) {
+        const ax = r.xs[i] as number;
+        const az = r.zs[i] as number;
+        const dx = (r.xs[i + 1] as number) - ax;
+        const dz = (r.zs[i + 1] as number) - az;
+        const len2 = dx * dx + dz * dz;
+        const t = len2 > 0 ? clamp(((x - ax) * dx + (z - az) * dz) / len2, 0, 1) : 0;
+        const d2 = (x - ax - dx * t) ** 2 + (z - az - dz * t) ** 2;
+        if (d2 < best) { best = d2; bh = mix(r.hs[i] as number, r.hs[i + 1] as number, t); }
+      }
+      const d = Math.max(0, Math.sqrt(best) - r.half - 0.4);
+      if (d >= ROUTE_BLEND) continue;
+      const w = 1 - smoothstep(0, ROUTE_BLEND, d);
+      const u = w / (d * d + 1e-9);
+      sum += u * bh;
+      norm += u;
+      if (w > wMax) wMax = w;
+    }
+    routeW = wMax;
+    routeH = norm > 0 ? sum / norm : 0;
+  };
+  let y0 = 0;
+  const analytic = (x: number, z: number): number => {
+    let h = base(x, z);
+    routesAt(x, z);
+    if (routeW > 0) h = mix(h, routeH, routeW);
+    padsAt(x, z);
+    if (padW > 0) h = mix(h, padH, padW);
+    return h - y0;
+  };
+  const addRoute = (line: readonly { x: number; z: number }[], width: number, raised: boolean): void => {
+    // Resample to stations at most 1.5 m apart.
+    const xs: number[] = [];
+    const zs: number[] = [];
+    for (let i = 0; i + 1 < line.length; i++) {
+      const p = line[i] as { x: number; z: number };
+      const q = line[i + 1] as { x: number; z: number };
+      const n = Math.max(1, Math.ceil(Math.hypot(q.x - p.x, q.z - p.z) / 1.5));
+      for (let k = i === 0 ? 0 : 1; k <= n; k++) { xs.push(p.x + ((q.x - p.x) * k) / n); zs.push(p.z + ((q.z - p.z) * k) / n); }
+    }
+    const n = xs.length;
+    if (n < 2) return;
+    const st = new Float64Array(n);
+    const h = new Float64Array(n);
+    const pinned = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      const x = xs[i] as number;
+      const z = zs[i] as number;
+      if (i > 0) st[i] = (st[i - 1] as number) + Math.hypot(x - (xs[i - 1] as number), z - (zs[i - 1] as number));
+      h[i] = analytic(x, z);
+      if (padW > 0.999 || routeW > 0.999) pinned[i] = 1;
+      // Through water a trail fords just under the surface and a road runs on a low causeway just above it.
+      const level = levelOver(x, z);
+      const floor = level + (raised ? 0.3 : -FORD_DEPTH);
+      if (Number.isFinite(level) && (h[i] as number) < floor && !pinned[i]) { h[i] = floor; pinned[i] = 1; }
+    }
+    const out = limitGrade(h, st, ROUTE_GRADE);
+    // Put the pinned stations back where they were and carry the correction linearly between them.
+    const pins: number[] = [];
+    for (let i = 0; i < n; i++) if (pinned[i]) pins.push(i);
+    if (pins.length > 0) {
+      const delta = pins.map((i) => (h[i] as number) - (out[i] as number));
+      let k = 0;
+      for (let i = 0; i < n; i++) {
+        while (k + 1 < pins.length && (pins[k + 1] as number) <= i) k++;
+        const k2 = Math.min(k + 1, pins.length - 1);
+        const pa = pins[k] as number;
+        const pc = pins[k2] as number;
+        const t = i <= pa || pc === pa ? 0 : clamp(((st[i] as number) - (st[pa] as number)) / ((st[pc] as number) - (st[pa] as number)), 0, 1);
+        out[i] = (out[i] as number) + mix(delta[k] as number, delta[k2] as number, t);
+      }
+    }
+    let box: Rect = { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity };
+    for (let i = 0; i < n; i++) {
+      box = { minX: Math.min(box.minX, xs[i] as number), maxX: Math.max(box.maxX, xs[i] as number), minZ: Math.min(box.minZ, zs[i] as number), maxZ: Math.max(box.maxZ, zs[i] as number) };
+    }
+    routes.push({ xs: Float64Array.from(xs), zs: Float64Array.from(zs), hs: out, half: width / 2, box: growRect(box, width / 2 + 0.4 + ROUTE_BLEND) });
+  };
+  for (const r of layout.roads) addRoute([{ x: r.ax, z: r.az }, { x: r.bx, z: r.bz }], r.width, true);
+  for (const t of layout.trails ?? []) addRoute(t.pts, t.width, false);
+  y0 = analytic(layout.spawn.x, layout.spawn.z);
+  const water: LandWater[] = held.map((w) => ({ ...w, level: w.level - y0 }));
+
+  // Bake the grid.
+  const area = (b.maxX - b.minX + 2 * LAND_MARGIN) * (b.maxZ - b.minZ + 2 * LAND_MARGIN);
+  const cell = Math.max(1, Math.ceil(Math.sqrt(area / 90000) * 2) / 2);
+  const x0 = Math.floor((b.minX - LAND_MARGIN) / cell) * cell;
+  const z0 = Math.floor((b.minZ - LAND_MARGIN) / cell) * cell;
+  const nx = Math.ceil((b.maxX + LAND_MARGIN - x0) / cell) + 1;
+  const nz = Math.ceil((b.maxZ + LAND_MARGIN - z0) / cell) + 1;
+  const gh = new Float32Array(nx * nz);
+  for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) gh[j * nx + i] = analytic(x0 + i * cell, z0 + j * cell);
+  const grid: LandGrid = { x0, z0, cell, nx, nz, h: gh };
+
+  const heightAt = (x: number, z: number): number => {
+    const u = (x - x0) / cell;
+    const v = (z - z0) / cell;
+    if (!(u >= 0 && v >= 0 && u < nx - 1 && v < nz - 1)) return analytic(x, z);
+    const i = Math.floor(u);
+    const j = Math.floor(v);
+    const fu = u - i;
+    const fv = v - j;
+    const o = j * nx + i;
+    const h00 = gh[o] as number;
+    const h10 = gh[o + 1] as number;
+    const h01 = gh[o + nx] as number;
+    const h11 = gh[o + nx + 1] as number;
+    // The cell is split along the diagonal from (i+1, j) to (i, j+1), as the meshes are.
+    return fu + fv <= 1 ? h00 + (h10 - h00) * fu + (h01 - h00) * fv : h11 + (h01 - h11) * (1 - fu) + (h10 - h11) * (1 - fv);
+  };
+  return {
+    shaped: true, bounds: { ...b }, water, grid, heightAt,
+    waterDepthAt(x: number, z: number): number {
+      const level = levelOver(x, z);
+      return Number.isFinite(level) ? Math.max(0, level - y0 - heightAt(x, z)) : 0;
+    },
+    waterLevelNear(x: number, z: number, near: number): number | null {
+      let level: number | null = null;
+      for (const w of water) {
+        if (w.body.area.shape === 'sheet' || waterInside(w.body, x, z) > -near) level = level === null ? w.level : Math.max(level, w.level);
+      }
+      return level;
+    },
+  };
+}
+
+/**
+ * The walkable land as a plain triangle mesh in world space: the baked grid inside the bounds plus `margin`
+ * metres, without the cells that lie under water deeper than a person wades (fords stay). For flat land it
+ * is one level square, as the collider always was.
+ */
+export function buildWalkGeometry(land: Land, margin = 18, flatSize = 400): THREE.BufferGeometry {
+  const grid = land.grid;
+  if (!grid) return new THREE.PlaneGeometry(flatSize, flatSize).rotateX(-Math.PI / 2);
+  const { x0, z0, cell, nx, nz, h } = grid;
+  const b = growRect(land.bounds, margin);
+  const i0 = Math.max(0, Math.floor((b.minX - x0) / cell));
+  const i1 = Math.min(nx - 1, Math.ceil((b.maxX - x0) / cell));
+  const j0 = Math.max(0, Math.floor((b.minZ - z0) / cell));
+  const j1 = Math.min(nz - 1, Math.ceil((b.maxZ - z0) / cell));
+  const wet = new Uint8Array(nx * nz);
+  if (land.water.length > 0) {
+    for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) wet[j * nx + i] = land.waterDepthAt(x0 + i * cell, z0 + j * cell) > WADE_DEPTH ? 1 : 0;
+  }
+  const remap = new Int32Array(nx * nz).fill(-1);
+  const pos: number[] = [];
+  const idx: number[] = [];
+  const vert = (i: number, j: number): number => {
+    const o = j * nx + i;
+    let v = remap[o] as number;
+    if (v < 0) {
+      v = pos.length / 3;
+      pos.push(x0 + i * cell, h[o] as number, z0 + j * cell);
+      remap[o] = v;
+    }
+    return v;
+  };
+  for (let j = j0; j < j1; j++) {
+    for (let i = i0; i < i1; i++) {
+      const o = j * nx + i;
+      const a = wet[o] as number;
+      const c = wet[o + 1] as number;
+      const d = wet[o + nx] as number;
+      const e = wet[o + nx + 1] as number;
+      if (!a && !c && !d) idx.push(vert(i, j), vert(i, j + 1), vert(i + 1, j));
+      if (!c && !d && !e) idx.push(vert(i + 1, j), vert(i, j + 1), vert(i + 1, j + 1));
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pos), 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  g.computeBoundingSphere();
+  return g;
 }
 
 // ---- Triangle soup -----------------------------------------------------------------------------------------

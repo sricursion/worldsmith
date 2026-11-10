@@ -4,20 +4,37 @@
 // then placed in the world. A plank is therefore the same size on a hut and on a hall, and courses
 // stay level on a building that stands at an angle to the street. Geometry is non-indexed; flat-sided
 // shapes carry face normals, round ones keep smooth normals. Each vertex also carries a colour: the
-// building's own drift from the style colour, darkened toward the ground where dirt and damp collect.
+// building's own drift from the style colour, a small shift of value and warmth per part (no two boards
+// or panels are quite alike), darkened toward the ground where dirt and damp collect. Boxes carry a
+// `wearing` attribute as well: the distance from each vertex to the four edges of its face, from which
+// the surface shader draws worn edges, run-off and dirt (see patchSurfaceShader in surfaces.ts).
+//
+// Colours never go to the materials as the style gives them: they pass through groundedPalette first.
 import * as THREE from 'three';
 import type { Rng } from '../world/rng';
 import { makeRng } from '../world/rng';
 import { expandParts } from '../world/blueprints';
 import type { Blueprint, BlueprintPart, MoodSpec, PartShape, PartTone, StyleSpec, SurfaceSet, ThemeId } from '../world/spec';
 import type { GeoBatch, MaterialCache } from './batch';
-import { dressParts } from './detail';
-import { GLASS_SCALE, getSurface, glassMaterial, resolveSurfaces, surfaceDefaults, surfaceFamily, surfaceScale } from './surfaces';
-import type { Quality, SurfaceId } from './surfaces';
+import { DOOR, dressParts, partsBounds } from './detail';
+import type { Stain } from './detail';
+import {
+  GLASS_SCALE, WEARING, getSurface, glassMaterial, groundRequests, groundTone, groundedPalette, resolveSurfaces, setSurfaceDefaults, signTone,
+  stainMaterial, surfaceDefaults, surfaceFamily, surfaceScale, warmSurfaces,
+} from './surfaces';
+import type { Quality, SurfaceId, SurfaceRequest } from './surfaces';
 import { projectWorldUV } from './surfaces/uv';
 
-export interface BlueprintEnv { batch: GeoBatch; mats: MaterialCache; rng: Rng }
-export interface BlueprintPlacement { x: number; z: number; rotY: number; w: number; d: number }
+export interface BlueprintEnv {
+  batch: GeoBatch; mats: MaterialCache; rng: Rng;
+  /** Where geometry that should not collide or feed the navmesh goes (stain decals). Defaults to `batch`. */
+  visualBatch?: GeoBatch;
+}
+export interface BlueprintPlacement {
+  x: number; z: number; rotY: number; w: number; d: number;
+  /** Height of the ground line where the building stands, metres. Default 0. */
+  y?: number;
+}
 export interface BlueprintResult { height: number; door: THREE.Vector3 }
 /**
  * Optional look controls. What is left out follows surfaceDefaults(): the quality, theme and mood the
@@ -33,6 +50,17 @@ export interface BlueprintOptions {
   seed?: number;
   /** Set false to skip the architectural dressing pass. */
   dress?: boolean;
+  /**
+   * Height of the floor above the ground line, metres (0..3). The building is raised on a foundation of
+   * that height and a landing and flight of steps are laid from the door down to the ground; the door
+   * point returned moves out to the foot of the steps. Default 0.
+   */
+  baseHeight?: number;
+  /**
+   * How far the foundation carries on below the ground line, metres (0..8), for a building seated on a
+   * slope or a pad: the downhill side then shows wall instead of a gap. Default 0.
+   */
+  skirt?: number;
 }
 
 const DEG = Math.PI / 180;
@@ -158,7 +186,33 @@ export function boxGeometry(w: number, h: number, d: number, detail: BoxDetail =
   }
   quad(at(cap[0], h), at(cap[1], h), at(cap[2], h), at(cap[3], h));
   quad(at(cap[0], 0), at(cap[1], 0), at(cap[2], 0), at(cap[3], 0));
-  return fromTris(tris);
+  const g = fromTris(tris);
+  // Distance from every vertex to the left, right, bottom and top edge of the face it belongs to. On the
+  // six faces these are true distances (they interpolate exactly); a bevel facet is an edge, so all zero.
+  const wearing = new Float32Array(tris.length * 12);
+  const ax = x1 - c;
+  const az = z1 - c;
+  tris.forEach((t, i) => {
+    const [a, b, e] = t;
+    const nx = (b[1] - a[1]) * (e[2] - a[2]) - (b[2] - a[2]) * (e[1] - a[1]);
+    const ny = (b[2] - a[2]) * (e[0] - a[0]) - (b[0] - a[0]) * (e[2] - a[2]);
+    const nz = (b[0] - a[0]) * (e[1] - a[1]) - (b[1] - a[1]) * (e[0] - a[0]);
+    const len = Math.hypot(nx, ny, nz);
+    const face = Math.abs(nx) > 0.99 * len ? 0 : Math.abs(ny) > 0.99 * len ? 1 : Math.abs(nz) > 0.99 * len ? 2 : -1;
+    if (face < 0) return;
+    t.forEach((v, j) => {
+      const o = i * 12 + j * 4;
+      // Across the face: z on the x sides, x elsewhere. Up the face: height on the sides, z on the caps.
+      const across = face === 0 ? v[2] : v[0];
+      const halfAcross = face === 0 ? az : ax;
+      wearing[o] = across + halfAcross;
+      wearing[o + 1] = halfAcross - across;
+      wearing[o + 2] = face === 1 ? v[2] + az : v[1] - ya;
+      wearing[o + 3] = face === 1 ? az - v[2] : yb - v[1];
+    });
+  });
+  g.setAttribute(WEARING, new THREE.BufferAttribute(wearing, 4));
+  return g;
 }
 
 /**
@@ -221,10 +275,22 @@ interface ToneLook {
   tint: number;
   /** Whether dirt and damp darken this tone toward the ground. */
   grime: boolean;
+  /** Whether parts of this tone differ a little from one another in value and warmth. */
+  vary: boolean;
 }
-type Palette = Record<PartTone, ToneLook>;
+/**
+ * Beyond the spec's tones: `accentSmall` is the fresher paint a small accent may carry (a sign board, a
+ * shutter), `glowBig` the dimmer emission of a glowing part too large to be a lamp, `base` the foundation.
+ */
+type Palette = Record<PartTone | 'accentSmall' | 'glowBig' | 'base', ToneLook>;
 
-interface Look { surfaces: SurfaceSet; quality: Quality; seed: number }
+/** A style after groundedPalette, which also remembers the accent as the model gave it. */
+interface GroundedStyle extends StyleSpec { accentRaw?: string }
+interface Look { surfaces: SurfaceSet; quality: Quality; seed: number; style: GroundedStyle }
+
+/** A part's biggest face, m2, above which an accent is a painted wall, and above which a glow is a lit panel and not a lamp. */
+const SMALL_FACE = 2;
+const LAMP_FACE = 6;
 
 /** Lightness shift (HSL) expressed as the linear multiplier that produces it on this colour. */
 function driftFactor(hex: string, shift: number): number {
@@ -235,34 +301,67 @@ function driftFactor(hex: string, shift: number): number {
   return clamp(Math.pow(clamp(l + shift, 0.02, 0.98) / l, 2.2), 0.5, 1.8);
 }
 
-function palette(style: StyleSpec, mats: MaterialCache, look: Look, shifts: { wall: number; wall2: number; roof: number }): Palette {
+type PlanKey = 'wall' | 'wall2' | 'roof' | 'trim' | 'accent' | 'accentSmall' | 'dark' | 'base';
+interface PlanEntry { kind: SurfaceId; hex: string; roof: boolean }
+
+/** Which surface in which colour each tone of a building takes. `look.style` is already grounded. */
+function tonePlan(look: Look): Record<PlanKey, PlanEntry> {
   const s = look.surfaces;
-  const wallOpts = { wear: s.wear, wet: s.wet * 0.5, quality: look.quality, seed: look.seed, tint: true };
-  const roofOpts = { ...wallOpts, wet: s.wet * 0.85 };
-  const surf = (kind: SurfaceId, hex: string, tint: number, roof = false): ToneLook => ({
-    material: getSurface(kind, hex, roof ? roofOpts : wallOpts), tile: surfaceScale(kind), grain: GRAIN[kind], tint, grime: !roof,
-  });
-  const wall = safeHex(style.wall, '#b0a090');
-  const wall2 = safeHex(style.wall2, '#908070');
-  const roof = safeHex(style.roof, '#604030');
-  const glow = safeHex(style.glow, '#ffd27a');
-  // Dark parts are doors, beams and frames: aged timber on most buildings, metal on metal ones.
+  const style = look.style;
   const fam = surfaceFamily(s.wall);
+  // Dark parts are doors, beams and frames: aged timber on most buildings, metal on metal ones.
   const darkKind: SurfaceId = fam === 'metal' || fam === 'glass' ? 'metal_panel' : fam === 'organic' ? 'bark' : fam === 'mineral' ? 'stone' : 'timber';
+  // The foundation is whatever masonry the building already has; failing that, cast concrete under
+  // metal and glass and rubble stone under everything else, in the colour of the local ground.
+  const masonry = ([['trim', s.trim], ['wall2', s.wall2], ['wall', s.wall]] as const).find(([, k]) => surfaceFamily(k) === 'masonry');
+  const baseKind: SurfaceId = masonry ? masonry[1] : fam === 'metal' || fam === 'glass' ? 'concrete' : 'stone';
+  const baseHex = masonry
+    ? safeHex(style[masonry[0]], '#8a8680')
+    : groundTone(baseKind, `#${new THREE.Color(safeHex(style.ground, '#807868')).lerp(new THREE.Color('#77736c'), 0.6).getHexString()}`, s.wear);
   return {
-    wall: surf(s.wall, wall, driftFactor(wall, shifts.wall)),
-    wall2: surf(s.wall2, wall2, driftFactor(wall2, shifts.wall2)),
-    roof: surf(s.roof, roof, driftFactor(roof, shifts.roof), true),
-    trim: surf(s.trim, safeHex(style.trim, '#d8d0c0'), 1),
-    accent: surf('paint', safeHex(style.accent, '#c04030'), 1),
-    dark: surf(darkKind, safeHex(style.dark, '#2a2420'), 1),
-    glass: { material: glassMaterial(safeHex(style.glass, '#6f9bb8'), glow), tile: GLASS_SCALE, tint: 1, grime: false },
-    glow: { material: mats.get(glow, { emissive: glow, emissiveIntensity: 1.6 }), tile: 1, tint: 1, grime: false },
+    wall: { kind: s.wall, hex: safeHex(style.wall, '#b0a090'), roof: false },
+    wall2: { kind: s.wall2, hex: safeHex(style.wall2, '#908070'), roof: false },
+    roof: { kind: s.roof, hex: safeHex(style.roof, '#604030'), roof: true },
+    trim: { kind: s.trim, hex: safeHex(style.trim, '#d8d0c0'), roof: false },
+    accent: { kind: 'paint', hex: safeHex(style.accent, '#8a4034'), roof: false },
+    accentSmall: { kind: 'paint', hex: signTone(safeHex(style.accentRaw ?? style.accent, '#8a4034'), s.wear), roof: false },
+    dark: { kind: darkKind, hex: safeHex(style.dark, '#2a2420'), roof: false },
+    base: { kind: baseKind, hex: baseHex, roof: false },
   };
 }
 
-/** Vertex colours: the tone's tint, graded darker over the lowest metre and a half where splash-back and damp sit. */
-function paint(g: THREE.BufferGeometry, tone: ToneLook, wear: number, wet: number): void {
+const surfaceOpts = (look: Look, roof: boolean): { wear: number; wet: number; quality: Quality; seed: number; tint: boolean; worn: boolean } => ({
+  wear: look.surfaces.wear, wet: look.surfaces.wet * (roof ? 0.85 : 0.5), quality: look.quality, seed: look.seed, tint: true, worn: look.quality > 0,
+});
+
+function palette(mats: MaterialCache, look: Look, shifts: { wall: number; wall2: number; roof: number }): Palette {
+  const plan = tonePlan(look);
+  const surf = (key: PlanKey, tint: number): ToneLook => {
+    const e = plan[key];
+    return { material: getSurface(e.kind, e.hex, surfaceOpts(look, e.roof)), tile: surfaceScale(e.kind), grain: GRAIN[e.kind], tint, grime: !e.roof, vary: true };
+  };
+  const glow = safeHex(look.style.glow, '#ffd27a');
+  const lamp = (intensity: number): ToneLook => ({ material: mats.get(glow, { emissive: glow, emissiveIntensity: intensity }), tile: 1, tint: 1, grime: false, vary: false });
+  return {
+    wall: surf('wall', driftFactor(plan.wall.hex, shifts.wall)),
+    wall2: surf('wall2', driftFactor(plan.wall2.hex, shifts.wall2)),
+    roof: surf('roof', driftFactor(plan.roof.hex, shifts.roof)),
+    trim: surf('trim', 1),
+    accent: surf('accent', 1),
+    accentSmall: surf('accentSmall', 1),
+    dark: surf('dark', 1),
+    base: surf('base', 1),
+    glass: { material: glassMaterial(safeHex(look.style.glass, '#6f9bb8'), glow), tile: GLASS_SCALE, tint: 1, grime: false, vary: false },
+    glow: lamp(1.6),
+    glowBig: lamp(0.45),
+  };
+}
+
+/**
+ * Vertex colours: the tone's tint times this part's own shift (`kr`, `kg`, `kb`), graded darker over
+ * the lowest metre and a half where splash-back and damp sit.
+ */
+function paint(g: THREE.BufferGeometry, tone: ToneLook, wear: number, wet: number, kr: number, kg: number, kb: number): void {
   const pos = g.getAttribute('position');
   const col = new Float32Array(pos.count * 3);
   const dirt = tone.grime ? 0.1 + 0.28 * wear : 0;
@@ -272,9 +371,9 @@ function paint(g: THREE.BufferGeometry, tone: ToneLook, wear: number, wet: numbe
     const low = clamp(1 - y / 1.5, 0, 1);
     const lower = clamp(1 - y / 2.6, 0, 1);
     const k = tone.tint * (1 - dirt * low * low - damp * lower);
-    col[i * 3] = k;
-    col[i * 3 + 1] = k;
-    col[i * 3 + 2] = k;
+    col[i * 3] = k * kr;
+    col[i * 3 + 1] = k * kg;
+    col[i * 3 + 2] = k * kb;
   }
   g.setAttribute('color', new THREE.BufferAttribute(col, 3));
 }
@@ -311,11 +410,12 @@ const local = new THREE.Matrix4();
 
 /**
  * Adds already-expanded parts. `fw`/`fd` are the footprint in metres; `hScale` scales y and h (props).
+ * `vary` draws each part's small shift of value and warmth; the first part keeps the tone exactly.
  * Returns the height of the tallest of the first `count` parts (the ones the blueprint authored).
  */
 function emit(
   parts: readonly BlueprintPart[], count: number, pal: Palette, batch: GeoBatch, base: THREE.Matrix4,
-  fw: number, fd: number, hScale: number, look: Look, uOff: number,
+  fw: number, fd: number, hScale: number, look: Look, uOff: number, vary: Rng | null,
 ): number {
   let top = 0;
   const segments = look.quality === 0 ? 10 : 16;
@@ -329,12 +429,17 @@ function emit(
     const px = clamp(p.x, -0.7, 0.7) * fw;
     const pz = clamp(p.z, -0.7, 0.7) * fd;
     local.multiplyMatrices(tmpA.makeTranslation(px, py, pz), tmpB.makeRotationY(p.rot * DEG));
-    const tone = pal[p.tone] ?? pal.wall;
+    // Paint is only fresh, and light only a lamp, on something small.
+    const face = Math.max(pw * ph, pd * ph, pw * pd);
+    const tone = p.tone === 'accent' && face <= SMALL_FACE ? pal.accentSmall : p.tone === 'glow' && face > LAMP_FACE ? pal.glowBig : pal[p.tone] ?? pal.wall;
     const thin = Math.min(pw, ph, pd);
     const box: BoxDetail = {
       chamfer: look.quality === 2 && thin > 0.3 ? Math.min(0.035, thin * 0.1) : 0,
       split: tone.grime && ph > 2.4 && py < 1.2 ? 1.5 - py : 0,
     };
+    // A narrow, natural range: under five percent in value, a trace warmer or cooler.
+    const value = vary && index > 0 ? 1 + (vary.next() - 0.5) * 0.09 : 1;
+    const warm = vary && index > 0 ? (vary.next() - 0.5) * 0.035 : 0;
     // Wood runs along the member: a post takes the grain up, a beam takes it along, whatever the texture's own lay.
     const across = Math.max(pw, pd);
     const long = ph > 2.5 * across ? 'v' : across > 2.5 * ph && Math.min(pw, pd) < 0.5 ? 'u' : null;
@@ -345,7 +450,9 @@ function emit(
         return;
       }
       projectWorldUV(g, look.tile, uOff, 0, turned);
-      paint(g, look, wear, wet);
+      const v = look.vary ? value : 1;
+      const w = look.vary ? warm : 0;
+      paint(g, look, wear, wet, v * (1 + w), v, v * (1 - w));
       g.applyMatrix4(base);
       batch.add(g, look.material);
     };
@@ -365,20 +472,58 @@ function emit(
   return top;
 }
 
+/** Lays run-off stains (see detail.ts) as quads a few millimetres off the wall, in the building's frame. */
+function emitStains(stains: readonly Stain[], batch: GeoBatch, base: THREE.Matrix4): void {
+  for (const s of stains) {
+    if (!(s.w > 0.05) || !(s.h > 0.1)) continue;
+    const g = new THREE.PlaneGeometry(s.w, s.h).toNonIndexed();
+    // One repeat of the streak pattern is about 0.9 m wide; wider stains repeat it rather than stretch it.
+    const uv = g.getAttribute('uv');
+    const reps = Math.max(1, Math.round(s.w / 0.9));
+    const shift = (Math.abs(s.x * 3.1 + s.z * 1.7) % 1);
+    for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * reps + shift);
+    local.multiplyMatrices(tmpA.makeTranslation(s.x, s.y - s.h / 2, s.z), tmpB.makeRotationY(s.rot * DEG));
+    g.applyMatrix4(local);
+    g.applyMatrix4(base);
+    batch.add(g, stainMaterial(s.kind));
+  }
+}
+
 function lookFor(style: StyleSpec, opts: BlueprintOptions | undefined): Look {
   const d = surfaceDefaults();
+  const surfaces = resolveSurfaces(style, opts?.theme ?? d.theme, opts?.mood ?? d.mood);
   return {
-    surfaces: resolveSurfaces(style, opts?.theme ?? d.theme, opts?.mood ?? d.mood),
+    surfaces,
     quality: opts?.quality ?? d.quality,
     seed: opts?.seed ?? 0,
+    style: { ...groundedPalette(style, surfaces), accentRaw: style.accent },
   };
+}
+
+/** Every generated surface a town in this style will ask for: its buildings' tones, the ground and the roads. */
+export function townSurfaceRequests(style: StyleSpec, opts?: BlueprintOptions): SurfaceRequest[] {
+  const look = lookFor(style, opts);
+  const plan = tonePlan(look);
+  const list: SurfaceRequest[] = (Object.keys(plan) as PlanKey[]).map((key) => {
+    const o = surfaceOpts(look, plan[key].roof);
+    return { kind: plan[key].kind, hex: plan[key].hex, wear: o.wear, wet: o.wet, quality: o.quality, seed: o.seed };
+  });
+  return list.concat(groundRequests(look.surfaces, style, { quality: look.quality, seed: look.seed }));
+}
+
+/**
+ * Generates every surface a town in this style needs without blocking the page: await it behind the
+ * loading screen before building the town, and the build finds its maps ready. See warmSurfaces.
+ */
+export function warmTownSurfaces(style: StyleSpec, opts?: BlueprintOptions): Promise<void> {
+  return warmSurfaces(townSurfaceRequests(style, opts));
 }
 
 /**
  * Adds one blueprint building. Blueprint +z is the street-facing front; the building's own frame faces
  * -Z (as the procedural buildings do), so the part frame is turned half a revolution before rotY applies.
- * Parts are dressed (see detail.ts) before meshing. Returns the roof height of the authored parts and
- * the point 1 m outside the door on the street side.
+ * Parts are dressed (see detail.ts) before meshing. Returns the roof height of the authored parts above
+ * the ground line and the point 1 m outside the door on the street side (beyond the steps, if any).
  */
 export function addBlueprint(
   bp: Blueprint, style: StyleSpec, placed: BlueprintPlacement, env: BlueprintEnv, opts?: BlueprintOptions,
@@ -386,38 +531,70 @@ export function addBlueprint(
   const variety = clamp(Number.isFinite(style.variety) ? style.variety : 0.5, 0, 1);
   const step = (): number => Math.round(env.rng.range(-1, 1) * 2) / 2 * 0.06 * variety;
   const look = lookFor(style, opts);
-  const pal = palette(style, env.mats, look, { wall: step(), wall2: step(), roof: step() });
-  const base = new THREE.Matrix4()
-    .makeTranslation(placed.x, 0, placed.z)
-    .multiply(new THREE.Matrix4().makeRotationY(placed.rotY + Math.PI));
+  setSurfaceDefaults({ style, surfaces: look.surfaces });
+  const pal = palette(env.mats, look, { wall: step(), wall2: step(), roof: step() });
+  const ground = Number.isFinite(placed.y) ? (placed.y as number) : 0;
+  const lift = clamp(opts?.baseHeight ?? 0, 0, 3);
+  const skirt = clamp(opts?.skirt ?? 0, 0, 8);
+  const turn = new THREE.Matrix4().makeRotationY(placed.rotY + Math.PI);
+  const base = new THREE.Matrix4().makeTranslation(placed.x, ground + lift, placed.z).multiply(turn);
   const doorX = clamp(Number.isFinite(bp.doorX) ? bp.doorX : 0, -0.4, 0.4);
   const authored = expandBlueprintParts(bp.parts);
   // The dressing pass and the texture offset draw from the building's position, not from env.rng, so
   // they never shift the random sequence the rest of the town build depends on.
   const own = makeRng(look.seed, `dress|${Math.round(placed.x * 100)}|${Math.round(placed.z * 100)}|${bp.id}`);
   const uOff = Math.floor(own.next() * 16) / 16;
+  const stains: Stain[] = [];
   const parts = opts?.dress === false
     ? authored
-    : dressParts(authored, { w: placed.w, d: placed.d, rng: own, surfaces: look.surfaces, doorX });
-  const height = emit(parts, authored.length, pal, env.batch, base, placed.w, placed.d, 1, look, uOff);
-  const door = new THREE.Vector3(doorX * placed.w, 0, placed.d / 2 + 1).applyMatrix4(base);
-  return { height, door };
+    : dressParts(authored, { w: placed.w, d: placed.d, rng: own, surfaces: look.surfaces, doorX, stains: look.quality > 0 ? stains : undefined });
+  const vary = makeRng(look.seed, `vary|${Math.round(placed.x * 100)}|${Math.round(placed.z * 100)}|${bp.id}`);
+  const height = emit(parts, authored.length, pal, env.batch, base, placed.w, placed.d, 1, look, uOff, vary);
+  if (stains.length > 0 && look.surfaces.wear > 0.1) emitStains(stains, env.visualBatch ?? env.batch, base);
+
+  // Foundation, landing and steps, built in a frame whose zero is the bottom of the foundation.
+  let run = 0;
+  if ((lift > 0.02 || skirt > 0.02) && authored.length > 0) {
+    const standing = authored.filter((p) => p.y < 0.3 && p.h >= 1 && p.tone !== 'glass' && p.tone !== 'glow');
+    const b = partsBounds(standing.length > 0 ? standing : authored, placed.w, placed.d);
+    const W = placed.w;
+    const D = placed.d;
+    const solidBox = (cx: number, cz: number, w: number, d: number, h: number): BlueprintPart =>
+      ({ shape: 'box', x: cx / W, z: cz / D, y: 0, w: w / W, d: d / D, h, rot: 0, tone: 'wall', repeat: 1, gap: 0 });
+    const under: BlueprintPart[] = [solidBox((b.x0 + b.x1) / 2, (b.z0 + b.z1) / 2, b.x1 - b.x0 + 0.24, b.z1 - b.z0 + 0.24, skirt + lift)];
+    if (lift > 0.1) {
+      const risers = Math.max(1, Math.ceil(lift / 0.18));
+      const rise = lift / risers;
+      const tread = 0.28;
+      const landing = 0.9;
+      const width = DOOR.w + 0.9;
+      const face = b.z1 + 0.12;
+      under.push(solidBox(doorX * W, face + landing / 2, width, landing, skirt + lift));
+      for (let k = 1; k < risers; k++) under.push(solidBox(doorX * W, face + landing + (k - 0.5) * tread, width, tread, skirt + lift - k * rise));
+      run = landing + (risers - 1) * tread + 0.12 + Math.max(0, b.z1 - D / 2);
+    }
+    const low = new THREE.Matrix4().makeTranslation(placed.x, ground - skirt, placed.z).multiply(turn);
+    emit(under, 0, { ...pal, wall: pal.base }, env.batch, low, W, D, 1, look, uOff, null);
+  }
+  const door = new THREE.Vector3(doorX * placed.w, -lift, placed.d / 2 + 1 + run).applyMatrix4(base);
+  return { height: height + lift, door };
 }
 
 /** Adds one prop built from parts on a size x size footprint; heights scale with `scale` only. */
 export function addPropParts(
   parts: readonly BlueprintPart[], size: number, style: StyleSpec,
-  placed: { x: number; z: number; rotY: number; scale: number }, env: BlueprintEnv, opts?: BlueprintOptions,
+  placed: { x: number; z: number; rotY: number; scale: number; y?: number }, env: BlueprintEnv, opts?: BlueprintOptions,
 ): number {
   const look = lookFor(style, opts);
-  const pal = palette(style, env.mats, look, { wall: 0, wall2: 0, roof: 0 });
+  const pal = palette(env.mats, look, { wall: 0, wall2: 0, roof: 0 });
   const base = new THREE.Matrix4().compose(
-    new THREE.Vector3(placed.x, 0, placed.z),
+    new THREE.Vector3(placed.x, Number.isFinite(placed.y) ? (placed.y as number) : 0, placed.z),
     new THREE.Quaternion().setFromAxisAngle(UP, placed.rotY),
     new THREE.Vector3(1, 1, 1),
   );
   const fp = clamp(size, 0.3, 6) * placed.scale;
   const expanded = expandBlueprintParts(parts);
+  const vary = makeRng(look.seed, `prop|${Math.round(placed.x * 100)}|${Math.round(placed.z * 100)}`);
   // Props are authored on a unit footprint with heights in the same unit, so height scales with size too.
-  return emit(expanded, expanded.length, pal, env.batch, base, fp, fp, fp, look, 0);
+  return emit(expanded, expanded.length, pal, env.batch, base, fp, fp, fp, look, 0, vary);
 }

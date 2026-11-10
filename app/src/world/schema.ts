@@ -5,9 +5,10 @@ import { repairBlueprint } from './blueprints';
 import { hash32 } from './rng';
 import { buildSkeleton } from './skeletons';
 import type {
-  Blueprint, BlueprintPart, BuildingRole, BuildingSpec, GradeKind, LandmarkSpec, MoodSpec, NpcActionId, NpcSpec, PartShape,
-  PartTone, PropBlueprint, QuestStep, RuleEffect, RuleSpec, ScheduleEntry, SitePattern, SiteSpec, StyleSpec, SurfaceKind,
-  SurfaceSet, WeatherKind, WorldSpec,
+  Blueprint, BlueprintPart, BuildingRole, BuildingSpec, CreatureBehaviour, CreatureFamily, CreatureSpec, FolkSpec, GradeKind,
+  LandmarkSpec, MoodSpec, NpcActionId, NpcSpec, PartShape, PartTone, PropBlueprint, QuestStep, ReliefKind, RuleEffect, RuleSpec,
+  ScheduleEntry, SitePattern, SiteSpec, SkyFeature, StyleSpec, SurfaceKind, SurfaceSet, TerrainSpec, WaterKind, WeatherKind,
+  WorldSpec,
 } from './spec';
 
 export const NPC_ACTION_IDS: readonly NpcActionId[] = [
@@ -113,7 +114,9 @@ const PartS = z.object({
   gap: z.number(),
 });
 
-const SITE_PATTERNS: readonly SitePattern[] = ['street', 'ring', 'scatter', 'grid', 'terraces'];
+export const SITE_PATTERNS: readonly SitePattern[] = ['street', 'ring', 'scatter', 'grid', 'terraces', 'wild', 'path', 'shoreline', 'cliffside'];
+/** Patterns for land that is mostly or wholly unbuilt. */
+export const WILD_PATTERNS: readonly SitePattern[] = ['wild', 'path', 'shoreline', 'cliffside'];
 const SITE_PATHS: readonly SiteSpec['paths'][] = ['road', 'track', 'none'];
 const DialsS = z.record(z.string(), z.union([z.number(), z.string()]));
 const BlueprintS = z.object({
@@ -171,6 +174,63 @@ const StyleS = z.object({
 });
 const LandmarkS = z.object({ id: z.string(), prompt: z.string(), place: z.string(), height: z.number() });
 
+export const RELIEF_KINDS: readonly ReliefKind[] = [
+  'flat', 'rolling', 'dunes', 'craggy', 'terraced', 'crater', 'canyon', 'icefield', 'swamp', 'islands',
+];
+export const WATER_KINDS: readonly WaterKind[] = ['none', 'pond', 'river', 'shore', 'lake', 'lava', 'acid', 'ice_sheet', 'mist_sea'];
+export const SKY_FEATURE_KINDS: readonly SkyFeature['kind'][] = [
+  'moon', 'planet', 'ringed_planet', 'second_sun', 'aurora', 'nebula', 'comet', 'floating_islands', 'orbital_ring', 'storm_wall', 'eclipse',
+];
+export const CREATURE_FAMILIES: readonly CreatureFamily[] = [
+  'quadruped', 'biped', 'winged', 'serpent', 'bird', 'swimmer', 'crawler', 'floater', 'colossus', 'swarm',
+];
+export const CREATURE_BEHAVIOURS: readonly CreatureBehaviour[] = [
+  'roam', 'graze', 'patrol', 'perch', 'circle', 'sleep', 'guard', 'flock', 'stalk',
+];
+export const FOLK_FEATURES: readonly FolkSpec['features'][number][] = [
+  'tail', 'horns', 'long_ears', 'snout', 'visor', 'antenna', 'wings', 'hood', 'hat', 'cloak', 'armor', 'pack', 'mask', 'glow_eyes',
+];
+/** Where a creature may keep to, besides a building id. */
+export const HAUNT_WORDS: readonly string[] = ['sky', 'water', 'wild', 'plaza'];
+
+const TerrainS = z.object({
+  relief: z.enum(RELIEF_KINDS as [ReliefKind, ...ReliefKind[]]),
+  ruggedness: z.number(),
+  water: z.enum(WATER_KINDS as [WaterKind, ...WaterKind[]]),
+  waterAmount: z.number(),
+  horizon: z.string(),
+  settled: z.number(),
+});
+const SkyFeatureS = z.object({
+  kind: z.enum(SKY_FEATURE_KINDS as [SkyFeature['kind'], ...SkyFeature['kind'][]]),
+  size: z.number(),
+  color: z.string(),
+});
+const CreatureS = z.object({
+  id: z.string(),
+  name: z.string(),
+  family: z.enum(CREATURE_FAMILIES as [CreatureFamily, ...CreatureFamily[]]),
+  dials: DialsS,
+  size: z.number(),
+  count: z.number(),
+  behaviour: z.enum(CREATURE_BEHAVIOURS as [CreatureBehaviour, ...CreatureBehaviour[]]),
+  haunt: z.string(),
+  body: z.string(),
+  accent: z.string(),
+  glow: z.string(),
+  note: z.string(),
+});
+const FolkS = z.object({
+  name: z.string(),
+  height: z.number(),
+  bulk: z.number(),
+  head: z.number(),
+  features: z.array(z.enum(FOLK_FEATURES as [FolkSpec['features'][number], ...FolkSpec['features'][number][]])),
+  skin: z.array(z.string()),
+  cloth: z.array(z.string()),
+  trim: z.array(z.string()),
+});
+
 export const WorldSpecSchema: z.ZodType<WorldSpec> = z.object({
   version: z.literal(SPEC_VERSION),
   seed: z.number(),
@@ -190,6 +250,10 @@ export const WorldSpecSchema: z.ZodType<WorldSpec> = z.object({
   style: StyleS.optional(),
   site: SiteS.optional(),
   mood: MoodSpecS.optional(),
+  terrain: TerrainS.optional(),
+  skyFeatures: z.array(SkyFeatureS).optional(),
+  creatures: z.array(CreatureS).optional(),
+  folk: FolkS.optional(),
   blueprints: z.array(BlueprintS).optional(),
   props: z.array(PropS).optional(),
   landmarks: z.array(LandmarkS).optional(),
@@ -261,9 +325,205 @@ export function coerceMood(raw: unknown): MoodSpec {
   };
 }
 
+// ---------------------------------------------------------------------------------------------
+// Land, sky, creatures and folk: read leniently too
+// ---------------------------------------------------------------------------------------------
+
+const HEX6 = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
+const numIn = (v: unknown, lo: number, hi: number, fallback: number): number => {
+  const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' ? Number(v) : NaN;
+  return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : fallback;
+};
+const hexIn = (v: unknown, fallback: string): string => {
+  const t = typeof v === 'string' ? v.trim() : '';
+  if (!HEX6.test(t)) return fallback;
+  const h = t.slice(1).toLowerCase();
+  return `#${h.length === 3 ? h.split('').map((c) => c + c).join('') : h}`;
+};
+const textIn = (v: unknown, cap: number, fallback = ''): string =>
+  (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, cap).trim() : '') || fallback;
+
+/** The word itself when it is in the list, else the first alias whose pattern the word matches. */
+function wordIn<T extends string>(v: unknown, allowed: readonly T[], aliases: readonly [RegExp, T][]): T | undefined {
+  const w = enumWord(v);
+  if (w === '') return undefined;
+  const direct = allowed.find((k) => k === w);
+  if (direct) return direct;
+  for (const [re, k] of aliases) if (re.test(w)) return k;
+  return undefined;
+}
+
+const RELIEF_ALIASES: readonly [RegExp, ReliefKind][] = [
+  [/dune|erg|sand/, 'dunes'], [/crater|caldera|volcan|basin|pit/, 'crater'], [/canyon|gorge|ravine|mesa|gulch/, 'canyon'],
+  [/ice|glaci|tundra|frozen|snow/, 'icefield'], [/swamp|marsh|bog|fen|bayou|mangrove|wetland/, 'swamp'],
+  [/island|archipel|atoll|reef|shoal/, 'islands'], [/terrace|step|paddy/, 'terraced'],
+  [/crag|mountain|cliff|rock|ridge|alpine|peak|karst|jagged/, 'craggy'], [/roll|hill|down|undulat|valley|forest|jungle/, 'rolling'],
+  [/flat|plain|level|steppe|salt|deck|street|urban|city/, 'flat'],
+];
+const WATER_ALIASES: readonly [RegExp, WaterKind][] = [
+  [/lava|magma|molten/, 'lava'], [/acid|toxic|slime|sludge/, 'acid'], [/ice|frozen|pack/, 'ice_sheet'],
+  [/mist|cloud|fog|void|abyss/, 'mist_sea'], [/shore|sea|ocean|coast|beach|bay|surf|tide|harbou?r/, 'shore'],
+  [/river|stream|creek|canal|brook|delta/, 'river'], [/lake|lagoon|reservoir|loch/, 'lake'],
+  [/pond|pool|oasis|spring|well|puddle/, 'pond'], [/^(none|dry|no)$/, 'none'],
+];
+const SKY_ALIASES: readonly [RegExp, SkyFeature['kind']][] = [
+  [/eclipse/, 'eclipse'], [/ringed|saturn/, 'ringed_planet'], [/sun|star/, 'second_sun'], [/moon/, 'moon'],
+  [/planet|gas_giant|earth|world/, 'planet'], [/aurora|northern_lights/, 'aurora'], [/nebula|galaxy|milky/, 'nebula'],
+  [/comet|meteor/, 'comet'], [/float|island|rock/, 'floating_islands'], [/ring|orbital|station/, 'orbital_ring'],
+  [/storm|cyclone|wall|tornado|dust_front/, 'storm_wall'],
+];
+const FAMILY_ALIASES: readonly [RegExp, CreatureFamily][] = [
+  [/swarm|flies|locust|gnats|shoal|school/, 'swarm'], [/coloss|titan|giant|leviathan|behemoth|kaiju/, 'colossus'],
+  [/wing|dragon|wyvern|bat|pter|griffin|gryph/, 'winged'], [/bird|gull|crow|hawk|eagle|owl|pigeon|raven|vulture|parrot/, 'bird'],
+  [/serpent|snake|worm|eel|wyrm|centipede/, 'serpent'], [/swim|fish|whale|shark|seal|dolphin|ray|squid|turtle/, 'swimmer'],
+  [/crawl|insect|spider|crab|beetle|scorpion|lizard|rover|tread|ant/, 'crawler'],
+  [/float|drone|jelly|balloon|wisp|ghost|spirit|orb|hover/, 'floater'],
+  [/biped|ape|monkey|golem|robot|android|mech|humanoid|penguin|raptor/, 'biped'],
+  [/quad|horse|camel|wolf|deer|cat|dog|bear|ox|cow|goat|fox|boar|elk|beast/, 'quadruped'],
+];
+const BEHAVIOUR_ALIASES: readonly [RegExp, CreatureBehaviour][] = [
+  [/graz|feed|forag|brows/, 'graze'], [/patrol|march|sweep/, 'patrol'], [/perch|roost|sit/, 'perch'],
+  [/circl|soar|orbit|wheel|hover/, 'circle'], [/sleep|rest|dormant|doze|bask/, 'sleep'], [/guard|watch|sentry|defend/, 'guard'],
+  [/flock|swarm|herd|school|shoal/, 'flock'], [/stalk|hunt|prowl|lurk/, 'stalk'], [/roam|wander|drift|swim|walk|fly/, 'roam'],
+];
+const FAMILY_BEHAVIOUR: Record<CreatureFamily, CreatureBehaviour> = {
+  quadruped: 'graze', biped: 'roam', winged: 'circle', serpent: 'stalk', bird: 'flock', swimmer: 'roam', crawler: 'roam',
+  floater: 'patrol', colossus: 'sleep', swarm: 'flock',
+};
+const FAMILY_HAUNT: Record<CreatureFamily, string> = {
+  quadruped: 'wild', biped: 'wild', winged: 'sky', serpent: 'wild', bird: 'sky', swimmer: 'water', crawler: 'wild',
+  floater: 'wild', colossus: 'wild', swarm: 'wild',
+};
+
+/** Used when a spec has a terrain object with nothing usable in it. */
+export const NEUTRAL_TERRAIN: TerrainSpec = { relief: 'flat', ruggedness: 0.2, water: 'none', waterAmount: 0, horizon: '', settled: 0.7 };
+
+/** Any value into a full TerrainSpec. Water that is 'none' takes no area; water that exists takes at least a little. */
+export function coerceTerrain(raw: unknown, fallback: TerrainSpec = NEUTRAL_TERRAIN): TerrainSpec {
+  const r = isObj(raw) ? raw : {};
+  const water = wordIn(r.water, WATER_KINDS, WATER_ALIASES) ?? fallback.water;
+  return {
+    relief: wordIn(r.relief, RELIEF_KINDS, RELIEF_ALIASES) ?? fallback.relief,
+    ruggedness: unit(r.ruggedness, fallback.ruggedness),
+    water,
+    waterAmount: water === 'none' ? 0 : Math.max(0.05, unit(r.waterAmount, fallback.waterAmount > 0 ? fallback.waterAmount : 0.25)),
+    horizon: textIn(r.horizon, 80, fallback.horizon),
+    settled: unit(r.settled, fallback.settled),
+  };
+}
+
+const SKY_FEATURE_CAP = 3;
+
+/** Up to three sky features; entries with no recognisable kind are dropped. A row [kind, size, color] is read too. */
+export function coerceSkyFeatures(raw: unknown): SkyFeature[] {
+  const out: SkyFeature[] = [];
+  for (const v of Array.isArray(raw) ? raw : []) {
+    const e: Record<string, unknown> | null = Array.isArray(v)
+      ? { kind: v[0] as unknown, size: v[1] as unknown, color: v[2] as unknown }
+      : isObj(v) ? v : typeof v === 'string' ? { kind: v } : null;
+    if (!e || out.length >= SKY_FEATURE_CAP) continue;
+    const kind = wordIn(e.kind, SKY_FEATURE_KINDS, SKY_ALIASES);
+    if (kind) out.push({ kind, size: unit(e.size, 0.3), color: hexIn(e.color, '#e6e2d6') });
+  }
+  return out;
+}
+
+const CREATURE_CAP = 6;
+const DIAL_CAP = 12;
+
+function coerceCreatureDials(v: unknown): Record<string, number | string> {
+  const out: Record<string, number | string> = {};
+  if (!isObj(v)) return out;
+  for (const [k, x] of Object.entries(v)) {
+    if (Object.keys(out).length >= DIAL_CAP) break;
+    if (typeof x === 'number' && Number.isFinite(x)) out[k] = x;
+    else if (typeof x === 'string' && x.trim() !== '') out[k] = Number.isFinite(Number(x)) ? Number(x) : x.trim().slice(0, 24);
+  }
+  return out;
+}
+
+const CREATURE_ROW = ['id', 'name', 'family', 'size', 'count', 'behaviour', 'haunt', 'body', 'accent', 'glow', 'note', 'dials'] as const;
+
 /**
- * An unknown site pattern, surface kind, weather or grade is a slip in one field, not a reason to reject
- * the whole world. Surfaces and mood that are not objects at all are dropped, and the engine infers them.
+ * Up to six kinds of creature. A family or behaviour the engine does not know is read from the word itself
+ * or from the creature's name, so "wyvern" still flies and "crab" still crawls. Haunt is kept as written;
+ * normalizeSpec repairs it against the buildings.
+ */
+export function coerceCreatures(raw: unknown): CreatureSpec[] {
+  const out: CreatureSpec[] = [];
+  const used = new Set<string>();
+  for (const v of Array.isArray(raw) ? raw : []) {
+    let e: Record<string, unknown> | null = null;
+    if (Array.isArray(v)) {
+      const row: Record<string, unknown> = {};
+      CREATURE_ROW.forEach((k, i) => { row[k] = v[i] as unknown; });
+      e = row;
+    } else if (isObj(v)) e = v;
+    if (!e || out.length >= CREATURE_CAP) continue;
+    const name = textIn(e.name, 40) || textIn(e.id, 40).replace(/_/g, ' ');
+    if (name === '') continue;
+    const base = slugify(textIn(e.id, 40) || name, `creature_${out.length + 1}`);
+    let id = base;
+    for (let n = 2; used.has(id); n++) id = `${base}_${n}`;
+    used.add(id);
+    const family = wordIn(e.family, CREATURE_FAMILIES, FAMILY_ALIASES) ?? wordIn(name, CREATURE_FAMILIES, FAMILY_ALIASES) ?? 'quadruped';
+    const behaviourRaw = e.behaviour ?? e.behavior;
+    out.push({
+      id,
+      name,
+      family,
+      dials: coerceCreatureDials(e.dials),
+      size: numIn(e.size, 0.2, 40, family === 'colossus' ? 14 : 1.2),
+      count: Math.round(numIn(e.count, 1, 24, 1)),
+      behaviour: wordIn(behaviourRaw, CREATURE_BEHAVIOURS, BEHAVIOUR_ALIASES) ?? FAMILY_BEHAVIOUR[family],
+      haunt: textIn(e.haunt, 40).toLowerCase() || FAMILY_HAUNT[family],
+      body: hexIn(e.body, '#6b5d4f'),
+      accent: hexIn(e.accent, '#3d352d'),
+      glow: hexIn(e.glow, '#000000'),
+      note: textIn(e.note, 160),
+    });
+  }
+  return out;
+}
+
+const NEUTRAL_FOLK: FolkSpec = {
+  name: 'people', height: 1.7, bulk: 0.4, head: 1, features: [],
+  skin: ['#c69c7b', '#8d5f43', '#e0b89a'], cloth: ['#5b5a4f', '#6f5a44', '#3f4a55'], trim: ['#2b2622', '#8a7a5c'],
+};
+
+function hexList(v: unknown, fallback: string[]): string[] {
+  const out: string[] = [];
+  for (const x of Array.isArray(v) ? v : typeof v === 'string' ? [v] : []) {
+    const h = hexIn(x, '');
+    if (h !== '' && !out.includes(h) && out.length < 4) out.push(h);
+  }
+  return out.length > 0 ? out : [...fallback];
+}
+
+/** Any value into a full FolkSpec: real human proportions unless the spec says otherwise. */
+export function coerceFolk(raw: unknown): FolkSpec {
+  const r = isObj(raw) ? raw : {};
+  const features: FolkSpec['features'] = [];
+  for (const v of Array.isArray(r.features) ? r.features : []) {
+    const f = FOLK_FEATURES.find((k) => k === enumWord(v));
+    if (f && !features.includes(f) && features.length < 6) features.push(f);
+  }
+  return {
+    name: textIn(r.name, 40, NEUTRAL_FOLK.name),
+    height: numIn(r.height, 0.5, 3, NEUTRAL_FOLK.height),
+    bulk: unit(r.bulk, NEUTRAL_FOLK.bulk),
+    head: numIn(r.head, 0.6, 2, NEUTRAL_FOLK.head),
+    features,
+    skin: hexList(r.skin, NEUTRAL_FOLK.skin),
+    cloth: hexList(r.cloth, NEUTRAL_FOLK.cloth),
+    trim: hexList(r.trim, NEUTRAL_FOLK.trim),
+  };
+}
+
+/**
+ * An unknown site pattern, surface kind, weather, grade, relief or creature family is a slip in one field, not
+ * a reason to reject the whole world. Surfaces, mood, terrain and folk that are not objects at all are dropped,
+ * and the engine infers them.
  */
 function lenient(raw: unknown): unknown {
   if (!isObj(raw)) return raw;
@@ -281,6 +541,22 @@ function lenient(raw: unknown): unknown {
   if (isObj(raw.style) && raw.style.surfaces !== undefined) {
     const { surfaces, ...style } = raw.style;
     out.style = isObj(surfaces) ? { ...style, surfaces: coerceSurfaces(surfaces) } : style;
+  }
+  if (raw.terrain !== undefined) {
+    if (isObj(raw.terrain)) out.terrain = coerceTerrain(raw.terrain);
+    else delete out.terrain;
+  }
+  if (raw.folk !== undefined) {
+    if (isObj(raw.folk)) out.folk = coerceFolk(raw.folk);
+    else delete out.folk;
+  }
+  if (raw.skyFeatures !== undefined) {
+    if (Array.isArray(raw.skyFeatures)) out.skyFeatures = coerceSkyFeatures(raw.skyFeatures);
+    else delete out.skyFeatures;
+  }
+  if (raw.creatures !== undefined) {
+    if (Array.isArray(raw.creatures)) out.creatures = coerceCreatures(raw.creatures);
+    else delete out.creatures;
   }
   return out;
 }
@@ -346,7 +622,7 @@ export function worldSpecJsonSchema(): object {
     o.required = [...new Set([...(o.required ?? []), ...keys])];
   };
   const props = cleaned.properties as Record<string, unknown>;
-  require(cleaned, ['style', 'site', 'mood', 'blueprints', 'props', 'landmarks']);
+  require(cleaned, ['style', 'site', 'mood', 'terrain', 'skyFeatures', 'creatures', 'folk', 'blueprints', 'props', 'landmarks']);
   require(props.style, ['surfaces']);
   require((props.buildings as { items: unknown }).items, ['blueprint']);
   // Every blueprint and prop names a skeleton family and its dials; an empty family string means none.
@@ -565,7 +841,15 @@ function fixBlueprints(input: Blueprint[], seed: number): Blueprint[] {
   });
 }
 
-function fixProps(input: PropBlueprint[], seed: number): PropBlueprint[] {
+/** Largest prop footprint in metres: wide enough for a forest giant whose crown spreads over a house. */
+export const PROP_SIZE_MAX = 16;
+/** Tallest pole-like prop (lamp, mast, banner) in metres; industrial places may raise real masts. */
+const POLE_MAX_M = 9;
+const POLE_MAX_INDUSTRIAL_M = 18;
+const POLE_DIAL_MAX = 3.5;
+const INDUSTRIAL_SURFACES: readonly SurfaceKind[] = ['corrugated', 'rusted', 'hull_plate', 'metal_panel'];
+
+function fixProps(input: PropBlueprint[], seed: number, industrial: boolean): PropBlueprint[] {
   const src = input.slice(0, 6);
   const ids = makeIdMap(src.map((p) => p.kind), 'prop').ids;
   const out: PropBlueprint[] = [];
@@ -573,15 +857,61 @@ function fixProps(input: PropBlueprint[], seed: number): PropBlueprint[] {
     const bones = p.family ? buildSkeleton(p.family, p.dials, hash32(`${seed}|${p.kind}`)) : [];
     const parts = [...bones, ...p.parts].slice(0, bones.length > 0 ? 28 : 8).map(fixPart);
     if (parts.length === 0) return;
+    let size = clamp(p.size, 0.3, PROP_SIZE_MAX);
+    if (p.family?.trim().toLowerCase() === 'pole') {
+      // A pole's height dial is in footprint units, so its real height is size times the dial.
+      const raw = Number(p.dials?.['height']);
+      const dial = clamp(Number.isFinite(raw) ? raw : 2.2, 1, POLE_DIAL_MAX);
+      size = clamp(Math.min(size, (industrial ? POLE_MAX_INDUSTRIAL_M : POLE_MAX_M) / dial), 0.3, PROP_SIZE_MAX);
+    }
     out.push({
       kind: ids[i] as string,
-      size: clamp(p.size, 0.3, 6),
+      size,
       parts,
       weight: clamp(p.weight, 1, 5),
     });
   });
   return out;
 }
+
+/** Haunt is 'sky', 'water', 'wild', 'plaza' or a building id; anything else, or water where there is none, is the wild. */
+function fixCreatures(input: CreatureSpec[], bMap: IdMap, terrain: TerrainSpec | undefined): CreatureSpec[] {
+  const dry = terrain !== undefined && terrain.water === 'none';
+  return coerceCreatures(input).map((c) => {
+    const word = HAUNT_WORDS.find((h) => h === c.haunt);
+    let haunt = word ?? bMap.resolve(c.haunt) ?? 'wild';
+    if (haunt === 'water' && dry) haunt = 'wild';
+    return { ...c, haunt };
+  });
+}
+
+/** The presence that speaks for a place with nobody in it, made only when the quest needs someone to talk to. */
+function spiritOfThePlace(spec: WorldSpec, home: string): NpcSpec {
+  const title = spec.title.trim() || 'this place';
+  const tagline = spec.tagline.trim();
+  return {
+    id: slugify(spec.quest.giver, 'spirit_of_the_place'),
+    name: 'Spirit of the Place',
+    role: 'spirit of the place',
+    persona: `The old presence of ${title}. It speaks in few, plain words about what it has watched happen here.`,
+    knowledge: tagline ? [tagline] : [],
+    secrets: [],
+    home,
+    work: 'plaza',
+    schedule: [
+      { hour: 0, place: 'plaza', activity: 'rest' },
+      { hour: 6, place: 'plaza', activity: 'guard' },
+      { hour: 18, place: 'plaza', activity: 'wander' },
+    ],
+    relationships: [],
+    appearance: { base: 'mage', palette: 0 },
+    temperament: { tau: 0.8, bias: {} },
+    voice: { pitch: 0.8, rate: 0.85 },
+    mood: 'calm',
+  };
+}
+
+const NPC_STEP_KINDS: readonly QuestStep['kind'][] = ['talk', 'deliver', 'confront', 'choose'];
 
 function fixSite(s: SiteSpec): SiteSpec {
   return {
@@ -623,11 +953,8 @@ function assignBlueprints(buildings: BuildingSpec[], bps: Blueprint[]): Building
 export function normalizeSpec(input: WorldSpec): WorldSpec {
   const spec = structuredClone(input);
 
-  // Buildings: 6..14, padded with cottages when the model undershoots.
+  // Buildings: 0..14. A wilderness may have a single cave mouth, or nothing built at all.
   let buildings = spec.buildings.slice(0, 14);
-  for (let i = buildings.length; i < 6; i++) {
-    buildings.push({ id: `cottage_${i + 1}`, role: 'house', label: 'Cottage', size: 'small' });
-  }
   const bMap = makeIdMap(buildings.map((b) => b.id), 'building');
   buildings = buildings.map((b, i) => ({ ...b, id: bMap.ids[i] as string, label: b.label.trim() || b.id }));
 
@@ -641,7 +968,10 @@ export function normalizeSpec(input: WorldSpec): WorldSpec {
   });
   if (bps && bps.length > 0) buildings = assignBlueprints(buildings, bps);
 
+  // People: 0..10. With nobody there, a quest that still needs someone to talk to gets the spirit of the place.
   const npcsIn = spec.npcs.slice(0, 10);
+  const wantsNpc = spec.quest.giver.trim() !== '' || spec.quest.steps.some((s) => NPC_STEP_KINDS.includes(s.kind));
+  if (npcsIn.length === 0 && wantsNpc) npcsIn.push(spiritOfThePlace(spec, homeFallback(buildings)));
   const nMap = makeIdMap(npcsIn.map((n) => n.id), 'npc');
   const iMap = makeIdMap(spec.items.map((i) => i.id), 'item');
   const sMap = makeIdMap(spec.quest.steps.map((s) => s.id), 'step');
@@ -684,12 +1014,13 @@ export function normalizeSpec(input: WorldSpec): WorldSpec {
     };
   });
 
-  const giver = nMap.resolve(spec.quest.giver) ?? npcs[0]?.id ?? spec.quest.giver;
+  // With nobody in the world the giver stays empty: a quest of places and things needs no one to open it.
+  const giver = nMap.resolve(spec.quest.giver) ?? npcs[0]?.id ?? '';
 
   const items = spec.items.slice(0, 20).map((it, i) => ({
     ...it,
     id: iMap.ids[i] as string,
-    holder: it.holder === 'player' ? 'player' : (nMap.resolve(it.holder) ?? bMap.resolve(it.holder) ?? giver),
+    holder: it.holder === 'player' ? 'player' : (nMap.resolve(it.holder) ?? bMap.resolve(it.holder) ?? (giver || buildings[0]?.id || 'player')),
   }));
   const itemId = (v: string | undefined): string | undefined => {
     const r = iMap.resolve(v);
@@ -768,12 +1099,19 @@ export function normalizeSpec(input: WorldSpec): WorldSpec {
     if (effect) rules.push({ ...r, id: rMap.ids[i] as string, effect });
   });
 
-  const arch: Partial<Pick<WorldSpec, 'style' | 'site' | 'mood' | 'blueprints' | 'props' | 'landmarks'>> = {};
+  const arch: Partial<Pick<WorldSpec,
+    'style' | 'site' | 'mood' | 'terrain' | 'skyFeatures' | 'creatures' | 'folk' | 'blueprints' | 'props' | 'landmarks'>> = {};
   if (spec.style) arch.style = fixStyle(spec.style);
   if (spec.site) arch.site = fixSite(spec.site);
   if (spec.mood) arch.mood = coerceMood(spec.mood);
+  if (spec.terrain) arch.terrain = coerceTerrain(spec.terrain);
+  if (spec.skyFeatures) arch.skyFeatures = coerceSkyFeatures(spec.skyFeatures);
+  if (spec.creatures) arch.creatures = fixCreatures(spec.creatures, bMap, arch.terrain);
+  if (spec.folk) arch.folk = coerceFolk(spec.folk);
   if (bps) arch.blueprints = bps;
-  if (spec.props) arch.props = fixProps(spec.props, seed);
+  const surf = arch.style?.surfaces;
+  const industrial = surf !== undefined && (INDUSTRIAL_SURFACES.includes(surf.wall) || INDUSTRIAL_SURFACES.includes(surf.wall2));
+  if (spec.props) arch.props = fixProps(spec.props, seed, industrial);
   if (spec.landmarks) arch.landmarks = fixLandmarks(spec.landmarks, bMap);
 
   return {

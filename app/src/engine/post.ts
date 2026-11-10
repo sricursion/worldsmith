@@ -373,6 +373,8 @@ export const AIR = {
   beam: 1,
   /** Tone-mapping exposure the sky rig set, before the weather and the grade. */
   exposure: 0.5,
+  /** Unit vector towards the moon the night key shines from, at any hour. */
+  moonDir: new Vector3(-0.4, 0.5, -0.5).normalize(),
 
   // ---- written by the sky features
   /** Multiplier on the sun's key light and on the sky it lights; an eclipse lowers it. */

@@ -23,6 +23,7 @@ import { loadKit, type LoadedKit } from './engine/assets';
 import type { CharacterRig } from './engine/character';
 import { createFigure, disposeBodyCache } from './engine/bodies';
 import { createCreatures } from './engine/creatures';
+import { createSkyFeatures } from './engine/skyfeatures';
 import { hash32 } from './world/rng';
 import { buildNav, type NavWorld, type NavAgent } from './engine/nav';
 import { createPlayer, type Player } from './engine/player';
@@ -59,6 +60,7 @@ interface Town {
   navGround: THREE.Mesh;
   life: { update(dt: number, focus: THREE.Vector3, hour: number): void; dispose(): void } | null;
   creatures: ReturnType<typeof createCreatures> | null;
+  skyFeatures: ReturnType<typeof createSkyFeatures> | null;
   lightRemovers: (() => void)[];
   player: Player;
   npcs: Map<string, NpcRuntime>;
@@ -346,8 +348,13 @@ export class Game {
             doors: objects.doors, plaza: { x: layout.plaza.x, z: layout.plaza.z }, water: land.waterBodies, rng: makeRng(spec.seed, 'creatures'), quality,
           })
         : null;
+      const skyRig = this.sky as SkyRig & { sunDirection?(): THREE.Vector3; daylight?(): number };
+      const fallbackSun = new THREE.Vector3(0.4, 0.8, 0.3).normalize();
+      const skyFeatures = (spec.skyFeatures?.length ?? 0) > 0
+        ? createSkyFeatures(viewport.scene, spec.skyFeatures, { sunDir: () => skyRig.sunDirection?.() ?? fallbackSun, daylight: () => skyRig.daylight?.() ?? 1, seed: spec.seed })
+        : null;
       this.town = {
-        spec, state, layout, objects, nav, navGround, player, npcs, rng, life, lightRemovers, creatures,
+        spec, state, layout, objects, nav, navGround, player, npcs, rng, life, lightRemovers, creatures, skyFeatures,
         elapsed: 0, nextTickAt: 2, tickInFlight: false, dialogue: null, dialogueNpc: null, handle: null, verified,
       };
     } catch (err) {
@@ -437,6 +444,7 @@ export class Game {
     this.atmosphere.update(dt, t.player.position, t.state.hour);
     t.life?.update(dt, t.player.position, t.state.hour);
     t.creatures?.update(dt, t.player.position, t.state.hour);
+    t.skyFeatures?.update(dt, this.deps.viewport.camera);
     updateScatter(t.player.position);
     WIND.time.value += dt;
     const h = t.state.hour;
@@ -850,6 +858,7 @@ export class Game {
     t.player.rig.dispose();
     t.life?.dispose();
     t.creatures?.dispose();
+    t.skyFeatures?.dispose();
     for (const r of t.lightRemovers) r();
     t.nav.dispose();
     t.navGround.geometry.dispose();

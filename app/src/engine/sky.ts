@@ -1043,10 +1043,16 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
     daylightOut = rig.daylight;
     if (seenKeyDim < 1) {
       // A dimmed sun (an eclipse) takes the sky down with it, though less far: the air still scatters.
-      const skyDim = 0.35 + 0.65 * (1 - rig.daylight + rig.daylight * seenKeyDim);
+      const lost = rig.daylight * (1 - seenKeyDim);
+      const skyDim = 1 - 0.85 * lost;
       look.hazeTopColor.multiplyScalar(skyDim);
       look.hazeHorizonColor.multiplyScalar(skyDim);
       look.fog.multiplyScalar(skyDim);
+      // The scattering model knows nothing of the dimming, so the haze layer covers more of it.
+      look.hazeTopAlpha = MathUtils.lerp(look.hazeTopAlpha, 1, 0.9 * lost);
+      look.hazeHorizonAlpha = MathUtils.lerp(look.hazeHorizonAlpha, 1, 0.9 * lost);
+      // And the lens opens, as it does at dusk: the land under an eclipse stays readable.
+      look.exposure *= 1 + 0.7 * lost;
     }
     const u = sky.material.uniforms;
     const set = (key: string, value: number): void => {
@@ -1081,6 +1087,7 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
 
     // Moon and stars: only once the sun is down.
     moonDir.set(...moonKey.direction);
+    AIR.moonDir.copy(moonDir);
     moonOffset.copy(moonDir).multiplyScalar(MOON_RADIUS);
     moonAim.copy(moonDir).negate();
     moon.quaternion.copy(moonQuat.setFromUnitVectors(zAxis, moonAim));
@@ -1199,7 +1206,10 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
       const t = sky.material.uniforms['time'];
       if (t !== undefined) t.value = ((t.value as number) + dt) % 36000;
       // A sky feature (an eclipse, a drawn moon) changed what the rig should do.
-      if (AIR.keyDim !== seenKeyDim || AIR.rigMoon !== seenRigMoon) apply();
+      if (AIR.keyDim !== seenKeyDim || AIR.rigMoon !== seenRigMoon) {
+        if (AIR.keyDim !== seenKeyDim) envStep = -1; // the sky got darker or lighter: the reflections follow
+        apply();
+      }
     },
     setFlash(v) {
       if (disposed || !Number.isFinite(v)) return;

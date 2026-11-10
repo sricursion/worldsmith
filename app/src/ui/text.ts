@@ -70,7 +70,7 @@ export function effectLabel(type: string): string {
   return type.replace(/_/g, ' ');
 }
 
-export const CONTROLS_HINT_DESKTOP = 'WASD move · drag to look · Shift run · E talk';
+export const CONTROLS_HINT_DESKTOP = 'Click the world to take the mouse · WASD move · mouse look · Shift run · E talk · V first person · Esc frees the mouse';
 export const CONTROLS_HINT_TOUCH = 'Left half: move · right half: look · tap the pill to talk';
 
 /** Controls hint text for the given pointer type. */

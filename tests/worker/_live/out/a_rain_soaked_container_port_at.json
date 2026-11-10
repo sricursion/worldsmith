@@ -1,0 +1,1210 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "a rain-soaked container port at dawn, cranes overhead, sodium lights",
+  "title": "Quayside Dawn Harbor",
+  "tagline": "Cranes wake over a drowned port",
+  "theme": "modern",
+  "era": "near future",
+  "palette": {
+    "ground": "#4a5256",
+    "accent": "#d9602a",
+    "sky": "overcast",
+    "fog": 0.35
+  },
+  "time": {
+    "startHour": 5.75,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "gantry_crane",
+      "role": "warehouse",
+      "label": "Gantry Nine",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "gantry_frame"
+    },
+    {
+      "id": "control_tower",
+      "role": "command",
+      "label": "Port Control",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "signal_tower"
+    },
+    {
+      "id": "container_stack",
+      "role": "warehouse",
+      "label": "Stacked Boxes",
+      "size": "medium",
+      "blueprint": "box_rows"
+    },
+    {
+      "id": "dock_office",
+      "role": "office",
+      "label": "Harbor Authority",
+      "size": "medium",
+      "blueprint": "brick_office"
+    },
+    {
+      "id": "bunkhouse",
+      "role": "house",
+      "label": "Dockers Rest",
+      "size": "small",
+      "blueprint": "crew_barracks"
+    },
+    {
+      "id": "cafe_hook",
+      "role": "cafe",
+      "label": "The Hook",
+      "size": "small",
+      "blueprint": "hook_cafe"
+    },
+    {
+      "id": "fuel_pump",
+      "role": "shop",
+      "label": "Bunker Fuel",
+      "size": "small",
+      "blueprint": "fuel_kiosk"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "mara",
+      "name": "Mara Voss",
+      "role": "crane operator",
+      "persona": "Dry-witted and watchful, she sees everything from her cab forty meters up. She keeps her mouth shut when a friend's job is on the line.",
+      "knowledge": [
+        "From the cab I saw a box swung onto Berth Four at 3 a.m., no lights on the spreader.",
+        "Dez was on the quay all night, soaked and swearing.",
+        "The lost box was a reefer, and its motor was still humming."
+      ],
+      "secrets": [
+        "She lifted the box herself on Dez's order and never logged it."
+      ],
+      "home": "bunkhouse",
+      "work": "gantry_crane",
+      "schedule": [
+        {
+          "hour": 0,
+          "place": "bunkhouse",
+          "activity": "sleep"
+        },
+        {
+          "hour": 5,
+          "place": "gantry_crane",
+          "activity": "work"
+        },
+        {
+          "hour": 13,
+          "place": "cafe_hook",
+          "activity": "eat"
+        },
+        {
+          "hour": 18,
+          "place": "bunkhouse",
+          "activity": "rest"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "dez",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "ranger",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 0.8,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": -0.2,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 0.9,
+        "rate": 0.95
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "tobi",
+      "name": "Tobi Quill",
+      "role": "harbormaster",
+      "persona": "Precise and brittle, he lives by the ledger and fears the inspector's pen. He will bend a rule quietly before he lets it be seen to bend.",
+      "knowledge": [
+        "Dawn inspection is at seven and every box must match the manifest.",
+        "One sealed container is missing from the storm log.",
+        "Demurrage fines on a lost box would sink this port."
+      ],
+      "secrets": [
+        "He signed the bill of lading himself and knows the box holds contraband."
+      ],
+      "home": "control_tower",
+      "work": "control_tower",
+      "schedule": [
+        {
+          "hour": 0,
+          "place": "control_tower",
+          "activity": "work"
+        },
+        {
+          "hour": 8,
+          "place": "dock_office",
+          "activity": "work"
+        },
+        {
+          "hour": 14,
+          "place": "control_tower",
+          "activity": "work"
+        },
+        {
+          "hour": 22,
+          "place": "control_tower",
+          "activity": "rest"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "dez",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0.2,
+          "follow_player": 0,
+          "work": 0.5
+        }
+      },
+      "voice": {
+        "pitch": 1.1,
+        "rate": 1.05
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "halle",
+      "name": "Halle Brynn",
+      "role": "cafe owner",
+      "persona": "Warm and nosy, she pours tea for stevedores and hears every rumor first. She trades gossip for gossip and never gives it free.",
+      "knowledge": [
+        "Dez came in at four, drenched, and paid for tea with a wet fifty.",
+        "Yusuf was out refilling the bunker tanks all night.",
+        "A stranger asking about boxes at dawn means trouble for the harbormaster."
+      ],
+      "secrets": [
+        "Dez left a brass tally tag with her to hold, and she has not told anyone."
+      ],
+      "home": "cafe_hook",
+      "work": "cafe_hook",
+      "schedule": [
+        {
+          "hour": 0,
+          "place": "cafe_hook",
+          "activity": "sleep"
+        },
+        {
+          "hour": 4,
+          "place": "cafe_hook",
+          "activity": "work"
+        },
+        {
+          "hour": 15,
+          "place": "street",
+          "activity": "wander"
+        },
+        {
+          "hour": 19,
+          "place": "cafe_hook",
+          "activity": "work"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "yusuf",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "rogue",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 1.1,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.5,
+          "idle": 0.1,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.25,
+        "rate": 1.1
+      },
+      "mood": "cheerful"
+    },
+    {
+      "id": "dez",
+      "name": "Dez Okafor",
+      "role": "dock foreman",
+      "persona": "Gruff and loyal to his crew over the paperwork. He will lie to protect a docker but never to a face he respects.",
+      "knowledge": [
+        "Stacked Boxes row nine always has a gap where the reefers sit.",
+        "The harbormaster has been nervous since the last shipment.",
+        "Rain this hard makes the stack lanes a maze."
+      ],
+      "secrets": [
+        "He hid the unlogged reefer inside the container stack on Tobi's quiet orders."
+      ],
+      "home": "dock_office",
+      "work": "container_stack",
+      "schedule": [
+        {
+          "hour": 0,
+          "place": "dock_office",
+          "activity": "sleep"
+        },
+        {
+          "hour": 5,
+          "place": "container_stack",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "cafe_hook",
+          "activity": "eat"
+        },
+        {
+          "hour": 17,
+          "place": "container_stack",
+          "activity": "patrol"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "tobi",
+          "stance": "rival"
+        }
+      ],
+      "appearance": {
+        "base": "barbarian",
+        "palette": 3
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": -0.3,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.3
+        }
+      },
+      "voice": {
+        "pitch": 0.7,
+        "rate": 0.85
+      },
+      "mood": "angry"
+    },
+    {
+      "id": "yusuf",
+      "name": "Yusuf Ram",
+      "role": "fuel attendant",
+      "persona": "Quiet and nocturnal, he trusts engines more than people. He remembers every truck that rolls past his pumps.",
+      "knowledge": [
+        "A flatbed with no plates took on diesel at two in the morning.",
+        "The driver paid cash and asked which berth was dark.",
+        "Bunker Fuel keeps a spare padlock key in the till."
+      ],
+      "secrets": [
+        "He was paid to leave the quay floodlight off for an hour."
+      ],
+      "home": "fuel_pump",
+      "work": "fuel_pump",
+      "schedule": [
+        {
+          "hour": 0,
+          "place": "fuel_pump",
+          "activity": "work"
+        },
+        {
+          "hour": 7,
+          "place": "fuel_pump",
+          "activity": "sleep"
+        },
+        {
+          "hour": 14,
+          "place": "cafe_hook",
+          "activity": "drink"
+        },
+        {
+          "hour": 20,
+          "place": "fuel_pump",
+          "activity": "work"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "halle",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "rogue_hooded",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 0.9,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": -0.1,
+          "idle": 0.3,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.8,
+        "rate": 0.9
+      },
+      "mood": "afraid"
+    }
+  ],
+  "items": [
+    {
+      "id": "tally_tag",
+      "name": "Brass Tally Tag",
+      "description": "A stamped tag marked with the missing box's number.",
+      "holder": "halle"
+    },
+    {
+      "id": "padlock_key",
+      "name": "Spare Padlock Key",
+      "description": "A heavy key for the sealed container's lock.",
+      "holder": "fuel_pump"
+    },
+    {
+      "id": "manifest_page",
+      "name": "Torn Manifest Page",
+      "description": "A wet page showing the box was entered, then struck out.",
+      "holder": "dock_office"
+    }
+  ],
+  "quest": {
+    "id": "unlogged_box",
+    "title": "The Unlogged Box",
+    "hook": "The storm is still hammering Quayside Dawn Harbor when Harbormaster Quill finds you at the quay. One sealed container never made it into the log, and the inspector arrives at seven. He needs someone with no ties to the docks to find it and ask no loud questions.",
+    "giver": "tobi",
+    "steps": [
+      {
+        "id": "s1_brief",
+        "kind": "talk",
+        "target": "tobi",
+        "requires": [],
+        "objective": "Hear Harbormaster Quill's request in Port Control.",
+        "beat": "Tobi asks you to find the missing box quietly before the inspector arrives."
+      },
+      {
+        "id": "s2_tag",
+        "kind": "fetch",
+        "target": "tally_tag",
+        "requires": [
+          "s1_brief"
+        ],
+        "objective": "Get the brass tally tag from Halle at The Hook.",
+        "beat": "Halle trades the tag for a little gossip and a warning about Dez.",
+        "item": "tally_tag",
+        "reveals": [
+          "halle:0"
+        ]
+      },
+      {
+        "id": "s3_search",
+        "kind": "visit",
+        "target": "container_stack",
+        "requires": [
+          "s2_tag"
+        ],
+        "objective": "Search the rusted rows of Stacked Boxes for the matching number.",
+        "beat": "Row nine hides a humming reefer with a fresh seal and a matching tag number."
+      },
+      {
+        "id": "s4_dez",
+        "kind": "confront",
+        "target": "dez",
+        "requires": [
+          "s3_search"
+        ],
+        "objective": "Confront Dez about the reefer in his stack.",
+        "beat": "Dez admits he hid it on Tobi's orders and begs you to keep his crew out of it.",
+        "reveals": [
+          "dez:0"
+        ]
+      },
+      {
+        "id": "s5_choose",
+        "kind": "choose",
+        "target": "tobi",
+        "requires": [
+          "s4_dez"
+        ],
+        "objective": "Decide what to tell Harbormaster Quill.",
+        "beat": "You hold the truth about the box, Dez, and Tobi's own hand in it.",
+        "choices": [
+          {
+            "label": "Expose Tobi's contraband to the inspector",
+            "unlocks": [
+              "s6_expose"
+            ]
+          },
+          {
+            "label": "Quietly return the box to the manifest",
+            "unlocks": [
+              "s6_cover"
+            ]
+          }
+        ],
+        "reveals": [
+          "tobi:0"
+        ]
+      },
+      {
+        "id": "s6_expose",
+        "kind": "deliver",
+        "target": "dock_office",
+        "requires": [
+          "s5_choose"
+        ],
+        "objective": "Deliver the tally tag to the Harbor Authority as proof.",
+        "beat": "The inspector seizes the reefer, Tobi is relieved, and Dez keeps his post.",
+        "item": "tally_tag"
+      },
+      {
+        "id": "s6_cover",
+        "kind": "talk",
+        "target": "tobi",
+        "requires": [
+          "s5_choose"
+        ],
+        "objective": "Tell Tobi the box is logged and the inspection is safe.",
+        "beat": "Tobi pays you and thanks you, but the contraband sails on and Dez stays complicit."
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s6_expose",
+        "label": "The port is cleaned, at a cost to its harbormaster.",
+        "tone": "good"
+      },
+      {
+        "stepId": "s6_cover",
+        "label": "The box slips through and the secret festers.",
+        "tone": "bitter"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r_curfew",
+      "text": "Quay closed to outsiders before dawn.",
+      "effect": {
+        "type": "curfew",
+        "fromHour": 0,
+        "toHour": 5,
+        "exemptRoles": [
+          "harbormaster",
+          "crane operator",
+          "dock foreman",
+          "fuel attendant"
+        ]
+      },
+      "source": "world"
+    },
+    {
+      "id": "r_ban",
+      "text": "No open flames near the bunker tanks.",
+      "effect": {
+        "type": "ban",
+        "what": "open flame",
+        "where": "fuel_pump",
+        "enforcer": "yusuf"
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "berth",
+    "reefer",
+    "demurrage",
+    "stevedore",
+    "bunker",
+    "sealed"
+  ],
+  "style": {
+    "name": "Quayside Dawn Rain",
+    "wall": "#6f7f86",
+    "wall2": "#8a4a32",
+    "roof": "#3d474d",
+    "trim": "#b7c0c2",
+    "accent": "#d9602a",
+    "dark": "#0d1215",
+    "glass": "#1f3a45",
+    "glow": "#ffa43a",
+    "ground": "#4a5256",
+    "road": "#2b3033",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "corrugated",
+      "wall2": "rusted",
+      "roof": "corrugated",
+      "trim": "metal_panel",
+      "ground": "concrete",
+      "road": "asphalt",
+      "wear": 0.7,
+      "wet": 0.8
+    }
+  },
+  "site": {
+    "pattern": "grid",
+    "wild": 0.05,
+    "paths": "road",
+    "spacing": 9
+  },
+  "mood": {
+    "weather": "rain",
+    "intensity": 0.75,
+    "grade": "teal_orange",
+    "haze": 0.6,
+    "ambience": [
+      "rain",
+      "harbor",
+      "machinery",
+      "wind"
+    ],
+    "music": "lonely harbor horn"
+  },
+  "blueprints": [
+    {
+      "id": "gantry_frame",
+      "summary": "tall open steel gantry with long boom and cables",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 16,
+          "w": 1.3,
+          "d": 0.12,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 11,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 4,
+          "gap": 0.4
+        },
+        {
+          "shape": "box",
+          "x": 0.15,
+          "z": 0.1,
+          "y": 18,
+          "w": 1.4,
+          "d": 0.08,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.3,
+          "z": 0.3,
+          "y": 10,
+          "w": 0.03,
+          "d": 0.03,
+          "h": 8,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "sphere",
+          "x": 0.45,
+          "z": 0.45,
+          "y": 17.2,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 8,
+          "w": 0.12,
+          "d": 0.04,
+          "h": 0.6,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.25
+        }
+      ],
+      "doorX": 0,
+      "family": "stilts",
+      "dials": {
+        "legHeight": 8,
+        "legs": 4,
+        "hut": 0.35,
+        "access": "ladder"
+      }
+    },
+    {
+      "id": "signal_tower",
+      "summary": "glass control tower with rotating signal mast",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 18,
+          "w": 0.6,
+          "d": 0.04,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.25
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 12,
+          "w": 0.6,
+          "d": 0.04,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.25
+        },
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 22,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 25,
+          "w": 0.4,
+          "d": 0.05,
+          "h": 0.1,
+          "rot": 35,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 27.5,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0.2,
+          "w": 0.2,
+          "d": 0.05,
+          "h": 2.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 22,
+        "section": "square",
+        "taper": 0.35,
+        "bands": 4,
+        "top": "needle",
+        "flare": 0.1
+      }
+    },
+    {
+      "id": "box_rows",
+      "summary": "rows of rusted containers stacked and shifted",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.03,
+          "h": 0.15,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.1,
+          "z": 0.5,
+          "y": 4,
+          "w": 0.08,
+          "d": 0.03,
+          "h": 2.4,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 5,
+          "gap": 0.18
+        },
+        {
+          "shape": "sphere",
+          "x": -0.35,
+          "z": 0.5,
+          "y": 6,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "block",
+      "dials": {
+        "modules": 9,
+        "offset": 0.55,
+        "cantilever": 0.3
+      }
+    },
+    {
+      "id": "brick_office",
+      "summary": "low brick office with wet awning and lit windows",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 1.6,
+          "w": 0.14,
+          "d": 0.03,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.25
+        },
+        {
+          "shape": "box",
+          "x": 0.35,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.14,
+          "d": 0.03,
+          "h": 2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.3,
+          "z": -0.2,
+          "y": 3,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "flat",
+        "overhang": 0.2,
+        "front": "awning",
+        "rhythm": 4,
+        "chimney": 1,
+        "taper": 0
+      }
+    },
+    {
+      "id": "crew_barracks",
+      "summary": "two-storey bunkhouse with lit rows of windows",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 1.5,
+          "w": 0.7,
+          "d": 0.03,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 4.5,
+          "w": 0.7,
+          "d": 0.03,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "box",
+          "x": 0.4,
+          "z": 0.2,
+          "y": 6,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 1.5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.3,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.14,
+          "d": 0.03,
+          "h": 2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "shed",
+        "overhang": 0.1,
+        "front": "stoop",
+        "rhythm": 6,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "hook_cafe",
+      "summary": "corner cafe with a sodium-lit hook sign",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0.35,
+          "z": 0.5,
+          "y": 2.4,
+          "w": 0.3,
+          "d": 0.04,
+          "h": 0.7,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 1.4,
+          "w": 0.2,
+          "d": 0.03,
+          "h": 1,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 2,
+          "gap": 0.35
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.35,
+          "z": 0.5,
+          "y": 2,
+          "w": 0.02,
+          "d": 0.02,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "gable",
+        "overhang": 0.25,
+        "front": "porch",
+        "rhythm": 3,
+        "chimney": 1,
+        "taper": 0
+      }
+    },
+    {
+      "id": "fuel_kiosk",
+      "summary": "fuel dispensing canopy beside bunker tanks",
+      "parts": [
+        {
+          "shape": "cylinder",
+          "x": -0.4,
+          "z": -0.3,
+          "y": 0,
+          "w": 0.4,
+          "d": 0.4,
+          "h": 2.5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 2,
+          "gap": 0.5
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.3,
+          "y": 3.2,
+          "w": 0.9,
+          "d": 0.04,
+          "h": 0.12,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.1,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.15,
+          "d": 0.1,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 2,
+          "gap": 0.4
+        }
+      ],
+      "doorX": 0,
+      "family": "canopy",
+      "dials": {
+        "posts": 4,
+        "roof": "flat",
+        "counter": 0.5
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "sodium_lamp",
+      "size": 4.5,
+      "parts": [
+        {
+          "shape": "sphere",
+          "x": 0.2,
+          "z": 0,
+          "y": 3.4,
+          "w": 0.2,
+          "d": 0.2,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 4,
+      "family": "pole",
+      "dials": {
+        "head": "lamp",
+        "height": 3,
+        "arms": 1
+      }
+    },
+    {
+      "kind": "oil_drum",
+      "size": 1,
+      "parts": [
+        {
+          "shape": "ring",
+          "x": 0,
+          "z": 0,
+          "y": 0.7,
+          "w": 0.8,
+          "d": 0.8,
+          "h": 0.05,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 3,
+      "family": "container",
+      "dials": {
+        "form": "barrel",
+        "count": 2,
+        "height": 0.7
+      }
+    },
+    {
+      "kind": "mooring_bollard",
+      "size": 0.8,
+      "parts": [
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 0.4,
+          "w": 0.5,
+          "d": 0.5,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 3,
+      "family": "container",
+      "dials": {
+        "form": "tank",
+        "count": 1,
+        "height": 0.4
+      }
+    },
+    {
+      "kind": "radio_mast",
+      "size": 5.5,
+      "parts": [
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 5,
+          "w": 0.15,
+          "d": 0.15,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 1,
+      "family": "pole",
+      "dials": {
+        "head": "antenna",
+        "height": 3.5,
+        "arms": 2
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "berth_beacon",
+      "prompt": "A tall weathered harbor beacon on a concrete plinth, rusted steel lattice frame with a amber sodium lamp at the top and a wet streaked finish, low-poly stylised",
+      "place": "plaza",
+      "height": 10
+    },
+    {
+      "id": "mooring_anchor",
+      "prompt": "A giant corroded ship anchor standing upright on a stone plinth, dripping rust streaks and chain links draped across the stock, low-poly stylised",
+      "place": "plaza",
+      "height": 4
+    }
+  ]
+}

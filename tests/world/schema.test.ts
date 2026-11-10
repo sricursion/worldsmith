@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { FIXTURES } from '../../app/src/world/fixtures';
-import { NPC_ACTION_IDS, normalizeSpec, slugify, validateSpec, worldSpecJsonSchema } from '../../app/src/world/schema';
+import {
+  GRADE_KINDS, NPC_ACTION_IDS, SURFACE_KINDS, WEATHER_KINDS, normalizeSpec, slugify, validateSpec, worldSpecJsonSchema,
+} from '../../app/src/world/schema';
 import type { WorldSpec } from '../../app/src/world/spec';
 
 const clone = (s: WorldSpec): WorldSpec => structuredClone(s);
@@ -240,6 +242,93 @@ describe('normalizeSpec architecture', () => {
     const n = normalizeSpec(s);
     expect(n.landmarks![0]).toMatchObject({ place: 'the_dusty_spur', height: 2 });
     expect(n.landmarks![1]).toMatchObject({ place: 'plaza', height: 14 });
+  });
+});
+
+describe('surfaces and mood', () => {
+  const dressed = (): WorldSpec => {
+    const s = clone(FIXTURES.western);
+    s.style!.surfaces = { wall: 'corrugated', wall2: 'rusted', roof: 'corrugated', trim: 'metal_panel', ground: 'concrete', road: 'asphalt', wear: 0.7, wet: 0.8 };
+    s.mood = { weather: 'rain', intensity: 0.8, grade: 'teal_orange', haze: 0.6, ambience: ['rain', 'harbor'], music: 'slow noir piano' };
+    return s;
+  };
+
+  it('validateSpec and normalizeSpec keep them as written', () => {
+    const s = dressed();
+    const v = validateSpec(JSON.parse(JSON.stringify(s)));
+    expect(v.ok).toBe(true);
+    if (!v.ok) return;
+    expect(v.value.mood).toEqual(s.mood);
+    expect(v.value.style?.surfaces).toEqual(s.style?.surfaces);
+    const n = normalizeSpec(v.value);
+    expect(n.mood).toEqual(s.mood);
+    expect(n.style?.surfaces).toEqual(s.style?.surfaces);
+  });
+
+  it('coerces unknown kinds per field instead of rejecting the world', () => {
+    const raw = JSON.parse(JSON.stringify(dressed())) as { style: { surfaces: Record<string, unknown> }; mood: Record<string, unknown> };
+    raw.style.surfaces = { wall: 'Glass Curtain', wall2: 'vibranium', roof: 7, ground: 'lava', wear: 4, wet: '0.5' };
+    raw.mood = { weather: 'hail', intensity: -3, grade: 'Teal-Orange', haze: 9, ambience: 'rain', music: 12 };
+    const v = validateSpec(raw);
+    expect(v.ok).toBe(true);
+    if (!v.ok) return;
+    expect(v.value.style?.surfaces).toEqual({ wall: 'glass_curtain', wall2: 'timber', roof: 'shingle', trim: 'timber', ground: 'dirt', road: 'gravel', wear: 1, wet: 0.5 });
+    expect(v.value.mood).toEqual({ weather: 'clear', intensity: 0, grade: 'teal_orange', haze: 1, ambience: [], music: '' });
+  });
+
+  it('drops surfaces or mood that are not objects, leaving the engine to infer them', () => {
+    const raw = JSON.parse(JSON.stringify(dressed())) as { style: Record<string, unknown>; mood: unknown };
+    raw.style.surfaces = 'wood';
+    raw.mood = 'rainy';
+    const v = validateSpec(raw);
+    expect(v.ok).toBe(true);
+    if (!v.ok) return;
+    expect(v.value.mood).toBeUndefined();
+    expect(v.value.style?.surfaces).toBeUndefined();
+    expect(v.value.style?.wall).toBe(FIXTURES.western.style?.wall);
+  });
+
+  it('clamps numbers, caps ambience at six short lowercase words and music at 40 characters', () => {
+    const s = dressed();
+    s.style!.surfaces!.wear = 3;
+    s.style!.surfaces!.wet = -1;
+    s.mood = {
+      weather: 'storm', intensity: 7, grade: 'cold_steel', haze: -2,
+      ambience: ['Distant Crowd', ' RAIN ', 'rain', '', 'wind', 'a-very-long-ambience-word-that-keeps-going', 'gulls', 'thunder', 'machinery', 'water'],
+      music: '   a   slow and very lonely harmonica somewhere far beyond the ridge   ',
+    };
+    const n = normalizeSpec(s);
+    expect(n.style?.surfaces).toMatchObject({ wear: 1, wet: 0 });
+    expect(n.mood?.intensity).toBe(1);
+    expect(n.mood?.haze).toBe(0);
+    expect(n.mood?.ambience).toEqual(['distant_crowd', 'rain', 'wind', 'a_very_long_ambience_wor', 'gulls', 'thunder']);
+    expect(n.mood?.music.length).toBeLessThanOrEqual(40);
+    expect(n.mood?.music.startsWith('a slow and very lonely harmonica')).toBe(true);
+    expect(validateSpec(n).ok).toBe(true);
+    expect(normalizeSpec(n)).toEqual(n);
+  });
+
+  it('does not invent them on a spec that has none', () => {
+    const n = normalizeSpec(FIXTURES.medieval);
+    expect(n.mood).toBeUndefined();
+    expect(n.style?.surfaces).toBeUndefined();
+  });
+
+  it('are required of the model, with every kind listed', () => {
+    const schema = worldSpecJsonSchema() as {
+      required: string[];
+      properties: {
+        mood: { required: string[]; properties: { weather: { enum: string[] }; grade: { enum: string[] } } };
+        style: { required: string[]; properties: { surfaces: { required: string[]; properties: { wall: { enum: string[] } } } } };
+      };
+    };
+    expect(schema.required).toContain('mood');
+    expect(schema.properties.style.required).toContain('surfaces');
+    expect([...schema.properties.mood.required].sort()).toEqual(['ambience', 'grade', 'haze', 'intensity', 'music', 'weather']);
+    expect([...schema.properties.style.properties.surfaces.required].sort()).toEqual(['ground', 'road', 'roof', 'trim', 'wall', 'wall2', 'wear', 'wet']);
+    expect(schema.properties.mood.properties.weather.enum).toEqual(WEATHER_KINDS);
+    expect(schema.properties.mood.properties.grade.enum).toEqual(GRADE_KINDS);
+    expect(schema.properties.style.properties.surfaces.properties.wall.enum).toEqual(SURFACE_KINDS);
   });
 });
 

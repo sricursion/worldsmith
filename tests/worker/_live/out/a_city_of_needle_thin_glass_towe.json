@@ -1,0 +1,1219 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "a city of needle-thin glass towers in 2400",
+  "title": "Spire of the Glass Reach",
+  "tagline": "Needles of light pierce a sky of rain",
+  "theme": "scifi",
+  "era": "Year 2400",
+  "palette": {
+    "ground": "#20262f",
+    "accent": "#ff2f8f",
+    "sky": "overcast",
+    "fog": 0.3
+  },
+  "time": {
+    "startHour": 19.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "needle_one",
+      "role": "office",
+      "label": "Vantage Spire",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "glass_needle"
+    },
+    {
+      "id": "needle_two",
+      "role": "apartment",
+      "label": "Lumen Tower",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "vein_needle"
+    },
+    {
+      "id": "gantry_yard",
+      "role": "warehouse",
+      "label": "Gantry Yard",
+      "size": "medium",
+      "blueprint": "gantry_crane"
+    },
+    {
+      "id": "signal_mast",
+      "role": "command",
+      "label": "Signal Mast",
+      "size": "medium",
+      "blueprint": "beacon_mast"
+    },
+    {
+      "id": "sky_cafe",
+      "role": "cafe",
+      "label": "Stratum Cafe",
+      "size": "small",
+      "blueprint": "stratum_pavilion"
+    },
+    {
+      "id": "repair_bay",
+      "role": "garage",
+      "label": "Needle Repair Bay",
+      "size": "medium",
+      "blueprint": "drone_hangar"
+    },
+    {
+      "id": "market_plaza",
+      "role": "market",
+      "label": "Drift Market",
+      "size": "medium",
+      "blueprint": "drift_kiosks"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "oria",
+      "name": "Oria Vance",
+      "role": "cable courier",
+      "persona": "Quick and wiry, Oria rides the cable lines between needles and hates standing still. She wants enough credits to buy a berth on a high stratum.",
+      "knowledge": [
+        "The beacon on Vantage Spire died three nights ago, mid-storm.",
+        "Sele Ardent keeps the spire keys and trusts almost nobody.",
+        "Gantry Yard has spare cable and a climbing harness."
+      ],
+      "secrets": [
+        "She sold a master pass for the mast door to a stranger for credits."
+      ],
+      "home": "sky_cafe",
+      "work": "street",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "sky_cafe",
+          "activity": "eat"
+        },
+        {
+          "hour": 9,
+          "place": "street",
+          "activity": "work"
+        },
+        {
+          "hour": 19,
+          "place": "sky_cafe",
+          "activity": "drink"
+        },
+        {
+          "hour": 23,
+          "place": "sky_cafe",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "teg",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "rogue",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0.3,
+          "talk_to": 0.2,
+          "idle": -0.4,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.2,
+        "rate": 1.25
+      },
+      "mood": "cheerful"
+    },
+    {
+      "id": "teg",
+      "name": "Teg Morrow",
+      "role": "crane operator",
+      "persona": "Slow-spoken and steady, Teg trusts steel more than people. He wants the upper towers lit again because his daughter lives on a high stratum.",
+      "knowledge": [
+        "Gantry Yard holds a climbing harness rated for the mast.",
+        "Rain makes the mast rungs slick, so go slowly.",
+        "Mira Halden has not come down from the Signal Mast in days."
+      ],
+      "secrets": [
+        "He lent the yard's only spare relay coil to Bram for a debt."
+      ],
+      "home": "gantry_yard",
+      "work": "gantry_yard",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "gantry_yard",
+          "activity": "work"
+        },
+        {
+          "hour": 13,
+          "place": "plaza",
+          "activity": "eat"
+        },
+        {
+          "hour": 14,
+          "place": "gantry_yard",
+          "activity": "work"
+        },
+        {
+          "hour": 21,
+          "place": "gantry_yard",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "bram",
+          "stance": "debtor"
+        }
+      ],
+      "appearance": {
+        "base": "barbarian",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0.3,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": -0.3,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.5
+        }
+      },
+      "voice": {
+        "pitch": 0.7,
+        "rate": 0.8
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "sele",
+      "name": "Sele Ardent",
+      "role": "tower warden",
+      "persona": "Stern and precise, Sele guards Vantage Spire like a vow. She fears the dark upper floors more than she admits.",
+      "knowledge": [
+        "The beacon needs a new relay coil and a hand on the mast switch.",
+        "Only a runner outside the tower guilds can be trusted with the climb.",
+        "Without the beacon, drift traffic cannot find the upper landings."
+      ],
+      "secrets": [
+        "She suspects the beacon was sabotaged from inside her own tower."
+      ],
+      "home": "needle_one",
+      "work": "needle_one",
+      "schedule": [
+        {
+          "hour": 0,
+          "place": "needle_one",
+          "activity": "sleep"
+        },
+        {
+          "hour": 7,
+          "place": "needle_one",
+          "activity": "guard"
+        },
+        {
+          "hour": 15,
+          "place": "needle_one",
+          "activity": "patrol"
+        },
+        {
+          "hour": 22,
+          "place": "needle_one",
+          "activity": "rest"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "mira",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "knight",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0.4,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": -0.3,
+          "flee": 0,
+          "investigate": 0.4,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.9,
+        "rate": 0.9
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "bram",
+      "name": "Bram Quill",
+      "role": "kiosk trader",
+      "persona": "Loud and jolly, Bram haggles over everything and gossips over the rest. He loves credits and fears being owed nothing.",
+      "knowledge": [
+        "Drift Market sells relay parts when the shipments get through.",
+        "The blackout drives up the price of lumen cells.",
+        "Oria has been flush with credits lately."
+      ],
+      "secrets": [
+        "He holds the relay coil Teg lent him and is selling it dear."
+      ],
+      "home": "market_plaza",
+      "work": "market_plaza",
+      "schedule": [
+        {
+          "hour": 7,
+          "place": "market_plaza",
+          "activity": "trade"
+        },
+        {
+          "hour": 14,
+          "place": "plaza",
+          "activity": "wander"
+        },
+        {
+          "hour": 17,
+          "place": "market_plaza",
+          "activity": "trade"
+        },
+        {
+          "hour": 22,
+          "place": "market_plaza",
+          "activity": "drink"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "teg",
+          "stance": "rival"
+        }
+      ],
+      "appearance": {
+        "base": "rogue_hooded",
+        "palette": 3
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.5,
+          "idle": 0.2,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.2
+        }
+      },
+      "voice": {
+        "pitch": 1.1,
+        "rate": 1.2
+      },
+      "mood": "cheerful"
+    },
+    {
+      "id": "mira",
+      "name": "Mira Halden",
+      "role": "signal engineer",
+      "persona": "Brilliant and haunted, Mira speaks in clipped technical bursts. She wants her failed work forgiven before the lights return.",
+      "knowledge": [
+        "The mast switch sits at the top rung, behind a sealed panel.",
+        "The beacon failed when its relay coil burned out.",
+        "A fresh coil and a steady hand will bring it back."
+      ],
+      "secrets": [
+        "She rerouted beacon power to her own lab and caused the failure."
+      ],
+      "home": "signal_mast",
+      "work": "signal_mast",
+      "schedule": [
+        {
+          "hour": 0,
+          "place": "signal_mast",
+          "activity": "sleep"
+        },
+        {
+          "hour": 8,
+          "place": "signal_mast",
+          "activity": "work"
+        },
+        {
+          "hour": 18,
+          "place": "signal_mast",
+          "activity": "guard"
+        },
+        {
+          "hour": 23,
+          "place": "signal_mast",
+          "activity": "rest"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "sele",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 1,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": 0.2,
+          "investigate": 0.2,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 1.3,
+        "rate": 1.1
+      },
+      "mood": "afraid"
+    }
+  ],
+  "items": [
+    {
+      "id": "relay_coil",
+      "name": "Relay Coil",
+      "description": "A heavy copper coil that regulates the beacon's power.",
+      "holder": "bram"
+    },
+    {
+      "id": "climb_harness",
+      "name": "Climbing Harness",
+      "description": "A rain-rated harness with magnetic clips for the mast.",
+      "holder": "gantry_yard"
+    },
+    {
+      "id": "mast_key",
+      "name": "Mast Key",
+      "description": "A glass-toothed key for the sealed mast panel.",
+      "holder": "sele"
+    }
+  ],
+  "quest": {
+    "id": "restore_the_light",
+    "title": "The Dark Beacon of Vantage Spire",
+    "hook": "Three nights ago the beacon on Vantage Spire died, and the upper needles have drifted blind in the rain. Sele Ardent needs a runner willing to climb the Signal Mast and wake the light before a freighter hits a tower.",
+    "giver": "sele",
+    "steps": [
+      {
+        "id": "s1_brief",
+        "kind": "talk",
+        "target": "sele",
+        "requires": [],
+        "objective": "Speak to Sele Ardent at Vantage Spire.",
+        "beat": "Sele explains the beacon failure and hands over the mast key."
+      },
+      {
+        "id": "s2_harness",
+        "kind": "fetch",
+        "target": "climb_harness",
+        "requires": [
+          "s1_brief"
+        ],
+        "objective": "Collect the climbing harness at Gantry Yard.",
+        "beat": "Teg hands over the harness and warns about the slick rungs.",
+        "item": "climb_harness",
+        "reveals": [
+          "teg:0"
+        ]
+      },
+      {
+        "id": "s3_coil",
+        "kind": "fetch",
+        "target": "relay_coil",
+        "requires": [
+          "s1_brief"
+        ],
+        "objective": "Get a relay coil from Bram at Drift Market.",
+        "beat": "Bram parts with the coil after some hard haggling.",
+        "item": "relay_coil",
+        "reveals": [
+          "bram:0"
+        ]
+      },
+      {
+        "id": "s4_mast",
+        "kind": "visit",
+        "target": "signal_mast",
+        "requires": [
+          "s2_harness",
+          "s3_coil"
+        ],
+        "objective": "Reach the foot of the Signal Mast.",
+        "beat": "Mira watches you from the base, pale and silent."
+      },
+      {
+        "id": "s5_choice",
+        "kind": "choose",
+        "target": "mira",
+        "requires": [
+          "s4_mast"
+        ],
+        "objective": "Decide what to do about Mira's secret.",
+        "beat": "Mira confesses she rerouted the beacon power; you choose her fate.",
+        "choices": [
+          {
+            "label": "Shield Mira and keep her secret",
+            "unlocks": [
+              "s6_quiet"
+            ]
+          },
+          {
+            "label": "Expose Mira to Sele",
+            "unlocks": [
+              "s6_expose"
+            ]
+          }
+        ],
+        "reveals": [
+          "mira:0"
+        ]
+      },
+      {
+        "id": "s6_quiet",
+        "kind": "deliver",
+        "target": "mira",
+        "requires": [
+          "s5_choice"
+        ],
+        "objective": "Install the coil with Mira and relight the beacon.",
+        "beat": "The beacon blazes red and the upper towers glow again.",
+        "item": "relay_coil"
+      },
+      {
+        "id": "s6_expose",
+        "kind": "confront",
+        "target": "sele",
+        "requires": [
+          "s5_choice"
+        ],
+        "objective": "Tell Sele the truth about Mira.",
+        "beat": "Sele arrests Mira and relights the beacon herself.",
+        "reveals": [
+          "sele:0"
+        ]
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s6_quiet",
+        "label": "The light returns and Mira keeps her place.",
+        "tone": "good"
+      },
+      {
+        "stepId": "s6_expose",
+        "label": "The light returns, but Mira is taken away.",
+        "tone": "bitter"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r_curfew",
+      "text": "After midnight the streets are closed to all but wardens and couriers.",
+      "effect": {
+        "type": "curfew",
+        "fromHour": 0,
+        "toHour": 5,
+        "exemptRoles": [
+          "tower warden",
+          "cable courier"
+        ]
+      },
+      "source": "world"
+    },
+    {
+      "id": "r_price",
+      "text": "The blackout has made lumen cells cost double at Drift Market.",
+      "effect": {
+        "type": "price",
+        "item": "relay_coil",
+        "multiplier": 2
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "needle",
+    "spire",
+    "drift",
+    "lumen",
+    "credit",
+    "stratum"
+  ],
+  "style": {
+    "name": "Rain-Slick Glass Reach",
+    "wall": "#2c3f55",
+    "wall2": "#5b6f85",
+    "roof": "#1b2533",
+    "trim": "#8da2b8",
+    "accent": "#ff2f8f",
+    "dark": "#06080f",
+    "glass": "#16293f",
+    "glow": "#35e6ff",
+    "ground": "#20262f",
+    "road": "#12151b",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "glass_curtain",
+      "wall2": "metal_panel",
+      "roof": "metal_panel",
+      "trim": "metal_panel",
+      "ground": "concrete",
+      "road": "asphalt",
+      "wear": 0.15,
+      "wet": 0.8
+    }
+  },
+  "site": {
+    "pattern": "grid",
+    "wild": 0.05,
+    "paths": "road",
+    "spacing": 3
+  },
+  "mood": {
+    "weather": "rain",
+    "intensity": 0.6,
+    "grade": "neon_noir",
+    "haze": 0.6,
+    "ambience": [
+      "rain",
+      "machinery",
+      "wind"
+    ],
+    "music": "cold synth drone"
+  },
+  "blueprints": [
+    {
+      "id": "glass_needle",
+      "summary": "slender lit glass office needle with cyan crown",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 3,
+          "w": 0.7,
+          "d": 0.03,
+          "h": 18,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 1,
+          "w": 0.3,
+          "d": 0.04,
+          "h": 2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 24,
+          "w": 0.04,
+          "d": 0.04,
+          "h": 5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 29,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.5,
+          "z": 0,
+          "y": 6,
+          "w": 0.03,
+          "d": 0.4,
+          "h": 14,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 24,
+        "section": "square",
+        "taper": 0.55,
+        "bands": 5,
+        "top": "needle",
+        "flare": 0.15
+      }
+    },
+    {
+      "id": "vein_needle",
+      "summary": "thin tapering apartment needle with blue glowing veins",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 2,
+          "w": 0.05,
+          "d": 0.03,
+          "h": 14,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 5,
+          "gap": 0.15
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0.5,
+          "w": 0.35,
+          "d": 0.03,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.3,
+          "z": 0.3,
+          "y": 0.2,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "spire",
+      "dials": {
+        "count": 3,
+        "height": 22,
+        "lean": 0.12,
+        "sharpness": 0.9,
+        "variance": 0.5
+      }
+    },
+    {
+      "id": "gantry_crane",
+      "summary": "open steel gantry crane over a freight dock",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0.1,
+          "z": 0,
+          "y": 10,
+          "w": 1.3,
+          "d": 0.12,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.45,
+          "z": 0,
+          "y": 9,
+          "w": 0.04,
+          "d": 0.04,
+          "h": 2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.2,
+          "z": 0.5,
+          "y": 3,
+          "w": 0.5,
+          "d": 0.04,
+          "h": 2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": -0.45,
+          "z": 0,
+          "y": 10.8,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.3,
+          "y": 0.2,
+          "w": 0.8,
+          "d": 0.3,
+          "h": 1.5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "stilts",
+      "dials": {
+        "legHeight": 8,
+        "legs": 4,
+        "hut": 0.45,
+        "access": "ladder"
+      }
+    },
+    {
+      "id": "beacon_mast",
+      "summary": "lattice signal mast crowned with a red beacon",
+      "parts": [
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 20,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 4,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 24,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 2,
+          "w": 0.1,
+          "d": 0.03,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.12
+        },
+        {
+          "shape": "box",
+          "x": 0.15,
+          "z": 0,
+          "y": 16,
+          "w": 0.5,
+          "d": 0.04,
+          "h": 0.08,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 20,
+        "section": "hex",
+        "taper": 0.8,
+        "bands": 4,
+        "top": "lantern",
+        "flare": 0.25
+      }
+    },
+    {
+      "id": "stratum_pavilion",
+      "summary": "low glass pavilion with neon canopy on a tower base",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 2.5,
+          "w": 0.9,
+          "d": 0.03,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0.2,
+          "w": 0.4,
+          "d": 0.03,
+          "h": 2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.3,
+          "y": 6,
+          "w": 0.2,
+          "d": 0.2,
+          "h": 0.15,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.35,
+          "z": -0.3,
+          "y": 6,
+          "w": 0.04,
+          "d": 0.04,
+          "h": 3,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "flat",
+        "overhang": 0.25,
+        "front": "awning",
+        "rhythm": 6,
+        "taper": 0.25
+      }
+    },
+    {
+      "id": "drone_hangar",
+      "summary": "open-sided hangar with hovering drone pads",
+      "parts": [
+        {
+          "shape": "ring",
+          "x": -0.25,
+          "z": 0,
+          "y": 3.5,
+          "w": 0.3,
+          "d": 0.3,
+          "h": 0.1,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "ring",
+          "x": 0.25,
+          "z": 0,
+          "y": 4.2,
+          "w": 0.3,
+          "d": 0.3,
+          "h": 0.1,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": -0.5,
+          "y": 0,
+          "w": 1,
+          "d": 0.05,
+          "h": 3,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 3,
+          "w": 0.8,
+          "d": 0.03,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "canopy",
+      "dials": {
+        "posts": 6,
+        "roof": "shed",
+        "counter": 0.2
+      }
+    },
+    {
+      "id": "drift_kiosks",
+      "summary": "ring of neon-lit kiosks and canopies",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 2.2,
+          "w": 0.8,
+          "d": 0.03,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": -0.4,
+          "z": 0.4,
+          "y": 3,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 3,
+          "gap": 0.4
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.3,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.1,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "canopy",
+      "dials": {
+        "posts": 8,
+        "roof": "dome",
+        "counter": 0.9
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "neon_lamp_post",
+      "size": 3,
+      "parts": [
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 2.6,
+          "w": 0.4,
+          "d": 0.4,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 4,
+      "family": "pole",
+      "dials": {
+        "head": "lamp",
+        "height": 2.6,
+        "arms": 2
+      }
+    },
+    {
+      "kind": "holo_sign",
+      "size": 2.4,
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 1.5,
+          "w": 0.8,
+          "d": 0.05,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 3,
+      "family": "pole",
+      "dials": {
+        "head": "signs",
+        "height": 2,
+        "arms": 2
+      }
+    },
+    {
+      "kind": "relay_antenna",
+      "size": 5.5,
+      "parts": [
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 5,
+          "w": 0.2,
+          "d": 0.2,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 1,
+      "family": "pole",
+      "dials": {
+        "head": "antenna",
+        "height": 3.5,
+        "arms": 3
+      }
+    },
+    {
+      "kind": "cargo_crate",
+      "size": 1.2,
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0.3,
+          "w": 0.6,
+          "d": 0.02,
+          "h": 0.1,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 3,
+      "family": "container",
+      "dials": {
+        "form": "crate",
+        "count": 3,
+        "height": 0.7
+      }
+    },
+    {
+      "kind": "rain_barrel",
+      "size": 1,
+      "parts": [],
+      "weight": 2,
+      "family": "container",
+      "dials": {
+        "form": "tank",
+        "count": 2,
+        "height": 0.9
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "vantage_beacon",
+      "prompt": "tall slender glass spire crowned with a dark failed signal beacon lamp, blue-grey mirrored panels, faint cyan seams, low-poly stylised",
+      "place": "needle_one",
+      "height": 14
+    },
+    {
+      "id": "drift_obelisk",
+      "prompt": "glowing cyan holographic obelisk on a stepped metal plinth, rain-slick dark steel, magenta edge lights, low-poly stylised",
+      "place": "plaza",
+      "height": 6
+    }
+  ]
+}

@@ -5,8 +5,9 @@ import { repairBlueprint } from './blueprints';
 import { hash32 } from './rng';
 import { buildSkeleton } from './skeletons';
 import type {
-  Blueprint, BlueprintPart, BuildingRole, BuildingSpec, LandmarkSpec, NpcActionId, NpcSpec, PartShape, PartTone,
-  PropBlueprint, QuestStep, RuleEffect, RuleSpec, ScheduleEntry, SitePattern, SiteSpec, StyleSpec, WorldSpec,
+  Blueprint, BlueprintPart, BuildingRole, BuildingSpec, GradeKind, LandmarkSpec, MoodSpec, NpcActionId, NpcSpec, PartShape,
+  PartTone, PropBlueprint, QuestStep, RuleEffect, RuleSpec, ScheduleEntry, SitePattern, SiteSpec, StyleSpec, SurfaceKind,
+  SurfaceSet, WeatherKind, WorldSpec,
 } from './spec';
 
 export const NPC_ACTION_IDS: readonly NpcActionId[] = [
@@ -127,6 +128,32 @@ const SiteS = z.object({
   paths: z.enum(SITE_PATHS as [SiteSpec['paths'], ...SiteSpec['paths'][]]),
   spacing: z.number(),
 });
+export const SURFACE_KINDS: readonly SurfaceKind[] = [
+  'timber', 'planks', 'log', 'plaster', 'adobe', 'brick', 'stone', 'cobble', 'concrete',
+  'metal_panel', 'corrugated', 'rusted', 'hull_plate', 'glass_curtain',
+  'shingle', 'tile', 'thatch', 'slate', 'canvas', 'paper_screen',
+  'organic', 'bark', 'chitin', 'crystal', 'ice', 'coral',
+  'dirt', 'sand', 'grass', 'moss', 'snow', 'mud', 'asphalt', 'gravel', 'regolith', 'ash',
+];
+export const WEATHER_KINDS: readonly WeatherKind[] = [
+  'clear', 'rain', 'storm', 'snow', 'fog', 'dust', 'ash', 'spores', 'embers', 'fireflies', 'mist',
+];
+export const GRADE_KINDS: readonly GradeKind[] = [
+  'neutral', 'golden', 'teal_orange', 'cold_steel', 'sepia', 'neon_noir', 'verdant', 'bleached', 'crimson', 'moonlit',
+];
+const SurfaceS = z.enum(SURFACE_KINDS as [SurfaceKind, ...SurfaceKind[]]);
+const SurfacesS = z.object({
+  wall: SurfaceS, wall2: SurfaceS, roof: SurfaceS, trim: SurfaceS, ground: SurfaceS, road: SurfaceS,
+  wear: z.number(), wet: z.number(),
+});
+const MoodSpecS = z.object({
+  weather: z.enum(WEATHER_KINDS as [WeatherKind, ...WeatherKind[]]),
+  intensity: z.number(),
+  grade: z.enum(GRADE_KINDS as [GradeKind, ...GradeKind[]]),
+  haze: z.number(),
+  ambience: z.array(z.string()),
+  music: z.string(),
+});
 const StyleS = z.object({
   name: z.string(),
   wall: z.string(),
@@ -140,6 +167,7 @@ const StyleS = z.object({
   ground: z.string(),
   road: z.string(),
   variety: z.number(),
+  surfaces: SurfacesS.optional(),
 });
 const LandmarkS = z.object({ id: z.string(), prompt: z.string(), place: z.string(), height: z.number() });
 
@@ -161,6 +189,7 @@ export const WorldSpecSchema: z.ZodType<WorldSpec> = z.object({
   lexicon: z.array(z.string()),
   style: StyleS.optional(),
   site: SiteS.optional(),
+  mood: MoodSpecS.optional(),
   blueprints: z.array(BlueprintS).optional(),
   props: z.array(PropS).optional(),
   landmarks: z.array(LandmarkS).optional(),
@@ -172,20 +201,92 @@ function formatPath(path: readonly PropertyKey[]): string {
   return out || '(root)';
 }
 
-/** An unknown site pattern or path style is a slip in one field, not a reason to reject the whole world. */
-function lenientSite(raw: unknown): unknown {
-  if (typeof raw !== 'object' || raw === null) return raw;
-  const r = raw as Record<string, unknown>;
-  const s = r.site;
-  if (typeof s !== 'object' || s === null) return raw;
-  const site = s as Record<string, unknown>;
-  const pattern = SITE_PATTERNS.includes(site.pattern as SitePattern) ? site.pattern : 'street';
-  const paths = SITE_PATHS.includes(site.paths as SiteSpec['paths']) ? site.paths : 'road';
-  return { ...r, site: { ...site, pattern, paths } };
+// ---------------------------------------------------------------------------------------------
+// Surfaces and mood: read leniently, so a slip in one field never rejects or flattens a world
+// ---------------------------------------------------------------------------------------------
+
+const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
+const unit = (v: unknown, fallback: number): number => {
+  const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' ? Number(v) : NaN;
+  return Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : fallback;
+};
+const enumWord = (v: unknown): string => (typeof v === 'string' ? v.trim().toLowerCase().replace(/[\s-]+/g, '_') : '');
+
+/** The set used for any field a spec leaves out or misspells. */
+export const NEUTRAL_SURFACES: SurfaceSet = {
+  wall: 'plaster', wall2: 'timber', roof: 'shingle', trim: 'timber', ground: 'dirt', road: 'gravel', wear: 0.4, wet: 0,
+};
+
+/** Any value into a full SurfaceSet: unknown kinds take the fallback's field, wear and wet are clamped to 0..1. */
+export function coerceSurfaces(raw: unknown, fallback: SurfaceSet = NEUTRAL_SURFACES): SurfaceSet {
+  const r = isObj(raw) ? raw : {};
+  const kind = (v: unknown, d: SurfaceKind): SurfaceKind => SURFACE_KINDS.find((k) => k === enumWord(v)) ?? d;
+  return {
+    wall: kind(r.wall, fallback.wall),
+    wall2: kind(r.wall2, fallback.wall2),
+    roof: kind(r.roof, fallback.roof),
+    trim: kind(r.trim, fallback.trim),
+    ground: kind(r.ground, fallback.ground),
+    road: kind(r.road, fallback.road),
+    wear: unit(r.wear, fallback.wear),
+    wet: unit(r.wet, fallback.wet),
+  };
+}
+
+const AMBIENCE_CAP = 6;
+const AMBIENCE_WORD_LEN = 24;
+const MUSIC_LEN = 40;
+
+function ambienceWord(v: unknown): string {
+  if (typeof v !== 'string') return '';
+  return v.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, AMBIENCE_WORD_LEN).replace(/_+$/g, '');
+}
+
+/** Any value into a full MoodSpec: weather and grade fall back to clear and neutral, numbers are clamped, words tidied. */
+export function coerceMood(raw: unknown): MoodSpec {
+  const r = isObj(raw) ? raw : {};
+  const weather = WEATHER_KINDS.find((k) => k === enumWord(r.weather)) ?? 'clear';
+  const ambience: string[] = [];
+  for (const v of Array.isArray(r.ambience) ? r.ambience : []) {
+    const w = ambienceWord(v);
+    if (w && !ambience.includes(w) && ambience.length < AMBIENCE_CAP) ambience.push(w);
+  }
+  return {
+    weather,
+    intensity: unit(r.intensity, weather === 'clear' ? 0 : 0.5),
+    grade: GRADE_KINDS.find((k) => k === enumWord(r.grade)) ?? 'neutral',
+    haze: unit(r.haze, 0.3),
+    ambience,
+    music: typeof r.music === 'string' ? r.music.replace(/\s+/g, ' ').trim().slice(0, MUSIC_LEN).trim() : '',
+  };
+}
+
+/**
+ * An unknown site pattern, surface kind, weather or grade is a slip in one field, not a reason to reject
+ * the whole world. Surfaces and mood that are not objects at all are dropped, and the engine infers them.
+ */
+function lenient(raw: unknown): unknown {
+  if (!isObj(raw)) return raw;
+  const out: Record<string, unknown> = { ...raw };
+  if (isObj(raw.site)) {
+    const site = raw.site;
+    const pattern = SITE_PATTERNS.includes(site.pattern as SitePattern) ? site.pattern : 'street';
+    const paths = SITE_PATHS.includes(site.paths as SiteSpec['paths']) ? site.paths : 'road';
+    out.site = { ...site, pattern, paths };
+  }
+  if (raw.mood !== undefined) {
+    if (isObj(raw.mood)) out.mood = coerceMood(raw.mood);
+    else delete out.mood;
+  }
+  if (isObj(raw.style) && raw.style.surfaces !== undefined) {
+    const { surfaces, ...style } = raw.style;
+    out.style = isObj(surfaces) ? { ...style, surfaces: coerceSurfaces(surfaces) } : style;
+  }
+  return out;
 }
 
 export function validateSpec(raw: unknown): { ok: true; value: WorldSpec } | { ok: false; error: string } {
-  const r = WorldSpecSchema.safeParse(lenientSite(raw));
+  const r = WorldSpecSchema.safeParse(lenient(raw));
   if (r.success) return { ok: true, value: r.data };
   const first = r.error.issues[0];
   const more = r.error.issues.length > 1 ? ` (+${r.error.issues.length - 1} more)` : '';
@@ -245,7 +346,8 @@ export function worldSpecJsonSchema(): object {
     o.required = [...new Set([...(o.required ?? []), ...keys])];
   };
   const props = cleaned.properties as Record<string, unknown>;
-  require(cleaned, ['style', 'site', 'blueprints', 'props', 'landmarks']);
+  require(cleaned, ['style', 'site', 'mood', 'blueprints', 'props', 'landmarks']);
+  require(props.style, ['surfaces']);
   require((props.buildings as { items: unknown }).items, ['blueprint']);
   // Every blueprint and prop names a skeleton family and its dials; an empty family string means none.
   require((props.blueprints as { items: unknown }).items, ['family', 'dials']);
@@ -422,6 +524,7 @@ function fixStyle(s: StyleSpec): StyleSpec {
   for (const k of ['wall', 'wall2', 'roof', 'trim', 'accent', 'dark', 'glass', 'glow', 'ground', 'road'] as const) {
     out[k] = hexOr(s[k], NEUTRAL_STYLE[k]);
   }
+  if (s.surfaces) out.surfaces = coerceSurfaces(s.surfaces);
   return out;
 }
 
@@ -665,9 +768,10 @@ export function normalizeSpec(input: WorldSpec): WorldSpec {
     if (effect) rules.push({ ...r, id: rMap.ids[i] as string, effect });
   });
 
-  const arch: Partial<Pick<WorldSpec, 'style' | 'site' | 'blueprints' | 'props' | 'landmarks'>> = {};
+  const arch: Partial<Pick<WorldSpec, 'style' | 'site' | 'mood' | 'blueprints' | 'props' | 'landmarks'>> = {};
   if (spec.style) arch.style = fixStyle(spec.style);
   if (spec.site) arch.site = fixSite(spec.site);
+  if (spec.mood) arch.mood = coerceMood(spec.mood);
   if (bps) arch.blueprints = bps;
   if (spec.props) arch.props = fixProps(spec.props, seed);
   if (spec.landmarks) arch.landmarks = fixLandmarks(spec.landmarks, bMap);

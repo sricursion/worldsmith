@@ -9,15 +9,28 @@ import {
 import { mockLook, mockOutline, mockStory } from '../../worker/src/lib/mockcast';
 import { BASE } from '../../worker/src/lib/mockstyle';
 import { nearestTheme } from '../../worker/src/lib/shared';
-import { validateSpec } from '../../app/src/world/schema';
+import { GRADE_KINDS, SURFACE_KINDS, WEATHER_KINDS, validateSpec } from '../../app/src/world/schema';
 import { verifyQuest } from '../../app/src/world/verify';
 
 describe('prompts', () => {
   it('outline prompt stays small and asks for the structural idea, not a town of houses', () => {
     const s = outlineSystemPrompt();
-    expect(s.length).toBeLessThan(6000);
+    expect(s.length).toBeLessThan(7000);
     for (const w of ['key', 'site', 'scatter', 'wild', 'quest', 'lexicon', 'form']) expect(s).toContain(w);
     expect(outlineSystemPrompt()).toBe(s);
+  });
+
+  it('outline prompt asks for the air: every weather and grade, ambience, music and a dramatic hour', () => {
+    const s = outlineSystemPrompt();
+    for (const w of [...WEATHER_KINDS, ...GRADE_KINDS, 'ambience', 'music', 'haze', 'startHour', 'dusk']) expect(s).toContain(w);
+  });
+
+  it('look prompt teaches every surface kind, wear and wet, glow as light, and set pieces', () => {
+    const s = lookSystemPrompt();
+    for (const k of SURFACE_KINDS) expect(s).toContain(`- ${k}:`);
+    for (const w of ['surfaces', 'wear', 'wet', 'bloom', 'crane', 'container port', 'Edo', 'mushroom grove']) expect(s).toContain(w);
+    const o = mockOutline('a rain-soaked container port at dawn', 3);
+    expect(lookUserMessage('x', 1, o)).toContain('Air: weather rain');
   });
 
   it('look prompt carries the skeleton principle, the catalogue and the part vocabulary', () => {
@@ -134,6 +147,48 @@ describe('coercion and merge', () => {
     expect(spec.site?.pattern).toBe('scatter');
   });
 
+  it('keeps the outline mood and hour, and makes sky and fog agree with them', () => {
+    const mood = { weather: 'rain', intensity: 0.8, grade: 'teal_orange', haze: 0.6, ambience: ['Rain', 'harbor'], music: 'slow noir piano' };
+    const o = coerceOutline({ ...rawOutline, mood, time: { startHour: 13 }, palette: { sky: 'day', fog: 0.05 } }, 'western', prompt);
+    expect(o?.mood).toEqual({ ...mood, ambience: ['rain', 'harbor'] });
+    expect(o?.time.startHour).toBe(13);
+    expect(o?.palette.sky).toBe('overcast');
+    expect(o?.palette.fog ?? 0).toBeGreaterThanOrEqual(0.25);
+
+    const night = coerceOutline({ ...rawOutline, mood: { ...mood, weather: 'snow' }, time: { startHour: 22 }, palette: { sky: 'day', fog: 0.3 } }, 'western', prompt);
+    expect(night?.palette.sky).toBe('night');
+
+    // No mood and no hour from the model: both are read from the prompt.
+    const bare = coerceOutline({ ...rawOutline, palette: {} }, 'medieval', 'a snowbound mountain monastery at night');
+    expect(bare?.mood.weather).toBe('snow');
+    expect(bare?.palette.sky).toBe('night');
+    expect(bare?.time.startHour).toBe(22);
+    expect(coerceOutline({ ...rawOutline, mood: { weather: 'hail', grade: 'pink' } }, 'western')?.mood).toMatchObject({ weather: 'clear', grade: 'neutral' });
+  });
+
+  it('carries surfaces on the look: the model kinds, a prompt-read set for the rest, never dry under rain', () => {
+    const o = coerceOutline({ ...rawOutline, mood: { weather: 'storm', intensity: 0.9, grade: 'cold_steel', haze: 0.5, ambience: [], music: '' } }, 'western', prompt);
+    if (!o) throw new Error('outline');
+    const withSurfaces = { ...rawLook, style: { ...rawLook.style, surfaces: { wall: 'organic', wall2: 'bark', roof: 'organic', trim: 'nonsense', ground: 'moss', road: 'dirt', wear: 0.3, wet: 0 } } };
+    const s = coerceLook(withSurfaces, o, BASE.western, prompt)?.style.surfaces;
+    expect(s).toMatchObject({ wall: 'organic', wall2: 'bark', roof: 'organic', trim: 'bark', ground: 'moss', road: 'dirt', wear: 0.3 });
+    expect(s?.wet ?? 0).toBeGreaterThanOrEqual(0.4);
+    // The model wrote no surfaces at all: the look still has a full set that fits the prompt.
+    expect(coerceLook(rawLook, o, BASE.western, prompt)?.style.surfaces).toMatchObject({ wall: 'organic', ground: 'moss' });
+  });
+
+  it('merged specs carry mood, surfaces and the outline hour', () => {
+    const p = 'a rain-soaked container port at dawn, cranes overhead, sodium lights';
+    const o = mockOutline(p, 5);
+    const spec = mergeSpec(p, 5, o, mockLook(p, 5, o.theme, o), mockStory(o.theme, o));
+    expect(validateSpec(spec).ok).toBe(true);
+    expect(spec.mood).toEqual(o.mood);
+    expect(spec.mood?.weather).toBe('rain');
+    expect(spec.style?.surfaces).toMatchObject({ wall: 'corrugated', road: 'asphalt' });
+    expect(spec.time.startHour).toBe(o.time.startHour);
+    expect(spec.palette.sky).toBe(o.palette.sky);
+  });
+
   it('rejects a story with too few people or steps', () => {
     const o = mockOutline(prompt, 5);
     expect(coerceStory({ npcs: [], quest: { steps: [] } }, o)).toBeNull();
@@ -171,6 +226,13 @@ describe('POST /api/compile in mock mode', () => {
     const events = [...text.matchAll(/^event: (.*)$/gm)].map((m) => m[1]);
     const order = events.filter((e) => e === 'outline' || e === 'look' || e === 'spec');
     expect(order).toEqual(['outline', 'look', 'spec']);
+    // The outline event already carries the air, so the client can set sky and sound before the look arrives.
+    const outline = JSON.parse(/event: outline\ndata: (.*)\n/.exec(text)?.[1] ?? 'null') as { mood?: { weather?: string; ambience?: string[] }; time?: { startHour?: number } } | null;
+    expect(outline?.mood?.weather).toBe('dust');
+    expect(outline?.mood?.ambience?.length ?? 0).toBeGreaterThan(0);
+    expect(typeof outline?.time?.startHour).toBe('number');
+    const look = JSON.parse(/event: look\ndata: (.*)\n/.exec(text)?.[1] ?? 'null') as { style?: { surfaces?: { wall?: string; ground?: string } } } | null;
+    expect(look?.style?.surfaces?.ground).toBe('sand');
     const specFrame = /event: spec\ndata: (.*)\n/.exec(text)?.[1];
     const spec: unknown = JSON.parse(specFrame ?? 'null');
     const v = validateSpec(spec);
@@ -179,6 +241,9 @@ describe('POST /api/compile in mock mode', () => {
       expect(v.value.seed).toBe(77);
       expect(v.value.prompt).toBe('a desert caravan camp');
       expect(v.value.site?.pattern).toBe('scatter');
+      expect(v.value.mood?.weather).toBe('dust');
+      expect(v.value.style?.surfaces?.wall).toBe('canvas');
+      expect(v.value.time.startHour).toBe(outline?.time?.startHour);
       expect(verifyQuest(v.value).winnable).toBe(true);
     }
   }, 15000);

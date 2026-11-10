@@ -4,8 +4,8 @@
 //   story    people, items, quest, rules, written against the outline's ids (parallel with look)
 // SSE events:  partial {text}   raw text deltas of whichever stage is writing
 //              ping {}          keepalive, at least every few seconds
-//              outline {...}    the coerced outline
-//              look {...}       style, site, blueprints, props, landmarks, buildings (with blueprint ids)
+//              outline {...}    the coerced outline, with mood (weather, grade, haze, ambience, music) and time.startHour
+//              look {...}       style (with surfaces), site, blueprints, props, landmarks, buildings (with blueprint ids)
 //              spec {...}       the merged WorldSpec
 //              error {error, reason?}
 import { anthropicEvents, anthropicFetch, HAIKU, SONNET, type MessagesBody } from '../lib/anthropic';
@@ -115,7 +115,7 @@ async function runOutline(run: Run, prompt: string, seed: number): Promise<{ ok:
   let last: FailReason = 'upstream';
   for (let attempt = 0; attempt < 2; attempt++) {
     const r = await streamStage(run, {
-      model: HAIKU, max_tokens: 1200, thinking: { type: 'disabled' }, system: cached(outlineSystemPrompt()),
+      model: HAIKU, max_tokens: 1400, thinking: { type: 'disabled' }, system: cached(outlineSystemPrompt()),
       messages: [{ role: 'user', content: outlineUserMessage(prompt, seed) }],
     }, OUTLINE_MS);
     if (!r.ok) {
@@ -123,7 +123,7 @@ async function runOutline(run: Run, prompt: string, seed: number): Promise<{ ok:
       if (r.reason === 'refusal') break;
       continue;
     }
-    const outline = coerceOutline(parseLooseJson(r.text), fallbackTheme);
+    const outline = coerceOutline(parseLooseJson(r.text), fallbackTheme, prompt);
     if (outline) return { ok: true, outline };
     console.warn('compile outline unreadable', r.stop, r.text.length);
   }
@@ -138,7 +138,7 @@ async function runLook(run: Run, prompt: string, seed: number, outline: Outline)
   }, LOOK_MS);
   if (!r.ok) return fallback();
   const base = FIXTURES[outline.theme].style ?? BASE[outline.theme];
-  const look = coerceLook(parseLooseJson(r.text), outline, base);
+  const look = coerceLook(parseLooseJson(r.text), outline, base, prompt);
   if (!look) {
     console.warn('compile look unreadable', r.stop, r.text.length);
     return fallback();
@@ -200,7 +200,7 @@ async function runMock(sse: SseWriter, prompt: string, seed: number): Promise<vo
   await sleep(MOCK_GAP_MS);
   const story = mockStory(theme, outline);
   const spec = mergeSpec(prompt, seed, outline, look, story);
-  await sse.send('spec', { ...spec, time: FIXTURES[theme].time });
+  await sse.send('spec', { ...spec, time: { ...FIXTURES[theme].time, startHour: outline.time.startHour } });
 }
 
 export async function handleCompile(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {

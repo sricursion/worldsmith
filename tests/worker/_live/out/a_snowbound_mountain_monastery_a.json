@@ -1,0 +1,1306 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "a snowbound mountain monastery at night",
+  "title": "Frostbell Monastery",
+  "tagline": "Silent halls, a bell that rang once",
+  "theme": "medieval",
+  "era": "Ancient mountain age",
+  "palette": {
+    "ground": "#d3dde8",
+    "accent": "#b5483a",
+    "sky": "night",
+    "fog": 0.3
+  },
+  "time": {
+    "startHour": 21.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "main_hall",
+      "role": "church",
+      "label": "Hall of the Quiet Bell",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "quiet_hall"
+    },
+    {
+      "id": "bell_tower",
+      "role": "townhall",
+      "label": "Bell Tower",
+      "size": "medium",
+      "keyBuilding": true,
+      "blueprint": "bell_spire"
+    },
+    {
+      "id": "cell_row",
+      "role": "house",
+      "label": "Monks' Cells",
+      "size": "medium",
+      "blueprint": "cell_longhouse"
+    },
+    {
+      "id": "kitchen",
+      "role": "shop",
+      "label": "Refectory Kitchen",
+      "size": "small",
+      "blueprint": "smoke_kitchen"
+    },
+    {
+      "id": "gate_arch",
+      "role": "command",
+      "label": "Gatehouse",
+      "size": "small",
+      "blueprint": "frozen_gate"
+    },
+    {
+      "id": "cold_cellar",
+      "role": "warehouse",
+      "label": "Cold Cellar",
+      "size": "small",
+      "blueprint": "buried_cellar"
+    },
+    {
+      "id": "prayer_hut",
+      "role": "church",
+      "label": "Wind Shrine",
+      "size": "small",
+      "blueprint": "wind_shrine"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "sister_ama",
+      "name": "Sister Ama",
+      "role": "Keeper of the bell",
+      "persona": "Hoarse from cold and worry, she speaks in short pleading bursts. She wants the Quiet Bell rung again before the pass shuts.",
+      "knowledge": [
+        "The bell has not rung since the Vigil night.",
+        "The clapper rope was cut, not worn through.",
+        "Abbot Vane has not left the Hall since."
+      ],
+      "secrets": [
+        "She cut the rope herself on the Vigil night, ordered by the Abbot."
+      ],
+      "home": "bell_tower",
+      "work": "bell_tower",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "bell_tower",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "kitchen",
+          "activity": "eat"
+        },
+        {
+          "hour": 18,
+          "place": "bell_tower",
+          "activity": "work"
+        },
+        {
+          "hour": 22,
+          "place": "bell_tower",
+          "activity": "rest"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "abbot_vane",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 1.2,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.3,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0.4,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.2,
+        "rate": 1.1
+      },
+      "mood": "afraid"
+    },
+    {
+      "id": "brother_tor",
+      "name": "Brother Tor",
+      "role": "Cellarer",
+      "persona": "Gruff and practical, he counts everything twice. He trusts stores and locks more than prayer.",
+      "knowledge": [
+        "The Cold Cellar door was locked from inside.",
+        "Tallowlight stocks dropped by half this week.",
+        "The missing monks left their boots behind."
+      ],
+      "secrets": [
+        "He sealed the monks in the lower cellar to keep them safe from the Frostmark."
+      ],
+      "home": "cold_cellar",
+      "work": "cold_cellar",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "cold_cellar",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "kitchen",
+          "activity": "eat"
+        },
+        {
+          "hour": 14,
+          "place": "cold_cellar",
+          "activity": "work"
+        },
+        {
+          "hour": 21,
+          "place": "cold_cellar",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "old_hesh",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "barbarian",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": -0.3,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.5
+        }
+      },
+      "voice": {
+        "pitch": 0.7,
+        "rate": 0.85
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "old_hesh",
+      "name": "Old Hesh",
+      "role": "Gatekeeper",
+      "persona": "Slow-talking and wry, he has watched the gate for forty winters. He fears no weather, only silence.",
+      "knowledge": [
+        "No one has passed the gate since the bell stopped.",
+        "The portcullis froze shut by itself, or so it seems.",
+        "Lamplight moves in the Hall at night."
+      ],
+      "secrets": [
+        "He saw the monks walk into the Hall in a line and never walk out."
+      ],
+      "home": "gate_arch",
+      "work": "gate_arch",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "gate_arch",
+          "activity": "guard"
+        },
+        {
+          "hour": 13,
+          "place": "kitchen",
+          "activity": "eat"
+        },
+        {
+          "hour": 15,
+          "place": "gate_arch",
+          "activity": "guard"
+        },
+        {
+          "hour": 23,
+          "place": "gate_arch",
+          "activity": "rest"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "brother_tor",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "knight",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 0.8,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0.3,
+          "flee": 0,
+          "investigate": 0.2,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.6,
+        "rate": 0.75
+      },
+      "mood": "calm"
+    },
+    {
+      "id": "novice_ile",
+      "name": "Novice Ile",
+      "role": "Lamp bearer",
+      "persona": "Young, jumpy and eager to help. She talks too fast when scared and wants someone to tell her it is fine.",
+      "knowledge": [
+        "The Hall lamps burn by themselves every night.",
+        "Someone hums low behind the Hall doors.",
+        "The Abbot's door has a Frostmark on it."
+      ],
+      "secrets": [
+        "She carries the Abbot's meals to the Hall door and they are always gone by morning."
+      ],
+      "home": "cell_row",
+      "work": "main_hall",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "main_hall",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "kitchen",
+          "activity": "eat"
+        },
+        {
+          "hour": 17,
+          "place": "main_hall",
+          "activity": "work"
+        },
+        {
+          "hour": 22,
+          "place": "cell_row",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "sister_ama",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "rogue_hooded",
+        "palette": 3
+      },
+      "temperament": {
+        "tau": 1.4,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.4,
+          "idle": 0,
+          "flee": 0.5,
+          "investigate": 0,
+          "follow_player": 0.3,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.5,
+        "rate": 1.25
+      },
+      "mood": "afraid"
+    },
+    {
+      "id": "abbot_vane",
+      "name": "Abbot Vane",
+      "role": "Silent abbot",
+      "persona": "Speaks rarely and in riddles. He believes the bell must stay silent to keep something asleep under the mountain.",
+      "knowledge": [
+        "The bell woke the Frostmark long ago.",
+        "Silence is the only ward that holds.",
+        "The monks chose to stay and keep the Vigil."
+      ],
+      "secrets": [
+        "The monks sleep in a Frostmark trance in the Hall crypt, held there by his will."
+      ],
+      "home": "main_hall",
+      "work": "main_hall",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "main_hall",
+          "activity": "pray"
+        },
+        {
+          "hour": 12,
+          "place": "main_hall",
+          "activity": "rest"
+        },
+        {
+          "hour": 18,
+          "place": "main_hall",
+          "activity": "pray"
+        },
+        {
+          "hour": 23,
+          "place": "main_hall",
+          "activity": "pray"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "sister_ama",
+          "stance": "neutral"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0.5,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0.6,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.8,
+        "rate": 0.7
+      },
+      "mood": "calm"
+    }
+  ],
+  "items": [
+    {
+      "id": "cellar_key",
+      "name": "Iron Cellar Key",
+      "description": "Heavy key rimed with frost, stamped with a bell.",
+      "holder": "brother_tor"
+    },
+    {
+      "id": "tallow_lamp",
+      "name": "Tallowlight Lamp",
+      "description": "A warm lamp that burns blue near the Frostmark.",
+      "holder": "kitchen"
+    },
+    {
+      "id": "bell_rope",
+      "name": "Spare Bell Rope",
+      "description": "Braided hemp rope, stiff with ice.",
+      "holder": "bell_tower"
+    },
+    {
+      "id": "vigil_scroll",
+      "name": "Vigil Scroll",
+      "description": "Brittle parchment in the Abbot's hand, naming the sleepers.",
+      "holder": "main_hall"
+    }
+  ],
+  "quest": {
+    "id": "quiet_bell",
+    "title": "The Quiet Bell of Frostbell",
+    "hook": "The great bell has hung silent since the monks vanished, and the snow is closing the Pass. Sister Ama, the last keeper, begs you to find out why before the last road is gone.",
+    "giver": "sister_ama",
+    "steps": [
+      {
+        "id": "s1_hear",
+        "kind": "talk",
+        "target": "sister_ama",
+        "requires": [],
+        "objective": "Hear Sister Ama's plea at the Bell Tower.",
+        "beat": "Ama says the rope was cut and begs you to look in the Cold Cellar."
+      },
+      {
+        "id": "s2_lamp",
+        "kind": "fetch",
+        "target": "tallow_lamp",
+        "requires": [
+          "s1_hear"
+        ],
+        "objective": "Take the Tallowlight Lamp from the Refectory Kitchen.",
+        "beat": "The lamp flares blue, as if something cold is near.",
+        "item": "tallow_lamp"
+      },
+      {
+        "id": "s3_cellar",
+        "kind": "visit",
+        "target": "cold_cellar",
+        "requires": [
+          "s2_lamp"
+        ],
+        "objective": "Visit the Cold Cellar with the lamp.",
+        "beat": "Frostmarks glitter on the lower door and the lamp burns blue."
+      },
+      {
+        "id": "s4_tor",
+        "kind": "confront",
+        "target": "brother_tor",
+        "requires": [
+          "s3_cellar"
+        ],
+        "objective": "Confront Brother Tor about the sealed door.",
+        "beat": "Tor admits he locked the monks below and gives up the key.",
+        "reveals": [
+          "brother_tor:0"
+        ]
+      },
+      {
+        "id": "s5_choose",
+        "kind": "choose",
+        "target": "abbot_vane",
+        "requires": [
+          "s4_tor"
+        ],
+        "objective": "Face Abbot Vane and decide the bell's fate.",
+        "beat": "The Abbot begs you to leave the bell silent, but the monks sleep under his ward.",
+        "choices": [
+          {
+            "label": "Break the silence and ring the bell",
+            "unlocks": [
+              "s6_ring"
+            ]
+          },
+          {
+            "label": "Keep the vigil and let the bell sleep",
+            "unlocks": [
+              "s6_keep"
+            ]
+          }
+        ],
+        "reveals": [
+          "abbot_vane:0"
+        ]
+      },
+      {
+        "id": "s6_ring",
+        "kind": "talk",
+        "target": "sister_ama",
+        "requires": [
+          "s5_choose"
+        ],
+        "objective": "Tell Sister Ama to ring the Quiet Bell.",
+        "beat": "The bell tolls, the monks wake, and the Frostmark cracks as the Pass groans open."
+      },
+      {
+        "id": "s6_keep",
+        "kind": "talk",
+        "target": "old_hesh",
+        "requires": [
+          "s5_choose"
+        ],
+        "objective": "Tell Old Hesh to hold the gate shut.",
+        "beat": "The gate stays frozen, the monks sleep on, and you leave the mountain in silence."
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s6_ring",
+        "label": "The bell rings and the monks wake, though the Abbot never forgives you.",
+        "tone": "good"
+      },
+      {
+        "stepId": "s6_keep",
+        "label": "The monks sleep forever and the bell stays quiet, a peace bought with a cold grave.",
+        "tone": "bitter"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r_curfew",
+      "text": "No one walks the terraces after the late bell except the gate and bell keepers.",
+      "effect": {
+        "type": "curfew",
+        "fromHour": 22,
+        "toHour": 5,
+        "exemptRoles": [
+          "Gatekeeper",
+          "Keeper of the bell"
+        ]
+      },
+      "source": "world"
+    },
+    {
+      "id": "r_ban",
+      "text": "Ringing the great bell is forbidden by the Abbot.",
+      "effect": {
+        "type": "ban",
+        "what": "ringing the bell",
+        "where": "bell_tower",
+        "enforcer": "abbot_vane"
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "Abbot",
+    "Cellarer",
+    "Vigil",
+    "Frostmark",
+    "Tallowlight",
+    "Pass"
+  ],
+  "style": {
+    "name": "Frostbell Moonlit Stone",
+    "wall": "#8d939c",
+    "wall2": "#5f5448",
+    "roof": "#e4ecf4",
+    "trim": "#b3bcc7",
+    "accent": "#b5483a",
+    "dark": "#0d1016",
+    "glass": "#1d2a3c",
+    "glow": "#ffb347",
+    "ground": "#d3dde8",
+    "road": "#8a8f98",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "stone",
+      "wall2": "timber",
+      "roof": "snow",
+      "trim": "timber",
+      "ground": "snow",
+      "road": "gravel",
+      "wear": 0.55,
+      "wet": 0.15
+    }
+  },
+  "site": {
+    "pattern": "terraces",
+    "wild": 0.25,
+    "paths": "track",
+    "spacing": 6
+  },
+  "mood": {
+    "weather": "snow",
+    "intensity": 0.7,
+    "grade": "moonlit",
+    "haze": 0.6,
+    "ambience": [
+      "wind",
+      "snow",
+      "bells"
+    ],
+    "music": "lonely bowed cello"
+  },
+  "blueprints": [
+    {
+      "id": "quiet_hall",
+      "summary": "long stone hall, steep snowed roof, lit lancet windows",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.16,
+          "d": 0.04,
+          "h": 2.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.3,
+          "z": 0.5,
+          "y": 1.5,
+          "w": 0.06,
+          "d": 0.04,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "box",
+          "x": -0.3,
+          "z": 0.5,
+          "y": 4.5,
+          "w": 0.06,
+          "d": 0.04,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "cone",
+          "x": 0,
+          "z": -0.5,
+          "y": 6,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 3,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.35,
+          "z": 0.5,
+          "y": 2.4,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "gable",
+        "overhang": 0.15,
+        "front": "porch",
+        "rhythm": 5,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "bell_spire",
+      "summary": "tall slim stone tower, open lantern crown with iron bell",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 15,
+          "w": 0.3,
+          "d": 0.04,
+          "h": 3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 16,
+          "w": 0.25,
+          "d": 0.25,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.3,
+          "z": 0.3,
+          "y": 0,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 18,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 3,
+          "w": 0.08,
+          "d": 0.04,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "cone",
+          "x": 0,
+          "z": 0,
+          "y": 20.5,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 2,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 20,
+        "section": "square",
+        "taper": 0.3,
+        "bands": 3,
+        "top": "lantern",
+        "flare": 0.2
+      }
+    },
+    {
+      "id": "cell_longhouse",
+      "summary": "low snow-roofed row of cells with shuttered lit windows",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 1.2,
+          "w": 0.07,
+          "d": 0.04,
+          "h": 0.7,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 6,
+          "gap": 0.14
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0.9,
+          "w": 0.1,
+          "d": 0.03,
+          "h": 1.4,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 6,
+          "gap": 0.14
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.3,
+          "z": -0.2,
+          "y": 3,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.1,
+          "h": 0.15,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": -0.3,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "shed",
+        "overhang": 0.2,
+        "front": "stoop",
+        "rhythm": 8,
+        "chimney": 1,
+        "taper": 0
+      }
+    },
+    {
+      "id": "smoke_kitchen",
+      "summary": "squat hip-roofed kitchen with big smoking chimney and warm glow",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.5,
+          "y": 1.1,
+          "w": 0.12,
+          "d": 0.04,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 2,
+          "gap": 0.4
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.25,
+          "z": -0.1,
+          "y": 3,
+          "w": 0.14,
+          "d": 0.14,
+          "h": 2,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.25,
+          "z": -0.1,
+          "y": 5,
+          "w": 0.2,
+          "d": 0.2,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.35,
+          "z": 0.3,
+          "y": 0,
+          "w": 0.2,
+          "d": 0.2,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": -0.15,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "hip",
+        "overhang": 0.1,
+        "front": "awning",
+        "rhythm": 3,
+        "chimney": 2,
+        "taper": 0
+      }
+    },
+    {
+      "id": "frozen_gate",
+      "summary": "stone arch gate flanked by towers, frozen portcullis, braziers",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.45,
+          "d": 0.04,
+          "h": 3.5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.1,
+          "y": 0.5,
+          "w": 0.03,
+          "d": 0.04,
+          "h": 3,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 5,
+          "gap": 0.1
+        },
+        {
+          "shape": "sphere",
+          "x": -0.4,
+          "z": 0.5,
+          "y": 3.2,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.4,
+          "z": 0.5,
+          "y": 3.2,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 6,
+          "w": 0.06,
+          "d": 0.04,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "arch",
+      "dials": {
+        "span": 0.5,
+        "thickness": 0.22,
+        "lintel": "pointed",
+        "towers": 2
+      }
+    },
+    {
+      "id": "buried_cellar",
+      "summary": "half-buried stone vault under snow with iron door",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.3,
+          "d": 0.06,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 1.5,
+          "w": 0.4,
+          "d": 0.03,
+          "h": 0.12,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.3,
+          "z": 0.5,
+          "y": 1.8,
+          "w": 0.07,
+          "d": 0.07,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.2,
+          "z": 0.3,
+          "y": 0.7,
+          "w": 0.2,
+          "d": 0.3,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "dome",
+      "dials": {
+        "flatness": 0.85,
+        "drum": 0.6,
+        "oculus": 0,
+        "ribs": 0,
+        "pods": 0
+      }
+    },
+    {
+      "id": "wind_shrine",
+      "summary": "tiny timber shrine with red roof and fluttering prayer flags",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.2,
+          "d": 0.04,
+          "h": 1.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.5,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.03,
+          "d": 0.03,
+          "h": 4,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.5,
+          "z": 0.5,
+          "y": 3,
+          "w": 0.5,
+          "d": 0.02,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.5,
+          "z": 0.5,
+          "y": 3,
+          "w": 0.5,
+          "d": 0.02,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.5,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.03,
+          "d": 0.03,
+          "h": 4,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.25,
+          "z": 0.5,
+          "y": 1.2,
+          "w": 0.07,
+          "d": 0.07,
+          "h": 0.25,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tiers",
+      "dials": {
+        "levels": 2,
+        "shrink": 0.7,
+        "flare": 0.3,
+        "top": "finial"
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "tallow_lantern_post",
+      "size": 2.4,
+      "parts": [
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 2,
+          "w": 0.4,
+          "d": 0.4,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 4,
+      "family": "pole",
+      "dials": {
+        "head": "lamp",
+        "height": 2.2,
+        "arms": 1
+      }
+    },
+    {
+      "kind": "snowy_pine",
+      "size": 3.5,
+      "parts": [
+        {
+          "shape": "cone",
+          "x": 0,
+          "z": 0,
+          "y": 1.2,
+          "w": 0.5,
+          "d": 0.5,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 5,
+      "family": "tree",
+      "dials": {
+        "trunk": 1,
+        "crown": "cone",
+        "crownSize": 0.7,
+        "lean": 0.1
+      }
+    },
+    {
+      "kind": "frost_boulder",
+      "size": 1.5,
+      "parts": [
+        {
+          "shape": "dome",
+          "x": 0,
+          "z": 0,
+          "y": 0.3,
+          "w": 0.7,
+          "d": 0.7,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 3,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 3,
+        "height": 0.5,
+        "jagged": 0.5,
+        "flat": 0.4
+      }
+    },
+    {
+      "kind": "prayer_flag_mast",
+      "size": 4.5,
+      "parts": [
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 3,
+          "w": 0.2,
+          "d": 0.2,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 2,
+      "family": "pole",
+      "dials": {
+        "head": "banner",
+        "height": 3.2,
+        "arms": 2
+      }
+    },
+    {
+      "kind": "firewood_stack",
+      "size": 1,
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0.5,
+          "w": 0.9,
+          "d": 0.5,
+          "h": 0.1,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 2,
+      "family": "container",
+      "dials": {
+        "form": "crate",
+        "count": 3,
+        "height": 0.5
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "silent_great_bell",
+      "prompt": "A colossal cast-iron monastery bell hung from a heavy timber frame, frost-crusted and dull green-black, thick icicles along its rim, a frayed rope hanging silent, low-poly stylised",
+      "place": "bell_tower",
+      "height": 10
+    },
+    {
+      "id": "frostmark_stone",
+      "prompt": "A tall weathered standing stone carved with worn spiral frostmark glyphs, capped with snow, a faint amber glow in the grooves, low-poly stylised",
+      "place": "plaza",
+      "height": 6
+    }
+  ]
+}

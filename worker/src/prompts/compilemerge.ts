@@ -2,12 +2,14 @@
 // section is parsed leniently, coerced into the shape of the spec, and merged into one WorldSpec.
 // Pure functions, no I/O.
 import type {
-  Blueprint, BlueprintPart, BuildingRole, BuildingSpec, ItemSpec, LandmarkSpec, Mood, NpcSpec, PartShape, PartTone,
+  Blueprint, BlueprintPart, BuildingRole, BuildingSpec, ItemSpec, LandmarkSpec, Mood, MoodSpec, NpcSpec, PartShape, PartTone,
   PropBlueprint, QuestSpec, QuestStep, RuleEffect, RuleSpec, ScheduleEntry, SitePattern, SiteSpec, SkyPreset, StyleSpec,
   ThemeId, WorldSpec,
 } from '../../../app/src/world/spec';
 import { SPEC_VERSION } from '../../../app/src/world/spec';
+import { coerceMood, coerceSurfaces } from '../../../app/src/world/schema';
 import { isRecord } from '../lib/http';
+import { fogFor, mockAir, mockSurfaces, skyFor } from '../lib/mockmood';
 
 // ---- Lenient JSON ------------------------------------------------------------------------------
 
@@ -131,6 +133,9 @@ export interface OutlineNpc { id: string; name: string; role: string; home: stri
 export interface Outline {
   title: string; tagline: string; era: string; theme: ThemeId;
   site: SiteSpec; palette: { sky: SkyPreset; fog: number };
+  /** Weather, grade, haze and sound, chosen in the first seconds so the client can set the air before the look arrives. */
+  mood: MoodSpec;
+  time: { startHour: number };
   buildings: OutlineBuilding[]; npcs: OutlineNpc[];
   quest: { title: string; premise: string }; lexicon: string[];
 }
@@ -158,7 +163,28 @@ function fromRow(v: unknown, keys: readonly string[]): Record<string, unknown> |
 const BUILDING_ROW = ['id', 'role', 'label', 'form', 'size', 'keyBuilding'] as const;
 const NPC_ROW = ['id', 'name', 'role', 'home', 'work'] as const;
 
-export function coerceOutline(raw: unknown, fallbackTheme: ThemeId): Outline | null {
+const START_HOUR: Record<SkyPreset, number> = { dawn: 6, day: 9, dusk: 17.5, night: 21, overcast: 16 };
+
+/**
+ * Mood, starting hour, sky and fog as one consistent set. The model's mood and hour are kept; the sky preset
+ * follows the hour (rain at noon is overcast, a night hour is a night sky) and fog never sits below what the
+ * weather needs. Whatever the model left out is read from the prompt's own words.
+ */
+export function coerceAir(r: Record<string, unknown>, theme: ThemeId, prompt: string): Pick<Outline, 'mood' | 'time' | 'palette'> {
+  const pal = rec(r.palette);
+  const guess = mockAir(prompt, theme);
+  const mood = isRecord(r.mood) ? coerceMood(r.mood) : guess.mood;
+  const given = SKIES.find((x) => x === pal.sky);
+  const rawHour = num(rec(r.time).startHour, num(r.startHour, NaN));
+  const hour = Number.isFinite(rawHour) && rawHour >= 0 && rawHour < 24
+    ? Math.round(rawHour * 4) / 4
+    : given ? START_HOUR[given] : guess.startHour;
+  const byHour = skyFor(hour, mood.weather);
+  const sky = given === 'overcast' && byHour !== 'night' ? 'overcast' : byHour;
+  return { mood, time: { startHour: Math.min(23, hour) }, palette: { sky, fog: fogFor(mood, clamp(num(pal.fog, 0.2), 0, 1)) } };
+}
+
+export function coerceOutline(raw: unknown, fallbackTheme: ThemeId, prompt = ''): Outline | null {
   const r = rec(raw);
   const src = list(r.buildings).map((b) => fromRow(b, BUILDING_ROW)).filter((b): b is Record<string, unknown> => b !== null).slice(0, 14);
   if (src.length < 3) return null;
@@ -184,11 +210,10 @@ export function coerceOutline(raw: unknown, fallbackTheme: ThemeId): Outline | n
     };
   });
   const q = rec(r.quest);
-  const pal = rec(r.palette);
+  const theme = oneOf(r.theme, THEMES, fallbackTheme);
   return {
     title: str(r.title, 'Untitled place'), tagline: str(r.tagline), era: str(r.era, 'an unnamed age'),
-    theme: oneOf(r.theme, THEMES, fallbackTheme), site: coerceSite(r.site),
-    palette: { sky: oneOf(pal.sky, SKIES, 'day'), fog: clamp(num(pal.fog, 0.2), 0, 1) },
+    theme, site: coerceSite(r.site), ...coerceAir(r, theme, prompt),
     buildings, npcs, quest: { title: str(q.title), premise: str(q.premise) }, lexicon: strs(Array.isArray(r.lexicon) ? r.lexicon : q.lexicon, 14),
   };
 }
@@ -233,10 +258,21 @@ function coerceDials(v: unknown): Record<string, number | string> | undefined {
 
 const STYLE_KEYS = ['wall', 'wall2', 'roof', 'trim', 'accent', 'dark', 'glass', 'glow', 'ground', 'road'] as const;
 
-export function coerceStyle(raw: unknown, fallback: StyleSpec): StyleSpec {
+/** Ground under rain is never dry, whatever the look stage wrote. */
+const RAIN_WET_FLOOR = 0.4;
+
+/**
+ * The model's style over a fallback. Surfaces are always present on the result: the model's kinds where they
+ * are valid, else a set read from the prompt and the mood (or the fallback style's own when no mood is given).
+ */
+export function coerceStyle(raw: unknown, fallback: StyleSpec, air?: { prompt: string; theme: ThemeId; mood: MoodSpec }): StyleSpec {
   const r = rec(raw);
   const out: StyleSpec = { ...fallback, name: str(r.name, fallback.name) || fallback.name, variety: clamp(num(r.variety, fallback.variety), 0, 1) };
   for (const k of STYLE_KEYS) out[k] = hex(r[k], fallback[k]);
+  const base = air ? mockSurfaces(air.prompt, air.theme, air.mood) : fallback.surfaces;
+  const surfaces = coerceSurfaces(r.surfaces, base);
+  const raining = air?.mood.weather === 'rain' || air?.mood.weather === 'storm';
+  out.surfaces = raining ? { ...surfaces, wet: Math.max(surfaces.wet, RAIN_WET_FLOOR) } : surfaces;
   return out;
 }
 
@@ -246,7 +282,7 @@ export function styleIsReal(raw: unknown): boolean {
   return STYLE_KEYS.filter((k) => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(str(r[k]))).length >= 6;
 }
 
-export function coerceLook(raw: unknown, outline: Outline, fallbackStyle: StyleSpec): LookResult | null {
+export function coerceLook(raw: unknown, outline: Outline, fallbackStyle: StyleSpec, prompt = ''): LookResult | null {
   const r = rec(raw);
   const bsrc = list(r.blueprints).filter(isRecord).slice(0, 8);
   const ids = uniqueIds(bsrc.map((b) => str(b.id)), 'blueprint');
@@ -294,7 +330,8 @@ export function coerceLook(raw: unknown, outline: Outline, fallbackStyle: StyleS
   }
   let next = 0;
   const buildings = outline.buildings.map((b) => ({ id: b.id, blueprint: picked.get(b.id) ?? (blueprints[next++ % blueprints.length] as Blueprint).id }));
-  return { style: coerceStyle(r.style, fallbackStyle), site: outline.site, blueprints, props, landmarks, buildings };
+  const style = coerceStyle(r.style, fallbackStyle, { prompt, theme: outline.theme, mood: outline.mood });
+  return { style, site: outline.site, blueprints, props, landmarks, buildings };
 }
 
 // ---- Story -------------------------------------------------------------------------------------
@@ -412,8 +449,6 @@ export function coerceStory(raw: unknown, outline: Outline): StoryResult | null 
 
 // ---- Merge -------------------------------------------------------------------------------------
 
-const START_HOUR: Record<SkyPreset, number> = { dawn: 6, day: 9, dusk: 17, night: 21, overcast: 9 };
-
 /** Outline, look and story into one WorldSpec. normalizeSpec still runs on the client; this makes the shape valid. */
 export function mergeSpec(prompt: string, seed: number, outline: Outline, look: LookResult, story: StoryResult): WorldSpec {
   const bp = new Map(look.buildings.map((b) => [b.id, b.blueprint]));
@@ -428,8 +463,8 @@ export function mergeSpec(prompt: string, seed: number, outline: Outline, look: 
     version: SPEC_VERSION, seed, prompt,
     title: outline.title, tagline: outline.tagline, theme: outline.theme, era: outline.era,
     palette: { ground: look.style.ground, accent: look.style.accent, sky: outline.palette.sky, fog: outline.palette.fog },
-    time: { startHour: START_HOUR[outline.palette.sky], minutesPerRealSecond: 4 },
+    time: { startHour: outline.time.startHour, minutesPerRealSecond: 4 },
     buildings, npcs: story.npcs, items: story.items, quest: story.quest, rules: story.rules, lexicon: outline.lexicon,
-    style: look.style, site: look.site, blueprints: look.blueprints, props: look.props, landmarks: look.landmarks,
+    style: look.style, site: look.site, mood: outline.mood, blueprints: look.blueprints, props: look.props, landmarks: look.landmarks,
   };
 }

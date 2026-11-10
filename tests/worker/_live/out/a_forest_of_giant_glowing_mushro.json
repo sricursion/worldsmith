@@ -1,0 +1,1293 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "a forest of giant glowing mushrooms where tiny folk live",
+  "title": "Glowcap Hollow",
+  "tagline": "Where the tiny folk keep the forest's light",
+  "theme": "medieval",
+  "era": "Age of Spores",
+  "palette": {
+    "ground": "#2a4a3a",
+    "accent": "#e8789a",
+    "sky": "night",
+    "fog": 0.3
+  },
+  "time": {
+    "startHour": 20.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "stalk_lamp",
+      "role": "command",
+      "label": "Lamp Stalk",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "lamp_stalk"
+    },
+    {
+      "id": "cap_inn",
+      "role": "inn",
+      "label": "The Lantern Cap",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "cap_inn_bp"
+    },
+    {
+      "id": "root_house",
+      "role": "house",
+      "label": "Root Burrow",
+      "size": "small",
+      "blueprint": "burrow_dome"
+    },
+    {
+      "id": "spore_market",
+      "role": "market",
+      "label": "Spore Stall",
+      "size": "medium",
+      "blueprint": "cap_canopy"
+    },
+    {
+      "id": "gill_forge",
+      "role": "workshop",
+      "label": "Gill Forge",
+      "size": "medium",
+      "blueprint": "gill_hut"
+    },
+    {
+      "id": "moss_shrine",
+      "role": "church",
+      "label": "Moss Shrine",
+      "size": "small",
+      "blueprint": "moss_ring"
+    },
+    {
+      "id": "bark_stable",
+      "role": "stable",
+      "label": "Bark Stable",
+      "size": "medium",
+      "blueprint": "burrow_stable"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "tilda",
+      "name": "Tilda",
+      "role": "innkeeper",
+      "persona": "Warm, nosy sporeling who hears every rumor over her counter. She fears the dimlands creeping closer and hides it behind cheerful chatter.",
+      "knowledge": [
+        "Lamp Stalk's glow has dropped a shade every night this month.",
+        "Poll came in white-faced last week, swearing the soil was cold.",
+        "Brin buys far more copper than any forge needs."
+      ],
+      "secrets": [
+        "Tilda has been watering down the glimmer cider to hide that her cellar stock is going dark."
+      ],
+      "home": "cap_inn",
+      "work": "cap_inn",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "cap_inn",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "spore_market",
+          "activity": "trade"
+        },
+        {
+          "hour": 17,
+          "place": "cap_inn",
+          "activity": "work"
+        },
+        {
+          "hour": 23,
+          "place": "cap_inn",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "poll",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 1,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.5,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.2
+        }
+      },
+      "voice": {
+        "pitch": 1.4,
+        "rate": 1.1
+      },
+      "mood": "cheerful"
+    },
+    {
+      "id": "poll",
+      "name": "Poll",
+      "role": "spore farmer",
+      "persona": "Muddy, stubborn sporeling who talks to his crops. He is scared the mycel under his field is dying and blames himself.",
+      "knowledge": [
+        "The mycel beneath the east beds has gone cold and grey.",
+        "Dimlands creep in from the north where the old gill roots end.",
+        "A lamp cap fades when its mycel thread is cut or starved."
+      ],
+      "secrets": [
+        "Poll dug a trench to the north roots for water and may have cut the great mycel thread himself."
+      ],
+      "home": "root_house",
+      "work": "plaza",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "plaza",
+          "activity": "work"
+        },
+        {
+          "hour": 13,
+          "place": "spore_market",
+          "activity": "trade"
+        },
+        {
+          "hour": 18,
+          "place": "cap_inn",
+          "activity": "drink"
+        },
+        {
+          "hour": 22,
+          "place": "root_house",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "tilda",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "ranger",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": 0.2,
+          "investigate": 0.3,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.2,
+        "rate": 1.2
+      },
+      "mood": "afraid"
+    },
+    {
+      "id": "brin",
+      "name": "Brin",
+      "role": "forge smith",
+      "persona": "Gruff gill-smith who speaks in short barks. She loves the lamps like family and trusts nobody near her forge.",
+      "knowledge": [
+        "Copper rods can carry glimmer from cap to cap if the mycel fails.",
+        "Her forge fire burns dimmer since the stalk faded.",
+        "Mossa keeps a bowl of old light that never dims."
+      ],
+      "secrets": [
+        "Brin forged a copper tap for Fenn to draw glimmer from the great lamp and never told anyone."
+      ],
+      "home": "gill_forge",
+      "work": "gill_forge",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "gill_forge",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "cap_inn",
+          "activity": "eat"
+        },
+        {
+          "hour": 14,
+          "place": "gill_forge",
+          "activity": "work"
+        },
+        {
+          "hour": 21,
+          "place": "gill_forge",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "fenn",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "barbarian",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": -0.3,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.6
+        }
+      },
+      "voice": {
+        "pitch": 0.9,
+        "rate": 0.8
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "mossa",
+      "name": "Mossa",
+      "role": "shrine keeper",
+      "persona": "Soft-spoken, ancient sporeling who speaks of lanternfolk as kin. She is calm but quietly certain the lamps are being punished.",
+      "knowledge": [
+        "The bowl of light at the shrine is seeded from the first lamp cap.",
+        "Lanternfolk once tended the lamps with song and a spoonful of their own glimmer.",
+        "A lamp reborn needs a seed of light carried to its stalk by an outsider."
+      ],
+      "secrets": [
+        "Mossa knows the bowl's light is shrinking too and is afraid to tell the others."
+      ],
+      "home": "moss_shrine",
+      "work": "moss_shrine",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "moss_shrine",
+          "activity": "pray"
+        },
+        {
+          "hour": 11,
+          "place": "plaza",
+          "activity": "wander"
+        },
+        {
+          "hour": 16,
+          "place": "moss_shrine",
+          "activity": "pray"
+        },
+        {
+          "hour": 22,
+          "place": "moss_shrine",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "fenn",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 3
+      },
+      "temperament": {
+        "tau": 0.8,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.2,
+          "idle": 0.4,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.5,
+        "rate": 0.8
+      },
+      "mood": "calm"
+    },
+    {
+      "id": "fenn",
+      "name": "Fenn",
+      "role": "lamp warden",
+      "persona": "Thin, jumpy warden who guards the Lamp Stalk day and night. He is guilt-ridden and desperate to keep the great lamp lit.",
+      "knowledge": [
+        "The Lamp Stalk's hollow core hums when the mycel pulses.",
+        "He has not slept properly since the first cap went dark.",
+        "Brin once made him a copper tool for the lamp."
+      ],
+      "secrets": [
+        "Fenn tapped the great lamp's glimmer to light the smaller caps and drained it faster than it could recover."
+      ],
+      "home": "stalk_lamp",
+      "work": "stalk_lamp",
+      "schedule": [
+        {
+          "hour": 0,
+          "place": "stalk_lamp",
+          "activity": "guard"
+        },
+        {
+          "hour": 8,
+          "place": "plaza",
+          "activity": "patrol"
+        },
+        {
+          "hour": 14,
+          "place": "stalk_lamp",
+          "activity": "work"
+        },
+        {
+          "hour": 20,
+          "place": "stalk_lamp",
+          "activity": "guard"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "mossa",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "rogue_hooded",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": 0.3,
+          "investigate": 0.2,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.3,
+        "rate": 1.2
+      },
+      "mood": "afraid"
+    }
+  ],
+  "items": [
+    {
+      "id": "copper_tap",
+      "name": "Copper Tap",
+      "description": "A copper spigot stained with glimmer, made to draw light from a lamp.",
+      "holder": "gill_forge"
+    },
+    {
+      "id": "seed_light",
+      "name": "Seed of Light",
+      "description": "A warm pebble of glimmer from the shrine bowl.",
+      "holder": "mossa"
+    },
+    {
+      "id": "cold_mycel",
+      "name": "Cold Mycel Thread",
+      "description": "A grey, brittle strand of dead mycel from Poll's trench.",
+      "holder": "poll"
+    },
+    {
+      "id": "glimmer_cider",
+      "name": "Glimmer Cider",
+      "description": "A bottle of faintly glowing cider from the inn cellar.",
+      "holder": "cap_inn"
+    }
+  ],
+  "quest": {
+    "id": "fading_lamps",
+    "title": "The Fading Lamps of Glowcap Hollow",
+    "hook": "One by one the great lamp caps are going dark, and the lanternfolk of Glowcap Hollow fear the dimlands will swallow them. The sporelings are too small and too frightened to look for the cause themselves. They need a brave outsider who can walk the fog and ask hard questions.",
+    "giver": "fenn",
+    "steps": [
+      {
+        "id": "s1_warden",
+        "kind": "talk",
+        "target": "fenn",
+        "requires": [],
+        "objective": "Hear Fenn's plea at the Lamp Stalk.",
+        "beat": "Fenn begs you to find why the lamps fade and hints Brin knows more."
+      },
+      {
+        "id": "s2_tap",
+        "kind": "fetch",
+        "target": "copper_tap",
+        "requires": [
+          "s1_warden"
+        ],
+        "objective": "Take the copper tap from the Gill Forge.",
+        "beat": "Brin growls but lets you take the stained tap; it was meant to draw light, not guard it.",
+        "item": "copper_tap",
+        "reveals": [
+          "brin:0"
+        ]
+      },
+      {
+        "id": "s3_trench",
+        "kind": "visit",
+        "target": "root_house",
+        "requires": [
+          "s1_warden"
+        ],
+        "objective": "Visit Poll's Root Burrow and see the cold mycel.",
+        "beat": "Poll shows you the grey trench he dug toward the north roots.",
+        "reveals": [
+          "poll:0"
+        ]
+      },
+      {
+        "id": "s4_confront",
+        "kind": "confront",
+        "target": "fenn",
+        "requires": [
+          "s2_tap",
+          "s3_trench"
+        ],
+        "objective": "Confront Fenn with the copper tap.",
+        "beat": "Fenn breaks down and admits he drained the great lamp to feed the smaller ones.",
+        "reveals": [
+          "fenn:0"
+        ]
+      },
+      {
+        "id": "s5_choose",
+        "kind": "choose",
+        "target": "mossa",
+        "requires": [
+          "s4_confront"
+        ],
+        "objective": "Decide with Mossa how to save the lamps.",
+        "beat": "Mossa offers a seed of light, but it will cost the shrine's own glow.",
+        "choices": [
+          {
+            "label": "Replant the seed at the Lamp Stalk",
+            "unlocks": [
+              "s6_restore"
+            ]
+          },
+          {
+            "label": "Seal the tap and let the lamps rest",
+            "unlocks": [
+              "s6_rest"
+            ]
+          }
+        ],
+        "reveals": [
+          "mossa:0"
+        ]
+      },
+      {
+        "id": "s6_restore",
+        "kind": "deliver",
+        "target": "fenn",
+        "requires": [
+          "s5_choose"
+        ],
+        "objective": "Deliver the Seed of Light to Fenn at the Lamp Stalk.",
+        "beat": "The great cap flares green-gold and the hollow cheers, though the shrine bowl goes dark.",
+        "item": "seed_light"
+      },
+      {
+        "id": "s6_rest",
+        "kind": "talk",
+        "target": "tilda",
+        "requires": [
+          "s5_choose"
+        ],
+        "objective": "Tell Tilda the lamps must rest in the dark.",
+        "beat": "The hollow dims for a season, safe but gloomy, and Fenn is banished from the stalk.",
+        "reveals": [
+          "tilda:0"
+        ]
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s6_restore",
+        "label": "The Lamp Reborn",
+        "tone": "good"
+      },
+      {
+        "stepId": "s6_rest",
+        "label": "A Season of Dimness",
+        "tone": "bitter"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r_curfew",
+      "text": "Lanternfolk stay indoors from midnight until dawn while the dimlands creep.",
+      "effect": {
+        "type": "curfew",
+        "fromHour": 0,
+        "toHour": 5,
+        "exemptRoles": [
+          "lamp warden"
+        ]
+      },
+      "source": "world"
+    },
+    {
+      "id": "r_cider",
+      "text": "Glimmer cider is scarce and costs double.",
+      "effect": {
+        "type": "price",
+        "item": "glimmer_cider",
+        "multiplier": 2
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "glimmer",
+    "sporeling",
+    "gill",
+    "mycel",
+    "dimlands",
+    "lanternfolk"
+  ],
+  "style": {
+    "name": "Glowcap Hollow",
+    "wall": "#5a3f6e",
+    "wall2": "#8a6a4a",
+    "roof": "#2f8f86",
+    "trim": "#b9a6d6",
+    "accent": "#e8789a",
+    "dark": "#0e1218",
+    "glass": "#1c2b3d",
+    "glow": "#5ff2d0",
+    "ground": "#2a4a3a",
+    "road": "#4a3a2e",
+    "variety": 0.3,
+    "surfaces": {
+      "wall": "organic",
+      "wall2": "bark",
+      "roof": "organic",
+      "trim": "bark",
+      "ground": "moss",
+      "road": "dirt",
+      "wear": 0.35,
+      "wet": 0.3
+    }
+  },
+  "site": {
+    "pattern": "scatter",
+    "wild": 0.85,
+    "paths": "track",
+    "spacing": 9
+  },
+  "mood": {
+    "weather": "spores",
+    "intensity": 0.4,
+    "grade": "verdant",
+    "haze": 0.7,
+    "ambience": [
+      "leaves",
+      "water",
+      "crickets",
+      "wind"
+    ],
+    "music": "eerie glass bells"
+  },
+  "blueprints": [
+    {
+      "id": "lamp_stalk",
+      "summary": "tall hollow stalk crowned by a glowing cap lantern",
+      "parts": [
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 20,
+          "w": 0.5,
+          "d": 0.5,
+          "h": 3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "ring",
+          "x": 0,
+          "z": 0,
+          "y": 19,
+          "w": 0.9,
+          "d": 0.9,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0.5,
+          "w": 0.14,
+          "d": 0.04,
+          "h": 2.4,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0.46,
+          "y": 2.8,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.3,
+          "z": 0.3,
+          "y": 6,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 22,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 3,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 22,
+        "section": "round",
+        "taper": 0.55,
+        "bands": 4,
+        "top": "dome",
+        "flare": 0.35
+      }
+    },
+    {
+      "id": "cap_inn_bp",
+      "summary": "broad spotted mushroom cap with glowing gills and window",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0.6,
+          "w": 0.2,
+          "d": 0.04,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.28,
+          "z": 0.5,
+          "y": 1.4,
+          "w": 0.16,
+          "d": 0.04,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": -0.2,
+          "z": 0.2,
+          "y": 5.2,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 3,
+          "gap": 0.25
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0.45,
+          "y": 3.4,
+          "w": 0.07,
+          "d": 0.07,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 5,
+          "gap": 0.18
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.38,
+          "z": 0.4,
+          "y": 0,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 3,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": -0.38,
+          "z": 0.4,
+          "y": 3,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "shell",
+      "dials": {
+        "stalk": 3.5,
+        "cap": 1,
+        "droop": 0.75,
+        "lobes": 3
+      }
+    },
+    {
+      "id": "burrow_dome",
+      "summary": "squat domed burrow in a hollow stump",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.2,
+          "d": 0.04,
+          "h": 1.4,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.28,
+          "z": 0.5,
+          "y": 0.7,
+          "w": 0.12,
+          "d": 0.04,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "ring",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 1,
+          "d": 1,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.3,
+          "z": 0.4,
+          "y": 0,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cone",
+          "x": -0.35,
+          "z": -0.3,
+          "y": 0,
+          "w": 0.18,
+          "d": 0.18,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "dome",
+      "dials": {
+        "flatness": 0.6,
+        "drum": 1.5,
+        "oculus": 0.2,
+        "ribs": 0,
+        "pods": 2
+      }
+    },
+    {
+      "id": "cap_canopy",
+      "summary": "striped mushroom-cap awning over trestle tables",
+      "parts": [
+        {
+          "shape": "sphere",
+          "x": -0.3,
+          "z": 0.4,
+          "y": 0.9,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.45,
+          "y": 0.9,
+          "w": 0.7,
+          "d": 0.05,
+          "h": 0.25,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.2,
+          "z": -0.2,
+          "y": 0,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 2,
+          "gap": 0.3
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": -0.3,
+          "y": 0,
+          "w": 0.6,
+          "d": 0.15,
+          "h": 0.7,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "canopy",
+      "dials": {
+        "posts": 4,
+        "roof": "dome",
+        "counter": 0.8
+      }
+    },
+    {
+      "id": "gill_hut",
+      "summary": "squat stone forge with a copper chimney and ember glow",
+      "parts": [
+        {
+          "shape": "cylinder",
+          "x": 0.3,
+          "z": -0.25,
+          "y": 3,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 2.2,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.3,
+          "z": -0.25,
+          "y": 5.2,
+          "w": 0.14,
+          "d": 0.14,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.2,
+          "z": 0.5,
+          "y": 0.8,
+          "w": 0.14,
+          "d": 0.04,
+          "h": 0.7,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 2,
+          "gap": 0.3
+        },
+        {
+          "shape": "box",
+          "x": 0.4,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.5,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0.5,
+          "y": 2.4,
+          "w": 0.07,
+          "d": 0.07,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "hip",
+        "overhang": 0.2,
+        "front": "stoop",
+        "rhythm": 2,
+        "chimney": 1,
+        "taper": 0
+      }
+    },
+    {
+      "id": "moss_ring",
+      "summary": "ring of pale caps cradling a bowl of light",
+      "parts": [
+        {
+          "shape": "ring",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.9,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 0.4,
+          "w": 0.4,
+          "d": 0.4,
+          "h": 0.7,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cone",
+          "x": -0.35,
+          "z": 0.35,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 1.4,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 4,
+          "gap": 0.23
+        },
+        {
+          "shape": "sphere",
+          "x": -0.35,
+          "z": 0.35,
+          "y": 1.4,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 4,
+          "gap": 0.23
+        }
+      ],
+      "doorX": 0,
+      "family": "shell",
+      "dials": {
+        "stalk": 1.2,
+        "cap": 0.55,
+        "droop": 0.2,
+        "lobes": 5
+      }
+    },
+    {
+      "id": "burrow_stable",
+      "summary": "low turf burrow with thatched roof and fence",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.03,
+          "h": 0.7,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.4,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.03,
+          "d": 0.03,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.5,
+          "y": 0.7,
+          "w": 0.12,
+          "d": 0.04,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": -0.3,
+          "z": 0.5,
+          "y": 1,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 0.25,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cone",
+          "x": 0.4,
+          "z": -0.3,
+          "y": 2.4,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "shed",
+        "overhang": 0.25,
+        "front": "porch",
+        "rhythm": 1,
+        "chimney": 0,
+        "taper": 0
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "glow_mushroom",
+      "size": 3,
+      "parts": [
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 0.7,
+          "w": 0.2,
+          "d": 0.2,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 5,
+      "family": "tree",
+      "dials": {
+        "trunk": 0.8,
+        "crown": "giant-mushroom",
+        "crownSize": 0.7,
+        "lean": 0.2
+      }
+    },
+    {
+      "kind": "spore_fern",
+      "size": 1.2,
+      "parts": [],
+      "weight": 4,
+      "family": "tree",
+      "dials": {
+        "trunk": 0.3,
+        "crown": "fern",
+        "crownSize": 0.6,
+        "lean": 0.3
+      }
+    },
+    {
+      "kind": "glimmer_crystal",
+      "size": 1.4,
+      "parts": [
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 0.8,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 2,
+      "family": "rock",
+      "dials": {
+        "form": "crystal",
+        "count": 4,
+        "height": 0.7,
+        "jagged": 0.6,
+        "flat": 0.3
+      }
+    },
+    {
+      "kind": "spore_lamp",
+      "size": 5,
+      "parts": [
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 3.2,
+          "w": 0.2,
+          "d": 0.2,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 2,
+      "family": "pole",
+      "dials": {
+        "head": "lamp",
+        "height": 3,
+        "arms": 2
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "fading_great_cap",
+      "prompt": "A colossal ancient glowing mushroom with a wide dimming cap, pale teal gills, thick bark-ridged stalk and a few cracks leaking faint light, low-poly stylised",
+      "place": "plaza",
+      "height": 14
+    }
+  ]
+}

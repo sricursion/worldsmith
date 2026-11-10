@@ -4,6 +4,7 @@
 import type { BuildingRole, QuestStep, RuleEffect, RuleSpec, ThemeId, WorldSpec } from '../../../app/src/world/spec';
 import type { LookResult, Outline, OutlineBuilding, StoryResult } from '../prompts/compilemerge';
 import { FIXTURES, nearestTheme } from './shared';
+import { mockAir, mockSurfaces } from './mockmood';
 import { BASE, mockSpec } from './mockstyle';
 
 interface SiteHint { pattern: Outline['site']['pattern']; wild: number; paths: Outline['site']['paths']; spacing: number }
@@ -26,6 +27,7 @@ export function mockOutline(prompt: string, seed: number): Outline {
   return {
     title: fx.title, tagline: fx.tagline, era: fx.era, theme,
     site: siteFor(prompt, fx), palette: { sky: fx.palette.sky, fog: fx.palette.fog },
+    mood: fx.mood ?? mockAir(prompt, theme).mood, time: { startHour: fx.time.startHour },
     buildings: fx.buildings.map((b): OutlineBuilding => ({
       id: b.id, role: b.role, label: b.label, size: b.size, keyBuilding: b.keyBuilding === true, form: blueprintOf.get(b.blueprint ?? '') ?? '',
     })),
@@ -46,8 +48,10 @@ export function mockLook(prompt: string, seed: number, theme: ThemeId, outline: 
     blueprint: byRole.get(b.role) ?? blueprints[next++ % Math.max(1, blueprints.length)]?.id ?? '',
   }));
   const ids = new Set(outline.buildings.map((b) => b.id));
+  // Materials follow the outline's own weather, which on the live fallback path is the model's, not the keyword guess.
+  const style = fx.style ?? BASE[theme];
   return {
-    style: fx.style ?? BASE[theme],
+    style: { ...style, surfaces: mockSurfaces(prompt, theme, outline.mood) },
     site: outline.site,
     blueprints,
     props: fx.props ?? [],

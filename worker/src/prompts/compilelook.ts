@@ -1,11 +1,11 @@
 // Stage A of POST /api/compile: the look. The model picks a structural skeleton and dial settings for each
-// building archetype, then adds the parts that make it belong to this world, plus palette, props and
-// landmarks. It runs in parallel with the story stage and needs only the outline.
+// building archetype, then adds the parts that make it belong to this world, plus palette, surface materials,
+// props and landmarks. It runs in parallel with the story stage and needs only the outline.
 import { skeletonCatalogText } from '../../../app/src/world/skeletons';
 import { outlineBrief } from './compile';
 import type { Outline } from './compilemerge';
 
-const ROLE = `You are the art director for Townforge, a browser game that turns a short prompt into a small playable low-poly world. An outline of the world is given: the kind of place, its layout and its structures. Design how it looks, as data: a colour style, building blueprints, props and landmarks. Reply with ONE JSON object and nothing else: no prose, no code fence. The engine builds the geometry from your data in one flat-shaded low-poly style, so whatever the player typed (a forest of giant mushrooms, a city of glass needles, a caravan camp) must come out looking like that world and no other.`;
+const ROLE = `You are the art director for Townforge, a browser game that turns a short prompt into a small playable low-poly world. An outline of the world is given: the kind of place, its layout and its structures. Design how it looks, as data: a colour style, what every surface is made of, building blueprints, props and landmarks. Reply with ONE JSON object and nothing else: no prose, no code fence. The engine builds the geometry from your data in one flat-shaded low-poly style, so whatever the player typed (a forest of giant mushrooms, a city of glass needles, a caravan camp) must come out looking like that world and no other.`;
 
 const PRINCIPLE = `Skeletons and bodies. A blueprint has two layers.
 - The SKELETON is a family from the catalogue below, with dials. It fixes only structure: massing, proportions, where the roof and the openings go. Every human shares nearly the same skeleton, and the skeleton never decides how a person looks. Likewise a family never decides what a building looks like in this world.
@@ -30,9 +30,53 @@ const EXAMPLE = `Worked example (a mushroom inn in a fungus-forest world; copy t
 {"id":"cap_inn","summary":"wide red-capped mushroom inn with glowing gills","family":"shell","dials":{"stalk":3.5,"cap":0.95,"droop":0.7,"lobes":3},"parts":[["sphere",0,0.4,2.2,0.08,0.08,0.3,0,"glow",3,0.2],["box",0.3,0.5,0,0.14,0.03,2,0,"accent",1,0],["cylinder",0.35,0.35,0,0.06,0.06,5,0,"trim",1,0]],"doorX":0}
 A second blueprint in the same world should differ in structure and in dials, for example {"id":"stalk_home","family":"tower","dials":{"height":10,"section":"round","taper":0.6,"top":"dome"},...} for a thin stalk house.`;
 
-const STYLE = `Style. style has name, wall, wall2, roof, trim, accent, dark, glass, glow, ground, road and variety; every colour is a #rrggbb hex.
+const STYLE = `Style. style has name, wall, wall2, roof, trim, accent, dark, glass, glow, ground, road, variety and surfaces; every colour is a #rrggbb hex.
 - Eight harmonious hexes, not a rainbow: wall and wall2 clearly different in lightness or hue, roof distinct from the walls, trim a little lighter or darker than the walls, one bold accent used sparingly, dark nearly black with a tint, glass a dark cool tint, ground and road matching the terrain of this world (moss, sand, wet stone, metal deck, snow).
 - glow is a lit colour (lantern amber, neon magenta, bioluminescent teal). variety is 0.1 to 0.4; lower for uniform places. Let the colours come from the prompt, not from convention: a mushroom forest is not brown.`;
+
+const SURFACES = `Surfaces. style.surfaces says what each tone is made of. The engine generates a textured, weathered material for each kind and tints it with your hex, so the kind decides whether a wall reads as rusted steel, wet plaster or living fungus. Fields wall, wall2, roof, trim, ground and road each take one kind from this list:
+- timber: squared beams and boards with grain; frames, posts, barns.
+- planks: nailed board siding with gaps; frontier fronts, shacks, decks, boardwalks.
+- log: stacked round logs; cabins, palisades, lodges.
+- plaster: smooth limewash or stucco with hairline cracks; Edo townhouses, Tudor infill, Mediterranean walls.
+- adobe: hand-smoothed mud brick with soft edges; desert pueblos, kasbahs.
+- brick: coursed fired brick; mills, terraces, city blocks.
+- stone: rough-cut masonry blocks; castles, monasteries, temples, ruins.
+- cobble: rounded setts; old streets and yards, rustic wall bases.
+- concrete: cast grey slabs with stains and seams; bunkers, docks, brutalist blocks, pavements.
+- metal_panel: clean seamed or riveted sheet; labs, stations, modern cladding, deck plates.
+- corrugated: ribbed sheet steel; shipping containers, sheds, warehouses, shanty roofs.
+- rusted: flaking oxidised steel; scrapyards, wrecks, old cranes and tanks.
+- hull_plate: heavy welded plating with hatches; ships, spacecraft, armoured habitats.
+- glass_curtain: mirrored glazing grid; towers, greenhouses, arcologies.
+- shingle: overlapping wood shakes; frontier and cottage roofs.
+- tile: fired clay or glazed roof tiles; Edo, Chinese and Mediterranean roofs.
+- thatch: bundled straw or reed; village huts, tropical roofs.
+- slate: thin dark stone roofing; gothic, alpine and mill-town roofs.
+- canvas: stitched cloth; tents, awnings, sails, market stalls.
+- paper_screen: pale panels in a thin lattice; shoji walls, lantern skins.
+- organic: smooth living tissue; mushroom caps, pods, gourds, grown houses.
+- bark: furrowed tree bark; trunk dwellings, stalks, roots.
+- chitin: glossy segmented shell; hives, insect cities.
+- crystal: faceted translucent mineral; geodes, shard spires.
+- ice: blue-white frozen blocks; igloos, glacier halls.
+- coral: porous branching reef rock; reef and seabed towns.
+- dirt: packed bare earth; yards, frontier streets, tracks.
+- sand: fine rippled sand; deserts, beaches, seabeds.
+- grass: short turf; meadows, village greens.
+- moss: soft deep green carpet; forest floors, damp ruins.
+- snow: fresh drifted snow; winter ground and snow-laden roofs.
+- mud: wet churned earth; swamps, trenches, monsoon lanes.
+- asphalt: dark patched tarmac; city streets, ports, lots.
+- gravel: loose crushed stone; paths, rail beds, courtyards, raked gardens.
+- regolith: grey dusty rubble; moons, asteroids, wastelands.
+- ash: pale grey powder; volcanic slopes, burnt lands.
+wear is 0 (pristine) to 1 (ruined): grime, stains, rust streaks, chipped edges, moss in the creases. wet is 0 (dry) to 1 (soaked): it darkens and glosses the ground and low walls, with puddles above 0.5. wet follows the outline's weather: rain or storm 0.6 to 0.9, mist or fog about 0.3, snow about 0.15, dust or clear 0 unless the place is a swamp or a shore.
+Choose by the world, never by habit. A container port is corrugated walls, rusted wall2, corrugated roof, metal_panel trim, concrete ground, asphalt road, wear 0.7, wet 0.8. An Edo street is plaster, timber, tile, timber, gravel ground, cobble road, wear 0.3. A mushroom grove is organic, bark, organic roof, bark trim, moss ground, dirt road. A glass needle city is glass_curtain, metal_panel, metal_panel roof and trim, concrete, asphalt, wear 0.1. A snowbound monastery is stone, timber, snow on the roof, timber trim, snow ground, stone road. Any kind may go in any field when the world calls for it (a snow roof, a moss road, an ice wall). Hexes and kinds must agree: moss ground is green, rusted steel is orange-brown, snow is near white.`;
+
+const LIGHT = `Light and skyline.
+- glow parts bloom on screen, so they are this world's light sources: lamps, lit windows and doorways, signs, braziers, spores, screens, beacons. The outline's Air line gives the weather and the arrival hour. At dawn, dusk or night, and in rain, fog, snow or storm, every blueprint carries 2 or more glow parts (a row of lit windows made with repeat, a lamp by the door, a sign) and at least one prop is a standing light. Match style.glow to the source: sodium orange, cold fluorescent, lantern amber, bioluminescent teal.
+- A skyline is not only houses. When the outline names a set piece (crane, gantry, mast, pylon, water tower, windmill, derrick, arch, bell tower), give it its own blueprint and build it tall and open: a tower, stilts or arch family for the legs, then parts for a long box boom or beam high up (use rot to swing it), thin cylinders for cables, stays and tanks, and a glow lamp at the top. Put vertical extras on ordinary blueprints too: masts, antennas, chimneys, flagpoles, vents, signal lamps. One tall prop (size 4 to 6: a lamp pylon, a mast, a totem, a dead tree) breaks the roofline between structures.`;
 
 const PROPS = `Props: 3 to 6 small scenery kinds scattered between structures: kind (snake_case slug), family and dials (from the catalogue, like blueprints), extra parts (0 to 4 rows, relative to a 1 by 1 footprint, y and h in metres relative to size), size (longest dimension in metres, 0.3 to 6) and weight (1 to 5, how common). Pick things that tell this world: trees, mushrooms, crystals, reeds, hitching posts, lanterns, crates, banners, antenna masts. At least one prop is a light source with a glow part. Make the common props (high weight) the world's ground cover: in a forest world, trees and ferns; in a needle city, signs and light posts.`;
 
@@ -41,21 +85,21 @@ const LANDMARKS = `Landmarks: 1 or 2 set pieces. Each has id, prompt, place ("pl
 const BUDGET = `Budget. The whole reply must stay under about 2800 output tokens. Write numbers with at most two decimals. Summaries are under 80 characters. Write 4 to 7 blueprints, each with 3 to 8 extra part rows, and 3 to 5 props with 0 to 3 rows each. Prefer repeat over copying rows.`;
 
 const SHAPE = `OUTPUT FORMAT
-{"style":{"name":str,"wall":"#rrggbb","wall2":"#rrggbb","roof":"#rrggbb","trim":"#rrggbb","accent":"#rrggbb","dark":"#rrggbb","glass":"#rrggbb","glow":"#rrggbb","ground":"#rrggbb","road":"#rrggbb","variety":0.25},
+{"style":{"name":str,"wall":"#rrggbb","wall2":"#rrggbb","roof":"#rrggbb","trim":"#rrggbb","accent":"#rrggbb","dark":"#rrggbb","glass":"#rrggbb","glow":"#rrggbb","ground":"#rrggbb","road":"#rrggbb","variety":0.25,"surfaces":{"wall":kind,"wall2":kind,"roof":kind,"trim":kind,"ground":kind,"road":kind,"wear":0.5,"wet":0.2}},
 "blueprints":[{"id":snake_case,"summary":str,"family":str,"dials":{"<dial>":number or string},"parts":[[shape,x,z,y,w,d,h,rot,tone,repeat,gap],...],"doorX":0}],
 "buildings":[{"id":"<structure id from the outline>","blueprint":"<blueprint id>"}],
 "props":[{"kind":snake_case,"family":str,"dials":{...},"parts":[[...],...],"size":1.5,"weight":3}],
 "landmarks":[{"id":snake_case,"prompt":str,"place":"plaza","height":8}]}
-Write style first, then blueprints, then buildings, props and landmarks. Every structure in the outline gets exactly one entry in "buildings", and every blueprint is used at least once. Structures with different forms get different blueprints; structures with the same form may share one. Use every dial name exactly as the catalogue spells it, with a value inside the listed range or from the listed choices.`;
+Write style first (with its surfaces), then blueprints, then buildings, props and landmarks. Every structure in the outline gets exactly one entry in "buildings", and every blueprint is used at least once. Structures with different forms get different blueprints; structures with the same form may share one. Use every dial name exactly as the catalogue spells it, with a value inside the listed range or from the listed choices.`;
 
 let cached: string | null = null;
 
 /** Stable across requests so the prompt cache can hit; the outline and the player's prompt go in the user turn. */
 export function lookSystemPrompt(): string {
-  if (!cached) cached = [ROLE, PRINCIPLE, `SKELETON CATALOGUE\n${skeletonCatalogText()}`, VOCAB, EXAMPLE, STYLE, PROPS, LANDMARKS, BUDGET, SHAPE].join('\n\n');
+  if (!cached) cached = [ROLE, PRINCIPLE, `SKELETON CATALOGUE\n${skeletonCatalogText()}`, VOCAB, EXAMPLE, STYLE, SURFACES, LIGHT, PROPS, LANDMARKS, BUDGET, SHAPE].join('\n\n');
   return cached;
 }
 
 export function lookUserMessage(prompt: string, seed: number, outline: Outline): string {
-  return `${outlineBrief(outline)}\n\nSeed: ${seed}\nPlayer prompt: ${prompt}\nDesign the look now: style, 4 to 7 blueprints (skeleton family, bold dials, extra parts), a blueprint for every structure, 3 to 5 props, 1 or 2 landmarks.`;
+  return `${outlineBrief(outline)}\n\nSeed: ${seed}\nPlayer prompt: ${prompt}\nDesign the look now: style with surfaces that fit this world and its weather, 4 to 7 blueprints (skeleton family, bold dials, extra parts), a blueprint for every structure, 3 to 5 props, 1 or 2 landmarks.`;
 }

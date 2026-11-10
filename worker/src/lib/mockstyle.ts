@@ -1,5 +1,6 @@
 // Mock mode: keyword-driven look for a town, so different prompts look different offline.
 import type { Blueprint, BuildingRole, ThemeId, WorldSpec, StyleSpec, SkyPreset } from '../../../app/src/world/spec';
+import { mockAir, mockSurfaces } from './mockmood';
 import { HOUSE_BLUEPRINT, LANTERN_PROP, MOCK_BLUEPRINTS, PAGODA_BLUEPRINT, SALOON_BLUEPRINT } from './mockblueprints';
 
 type Look = Partial<StyleSpec> & { sky?: SkyPreset; fog?: number };
@@ -74,19 +75,22 @@ function blueprintFor(role: BuildingRole, blueprints: readonly Blueprint[]): str
 
 /**
  * The spec mock mode streams. A fixture that already has blueprints is kept as is, with the keyword style laid
- * over its own. A fixture without them gets the hand-written blueprints, a prop and a landmark, so the new
+ * over its own, and the mood, surfaces and starting hour the prompt's words call for. A fixture without them gets the hand-written blueprints, a prop and a landmark, so the new
  * path is visible offline.
  */
 export function mockSpec(fixture: WorldSpec, prompt: string, seed: number): WorldSpec {
   const hasBlueprints = (fixture.blueprints?.length ?? 0) > 0;
   const base = fixture.style ?? BASE[fixture.theme];
   const { style, sky, fog } = remixStyle(prompt, base);
+  const air = mockAir(prompt, fixture.theme, sky, fog);
   const spec: WorldSpec = {
     ...fixture,
     prompt,
     seed,
-    style,
-    palette: { ...fixture.palette, ground: style.ground, accent: style.accent, sky: sky ?? fixture.palette.sky, fog: fog ?? fixture.palette.fog },
+    style: { ...style, surfaces: mockSurfaces(prompt, fixture.theme, air.mood) },
+    mood: air.mood,
+    palette: { ...fixture.palette, ground: style.ground, accent: style.accent, sky: air.sky, fog: air.fog },
+    time: { ...fixture.time, startHour: air.startHour },
   };
   if (hasBlueprints) return spec;
   const blueprints = [...MOCK_BLUEPRINTS];

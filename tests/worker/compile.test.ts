@@ -3,6 +3,7 @@ import { remixStyle, mockSpec } from '../../worker/src/lib/mockstyle';
 import { MOCK_BLUEPRINTS, SALOON_BLUEPRINT } from '../../worker/src/lib/mockblueprints';
 import { messagesUrl } from '../../worker/src/lib/anthropic';
 import { FIXTURES, nearestTheme } from '../../worker/src/lib/shared';
+import { normalizeSpec, validateSpec } from '../../app/src/world/schema';
 import type { Blueprint } from '../../app/src/world/spec';
 
 const HEX = /^#[0-9a-f]{6}$/i;
@@ -74,6 +75,60 @@ describe('mock style remix', () => {
     const out = mockSpec(withOwn, 'a desert town', 1);
     expect(out.blueprints).toEqual([own]);
     expect(out.buildings.every((b) => b.blueprint === 'own')).toBe(true);
+  });
+});
+
+describe('mock mood and surfaces', () => {
+  const run = (p: string): ReturnType<typeof mockSpec> => mockSpec(FIXTURES[nearestTheme(p)], p, 1);
+
+  it('reads weather, hour, grade and materials from prompt words', () => {
+    const port = run('a rain-soaked container port at dawn');
+    expect(port.mood).toMatchObject({ weather: 'rain', grade: 'teal_orange' });
+    expect(port.mood?.ambience).toEqual(expect.arrayContaining(['rain', 'harbor']));
+    expect(port.style?.surfaces).toMatchObject({ wall: 'corrugated', wall2: 'rusted', ground: 'concrete', road: 'asphalt' });
+    expect(port.style?.surfaces?.wet ?? 0).toBeGreaterThan(0.6);
+    expect(port.time.startHour).toBe(6);
+    expect(port.palette.sky).toBe('dawn');
+
+    const monastery = run('a snowbound mountain monastery at night');
+    expect(monastery.mood).toMatchObject({ weather: 'snow', grade: 'moonlit' });
+    expect(monastery.style?.surfaces).toMatchObject({ wall: 'stone', ground: 'snow' });
+    expect(monastery.palette.sky).toBe('night');
+
+    expect(run('a storm over a pirate cove').mood?.weather).toBe('storm');
+    expect(run('a foggy gothic village').mood).toMatchObject({ weather: 'fog', grade: 'moonlit' });
+    expect(run('a desert oasis bazaar').mood?.weather).toBe('dust');
+    expect(run('a swamp village on stilts').mood?.weather).toBe('fireflies');
+    expect(run('a forest of giant glowing mushrooms').style?.surfaces).toMatchObject({ wall: 'organic', ground: 'moss' });
+    expect(run('a city of needle-thin glass towers').style?.surfaces?.wall).toBe('glass_curtain');
+    expect(run('a neon arcology in the rain').mood).toMatchObject({ weather: 'rain', grade: 'neon_noir' });
+  });
+
+  it('gives different prompts different atmospheres', () => {
+    const prompts = ['a rain-soaked port at dawn', 'a snowbound monastery at night', 'a desert caravan camp', 'a mushroom forest', 'a volcanic forge town', 'a neon arcology'];
+    const airs = new Set(prompts.map((p) => {
+      const s = run(p);
+      return `${s.mood?.weather}|${s.mood?.grade}|${s.style?.surfaces?.wall}|${s.style?.surfaces?.ground}`;
+    }));
+    expect(airs.size).toBe(prompts.length);
+  });
+
+  it('falls back to a strong default mood per theme when the prompt names none', () => {
+    const plain = (theme: 'western' | 'medieval' | 'scifi' | 'modern'): ReturnType<typeof mockSpec> => mockSpec(FIXTURES[theme], 'somewhere', 1);
+    expect(plain('western').mood).toMatchObject({ weather: 'dust', grade: 'golden' });
+    expect(plain('western').time.startHour).toBe(17.5);
+    expect(plain('medieval').mood).toMatchObject({ weather: 'mist', grade: 'golden' });
+    expect(plain('medieval').palette.sky).toBe('dawn');
+    expect(plain('scifi').mood).toMatchObject({ weather: 'snow', grade: 'cold_steel' });
+    expect(plain('scifi').mood?.intensity ?? 1).toBeLessThan(0.5);
+    expect(plain('modern').mood).toMatchObject({ weather: 'rain', grade: 'neon_noir' });
+    expect(plain('modern').palette.sky).toBe('dusk');
+    for (const t of ['western', 'medieval', 'scifi', 'modern'] as const) {
+      const s = plain(t);
+      expect(validateSpec(s).ok).toBe(true);
+      expect(normalizeSpec(s).mood).toEqual(s.mood);
+      expect(normalizeSpec(s).style?.surfaces).toEqual(s.style?.surfaces);
+    }
   });
 });
 

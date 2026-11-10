@@ -3,7 +3,7 @@
 //              done {refusal}    the last event of a reply
 //              error {error, reason}  instead of done when no vendor produced any text
 // Anthropic (Haiku) first; on any vendor failure before text arrived, one retry on Groq when keyed.
-import { anthropicEvents, anthropicFetch, HAIKU } from '../lib/anthropic';
+import { anthropicEvents, anthropicFetch, SONNET } from '../lib/anthropic';
 import type { Env } from '../lib/env';
 import { isMock } from '../lib/env';
 import { budgetScope, chargeBudget, guardBudget, guardEarly, type BudgetScope } from '../lib/guard';
@@ -74,11 +74,11 @@ async function runReal(sse: SseWriter, env: Env, req: NpcSayRequest, scope: Budg
   try {
     try {
       const res = await anthropicFetch(env, {
-        model: HAIKU,
-        max_tokens: 220,
+        model: SONNET,
+        max_tokens: 400,
         stream: true,
-        thinking: { type: 'disabled' },
-        output_config: { effort: 'low' },
+        thinking: { type: 'between_tools' },
+        output_config: { effort: 'high' },
         system: npcSystemBlocks(req),
         messages: [{ role: 'user', content: npcUserMessage(req) }],
       });

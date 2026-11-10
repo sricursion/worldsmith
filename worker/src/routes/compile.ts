@@ -10,7 +10,7 @@
 //              look {...}       style (with surfaces), site, blueprints, props, landmarks, buildings (with blueprint ids)
 //              spec {...}       the merged WorldSpec
 //              error {error, reason?}
-import { anthropicEvents, anthropicFetch, HAIKU, SONNET, type MessagesBody } from '../lib/anthropic';
+import { anthropicEvents, anthropicFetch, SONNET, type MessagesBody } from '../lib/anthropic';
 import type { Env } from '../lib/env';
 import { isMock } from '../lib/env';
 import { budgetScope, chargeBudget, guardBudget, guardEarly, sessionFromRequest, type BudgetScope } from '../lib/guard';
@@ -117,7 +117,7 @@ async function runOutline(run: Run, prompt: string, seed: number): Promise<{ ok:
   let last: FailReason = 'upstream';
   for (let attempt = 0; attempt < 2; attempt++) {
     const r = await streamStage(run, {
-      model: HAIKU, max_tokens: 2200, thinking: { type: 'disabled' }, system: cached(outlineSystemPrompt()),
+      model: SONNET, max_tokens: 3200, thinking: { type: 'between_tools' }, output_config: { effort: 'high' }, system: cached(outlineSystemPrompt()),
       messages: [{ role: 'user', content: outlineUserMessage(prompt, seed) }],
     }, OUTLINE_MS);
     if (!r.ok) {
@@ -135,7 +135,7 @@ async function runOutline(run: Run, prompt: string, seed: number): Promise<{ ok:
 async function runLook(run: Run, prompt: string, seed: number, outline: Outline): Promise<LookResult> {
   const fallback = (): LookResult => mockLook(prompt, seed, outline.theme, outline);
   const r = await streamStage(run, {
-    model: SONNET, max_tokens: 6000, thinking: { type: 'between_tools' }, output_config: { effort: 'low' },
+    model: SONNET, max_tokens: 6000, thinking: { type: 'between_tools' }, output_config: { effort: 'high' },
     system: cached(lookSystemPrompt()), messages: [{ role: 'user', content: lookUserMessage(prompt, seed, outline) }],
   }, LOOK_MS);
   if (!r.ok) return fallback();
@@ -151,7 +151,7 @@ async function runLook(run: Run, prompt: string, seed: number, outline: Outline)
 async function runStory(run: Run, prompt: string, seed: number, outline: Outline): Promise<StoryResult> {
   const fallback = (): StoryResult => mockStory(outline.theme, outline);
   const r = await streamStage(run, {
-    model: SONNET, max_tokens: 7000, thinking: { type: 'between_tools' }, output_config: { effort: 'low' },
+    model: SONNET, max_tokens: 7000, thinking: { type: 'between_tools' }, output_config: { effort: 'high' },
     system: cached(storySystemPrompt()), messages: [{ role: 'user', content: storyUserMessage(prompt, seed, outline) }],
   }, STORY_MS);
   if (!r.ok) return fallback();

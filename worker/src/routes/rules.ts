@@ -31,7 +31,7 @@ export async function handleRulesPatch(req: Request, env: Env): Promise<Response
     model: SONNET,
     max_tokens: 1500,
     thinking: { type: 'between_tools' },
-    output_config: { effort: 'low', format: { type: 'json_schema', schema: rulesJsonSchema() } },
+    output_config: { effort: 'high', format: { type: 'json_schema', schema: rulesJsonSchema() } },
     system: [{ type: 'text', text: RULES_SYSTEM, cache_control: { type: 'ephemeral' } }],
     messages: [{ role: 'user', content: rulesUserMessage(ruleText, summary) }],
   });

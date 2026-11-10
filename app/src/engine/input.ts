@@ -2,8 +2,12 @@ export interface Input {
   down(code: string): boolean;
   axis(): { x: number; y: number };
   onKey(code: string, cb: () => void): () => void;
-  /** Accumulated orbit drag in pixels since the last call. */
+  /** Accumulated look travel in pixels since the last call: mouse movement while locked, drag otherwise. */
   pointerDelta(): { dx: number; dy: number };
+  /** True while the pointer is locked to the game surface for mouse look. */
+  isLocked(): boolean;
+  /** Releases the pointer lock, if held. */
+  exitLock?(): void;
   /** Accumulated wheel zoom since the last call; positive scrolls away from the user (zoom out). */
   wheelDelta(): number;
   dispose(): void;
@@ -17,6 +21,8 @@ const AXIS_KEYS = {
 } as const;
 
 const JOYSTICK_RADIUS_PX = 56;
+/** Largest single locked-mouse report accepted, in pixels; some browsers emit rare huge jumps. */
+const LOCK_MOVE_LIMIT_PX = 300;
 const DEAD_ZONE = 0.12;
 
 /** Maps a joystick drag (pixels from the touch origin) to an axis pair in -1..1, +y = forward. */
@@ -75,6 +81,37 @@ export function createInput(target: HTMLElement): Input {
   let joy = { x: 0, y: 0 };
 
   const typing = (): boolean => isTypingTarget(document.activeElement);
+  const locked = (): boolean => document.pointerLockElement === target;
+
+  // Mouse look locks the pointer on a click. When the browser refuses (no support, sandboxed frame, too soon
+  // after Escape) the click simply starts a drag-look instead.
+  const requestLock = (): void => {
+    if (locked() || typeof target.requestPointerLock !== 'function') return;
+    const attempt = (raw: boolean): void => {
+      let pending: unknown;
+      try {
+        pending = raw ? target.requestPointerLock({ unadjustedMovement: true }) : target.requestPointerLock();
+      } catch {
+        return;
+      }
+      if (pending instanceof Promise) {
+        pending.catch(() => {
+          if (raw) attempt(false);
+        });
+      }
+    };
+    attempt(true);
+  };
+  const exitLock = (): void => {
+    if (locked()) document.exitPointerLock();
+  };
+  const onLockChange = (): void => {
+    mouseId = null;
+  };
+  // A text field taking focus needs the cursor back.
+  const onFocusIn = (e: FocusEvent): void => {
+    if (e.target instanceof Element && isTypingTarget(e.target)) exitLock();
+  };
 
   const onKeyDown = (e: KeyboardEvent): void => {
     if (typing()) return;
@@ -111,6 +148,8 @@ export function createInput(target: HTMLElement): Input {
     }
     if (e.button !== 0) return;
     if (typing() && document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    if (locked()) return;
+    if (e.pointerType === 'mouse') requestLock();
     mouseId = e.pointerId;
     mouseLx = e.clientX;
     mouseLy = e.clientY;
@@ -132,6 +171,13 @@ export function createInput(target: HTMLElement): Input {
       }
       t.lx = e.clientX;
       t.ly = e.clientY;
+      return;
+    }
+    if (locked()) {
+      if (e.pointerType !== 'mouse') return;
+      if (Math.abs(e.movementX) > LOCK_MOVE_LIMIT_PX || Math.abs(e.movementY) > LOCK_MOVE_LIMIT_PX) return;
+      dragDx += e.movementX;
+      dragDy += e.movementY;
       return;
     }
     if (mouseId === e.pointerId) {
@@ -173,6 +219,8 @@ export function createInput(target: HTMLElement): Input {
   window.addEventListener('pointercancel', onPointerUp);
   target.addEventListener('wheel', onWheel, { passive: false });
   target.addEventListener('contextmenu', onContextMenu);
+  document.addEventListener('pointerlockchange', onLockChange);
+  document.addEventListener('focusin', onFocusIn);
 
   let disposed = false;
 
@@ -206,6 +254,8 @@ export function createInput(target: HTMLElement): Input {
       dragDy = 0;
       return out;
     },
+    isLocked: locked,
+    exitLock,
     wheelDelta() {
       const w = wheel;
       wheel = 0;
@@ -223,6 +273,9 @@ export function createInput(target: HTMLElement): Input {
       window.removeEventListener('pointercancel', onPointerUp);
       target.removeEventListener('wheel', onWheel);
       target.removeEventListener('contextmenu', onContextMenu);
+      document.removeEventListener('pointerlockchange', onLockChange);
+      document.removeEventListener('focusin', onFocusIn);
+      exitLock();
       target.style.touchAction = prevTouchAction;
       keys.clear();
       handlers.clear();

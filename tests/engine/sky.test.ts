@@ -1,10 +1,19 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  CINEMATIC_BIAS_START_DEG,
   ENV_STEPS,
   HAZE_MARKER,
+  LIGHT_RATIOS,
   MAX_SUN_ELEVATION_DEG,
+  PRACTICAL_POOL,
+  PRACTICAL_RANGE,
+  SHADOW_TIERS,
   SKY_PRESETS,
+  addPracticalLight,
+  keyLightFor,
+  moonLightFor,
+  nearestPracticals,
   acesDisplay,
   exposureFor,
   envStepForHour,
@@ -14,7 +23,7 @@ import {
   sunFromHour,
   wrapHour,
 } from '../../app/src/engine/sky';
-import { Color } from 'three';
+import { Color, Vector3 } from 'three';
 import type { SkyPreset } from '../../app/src/world/spec';
 import { joystickAxis, keyAxis } from '../../app/src/engine/input';
 
@@ -172,6 +181,125 @@ describe('sky look', () => {
     const src = readFileSync('node_modules/three/examples/jsm/objects/Sky.js', 'utf8');
     expect(src).toContain(HAZE_MARKER);
     expect(src.split('void main() {').length).toBeGreaterThan(1);
+  });
+});
+
+describe('cinematic key light', () => {
+  it('leaves a low sun exactly where the clock puts it', () => {
+    for (const h of [6.2, 7, 8, 16.5, 17.8]) {
+      const sun = sunFromHour(h);
+      expect(sun.elevationDeg).toBeLessThanOrEqual(CINEMATIC_BIAS_START_DEG);
+      const key = keyLightFor(h);
+      expect(key.bias).toBe(0);
+      expect(key.elevationDeg).toBeCloseTo(sun.elevationDeg, 9);
+      expect(key.azimuthDeg).toBeCloseTo(sun.azimuthDeg, 9);
+      for (let i = 0; i < 3; i++) expect(key.direction[i]).toBeCloseTo(sun.direction[i] ?? 0, 9);
+    }
+  });
+
+  it('lowers and swings a high sun so shadows rake, without touching the clock', () => {
+    const noon = keyLightFor(12);
+    expect(sunFromHour(12).elevationDeg).toBeCloseTo(MAX_SUN_ELEVATION_DEG, 6);
+    expect(noon.bias).toBe(1);
+    expect(noon.elevationDeg).toBeLessThan(45);
+    expect(noon.elevationDeg).toBeGreaterThan(25);
+    expect(Math.abs(noon.azimuthDeg - 180)).toBeGreaterThan(25);
+    // Shadow length per metre of wall height: over a metre at noon instead of 0.4.
+    expect(1 / Math.tan((noon.elevationDeg * Math.PI) / 180)).toBeGreaterThan(1);
+    // Neither axis of a street grid gets the light head on.
+    expect(Math.abs(noon.direction[0])).toBeGreaterThan(0.3);
+    expect(Math.abs(noon.direction[2])).toBeGreaterThan(0.3);
+    const plain = keyLightFor(12, false);
+    expect(plain.elevationDeg).toBeCloseTo(MAX_SUN_ELEVATION_DEG, 6);
+    expect(plain.bias).toBe(0);
+  });
+
+  it('moves smoothly through the day and never stands above 46 degrees', () => {
+    let prev = keyLightFor(6);
+    for (let h = 6; h <= 18; h += 0.02) {
+      const k = keyLightFor(h);
+      expect(k.elevationDeg).toBeLessThan(46);
+      expect(Math.hypot(...k.direction)).toBeCloseTo(1, 9);
+      const turn = Math.acos(Math.min(1, k.direction[0] * prev.direction[0] + k.direction[1] * prev.direction[1] + k.direction[2] * prev.direction[2]));
+      expect((turn * 180) / Math.PI).toBeLessThan(1.5);
+      prev = k;
+    }
+  });
+
+  it('keeps the moon up at night and off the zenith', () => {
+    for (const h of [20, 22, 0, 2, 4]) {
+      const m = moonLightFor(h);
+      expect(m.elevationDeg).toBeGreaterThanOrEqual(15);
+      expect(m.elevationDeg).toBeLessThan(46);
+      expect(m.direction[1]).toBeGreaterThan(0.25);
+      expect(Math.hypot(...m.direction)).toBeCloseTo(1, 9);
+    }
+  });
+
+  it('holds a strong key over a thin fill, and sharper shadows at higher tiers', () => {
+    expect(LIGHT_RATIOS.cinematic.key).toBe(4);
+    expect(LIGHT_RATIOS.cinematic.fill).toBe(0.25);
+    expect(LIGHT_RATIOS.cinematic.rim).toBe(0.4);
+    expect(LIGHT_RATIOS.cinematic.key / LIGHT_RATIOS.cinematic.fill).toBeGreaterThan(LIGHT_RATIOS.plain.key / LIGHT_RATIOS.plain.fill);
+    expect(SHADOW_TIERS[2].map).toBe(4096);
+    for (let q = 1; q < 3; q++) {
+      const a = SHADOW_TIERS[q - 1];
+      const b = SHADOW_TIERS[q];
+      if (a === undefined || b === undefined) throw new Error('missing tier');
+      expect(b.box / b.map).toBeLessThan(a.box / a.map);
+    }
+  });
+});
+
+describe('practical lights', () => {
+  const grid: { x: number; z: number }[] = [];
+  for (let i = 0; i < 30; i++) grid.push({ x: i * 5, z: 0 });
+
+  it('picks the nearest lamps in order and fades the furthest', () => {
+    const index: number[] = [];
+    const weight: number[] = [];
+    const n = nearestPracticals(grid, 51, 0, 4, index, weight);
+    expect(n).toBe(4);
+    expect(index.slice(0, 4)).toEqual([10, 11, 9, 12]);
+    expect(weight[0]).toBe(1);
+    for (let i = 1; i < n; i++) expect(weight[i] ?? 2).toBeLessThanOrEqual(weight[i - 1] ?? 0);
+    // The first lamp left out is 11 m away, so the pick at 9 m has started to dim.
+    expect(weight[3]).toBeCloseTo(0.657, 2);
+    expect(weight[3]).toBeGreaterThan(0);
+  });
+
+  it('handles few lamps, far lamps and an empty pool', () => {
+    const index: number[] = [];
+    const weight: number[] = [];
+    expect(nearestPracticals(grid.slice(0, 2), 0, 0, 12, index, weight)).toBe(2);
+    expect(weight[0]).toBe(1);
+    expect(weight[1]).toBe(1);
+    expect(nearestPracticals(grid, 0, PRACTICAL_RANGE + 200, 4, index, weight)).toBe(0);
+    expect(nearestPracticals(grid, 0, 0, 0, index, weight)).toBe(0);
+    expect(nearestPracticals([], 0, 0, 4, index, weight)).toBe(0);
+    const near = nearestPracticals(grid, 0, PRACTICAL_RANGE - 1, 4, index, weight);
+    expect(near).toBeGreaterThan(0);
+    expect(weight[0]).toBeLessThan(0.05);
+  });
+
+  it('agrees with a full sort', () => {
+    const pts: { x: number; z: number }[] = [];
+    for (let i = 0; i < 200; i++) pts.push({ x: ((i * 7919) % 173) - 86, z: ((i * 104729) % 151) - 75 });
+    const index: number[] = [];
+    const weight: number[] = [];
+    const n = nearestPracticals(pts, 3, -4, 12, index, weight);
+    const sorted = pts.map((p, i) => ({ i, d: Math.hypot(p.x - 3, p.z + 4) })).sort((a, b) => a.d - b.d);
+    expect(n).toBe(12);
+    for (let k = 0; k < n; k++) expect(sorted[k]?.d).toBeCloseTo(Math.hypot((pts[index[k] ?? 0]?.x ?? 0) - 3, (pts[index[k] ?? 0]?.z ?? 0) + 4), 9);
+  });
+
+  it('registers and removes lamps without a rig', () => {
+    expect(PRACTICAL_POOL).toEqual([4, 8, 12]);
+    const off = addPracticalLight(new Vector3(1, 2, 3), '#ffaa55', 5);
+    const bad = addPracticalLight(new Vector3(0, 0, 0), 'not a colour', Number.NaN);
+    off();
+    off();
+    bad();
   });
 });
 

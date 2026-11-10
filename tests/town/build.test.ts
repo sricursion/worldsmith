@@ -1,11 +1,15 @@
 import * as THREE from 'three';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { LoadedKit } from '../../app/src/engine/assets';
 import { buildTown } from '../../app/src/town/build';
 import { KITS } from '../../app/src/town/kits';
 import { buildingAabb, generateLayout } from '../../app/src/town/layout';
-import type { ThemeId } from '../../app/src/world/spec';
-import { THEMES, makeSpec } from './helpers';
+import { FLAT_MARGIN, outsideDistance } from '../../app/src/town/terrain';
+import type { SurfaceSet, ThemeId, WorldSpec } from '../../app/src/world/spec';
+import { STYLE, THEMES, makeBlueprintSpec, makeSpec } from './helpers';
+
+// The first town built in a run generates its surface textures, which takes a few seconds.
+vi.setConfig({ testTimeout: 60000 });
 
 function stubKit(theme: ThemeId, building: () => THREE.Object3D | null = () => null, prop: () => THREE.Object3D | null = () => null): LoadedKit {
   return { manifest: KITS[theme], building, prop, footprint: () => ({ w: 1, d: 1 }) };
@@ -130,5 +134,134 @@ describe('buildTown with kit meshes', () => {
     expect(longest).toBeGreaterThan(0.5);
     town.dispose();
     expect(disposedShared).toBe(false);
+  });
+});
+
+describe('buildTown ground, distance and dressing', () => {
+  const DRAWN_ONLY = ['terrain', 'horizon', 'horizon-glow', 'road', 'plaza', 'road-trim', 'road-decals', 'puddles', 'pavement'];
+  const surfaces = (over: Partial<SurfaceSet> = {}): SurfaceSet => ({
+    wall: 'timber', wall2: 'planks', roof: 'shingle', trim: 'timber', ground: 'dirt', road: 'dirt', wear: 0.5, wet: 0.2, ...over,
+  });
+  const styled = (over: Partial<SurfaceSet> = {}, count = 9): WorldSpec => {
+    const spec = makeBlueprintSpec({ count });
+    return { ...spec, style: { ...STYLE, surfaces: surfaces(over) } };
+  };
+  const build = (spec: WorldSpec, quality: 0 | 1 | 2 = 0): { town: ReturnType<typeof buildTown>; layout: ReturnType<typeof generateLayout> } => {
+    const layout = generateLayout(spec);
+    return { town: buildTown(layout, spec, stubKit(spec.theme), new THREE.Scene(), { quality }), layout };
+  };
+
+  it('keeps the collider flat and everything decorative out of the statics', () => {
+    const { town, layout } = build(styled({ wet: 0.9 }));
+    const collider = town.statics[0] as THREE.Mesh;
+    const cp = collider.geometry.getAttribute('position');
+    for (let i = 0; i < cp.count; i++) expect(cp.getY(i)).toBeCloseTo(0, 9);
+    expect(collider.visible).toBe(false);
+    const drawn = new Set<THREE.Object3D>();
+    for (const name of DRAWN_ONLY) town.group.traverse((o) => { if (o.name === name) drawn.add(o); });
+    const scatter = town.group.getObjectByName('scatter') as THREE.Group;
+    scatter.traverse((o) => drawn.add(o));
+    expect(drawn.size).toBeGreaterThan(8);
+    for (const m of town.statics) {
+      expect(drawn.has(m)).toBe(false);
+      expect(m).not.toBeInstanceOf(THREE.InstancedMesh);
+      expect(DRAWN_ONLY).not.toContain(m.name);
+    }
+    // solid things stay inside the town: nothing in the statics reaches the rolling ground or the horizon
+    for (const m of town.statics.slice(1)) {
+      const box = new THREE.Box3().setFromObject(m);
+      expect(outsideDistance(layout.bounds, box.min.x, box.min.z)).toBeLessThan(6);
+      expect(outsideDistance(layout.bounds, box.max.x, box.max.z)).toBeLessThan(6);
+    }
+    town.dispose();
+  });
+
+  it('draws terrain that is flat in town and rises beyond it, with a horizon ring far outside', () => {
+    const { town, layout } = build(styled());
+    const terrain = town.group.getObjectByName('terrain') as THREE.Mesh;
+    const p = terrain.geometry.getAttribute('position');
+    let high = 0;
+    for (let i = 0; i < p.count; i++) {
+      if (outsideDistance(layout.bounds, p.getX(i), p.getZ(i)) <= FLAT_MARGIN) expect(p.getY(i)).toBe(0);
+      high = Math.max(high, p.getY(i));
+    }
+    expect(high).toBeGreaterThan(8);
+    const horizon = town.group.getObjectByName('horizon') as THREE.Mesh;
+    const hp = horizon.geometry.getAttribute('position');
+    let nearest = Infinity;
+    let top = 0;
+    for (let i = 0; i < hp.count; i++) {
+      nearest = Math.min(nearest, outsideDistance(layout.bounds, hp.getX(i), hp.getZ(i)));
+      top = Math.max(top, hp.getY(i));
+    }
+    // even the foot of the widest form is off the flat ground
+    expect(nearest).toBeGreaterThan(FLAT_MARGIN);
+    expect(top).toBeGreaterThan(40);
+    expect(horizon.castShadow).toBe(false);
+    expect(town.statics).not.toContain(horizon);
+    town.dispose();
+  });
+
+  it('has puddles only when the surfaces are wet', () => {
+    const dry = build(styled({ wet: 0.3 }));
+    expect(dry.town.group.getObjectByName('puddles')).toBeUndefined();
+    dry.town.dispose();
+    const wet = build(styled({ wet: 0.95, road: 'cobble' }));
+    const puddles = wet.town.group.getObjectByName('puddles') as THREE.Mesh;
+    expect(puddles).toBeDefined();
+    const mat = puddles.material as THREE.MeshStandardMaterial;
+    expect(mat.roughness).toBeLessThan(0.1);
+    expect(mat.normalMap).toBeNull();
+    expect(mat.transparent).toBe(true);
+    expect(wet.town.statics).not.toContain(puddles);
+    wet.town.dispose();
+  });
+
+  it('scatters more on a wilder site and on a higher quality tier', () => {
+    const count = (wild: number, quality: 0 | 1 | 2): number => {
+      const spec: WorldSpec = { ...styled({ ground: 'grass' }), site: { pattern: 'street', wild, paths: 'road', spacing: 6 } };
+      const { town } = build(spec, quality);
+      const scatter = town.group.getObjectByName('scatter') as THREE.Group;
+      const n = scatter.children.reduce((sum, c) => sum + (c as THREE.InstancedMesh).instanceMatrix.count, 0);
+      town.dispose();
+      return n;
+    };
+    const tame = count(0.1, 0);
+    expect(tame).toBeGreaterThan(2500);
+    expect(count(0.9, 0)).toBeGreaterThan(tame);
+    expect(count(0.5, 2)).toBeGreaterThan(count(0.5, 0) * 1.8);
+    expect(count(1, 2)).toBeLessThanOrEqual(20000);
+  });
+
+  it('registers a lantern light by every door and smoke above the roofs', () => {
+    const { town, layout } = build(styled());
+    expect(town.lights?.length).toBeGreaterThanOrEqual(layout.buildings.length);
+    for (const b of layout.buildings) {
+      const near = (town.lights ?? []).filter((l) => Math.hypot(l.pos.x - b.door.x, l.pos.z - b.door.z) < 3.5);
+      expect(near.length).toBeGreaterThan(0);
+    }
+    for (const l of town.lights ?? []) {
+      expect(l.pos.y).toBeGreaterThan(1.5);
+      expect(l.pos.y).toBeLessThan(7);
+      expect(l.color).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(l.radius).toBeGreaterThan(3);
+    }
+    expect(town.smoke?.length).toBeGreaterThan(0);
+    for (const s of town.smoke ?? []) {
+      expect(s.y).toBeGreaterThan(2.5);
+      expect(layout.buildings.some((b) => Math.hypot(s.x - b.x, s.z - b.z) < Math.hypot(b.w, b.d))).toBe(true);
+    }
+    town.dispose();
+    expect(town.lights).toHaveLength(0);
+  });
+
+  it('is built the same way for old specs with no style', () => {
+    for (const theme of THEMES) {
+      const spec = makeSpec({ seed: 4, count: 8, theme });
+      const { town } = build(spec);
+      for (const name of ['terrain', 'horizon', 'plaza', 'scatter']) expect(town.group.getObjectByName(name), theme + ' ' + name).toBeDefined();
+      expect(town.lights?.length).toBe(8);
+      town.dispose();
+    }
   });
 });

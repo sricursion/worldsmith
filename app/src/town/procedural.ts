@@ -1,10 +1,14 @@
 // Procedural fallback buildings, used when a kit has no mesh for a role (all of western, and gaps elsewhere).
 // Everything is added to a GeoBatch with its world transform baked in. Local frame: the door faces -Z.
+// Walls, roofs and timbers take generated surfaces (see surfaces.ts) with UVs in metres.
 import * as THREE from 'three';
 import type { Rng } from '../world/rng';
-import type { BuildingSize, ThemeId } from '../world/spec';
+import type { BuildingSize, SurfaceKind, ThemeId } from '../world/spec';
 import type { GeoBatch, MaterialCache } from './batch';
 import type { PlacedBuilding } from './layout';
+import { getSurface, surfaceDefaults, surfaceScale } from './surfaces';
+import type { Quality } from './surfaces';
+import { projectWorldUV } from './surfaces/uv';
 
 export const BODY_HEIGHT: Record<BuildingSize, number> = { small: 4, medium: 6, large: 9 };
 
@@ -18,18 +22,37 @@ const PALETTES: Record<ThemeId, { walls: string[]; roofs: string[] }> = {
 const DOOR_W = 1.5;
 const RECESS = 0.45;
 
-export interface ProcEnv { batch: GeoBatch; mats: MaterialCache; theme: ThemeId }
+export interface ProcEnv {
+  batch: GeoBatch;
+  mats: MaterialCache;
+  theme: ThemeId;
+  /** Surface weathering and wetness, 0..1 (defaults 0.4 and 0), and texture quality (default: surfaceDefaults()). */
+  wear?: number;
+  wet?: number;
+  quality?: Quality;
+}
 
 export class Part {
   constructor(private readonly env: ProcEnv, private readonly base: THREE.Matrix4) {}
 
-  geo(g: THREE.BufferGeometry, color: string, x: number, y: number, z: number, opts?: Parameters<MaterialCache['get']>[1]): void {
-    const m = new THREE.Matrix4().multiplyMatrices(this.base, new THREE.Matrix4().makeTranslation(x, y, z));
-    this.env.batch.add(g, this.env.mats.get(color, opts), m);
+  /** With `kind` the part takes that generated surface in `color`, with UVs in metres; without, a flat colour. */
+  geo(g: THREE.BufferGeometry, color: string, x: number, y: number, z: number, opts?: Parameters<MaterialCache['get']>[1], kind?: SurfaceKind): void {
+    if (!kind) {
+      const m = new THREE.Matrix4().multiplyMatrices(this.base, new THREE.Matrix4().makeTranslation(x, y, z));
+      this.env.batch.add(g, this.env.mats.get(color, opts), m);
+      return;
+    }
+    const n = g.index ? g.toNonIndexed() : g;
+    if (n !== g) g.dispose();
+    n.translate(x, y, z);
+    projectWorldUV(n, surfaceScale(kind));
+    const env = this.env;
+    const mat = getSurface(kind, color, { wear: env.wear ?? 0.4, wet: env.wet ?? 0, quality: env.quality ?? surfaceDefaults().quality, seed: 0, tint: true });
+    env.batch.add(n, mat, this.base);
   }
 
-  box(w: number, h: number, d: number, x: number, y: number, z: number, color: string, opts?: Parameters<MaterialCache['get']>[1]): void {
-    this.geo(new THREE.BoxGeometry(w, h, d), color, x, y, z, opts);
+  box(w: number, h: number, d: number, x: number, y: number, z: number, color: string, opts?: Parameters<MaterialCache['get']>[1], kind?: SurfaceKind): void {
+    this.geo(new THREE.BoxGeometry(w, h, d), color, x, y, z, opts, kind);
   }
 }
 
@@ -53,14 +76,14 @@ function roundedSlab(w: number, d: number, h: number, r: number): THREE.BufferGe
 }
 
 /** Walls with a real recess: back block plus left, right and lintel slabs that leave an opening for the door. */
-function recessedBody(p: Part, w: number, h: number, d: number, wall: string, doorH: number): void {
-  p.box(w, h, d - RECESS, 0, h / 2, RECESS / 2, wall);
+function recessedBody(p: Part, w: number, h: number, d: number, wall: string, doorH: number, kind: SurfaceKind): void {
+  p.box(w, h, d - RECESS, 0, h / 2, RECESS / 2, wall, undefined, kind);
   const sideW = (w - DOOR_W) / 2;
   const zf = -d / 2 + RECESS / 2;
-  p.box(sideW, h, RECESS, -(DOOR_W / 2 + sideW / 2), h / 2, zf, wall);
-  p.box(sideW, h, RECESS, DOOR_W / 2 + sideW / 2, h / 2, zf, wall);
-  p.box(DOOR_W, h - doorH, RECESS, 0, doorH + (h - doorH) / 2, zf, wall);
-  p.box(DOOR_W - 0.1, doorH, 0.1, 0, doorH / 2, -d / 2 + RECESS + 0.05, '#2b1d14'); // door leaf at the back of the recess
+  p.box(sideW, h, RECESS, -(DOOR_W / 2 + sideW / 2), h / 2, zf, wall, undefined, kind);
+  p.box(sideW, h, RECESS, DOOR_W / 2 + sideW / 2, h / 2, zf, wall, undefined, kind);
+  p.box(DOOR_W, h - doorH, RECESS, 0, doorH + (h - doorH) / 2, zf, wall, undefined, kind);
+  p.box(DOOR_W - 0.1, doorH, 0.1, 0, doorH / 2, -d / 2 + RECESS + 0.05, '#2b1d14', undefined, 'timber'); // door leaf at the back of the recess
 }
 
 function frontWindows(p: Part, w: number, h: number, d: number, color: string, opts?: Parameters<MaterialCache['get']>[1]): void {
@@ -72,28 +95,28 @@ function frontWindows(p: Part, w: number, h: number, d: number, color: string, o
 }
 
 function western(p: Part, w: number, h: number, d: number, wall: string, roof: string): void {
-  recessedBody(p, w, h, d, wall, 2.4);
-  p.box(w + 0.3, 0.2, d + 0.3, 0, h + 0.1, 0, roof);
+  recessedBody(p, w, h, d, wall, 2.4, 'planks');
+  p.box(w + 0.3, 0.2, d + 0.3, 0, h + 0.1, 0, roof, undefined, 'shingle');
   // false front: a facade 1.5 m above the roof line, flush with the street wall
-  p.box(w, 1.5, 0.3, 0, h + 0.75, -d / 2 + 0.15, wall);
-  p.box(w + 0.3, 0.2, 0.45, 0, h + 1.6, -d / 2 + 0.1, roof);
+  p.box(w, 1.5, 0.3, 0, h + 0.75, -d / 2 + 0.15, wall, undefined, 'timber');
+  p.box(w + 0.3, 0.2, 0.45, 0, h + 1.6, -d / 2 + 0.1, roof, undefined, 'timber');
   frontWindows(p, w, h, d, '#2a3a46');
   // porch slab, four posts and a header beam
   const pd = 1.6;
-  p.box(w - 0.4, 0.15, pd, 0, 0.075, -d / 2 - pd / 2, '#6e4630');
-  for (const sx of [-1, 1]) for (const zo of [0.3, pd - 0.1]) p.box(0.18, 2.6, 0.18, sx * (w / 2 - 0.5), 1.45, -d / 2 - zo, '#5b4030');
-  p.box(w - 0.4, 0.18, 0.25, 0, 2.7, -d / 2 - pd + 0.1, '#5b4030');
+  p.box(w - 0.4, 0.15, pd, 0, 0.075, -d / 2 - pd / 2, '#6e4630', undefined, 'planks');
+  for (const sx of [-1, 1]) for (const zo of [0.3, pd - 0.1]) p.box(0.18, 2.6, 0.18, sx * (w / 2 - 0.5), 1.45, -d / 2 - zo, '#5b4030', undefined, 'timber');
+  p.box(w - 0.4, 0.18, 0.25, 0, 2.7, -d / 2 - pd + 0.1, '#5b4030', undefined, 'timber');
 }
 
 function medieval(p: Part, w: number, h: number, d: number, wall: string, roof: string): void {
-  recessedBody(p, w, h, d, wall, 2.4);
+  recessedBody(p, w, h, d, wall, 2.4, 'plaster');
   const timber = '#4a3426';
   for (const y of [2.55, h - 0.1]) {
-    p.box(w + 0.06, 0.2, 0.08, 0, y, -d / 2 - 0.02, timber);
-    for (const sx of [-1, 1]) p.box(0.08, 0.2, d + 0.06, sx * (w / 2 + 0.02), y, 0, timber);
+    p.box(w + 0.06, 0.2, 0.08, 0, y, -d / 2 - 0.02, timber, undefined, 'timber');
+    for (const sx of [-1, 1]) p.box(0.08, 0.2, d + 0.06, sx * (w / 2 + 0.02), y, 0, timber, undefined, 'timber');
   }
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) p.box(0.24, h, 0.24, sx * w / 2, h / 2, sz * d / 2, timber);
-  for (const sx of [-1, 1]) p.box(0.2, 2.4, 0.1, sx * (DOOR_W / 2 + 0.1), 1.2, -d / 2 - 0.02, timber);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) p.box(0.24, h, 0.24, sx * w / 2, h / 2, sz * d / 2, timber, undefined, 'timber');
+  for (const sx of [-1, 1]) p.box(0.2, 2.4, 0.1, sx * (DOOR_W / 2 + 0.1), 1.2, -d / 2 - 0.02, timber, undefined, 'timber');
   frontWindows(p, w, h, d, '#3a4a58');
   // steep gable, ridge running front to back
   const rw = w + 0.7;
@@ -106,12 +129,12 @@ function medieval(p: Part, w: number, h: number, d: number, wall: string, roof: 
   tri.closePath();
   const g = new THREE.ExtrudeGeometry(tri, { depth: rd, bevelEnabled: false });
   g.translate(0, 0, -rd / 2);
-  p.geo(g, roof, 0, h, 0);
+  p.geo(g, roof, 0, h, 0, undefined, 'tile');
 }
 
 function scifi(p: Part, w: number, h: number, d: number, wall: string, roof: string, accent: string): void {
-  p.geo(roundedSlab(w, d, h, 0.7), wall, 0, 0, 0);
-  p.geo(roundedSlab(w + 0.3, d + 0.3, 0.25, 0.8), roof, 0, h, 0);
+  p.geo(roundedSlab(w, d, h, 0.7), wall, 0, 0, 0, undefined, 'metal_panel');
+  p.geo(roundedSlab(w + 0.3, d + 0.3, 0.25, 0.8), roof, 0, h, 0, undefined, 'hull_plate');
   p.geo(roundedSlab(w + 0.08, d + 0.08, 0.2, 0.72), '#222831', 0, h - 0.75, 0, { emissive: accent, emissiveIntensity: 1.4 });
   // door: dark panel with a lit frame, proud of the curved hull
   p.box(DOOR_W - 0.1, 2.4, 0.1, 0, 1.2, -d / 2 - 0.03, '#161a20');
@@ -124,9 +147,9 @@ function scifi(p: Part, w: number, h: number, d: number, wall: string, roof: str
 }
 
 function modern(p: Part, w: number, h: number, d: number, wall: string, roof: string): void {
-  recessedBody(p, w, h, d, wall, 2.4);
-  p.box(w + 0.2, 0.25, d + 0.2, 0, h + 0.125, 0, roof);
-  p.box(1.4, 0.9, 1.4, w * 0.2, h + 0.7, d * 0.15, '#8d9298');
+  recessedBody(p, w, h, d, wall, 2.4, 'concrete');
+  p.box(w + 0.2, 0.25, d + 0.2, 0, h + 0.125, 0, roof, undefined, 'concrete');
+  p.box(1.4, 0.9, 1.4, w * 0.2, h + 0.7, d * 0.15, '#8d9298', undefined, 'metal_panel');
   // window grid on the second material
   const glass = '#6f9bb8';
   const gl = { roughness: 0.25, metalness: 0.4 };

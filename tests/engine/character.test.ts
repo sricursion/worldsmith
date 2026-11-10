@@ -4,8 +4,14 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type { ThemeId } from '../../app/src/world/spec';
 import { CLIP_CANDIDATES, LOGICAL_CLIPS, resolveClipNames } from '../../app/src/engine/kaykit-clips';
-import { PALETTE_COUNT, PALETTE_RINGS, classifyPixel, paletteSlot, paletteVariant, shiftPixels } from '../../app/src/engine/palette';
-import { BASE_FILES, CHARACTER_HEIGHT_M } from '../../app/src/engine/character';
+import { Group, Mesh } from 'three';
+import { PALETTE_COUNT, PALETTE_RINGS, accessoryKind, classifyPixel, paletteForRole, paletteSlot, paletteVariant, planOutfit, shiftPixels } from '../../app/src/engine/palette';
+import type { Accessory, AccessorySlot } from '../../app/src/engine/palette';
+import {
+  BASE_FILES, CHARACTER_HEIGHT_M, EXTRA_CLIPS, EXTRA_CLIP_CANDIDATES, blobAlpha, listAccessories, resolveExtraClipNames, setOutfit,
+  turnToward, wrapAngle,
+} from '../../app/src/engine/character';
+import { makeRng } from '../../app/src/world/rng';
 import { FOOTPRINT_TABLE } from '../../app/src/engine/assets';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -187,5 +193,239 @@ describe('constants', () => {
 
   it('keeps the architecture footprint table', () => {
     expect(FOOTPRINT_TABLE).toEqual({ small: { w: 6, d: 6 }, medium: { w: 9, d: 8 }, large: { w: 12, d: 10 } });
+  });
+});
+
+/** Unskinned mesh nodes of a GLB with the slot each hangs from, read from the JSON chunk. */
+function glbAccessories(file: string): Accessory[] {
+  const buf = readFileSync(join(ROOT, 'assets', 'third_party', 'kaykit-adventurers', `${file}.glb`));
+  const len = buf.readUInt32LE(12);
+  const json = JSON.parse(buf.subarray(20, 20 + len).toString('utf8')) as { nodes: { name?: string; mesh?: number; skin?: number; children?: number[] }[] };
+  const slots: Record<string, AccessorySlot> = { 'handslot.l': 'left', 'handslot.r': 'right', head: 'head', chest: 'chest' };
+  const out: Accessory[] = [];
+  for (const parent of json.nodes) {
+    const slot = slots[parent.name ?? ''];
+    if (slot === undefined) continue;
+    for (const c of parent.children ?? []) {
+      const n = json.nodes[c];
+      if (n !== undefined && n.mesh !== undefined && n.skin === undefined) out.push({ name: n.name ?? '', slot });
+    }
+  }
+  return out;
+}
+
+describe('turnToward', () => {
+  it('takes the shorter arc across the wrap', () => {
+    const a = turnToward(3.0, -3.0, 0.1, 5); // 0.283 rad apart through PI, not 6 rad the long way
+    expect(Math.abs(a)).toBeGreaterThan(3.0);
+    expect(Math.abs(wrapAngle(-3.0 - a))).toBeLessThan(Math.abs(wrapAngle(-3.0 - 3.0)));
+    const b = turnToward(-3.0, 3.0, 0.1, 5);
+    expect(b).toBeCloseTo(-a, 10);
+  });
+
+  it('closes 1 - 1/e of the gap in 1/rate seconds and never overshoots', () => {
+    expect(turnToward(0, 1, 0.25, 4)).toBeCloseTo(1 - Math.exp(-1), 10);
+    expect(turnToward(0, 1, 100, 4)).toBeCloseTo(1, 10);
+    expect(turnToward(0.3, 0.3, 0.1, 9)).toBeCloseTo(0.3, 12);
+    let y = 0;
+    for (let i = 0; i < 600; i++) {
+      const next = turnToward(y, 2.5, 1 / 60, 10);
+      expect(next).toBeGreaterThanOrEqual(y);
+      expect(next).toBeLessThanOrEqual(2.5 + 1e-12);
+      y = next;
+    }
+    expect(y).toBeCloseTo(2.5, 6);
+  });
+
+  it('is frame-rate independent', () => {
+    let coarse = 0;
+    let fine = 0;
+    for (let i = 0; i < 10; i++) coarse = turnToward(coarse, -2, 0.05, 6);
+    for (let i = 0; i < 100; i++) fine = turnToward(fine, -2, 0.005, 6);
+    expect(coarse).toBeCloseTo(fine, 9);
+  });
+
+  it('holds still for zero or negative time and rate, and returns a wrapped angle', () => {
+    expect(turnToward(1, 2, 0, 5)).toBeCloseTo(1, 12);
+    expect(turnToward(1, 2, -1, 5)).toBeCloseTo(1, 12);
+    expect(turnToward(1, 2, 0.1, -3)).toBeCloseTo(1, 12);
+    expect(turnToward(7, 7, 0.1, 5)).toBeCloseTo(7 - Math.PI * 2, 12);
+    expect(wrapAngle(Math.PI)).toBeCloseTo(Math.PI, 12);
+    expect(wrapAngle(-Math.PI)).toBeCloseTo(Math.PI, 12);
+    expect(wrapAngle(Number.NaN)).toBe(0);
+    for (const x of [-20, -4, -0.5, 0, 2, 9, 100]) {
+      const w = wrapAngle(x);
+      expect(w).toBeGreaterThan(-Math.PI);
+      expect(w).toBeLessThanOrEqual(Math.PI);
+      expect(Math.sin(w)).toBeCloseTo(Math.sin(x), 9);
+    }
+  });
+});
+
+describe('outfits', () => {
+  const PAIRS: readonly (readonly [string, ThemeId, string])[] = [
+    ['Mage', 'western', 'sheriff'],
+    ['Knight', 'medieval', 'monk'],
+    ['Knight', 'medieval', 'captain of the watch'],
+    ['Knight', 'scifi', 'station security chief'],
+    ['Barbarian', 'western', 'saloon bartender'],
+    ['Mage', 'medieval', 'court wizard'],
+    ['Rogue', 'modern', 'cafe owner'],
+    ['Rogue', 'medieval', 'poacher'],
+  ];
+
+  it('classifies every shipped accessory', () => {
+    for (const f of new Set(Object.values(BASE_FILES))) {
+      const acc = glbAccessories(f);
+      expect(acc.length, f).toBeGreaterThanOrEqual(6);
+      for (const a of acc) expect(accessoryKind(a.name), a.name).not.toBe('other');
+    }
+    expect(accessoryKind('Knight_Helmet')).toBe('helmet');
+    expect(accessoryKind('Barbarian_Hat')).toBe('horned');
+    expect(accessoryKind('Mage_Hat')).toBe('hat');
+    expect(accessoryKind('2H_Crossbow')).toBe('ranged');
+  });
+
+  it('is deterministic for eight role and theme pairs', () => {
+    for (const [file, theme, role] of PAIRS) {
+      const acc = glbAccessories(file);
+      const first = planOutfit(acc, theme, role, makeRng(1234, role));
+      for (let i = 0; i < 5; i++) expect(planOutfit(acc, theme, role, makeRng(1234, role)), `${file}/${theme}/${role}`).toEqual(first);
+      // Order of the accessory list must not matter either.
+      expect(planOutfit([...acc].reverse(), theme, role, makeRng(1234, role))).toEqual(first);
+      expect(first.visible).toEqual([...first.visible].sort());
+    }
+  });
+
+  it('dresses each of the eight sensibly whatever the seed', () => {
+    const shipped = new Map(PAIRS.map(([file]) => [file, glbAccessories(file)]));
+    for (let seed = 0; seed < 40; seed++) {
+      const plan = (i: number): string[] => {
+        const [file, theme, role] = PAIRS[i] as (typeof PAIRS)[number];
+        return planOutfit(shipped.get(file) ?? [], theme, role, makeRng(seed, 'o')).visible;
+      };
+      expect(plan(0).filter((n) => n !== 'Mage_Cape')).toEqual(['Mage_Hat']); // a sheriff keeps the hat and carries no wand
+      expect(plan(1)).not.toContain('Knight_Helmet'); // a monk loses the helmet
+      expect(plan(1).filter((n) => /Sword|Shield/.test(n))).toEqual([]);
+      expect(plan(2)).toEqual(expect.arrayContaining(['Knight_Helmet', '1H_Sword', 'Knight_Cape']));
+      expect(plan(3)).toContain('Knight_Helmet'); // reads as armour in a sci-fi town
+      expect(plan(3).filter((n) => /Sword|Shield/.test(n))).toEqual([]); // but no medieval weapons
+      expect(plan(4)).toContain('Mug');
+      expect(plan(4)).not.toContain('Barbarian_Hat');
+      expect(plan(4).filter((n) => /Axe|Shield/.test(n))).toEqual([]);
+      expect(plan(5)).toContain('Mage_Hat');
+      expect(plan(5).some((n) => n === '2H_Staff' || n === '1H_Wand')).toBe(true);
+      expect(plan(5).some((n) => n.startsWith('Spellbook'))).toBe(true);
+      expect(plan(6)).toEqual([]); // modern: no cape, no knives
+      expect(plan(7).filter((n) => n !== 'Rogue_Cape')).toEqual(['1H_Crossbow']);
+    }
+  });
+
+  it('never hands out off-hand or two-handed weapons, and at most one item per hand', () => {
+    const roles = ['guard', 'wizard', 'hunter', 'butcher', 'innkeeper', 'scribe', 'farmer', 'lumberjack', 'hermit', 'priest'];
+    for (const f of new Set(Object.values(BASE_FILES))) {
+      const acc = glbAccessories(f);
+      const slotOf = new Map(acc.map((a) => [a.name, a.slot]));
+      for (const theme of THEMES) {
+        for (const role of roles) {
+          for (let seed = 0; seed < 6; seed++) {
+            const v = planOutfit(acc, theme, role, makeRng(seed, 'x')).visible;
+            expect(v.filter((n) => slotOf.get(n) === 'left').length).toBeLessThanOrEqual(1);
+            expect(v.filter((n) => slotOf.get(n) === 'right').length).toBeLessThanOrEqual(1);
+            for (const n of v) {
+              expect(n.includes('Offhand')).toBe(false);
+              if (n.startsWith('2H_')) expect(n).toBe('2H_Staff');
+              if (theme !== 'medieval') expect(/Sword|Shield|Crossbow|Wand|Throwable/.test(n), `${theme}/${role}/${n}`).toBe(false);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  it('draws the same number of values whatever the role', () => {
+    const acc = glbAccessories('Knight');
+    for (const role of ['guard', 'monk', 'nobody in particular']) {
+      const rng = makeRng(5, 'draws');
+      planOutfit(acc, 'medieval', role, rng);
+      const ref = makeRng(5, 'draws');
+      for (let i = 0; i < 4; i++) ref.next();
+      expect(rng.next()).toBe(ref.next());
+    }
+  });
+
+  it('applies a plan to the meshes of a rig', () => {
+    const root = new Group();
+    const add = (parentName: string, names: string[]): void => {
+      const parent = new Group();
+      parent.name = parentName; // the loader strips the dot from "handslot.l"
+      for (const n of names) {
+        const m = new Mesh();
+        m.name = n;
+        parent.add(m);
+      }
+      root.add(parent);
+    };
+    add('handslotl', ['1H_Sword_Offhand', 'Round_Shield']);
+    add('handslotr', ['1H_Sword', '2H_Sword']);
+    add('head', ['Knight_Helmet']);
+    add('chest', ['Knight_Cape']);
+    add('hips', ['Not_An_Accessory']);
+    expect(listAccessories(root).map((a) => `${a.accessory.slot}:${a.accessory.name}`).sort()).toEqual([
+      'chest:Knight_Cape', 'head:Knight_Helmet', 'left:1H_Sword_Offhand', 'left:Round_Shield', 'right:1H_Sword', 'right:2H_Sword',
+    ]);
+    const plan = setOutfit({ root }, { theme: 'medieval', role: 'monk', rng: makeRng(3, 'monk') });
+    const visible = listAccessories(root).filter((a) => a.mesh.visible).map((a) => a.accessory.name).sort();
+    expect(visible).toEqual(plan.visible);
+    expect(visible).toEqual(['Knight_Cape']);
+    expect(root.getObjectByName('Not_An_Accessory')?.visible).toBe(true);
+    setOutfit({ root }, { theme: 'medieval', role: 'knight', rng: makeRng(3, 'knight') });
+    expect(root.getObjectByName('Knight_Helmet')?.visible).toBe(true);
+    expect(root.getObjectByName('1H_Sword')?.visible).toBe(true);
+    expect(root.getObjectByName('2H_Sword')?.visible).toBe(false);
+  });
+
+  it('gives sober roles muted cloth and showy roles vivid cloth', () => {
+    const vivid = (theme: ThemeId, i: number): number => (PALETTE_RINGS[theme][i]?.value ?? 0) * (PALETTE_RINGS[theme][i]?.sat ?? 0);
+    for (const theme of THEMES) {
+      const all = PALETTE_RINGS[theme].map((_, i) => vivid(theme, i)).sort((a, b) => a - b);
+      const median = ((all[4] ?? 0) + (all[5] ?? 0)) / 2;
+      for (let seed = 0; seed < 20; seed++) {
+        const monk = paletteForRole(theme, 'monk', makeRng(seed, 'p'));
+        const bard = paletteForRole(theme, 'travelling bard', makeRng(seed, 'p'));
+        expect(vivid(theme, monk)).toBeLessThanOrEqual(median);
+        expect(vivid(theme, bard)).toBeGreaterThanOrEqual(median);
+        const anyone = paletteForRole(theme, 'farmer', makeRng(seed, 'p'));
+        expect(anyone).toBeGreaterThanOrEqual(0);
+        expect(anyone).toBeLessThan(PALETTE_COUNT);
+        expect(paletteForRole(theme, 'farmer', makeRng(seed, 'p'))).toBe(anyone);
+      }
+    }
+  });
+});
+
+describe('extra clips and contact shadow', () => {
+  it('maps every extra logical name to a real clip on every shipped model', () => {
+    const report = readFileSync(join(ROOT, 'tests', 'engine', 'kaykit-rig-report.md'), 'utf8');
+    for (const f of new Set(Object.values(BASE_FILES))) {
+      const map = resolveExtraClipNames(glbClipNames(f));
+      for (const k of EXTRA_CLIPS) expect(map[k], `${f}:${k}`).toBe(EXTRA_CLIP_CANDIDATES[k][0]);
+    }
+    for (const k of EXTRA_CLIPS) for (const name of EXTRA_CLIP_CANDIDATES[k]) expect(report).toContain(name);
+    expect(resolveExtraClipNames([]).gesture).toBeNull();
+    expect(resolveExtraClipNames(['Use_Item']).gesture).toBe('Use_Item');
+  });
+
+  it('fades the contact shadow smoothly from the feet to nothing at the rim', () => {
+    expect(blobAlpha(0)).toBeCloseTo(1, 6);
+    expect(blobAlpha(1)).toBe(0);
+    expect(blobAlpha(2)).toBe(0);
+    let prev = blobAlpha(0);
+    for (let r = 0.02; r <= 1; r += 0.02) {
+      const a = blobAlpha(r);
+      expect(a).toBeLessThanOrEqual(prev);
+      prev = a;
+    }
+    expect(blobAlpha(0.5)).toBeGreaterThan(0.3);
   });
 });

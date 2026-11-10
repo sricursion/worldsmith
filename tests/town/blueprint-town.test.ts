@@ -1,10 +1,13 @@
 import * as THREE from 'three';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { LoadedKit } from '../../app/src/engine/assets';
 import { buildTown, landmarkAnchor } from '../../app/src/town/build';
 import { KITS } from '../../app/src/town/kits';
 import { buildingAabb, distanceToRoad, generateLayout } from '../../app/src/town/layout';
 import { STYLE, makeBlueprintSpec } from './helpers';
+
+// The first town built in a run generates its surface textures, which takes a few seconds.
+vi.setConfig({ testTimeout: 60000 });
 
 function kitWithMeshes(): LoadedKit {
   const cube = (): THREE.Object3D => {
@@ -32,10 +35,20 @@ describe('blueprint towns', () => {
         expect(pos.array).toBeInstanceOf(Float32Array);
         for (let i = 0; i < pos.count; i++) expect(Number.isFinite(pos.getX(i) + pos.getY(i) + pos.getZ(i))).toBe(true);
       }
-      const ground = town.group.getObjectByName('ground') as THREE.Mesh;
-      expect((ground.material as THREE.MeshStandardMaterial).color.getHexString()).toBe(STYLE.ground.slice(1));
+      // the collider is a flat plane outside the drawn group; the drawn ground and roads carry generated surfaces
+      const collider = town.statics[0] as THREE.Mesh;
+      expect(town.group.getObjectByName('ground')).toBeUndefined();
+      collider.geometry.computeBoundingBox();
+      expect(collider.geometry.boundingBox?.min.y).toBeCloseTo(0, 6);
+      expect(collider.geometry.boundingBox?.max.y).toBeCloseTo(0, 6);
+      const terrain = town.group.getObjectByName('terrain') as THREE.Mesh;
       const road = town.group.getObjectByName('road') as THREE.Mesh;
-      expect((road.material as THREE.MeshStandardMaterial).color.getHexString()).toBe(STYLE.road.slice(1));
+      for (const m of [terrain, road]) {
+        expect(m.geometry.getAttribute('color')).toBeDefined();
+        expect(m.geometry.getAttribute('uv')).toBeDefined();
+        expect((m.material as THREE.MeshStandardMaterial).vertexColors).toBe(true);
+      }
+      expect((terrain.material as THREE.MeshStandardMaterial).userData['baseHex']).toBe(STYLE.ground);
       // every door sits 1 m outside the front on the street side, at most 0.4 of the frontage off centre
       for (const b of layout.buildings) {
         const d = town.doors.get(b.id) as THREE.Vector3;

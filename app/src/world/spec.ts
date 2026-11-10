@@ -191,6 +191,44 @@ export interface SiteSpec {
   spacing: number;
 }
 
+/** What a surface is made of. The engine generates the texture, normal and roughness maps for each in the browser. */
+export type SurfaceKind =
+  | 'timber' | 'planks' | 'log' | 'plaster' | 'adobe' | 'brick' | 'stone' | 'cobble' | 'concrete'
+  | 'metal_panel' | 'corrugated' | 'rusted' | 'hull_plate' | 'glass_curtain'
+  | 'shingle' | 'tile' | 'thatch' | 'slate' | 'canvas' | 'paper_screen'
+  | 'organic' | 'bark' | 'chitin' | 'crystal' | 'ice' | 'coral'
+  | 'dirt' | 'sand' | 'grass' | 'moss' | 'snow' | 'mud' | 'asphalt' | 'gravel' | 'regolith' | 'ash';
+
+export interface SurfaceSet {
+  wall: SurfaceKind;
+  wall2: SurfaceKind;
+  roof: SurfaceKind;
+  trim: SurfaceKind;
+  ground: SurfaceKind;
+  road: SurfaceKind;
+  /** 0 pristine .. 1 ruined: grime, stains, chipped edges, rust streaks, moss in the creases. */
+  wear: number;
+  /** 0 dry .. 1 soaked: darkens and glosses the ground and low walls; puddles appear above 0.5. */
+  wet: number;
+}
+
+export type WeatherKind = 'clear' | 'rain' | 'storm' | 'snow' | 'fog' | 'dust' | 'ash' | 'spores' | 'embers' | 'fireflies' | 'mist';
+export type GradeKind = 'neutral' | 'golden' | 'teal_orange' | 'cold_steel' | 'sepia' | 'neon_noir' | 'verdant' | 'bleached' | 'crimson' | 'moonlit';
+
+/** The mood of the place: what the light, air and sound are doing. */
+export interface MoodSpec {
+  weather: WeatherKind;
+  /** 0..1 strength of the weather. */
+  intensity: number;
+  grade: GradeKind;
+  /** 0..1: how much light scatters in the air (shafts, haze glow around lamps). */
+  haze: number;
+  /** Ambient sound beds to mix, e.g. ['wind','crickets','distant_crowd']. Free words; the audio engine maps what it knows. */
+  ambience: string[];
+  /** One or two words for the generative music: 'lonely harmonica', 'low drone', 'bright lute'. Empty for none. */
+  music: string;
+}
+
 /** The look of one town. Every colour is a hex string. */
 export interface StyleSpec {
   name: string;                // "weathered frontier timber", "lacquered Edo townhouse"
@@ -206,6 +244,8 @@ export interface StyleSpec {
   road: string;
   /** How much per-building colour drift the engine applies, 0..1. */
   variety: number;
+  /** What each tone is made of. Absent on old specs: the engine infers it from the style name and theme. */
+  surfaces?: SurfaceSet;
 }
 
 export interface PaletteSpec {
@@ -235,6 +275,7 @@ export interface WorldSpec {
   /** Optional generated architecture. Present on every model-compiled town; absent on old share links. */
   style?: StyleSpec;
   site?: SiteSpec;
+  mood?: MoodSpec;
   blueprints?: Blueprint[];    // 3..8 archetypes shared by the buildings
   props?: PropBlueprint[];     // 0..6 kinds scattered instead of kit props
   /** One or two set pieces worth generating as full 3D models in the background. */

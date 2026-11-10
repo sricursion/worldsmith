@@ -109,3 +109,165 @@ export function shiftPixels(data: Uint8ClampedArray, hueDeg: number, valueMul: n
     data[i + 2] = Math.round((bb + m) * 255);
   }
 }
+
+// ---- Outfits: which accessories a character wears, chosen from role words and theme -----------
+
+export type AccessorySlot = 'head' | 'chest' | 'left' | 'right';
+export type AccessoryKind =
+  | 'helmet' | 'horned' | 'hat' | 'cape' | 'shield' | 'blade' | 'axe' | 'knife' | 'ranged'
+  | 'staff' | 'wand' | 'book' | 'mug' | 'throwable' | 'other';
+
+export interface Accessory {
+  /** Mesh node name as shipped in the model, e.g. "Knight_Helmet". */
+  name: string;
+  slot: AccessorySlot;
+}
+
+export interface OutfitPlan {
+  /** Accessory names to show, sorted. Everything else on the four slots is hidden. */
+  visible: string[];
+}
+
+/** Minimal random source, satisfied by world/rng's Rng. */
+export interface OutfitRng {
+  next(): number;
+}
+
+const KIND_PATTERNS: readonly (readonly [RegExp, AccessoryKind])[] = [
+  [/helmet/, 'helmet'],
+  [/barbarian_hat/, 'horned'],
+  [/hat|hood/, 'hat'],
+  [/cape|cloak/, 'cape'],
+  [/shield/, 'shield'],
+  [/bow/, 'ranged'],
+  [/staff/, 'staff'],
+  [/wand/, 'wand'],
+  [/book/, 'book'],
+  [/mug/, 'mug'],
+  [/knife|dagger/, 'knife'],
+  [/axe/, 'axe'],
+  [/sword/, 'blade'],
+  [/throw/, 'throwable'],
+];
+
+export function accessoryKind(name: string): AccessoryKind {
+  const n = name.toLowerCase();
+  for (const [re, kind] of KIND_PATTERNS) if (re.test(n)) return kind;
+  return 'other';
+}
+
+/**
+ * Two-handed and off-hand pieces need combat poses the townsfolk never play, so they are never chosen.
+ * Staffs are the exception: a long stick held at rest reads fine.
+ */
+function isAwkward(name: string): boolean {
+  const n = name.toLowerCase();
+  if (n.includes('offhand')) return true;
+  return n.startsWith('2h_') && accessoryKind(name) !== 'staff';
+}
+
+const ROLE_WORDS = {
+  martial: /guard|knight|soldier|watch|captain|sergeant|warrior|mercenar|sentry|trooper|marine|security|enforcer|warden|paladin|gladiator|militia|legion|samurai/,
+  clergy: /monk|priest|nun\b|abbot|abbess|friar|cleric|preacher|pastor|reverend|chaplain|acolyte|bishop|pilgrim|shaman|druid|oracle|lama|vicar/,
+  arcane: /mage|wizard|witch|sorcer|warlock|alchemist|enchant|seer|astrolog|necromanc|conjur|magician|mystic/,
+  scholar: /scholar|scribe|librarian|teacher|professor|judge|clerk|lawyer|archivist|historian|student|notary|schoolm/,
+  tavern: /bartender|barkeep|innkeeper|tavern|brewer|drunk|publican|barmaid|saloon|barista|bar owner/,
+  hunter: /hunter|poacher|scout|archer|marksman/,
+  knife: /butcher|cook|chef|thief|assassin|cutpurse|smuggler|pirate|fisher|trapper|skinner|tanner/,
+  woodcut: /woodcut|lumber|logger|forester|carpenter/,
+  hatted: /sheriff|marshal|deputy|cowboy|rancher|drifter|gambler|outlaw|bandit|rider|prospector|farmer|undertaker|stranger|gunslinger|bounty|wrangler|mayor|rustler/,
+  cloaked: /captain|drifter|stranger|travell?er|wanderer|noble|lord|lady|king|queen|baron|duke|count|envoy|herald|commander|outlaw|bandit|rider|vampire|knight|emissary|chancellor/,
+  elder: /shepherd|elder|hermit|prophet|pilgrim|druid|shaman|sage/,
+  rough: /barbarian|chief|raider|smith|viking|berserk|brute|hunter|warrior/,
+} as const;
+
+export type RoleTag = keyof typeof ROLE_WORDS;
+
+export function roleTags(role: string): Record<RoleTag, boolean> {
+  const r = role.toLowerCase();
+  const out = {} as Record<RoleTag, boolean>;
+  for (const k of Object.keys(ROLE_WORDS) as RoleTag[]) out[k] = ROLE_WORDS[k].test(r);
+  return out;
+}
+
+/**
+ * Decides what a character carries. Hats and capes follow the role and theme; held items appear only
+ * where they tell you who the person is (a mug for the barkeep, a book for the scribe, a sword for the
+ * watch in a medieval town). Medieval weapons never show in western, modern or sci-fi towns.
+ * Always draws four numbers from the rng, so the stream stays aligned whatever the role.
+ */
+export function planOutfit(accessories: readonly Accessory[], theme: ThemeId, role: string, rng: OutfitRng): OutfitPlan {
+  const r0 = rng.next();
+  const r1 = rng.next();
+  const r2 = rng.next();
+  const r3 = rng.next();
+  const t = roleTags(role);
+  const robed = t.clergy || t.arcane;
+  const visible: string[] = [];
+  const usable = accessories.filter((a) => !isAwkward(a.name));
+  const pickOf = (slot: AccessorySlot, kinds: readonly AccessoryKind[], r: number): string | null => {
+    for (const kind of kinds) {
+      const found = usable.filter((a) => a.slot === slot && accessoryKind(a.name) === kind).map((a) => a.name).sort();
+      if (found.length > 0) return found[Math.min(found.length - 1, Math.floor(r * found.length))] ?? null;
+    }
+    return null;
+  };
+
+  for (const a of accessories) {
+    if (a.slot !== 'head' && a.slot !== 'chest') continue;
+    const kind = accessoryKind(a.name);
+    let show = false;
+    if (kind === 'helmet') show = !t.clergy && t.martial && (theme === 'medieval' || theme === 'scifi');
+    else if (kind === 'horned') show = theme === 'medieval' && !t.clergy && (t.rough || t.martial || r0 < 0.4);
+    else if (kind === 'hat') {
+      if (t.clergy) show = false;
+      else if (theme === 'medieval') show = t.arcane || t.scholar || r0 < 0.35;
+      else if (theme === 'western') show = t.hatted || r0 < 0.5;
+      else show = t.arcane;
+    } else if (kind === 'cape') {
+      if (theme === 'medieval') show = t.cloaked || robed || r1 < 0.4;
+      else if (theme === 'western') show = t.cloaked || t.clergy || r1 < 0.15;
+      else if (theme === 'scifi') show = t.cloaked || t.clergy || r1 < 0.1;
+      else show = robed;
+    }
+    if (show) visible.push(a.name);
+  }
+
+  let right: string | null = null;
+  if (t.tavern) right = pickOf('right', ['mug'], r2);
+  if (right === null && theme === 'medieval') {
+    if (t.arcane) right = pickOf('right', r3 < 0.5 ? ['staff', 'wand'] : ['wand', 'staff'], r2);
+    else if (t.elder) right = pickOf('right', ['staff'], r2);
+    else if (t.martial) right = pickOf('right', ['blade', 'axe'], r2);
+    else if (t.hunter) right = pickOf('right', ['ranged', 'knife'], r2);
+    else if (t.woodcut) right = pickOf('right', ['axe'], r2);
+    else if (t.knife) right = pickOf('right', ['knife'], r2);
+  } else if (right === null && theme === 'western') {
+    if (t.woodcut) right = pickOf('right', ['axe'], r2);
+    else if (t.knife) right = pickOf('right', ['knife'], r2);
+    else if (t.elder) right = pickOf('right', ['staff'], r2);
+  }
+  if (right !== null) visible.push(right);
+
+  let left: string | null = null;
+  if (theme !== 'scifi' && (t.scholar || t.clergy || (t.arcane && theme === 'medieval'))) left = pickOf('left', ['book'], r2 < 0.3 ? 0.99 : 0);
+  if (left === null && theme === 'medieval' && t.martial && right !== null && r3 < 0.6) left = pickOf('left', ['shield'], r2);
+  if (left !== null) visible.push(left);
+
+  return { visible: visible.sort() };
+}
+
+/**
+ * Palette index that suits a role: sober trades take the darkest, least saturated cloth in the theme's
+ * ring, showy ones the most vivid, everyone else any. Skin and hair never change (see classifyPixel).
+ */
+export function paletteForRole(theme: ThemeId, role: string, rng: OutfitRng): number {
+  const r = rng.next();
+  const lower = role.toLowerCase();
+  const ranked = PALETTE_RINGS[theme].map((p, i) => ({ i, vivid: p.value * p.sat })).sort((a, b) => a.vivid - b.vivid || a.i - b.i);
+  const third = Math.max(1, Math.floor(ranked.length / 3));
+  let pool = ranked;
+  if (ROLE_WORDS.clergy.test(lower) || ROLE_WORDS.scholar.test(lower) || /undertaker|mourner|widow|gravedigger/.test(lower)) pool = ranked.slice(0, third);
+  else if (/noble|lord|lady|merchant|bard|gambler|performer|singer|dancer|herald|jester|mayor/.test(lower)) pool = ranked.slice(ranked.length - third);
+  return pool[Math.min(pool.length - 1, Math.floor(r * pool.length))]?.i ?? 0;
+}

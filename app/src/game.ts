@@ -11,10 +11,15 @@ import { createState, applyEvent, type WorldEvent } from './world/state';
 import { generateLayout, type TownLayout } from './town/layout';
 import { buildTown, type TownObjects } from './town/build';
 import type { Viewport } from './engine/renderer';
-import { createSky, type SkyRig } from './engine/sky';
+import { createSky, addPracticalLight, type SkyRig } from './engine/sky';
+import { createAtmosphere, type Atmosphere } from './engine/atmosphere';
+import { createAudio, type AudioRig } from './engine/audio';
+import { createLife } from './engine/life';
+import { setSurfaceDefaults, setWindowGlow } from './town/surfaces';
+import { updateScatter, WIND } from './town/scatter';
 import type { Input } from './engine/input';
 import { loadKit, type LoadedKit } from './engine/assets';
-import { loadCharacterBase, createCharacter, type CharacterRig } from './engine/character';
+import { loadCharacterBase, createCharacter, setOutfit, setTalking, type CharacterRig } from './engine/character';
 import { buildNav, type NavWorld, type NavAgent } from './engine/nav';
 import { createPlayer, type Player } from './engine/player';
 import { loadLandmark, pollLandmark } from './engine/landmark';
@@ -47,6 +52,8 @@ interface Town {
   objects: TownObjects;
   nav: NavWorld;
   navGround: THREE.Mesh;
+  life: { update(dt: number, focus: THREE.Vector3, hour: number): void; dispose(): void } | null;
+  lightRemovers: (() => void)[];
   player: Player;
   npcs: Map<string, NpcRuntime>;
   rng: Rng;
@@ -80,6 +87,8 @@ export function friendlyError(code: string): string {
 export class Game {
   private readonly sky: SkyRig;
   private readonly speech: Speech;
+  private readonly atmosphere: Atmosphere;
+  private readonly audio: AudioRig;
   private town: Town | null = null;
   private kit: LoadedKit | null = null;
   private compiling: AbortController | null = null;
@@ -89,12 +98,18 @@ export class Game {
   constructor(private readonly deps: GameDeps) {
     this.sky = createSky(deps.viewport.scene, deps.viewport.renderer);
     this.speech = createSpeech();
+    this.atmosphere = createAtmosphere(deps.viewport, this.sky);
+    this.audio = createAudio();
+    const unlock = (): void => this.audio.unlock();
+    window.addEventListener('pointerdown', unlock, { once: true });
+    window.addEventListener('keydown', unlock, { once: true });
     const { input } = deps;
     this.unsubscribe.push(
       input.onKey('KeyE', () => this.tryTalk()),
       input.onKey('KeyR', () => this.openRules()),
       input.onKey('Slash', () => this.showWhy()),
       input.onKey('Escape', () => this.closeDialogue()),
+      input.onKey('KeyV', () => this.town?.player.toggleView?.()),
     );
     deps.ui.onHud({
       rules: () => this.openRules(),
@@ -243,7 +258,8 @@ export class Game {
     try {
       const rng = makeRng(spec.seed, 'game');
       const layout = generateLayout(spec);
-      const objects = buildTown(layout, spec, kit, viewport.scene);
+      setSurfaceDefaults({ theme: spec.theme, mood: spec.mood, quality: viewport.getQuality?.() ?? 2 });
+      const objects = buildTown(layout, spec, kit, viewport.scene, { quality: viewport.getQuality?.() ?? 2 });
       created.objects = objects;
 
       // The navmesh covers the town plus a margin, not the 400 m visual ground: a fraction of the voxels.
@@ -272,6 +288,7 @@ export class Game {
       for (const n of spec.npcs) {
         const rig = createCharacter(n.appearance.base);
         rig.setPalette(n.appearance.palette, spec.theme);
+        setOutfit(rig, { theme: spec.theme, role: n.role, rng });
         viewport.scene.add(rig.root);
         created.rigs.push(rig);
         const place = state.npcPlaces[n.id] ?? n.home;
@@ -282,8 +299,10 @@ export class Game {
         npcs.set(n.id, { spec: n, rig, agent, place, targetPlace: '', lastReason: 'starting the day' });
       }
 
+      const lightRemovers = (objects.lights ?? []).map((l) => addPracticalLight(l.pos, l.color, l.radius));
+      const life = createLife(viewport.scene, { theme: spec.theme, mood: spec.mood, style: spec.style, bounds: layout.bounds, smoke: objects.smoke, rng: makeRng(spec.seed, 'life') });
       this.town = {
-        spec, state, layout, objects, nav, navGround, player, npcs, rng,
+        spec, state, layout, objects, nav, navGround, player, npcs, rng, life, lightRemovers,
         elapsed: 0, nextTickAt: 2, tickInFlight: false, dialogue: null, dialogueNpc: null, handle: null, verified,
       };
     } catch (err) {
@@ -302,6 +321,12 @@ export class Game {
     this.applyWeather();
     this.sky.setHour(this.town.state.hour);
     this.sky.setGroundTint?.(spec.style?.ground ?? spec.palette.ground);
+    this.atmosphere.setTheme?.(spec.theme);
+    this.atmosphere.setMood(spec.mood, spec.style, spec.site?.pattern);
+    const grade = this.atmosphere.getMood?.().grade;
+    if (grade) viewport.setGrade?.(grade);
+    this.audio.setScene({ mood: this.atmosphere.getMood?.() ?? spec.mood, theme: spec.theme, groundKind: spec.style?.surfaces?.ground, sitePattern: spec.site?.pattern, hour: this.town.state.hour });
+    this.audio.ui('reveal');
     void this.forgeLandmarks(this.town);
     document.documentElement.style.setProperty('--accent', spec.palette.accent);
     ui.showHud(spec);
@@ -364,6 +389,15 @@ export class Game {
 
     t.player.update(dt); // also advances the player's rig
     this.sky.setFocus?.(t.player.position.x, t.player.position.z);
+    this.atmosphere.update(dt, t.player.position, t.state.hour);
+    t.life?.update(dt, t.player.position, t.state.hour);
+    updateScatter(t.player.position);
+    WIND.time.value += dt;
+    const h = t.state.hour;
+    setWindowGlow(h < 6 || h > 18.5 ? 1 : h > 17 ? (h - 17) / 1.5 : h < 7.5 ? (7.5 - h) / 1.5 : 0.08);
+    let nearNpcs = 0;
+    for (const n of t.npcs.values()) if (n.agent.position().distanceTo(t.player.position) < 14) nearNpcs++;
+    this.audio.update(dt, { speed: t.player.speed ?? 0, running: t.player.running ?? false, hour: h, nearNpcCount: nearNpcs });
     t.nav.update(dt);
 
     for (const n of t.npcs.values()) {
@@ -523,6 +557,8 @@ export class Game {
     if (!n) return;
     n.agent.stop();
     n.targetPlace = '';
+    t.player.frameTarget?.(n.agent.position());
+    this.audio.ui('open');
     // The talk event lands before the session opens, so the greeting already sees the advanced quest state.
     const res = applyEvent(t.spec, t.state, { type: 'talk', npcId: id });
     t.state = res.state;
@@ -602,6 +638,9 @@ export class Game {
     t.dialogue = null;
     t.dialogueNpc = null;
     t.handle = null;
+    t.player.frameTarget?.(null);
+    for (const n of t.npcs.values()) setTalking(n.rig, -1);
+    this.audio.ui('close');
     this.speech.cancel();
     t.nextTickAt = Math.min(t.nextTickAt, t.elapsed + 2);
   }
@@ -640,7 +679,10 @@ export class Game {
     if (!t) return;
     for (const id of completed) {
       const step = t.spec.quest.steps.find((s) => s.id === id);
-      if (step) this.deps.ui.toast(`✓ ${step.objective}`);
+      if (step) {
+        this.deps.ui.toast(`✓ ${step.objective}`);
+        this.audio.ui('quest');
+      }
       const ending = t.spec.quest.endings.find((e) => e.stepId === id);
       if (ending) this.deps.ui.toast(`Ending: ${ending.label}`, 'info');
     }
@@ -754,6 +796,8 @@ export class Game {
     this.deps.viewport.scene.remove(t.player.rig.root);
     t.player.dispose();
     t.player.rig.dispose();
+    t.life?.dispose();
+    for (const r of t.lightRemovers) r();
     t.nav.dispose();
     t.navGround.geometry.dispose();
     (t.navGround.material as THREE.Material).dispose();
@@ -764,6 +808,8 @@ export class Game {
   dispose(): void {
     this.teardown();
     this.unsubscribe.forEach((u) => u());
+    this.atmosphere.dispose();
+    this.audio.dispose();
     this.sky.dispose();
   }
 }

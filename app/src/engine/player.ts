@@ -1,10 +1,15 @@
-// Third-person controller: camera-relative movement, orbit camera with a BVH boom, wall sliding via the navmesh.
+// Player controller: camera-relative movement on the navmesh with eased starts and stops, driving the camera rig
+// (over-the-shoulder third person or first person) and exposing step cadence for audio.
 import * as THREE from 'three';
 import { MeshBVH } from 'three-mesh-bvh';
+import { angleDelta, bvhCollider, createCameraRig } from './camera-rig';
+import type { CameraSubject } from './camera-rig';
 import type { CharacterRig } from './character';
 import type { Input } from './input';
 import { mergeWorldGeometry } from './nav';
 import type { NavWorld } from './nav';
+
+export { angleDelta } from './camera-rig';
 
 export interface Player {
   rig: CharacterRig;
@@ -13,23 +18,46 @@ export interface Player {
   teleport(p: THREE.Vector3, rotY: number): void;
   nearestNpc(npcs: { id: string; pos: THREE.Vector3 }[], maxDist: number): string | null;
   dispose(): void;
+  /** Advances by 1 per footfall; each integer crossing is a foot contact. */
+  readonly stepPhase?: number;
+  /** Horizontal speed over the ground, m/s. */
+  readonly speed?: number;
+  readonly running?: boolean;
+  readonly firstPerson?: boolean;
+  /** Switches between third and first person (also on the V key). */
+  toggleView?(): void;
+  /** Eases the camera to a two-shot of the player and an NPC standing at `target` (feet); null eases back. */
+  frameTarget?(target: THREE.Vector3 | null): void;
 }
 
 export const WALK_SPEED = 2.2;
 export const RUN_SPEED = 5;
-const SENSITIVITY = 0.0025;
-const PITCH_MIN = -0.2;
-const PITCH_MAX = 1.2;
-const DIST_MIN = 3;
-const DIST_MAX = 9;
-const DIST_DEFAULT = 5.5;
-const DEFAULT_PITCH = 0.35;
-const LOOK_HEIGHT = 1.4;
-const TURN_RATE = 12;
-const CAM_MARGIN = 0.3;
-const CAM_MIN_DIST = 0.5;
-const CAM_RECOVER_RATE = 6;
+const ACCEL_RATE = 9; // 1/s, exponential approach to the wanted velocity
+const DECEL_RATE = 13;
+const TURN_RATE = 10;
+const RUN_ANIM_SPEED = (WALK_SPEED + RUN_SPEED) / 2;
+const IDLE_SPEED = 0.3;
+const FP_BACK_FACTOR = 0.7;
+const FP_STRAFE_FACTOR = 0.85;
+const STRIDE_WALK = 1.0; // metres per footfall at walking speed
+const STRIDE_RUN = 1.6;
+const RIG_HIDE_DISTANCE = 0.7; // the body is hidden when the camera is pushed this close to the head
 const CONE_HALF_ANGLE = Math.PI / 3; // 120 degree cone in front
+
+/** Metres covered per footfall at a given ground speed. */
+export function strideLength(speed: number): number {
+  const t = Math.min(1, Math.max(0, (speed - WALK_SPEED) / (RUN_SPEED - WALK_SPEED)));
+  return STRIDE_WALK + (STRIDE_RUN - STRIDE_WALK) * t;
+}
+
+/**
+ * Share of the wanted speed allowed while the body still faces away from it: 0 when asked to go straight back,
+ * 1 once within a right angle, so a reversal starts as a turn on the spot.
+ */
+export function turnInPlaceScale(headingError: number): number {
+  const t = Math.min(1, Math.max(0, (Math.cos(headingError) + 0.9) / 0.8));
+  return t * t * (3 - 2 * t);
+}
 
 export interface MoveResult {
   /** Horizontal velocity in m/s, world axes. */
@@ -69,14 +97,6 @@ export function cameraRelativeMove(
   return { vx: ux * speed, vz: uz * speed, speed, heading: Math.atan2(ux, uz) };
 }
 
-/** Shortest signed angular difference b - a in (-pi, pi]. */
-export function angleDelta(a: number, b: number): number {
-  let d = (b - a) % (Math.PI * 2);
-  if (d > Math.PI) d -= Math.PI * 2;
-  else if (d <= -Math.PI) d += Math.PI * 2;
-  return d;
-}
-
 export function createPlayer(
   rig: CharacterRig,
   nav: NavWorld,
@@ -86,27 +106,20 @@ export function createPlayer(
 ): Player {
   const position = new THREE.Vector3();
   let heading = 0;
-  let camYaw = Math.PI;
-  let camPitch = DEFAULT_PITCH;
-  let camDist = DIST_DEFAULT;
-  let boom = DIST_DEFAULT; // current (possibly shortened) camera distance
+  let stepPhase = 0;
   let anim: 'idle' | 'walk' | 'run' | '' = '';
   let disposed = false;
 
   const bvhGeometry = mergeWorldGeometry(statics);
   const bvh = bvhGeometry ? new MeshBVH(bvhGeometry) : null;
-
-  const onWheel = (e: WheelEvent): void => {
-    if (e.target instanceof Element && e.target.closest('.tf-panel')) return;
-    camDist = THREE.MathUtils.clamp(camDist + Math.sign(e.deltaY) * 0.5, DIST_MIN, DIST_MAX);
-  };
-  const hasWindow = typeof window !== 'undefined';
-  if (hasWindow) window.addEventListener('wheel', onWheel, { passive: true });
-
-  const target = new THREE.Vector3();
-  const dir = new THREE.Vector3();
-  const ray = new THREE.Ray();
+  const cam = createCameraRig(camera, bvh ? bvhCollider(bvh) : null);
+  const subject: CameraSubject = { position, vx: 0, vz: 0, speed: 0, running: false, stepPhase: 0 };
   const delta = new THREE.Vector3();
+
+  const toggleView = (): void => {
+    if (!disposed) cam.setFirstPerson(!cam.firstPerson);
+  };
+  const offViewKey = input.onKey('KeyV', toggleView);
 
   function play(name: 'idle' | 'walk' | 'run'): void {
     if (anim === name) return;
@@ -114,62 +127,95 @@ export function createPlayer(
     rig.play(name, 0.2);
   }
 
-  function updateCamera(dt: number, snap: boolean): void {
-    target.set(position.x, position.y + LOOK_HEIGHT, position.z);
-    const cp = Math.cos(camPitch);
-    dir.set(Math.sin(camYaw) * cp, Math.sin(camPitch), Math.cos(camYaw) * cp);
-    let allowed = camDist;
-    if (bvh) {
-      ray.origin.copy(target);
-      ray.direction.copy(dir);
-      const hit = bvh.raycastFirst(ray, THREE.DoubleSide, 0, camDist + CAM_MARGIN);
-      if (hit) allowed = Math.max(CAM_MIN_DIST, Math.min(camDist, hit.distance - CAM_MARGIN));
-    }
-    if (snap || allowed < boom) boom = allowed;
-    else boom = Math.min(allowed, boom + (allowed - boom) * (1 - Math.exp(-CAM_RECOVER_RATE * dt)));
-    camera.position.copy(target).addScaledVector(dir, boom);
-    camera.lookAt(target);
-  }
-
   function syncRig(): void {
     rig.root.position.copy(position);
     rig.root.rotation.y = heading;
+    rig.root.visible = cam.viewBlend < 0.5 && cam.headDistance >= RIG_HIDE_DISTANCE;
   }
 
   return {
     rig,
     position,
+    get stepPhase() {
+      return stepPhase;
+    },
+    get speed() {
+      return subject.speed;
+    },
+    get running() {
+      return subject.running;
+    },
+    get firstPerson() {
+      return cam.firstPerson;
+    },
+    toggleView,
+    frameTarget(target: THREE.Vector3 | null): void {
+      if (disposed) return;
+      cam.frame(target);
+      if (target !== null) input.exitLock?.(); // free the cursor for the conversation panel
+    },
     update(dt: number): void {
       if (disposed) return;
       const look = input.pointerDelta();
-      camYaw -= look.dx * SENSITIVITY;
-      camPitch = THREE.MathUtils.clamp(camPitch + look.dy * SENSITIVITY, PITCH_MIN, PITCH_MAX);
+      cam.look(look.dx, look.dy);
+      const wheel = input.wheelDelta();
+      if (wheel !== 0) cam.zoom(wheel);
 
-      const running = input.down('ShiftLeft') || input.down('ShiftRight');
-      const mv = cameraRelativeMove(input.axis(), camYaw, running);
-      let moved = 0;
-      if (dt > 0 && mv.speed > 0) {
-        delta.set(mv.vx * dt, 0, mv.vz * dt);
-        const next = nav.moveAlongSurface(position, delta);
-        moved = Math.hypot(next.x - position.x, next.z - position.z) / dt;
-        position.copy(next);
-      }
+      const fp = cam.firstPerson;
+      const axis = input.axis();
+      const shift = input.down('ShiftLeft') || input.down('ShiftRight');
+      const mv = cameraRelativeMove(axis, cam.yaw, shift && (!fp || axis.y > 0.1));
+      let scale = 1;
       if (mv.heading !== null) {
-        heading += angleDelta(heading, mv.heading) * (1 - Math.exp(-TURN_RATE * dt));
+        if (fp) scale = axis.y < -0.1 ? FP_BACK_FACTOR : Math.abs(axis.x) > Math.abs(axis.y) ? FP_STRAFE_FACTOR : 1;
+        else scale = turnInPlaceScale(angleDelta(heading, mv.heading));
       }
-      play(moved < 0.3 ? 'idle' : running ? 'run' : 'walk');
+      const k = dt > 0 ? 1 - Math.exp(-(mv.speed > 0 ? ACCEL_RATE : DECEL_RATE) * dt) : 0;
+      subject.vx += (mv.vx * scale - subject.vx) * k;
+      subject.vz += (mv.vz * scale - subject.vz) * k;
+      let wanted = Math.hypot(subject.vx, subject.vz);
+      if (mv.speed === 0 && wanted < 0.02) {
+        subject.vx = 0;
+        subject.vz = 0;
+        wanted = 0;
+      }
 
+      let moved = 0;
+      if (dt > 0 && wanted > 0) {
+        delta.set(subject.vx * dt, 0, subject.vz * dt);
+        const next = nav.moveAlongSurface(position, delta);
+        const mx = (next.x - position.x) / dt;
+        const mz = (next.z - position.z) / dt;
+        moved = Math.hypot(mx, mz);
+        if (moved < wanted * 0.6) {
+          // Blocked or sliding along a wall: carry on from what the surface allowed.
+          subject.vx = mx;
+          subject.vz = mz;
+        }
+        position.copy(next);
+        stepPhase += (moved * dt) / strideLength(moved);
+      }
+      subject.speed = moved;
+      subject.running = moved > RUN_ANIM_SPEED;
+      subject.stepPhase = stepPhase;
+
+      if (fp) heading = cam.yaw + Math.PI; // the body faces the view, so sideways input strafes
+      else if (mv.heading !== null) heading += angleDelta(heading, mv.heading) * (1 - Math.exp(-TURN_RATE * dt));
+      play(moved < IDLE_SPEED ? 'idle' : subject.running ? 'run' : 'walk');
+
+      cam.update(dt, subject);
       syncRig();
       rig.update(dt);
-      updateCamera(dt, false);
     },
     teleport(p: THREE.Vector3, rotY: number): void {
       position.copy(nav.nearest(p));
       heading = rotY;
-      camYaw = rotY + Math.PI;
-      camPitch = DEFAULT_PITCH;
+      subject.vx = 0;
+      subject.vz = 0;
+      subject.speed = 0;
+      subject.running = false;
+      cam.reset(subject, rotY);
       syncRig();
-      updateCamera(0, true);
     },
     nearestNpc(npcs, maxDist): string | null {
       const fx = Math.sin(heading);
@@ -191,7 +237,8 @@ export function createPlayer(
     dispose(): void {
       if (disposed) return;
       disposed = true;
-      if (hasWindow) window.removeEventListener('wheel', onWheel);
+      offViewKey();
+      rig.root.visible = true;
       bvhGeometry?.dispose();
     },
   };

@@ -1,22 +1,40 @@
-// Turns a TownLayout into three.js objects: ground, roads, buildings (kit mesh or procedural fallback),
-// signs and props. Static geometry is merged per material with world transforms baked in; kit clones keep
-// their own matrices (updated before return). Kit geometry and materials belong to the kit cache and are
-// never disposed here.
+// Turns a TownLayout into three.js objects: terrain and horizon, roads, buildings (blueprint, kit mesh or
+// procedural fallback), signs, props, set dressing and ground scatter. Static geometry is merged per material
+// with world transforms baked in; kit clones keep their own matrices (updated before return). Kit geometry
+// and materials belong to the kit cache and are never disposed here.
+//
+// `statics` is what the navmesh and the camera collide with: a flat invisible plane named "ground" first,
+// then buildings and solid props. The visible terrain, roads, puddles, decals, scatter and the horizon ring
+// are drawn only.
 import * as THREE from 'three';
 import type { LoadedKit } from '../engine/assets';
 import { makeRng } from '../world/rng';
-import type { Blueprint, LandmarkSpec, WorldSpec } from '../world/spec';
+import type { Blueprint, LandmarkSpec, StyleSpec, SurfaceSet, WorldSpec } from '../world/spec';
 import { GeoBatch, MaterialCache } from './batch';
 import { addBlueprint } from './blueprint-mesh';
 import { MAX_BUILDING_HEIGHT, PROP_SIZES } from './kits';
-import { TRACK_WIDTH, buildingAabb, distanceToRoad, roadRect } from './layout';
+import { buildingAabb, distanceToRoad, roadRect } from './layout';
 import type { PlacedBuilding, Rect, TownLayout } from './layout';
 import { addProceduralBuilding } from './procedural';
 import type { ProcEnv } from './procedural';
-import { addProceduralProp, isVisualOnlyProp, scatterBlueprintProps } from './props';
+import { addProceduralProp, dressTown, isVisualOnlyProp, scatterBlueprintProps } from './props';
+import type { TownLight } from './props';
+import { buildScatter } from './scatter';
 import { createSign, disposeSign } from './sign';
+import { groundMaterial, inferSurfaces, roadMaterial } from './surfaces';
+import {
+  buildGroundGeometry, buildHorizonGeometry, buildRoadGeometry, groundHalfExtent, horizonForms, horizonKindFor, horizonPalette,
+  makeTerrainField,
+} from './terrain';
+import type { Quality } from './terrain';
 
 export { setSignLabel } from './sign';
+export type { TownLight } from './props';
+
+export interface BuildOptions {
+  /** 0 integrated graphics, 1 mid, 2 discrete GPU (default). Sets ground resolution, scatter count and dressing density. */
+  quality?: Quality;
+}
 
 export interface TownObjects {
   group: THREE.Group;
@@ -31,6 +49,10 @@ export interface TownObjects {
    * same id replaces the first. The model's geometry and materials are disposed with the town.
    */
   placeLandmark?(id: string, object: THREE.Object3D, heightMetres: number): void;
+  /** Lanterns by doors and on strung lines: where the lighting may put real lights. Radius in metres. */
+  lights?: TownLight[];
+  /** Chimney tops and vents: where smoke or steam should rise. */
+  smoke?: THREE.Vector3[];
   dispose(): void;
 }
 
@@ -112,6 +134,48 @@ function roadColour(ground: THREE.Color, theme: WorldSpec['theme']): THREE.Color
   return new THREE.Color().setHSL(hsl.h, hsl.s * 0.9, hsl.l * (theme === 'modern' ? 0.6 : 0.68));
 }
 
+const THEME_STYLE: Record<WorldSpec['theme'], Pick<StyleSpec, 'name' | 'wall' | 'wall2' | 'roof' | 'trim' | 'dark' | 'glass' | 'glow'>> = {
+  western: { name: 'weathered frontier timber', wall: '#8b5a3c', wall2: '#a0703f', roof: '#5b4030', trim: '#c9b48a', dark: '#2b2118', glass: '#6f9bb8', glow: '#ffd27a' },
+  medieval: { name: 'plaster and timber', wall: '#d9c9a3', wall2: '#8d6e52', roof: '#8a3b2b', trim: '#e0d2b4', dark: '#2f2a26', glass: '#6f9bb8', glow: '#ffd98a' },
+  scifi: { name: 'metal panel outpost', wall: '#c8ccd4', wall2: '#98a4b4', roof: '#586070', trim: '#d8dce2', dark: '#2a2e36', glass: '#3a4a58', glow: '#8fe3ff' },
+  modern: { name: 'concrete and glass', wall: '#d8d4cc', wall2: '#b9c0c8', roof: '#6f7378', trim: '#e6e2da', dark: '#2c2d30', glass: '#3a4a58', glow: '#ffe9a0' },
+};
+
+/**
+ * The style every surface is generated from. A compiled town carries one; an old spec gets the colours its
+ * theme's kit and palette imply, so the ground, roads and dressing are made the same way for both.
+ */
+function resolveStyle(spec: WorldSpec, groundHex: string): StyleSpec {
+  const s = spec.style;
+  if (s) {
+    const t = THEME_STYLE[spec.theme];
+    return {
+      ...s, wall: hexOr(s.wall, t.wall), wall2: hexOr(s.wall2, t.wall2), roof: hexOr(s.roof, t.roof), trim: hexOr(s.trim, t.trim),
+      accent: hexOr(s.accent, '#b5533c'), dark: hexOr(s.dark, t.dark), glass: hexOr(s.glass, t.glass), glow: hexOr(s.glow, t.glow),
+      ground: hexOr(s.ground, groundHex), road: hexOr(s.road, '#6b6258'),
+    };
+  }
+  return {
+    ...THEME_STYLE[spec.theme], accent: hexOr(spec.palette.accent, '#b5533c'), ground: groundHex,
+    road: `#${roadColour(new THREE.Color(groundHex), spec.theme).getHexString()}`, variety: 0.4,
+  };
+}
+
+/**
+ * A surface material from the generator, or a plain one in its colour when the generator cannot run here.
+ * The meshes it goes on carry wear and grime as a colour multiplier, so vertex colours are switched on.
+ */
+function surfaceMaterial(make: () => THREE.Material, fallbackHex: string): THREE.Material {
+  let m: THREE.Material;
+  try {
+    m = make();
+  } catch {
+    m = new THREE.MeshStandardMaterial({ color: new THREE.Color(fallbackHex), roughness: 1 });
+  }
+  if (!m.vertexColors) { m.vertexColors = true; m.needsUpdate = true; }
+  return m;
+}
+
 const LANDMARK_ROAD_MARGIN = 1.2;
 const LANDMARK_BUILDING_MARGIN = 1.5;
 
@@ -170,7 +234,8 @@ function disposeObject(root: THREE.Object3D): void {
   });
 }
 
-export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, scene: THREE.Scene): TownObjects {
+export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, scene: THREE.Scene, opts: BuildOptions = {}): TownObjects {
+  const quality: Quality = opts.quality ?? 2;
   const rng = makeRng(spec.seed, 'build');
   const group = new THREE.Group();
   group.name = 'town';
@@ -193,65 +258,97 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   const bpById = new Map(blueprints.map((b) => [b.id, b]));
   const specBuildings = new Map(spec.buildings.map((b) => [b.id, b]));
 
-  // Ground
-  const groundColour = new THREE.Color(hexOr(style?.ground, manifest.ground.color || spec.palette.ground));
-  const groundGeo = new THREE.PlaneGeometry(GROUND_SIZE, GROUND_SIZE).rotateX(-Math.PI / 2);
-  const groundMat = new THREE.MeshStandardMaterial({ color: groundColour, roughness: 1 });
-  const ground = new THREE.Mesh(groundGeo, groundMat);
+  // Ground: the collider is a flat plane; what is seen is the terrain, flat over the town and rolling beyond it.
+  const groundHex = hexOr(style?.ground, hexOr(manifest.ground.color, hexOr(spec.palette.ground, '#7d8a5a')));
+  const look = resolveStyle(spec, groundHex);
+  const given = look.surfaces ?? inferSurfaces(look, spec.theme, spec.mood);
+  const unit = (v: number): number => (Number.isFinite(v) ? clamp(v, 0, 1) : 0);
+  const surfaces: SurfaceSet = { ...given, wear: unit(given.wear), wet: unit(given.wet) };
+  const pathsMode = spec.site?.paths ?? 'road';
+  const surfaceOpts = { quality, seed: spec.seed };
+  const field = makeTerrainField(layout.bounds, surfaces.ground, spec.seed);
+  const colliderGeo = new THREE.PlaneGeometry(GROUND_SIZE, GROUND_SIZE).rotateX(-Math.PI / 2);
+  const ground = new THREE.Mesh(colliderGeo, COLLIDER_MATERIAL);
   ground.name = 'ground';
-  ground.receiveShadow = true;
-  ownGeos.push(groundGeo);
-  ownMats.push(groundMat);
-  group.add(ground);
+  ground.visible = false;
+  ground.matrixAutoUpdate = false;
+  ownGeos.push(colliderGeo);
   statics.push(ground);
 
-  // Roads (flat, 2 cm above ground), pavement tint for modern, plaza disc
-  const roadMat = new THREE.MeshStandardMaterial({
-    color: style ? new THREE.Color(hexOr(style.road, '#6b6258')) : roadColour(groundColour, spec.theme), roughness: 1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
-  });
-  const walkMat = new THREE.MeshStandardMaterial({
-    color: new THREE.Color('#8a8d92'), roughness: 1, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1,
-  });
-  ownMats.push(roadMat, walkMat);
-  const flat = (w: number, d: number, cx: number, cz: number, y: number, m: THREE.Material, name: string): void => {
-    const g = new THREE.PlaneGeometry(w, d).rotateX(-Math.PI / 2);
-    const mesh = new THREE.Mesh(g, m);
-    mesh.position.set(cx, y, cz);
-    mesh.receiveShadow = true;
+  const drawn = (geo: THREE.BufferGeometry, mat: THREE.Material, name: string, order = 0): THREE.Mesh => {
+    const mesh = new THREE.Mesh(geo, mat);
     mesh.name = name;
-    ownGeos.push(g);
+    mesh.receiveShadow = true;
+    mesh.matrixAutoUpdate = false;
+    mesh.renderOrder = order;
+    ownGeos.push(geo);
     group.add(mesh);
+    return mesh;
   };
-  const pathsMode = spec.site?.paths ?? 'road';
-  const trackMat = new THREE.MeshStandardMaterial({
-    color: (style ? new THREE.Color(hexOr(style.road, '#6b6258')) : roadColour(groundColour, spec.theme)).lerp(groundColour, 0.5),
-    roughness: 1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
-  });
-  ownMats.push(trackMat);
-  for (const seg of pathsMode === 'none' ? [] : layout.roads) {
-    const r = pathsMode === 'track' && seg.width > TRACK_WIDTH ? { ...seg, width: TRACK_WIDTH } : seg;
-    const q = roadRect(r);
-    const w = q.maxX - q.minX;
-    const d = q.maxZ - q.minZ;
-    const cx = (q.minX + q.maxX) / 2;
-    const cz = (q.minZ + q.maxZ) / 2;
-    if (spec.theme === 'modern' && !style) {
-      const wide = r.az === r.bz;
-      flat(wide ? w : w + 3, wide ? d + 3 : d, cx, cz, 0.01, walkMat, 'pavement');
-    }
-    flat(w, d, cx, cz, 0.02, pathsMode === 'track' ? trackMat : roadMat, 'road');
+  const groundMat = surfaceMaterial(() => groundMaterial(surfaces, look, surfaceOpts), look.ground);
+  ownMats.push(groundMat);
+  const doorPoints = layout.buildings.map((b) => b.door);
+  drawn(buildGroundGeometry(layout, field, { quality, doors: doorPoints, half: groundHalfExtent(layout.bounds) }), groundMat, 'terrain');
+
+  // Horizon ring: mesas, mountains, giant trees or megastructures, far enough out for the fog to take them.
+  const horizonKind = horizonKindFor(`${spec.prompt} ${spec.title} ${spec.era} ${look.name}`, surfaces.ground, spec.theme);
+  const horizon = buildHorizonGeometry(horizonForms(field, horizonKind, quality), horizonPalette(look, horizonKind, surfaces.ground), quality);
+  if (horizon.solid) {
+    const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true });
+    ownMats.push(m);
+    drawn(horizon.solid, m, 'horizon').receiveShadow = false;
   }
-  const plazaMat = new THREE.MeshStandardMaterial({
-    color: groundColour.clone().lerp(new THREE.Color('#d6cfc2'), 0.45), roughness: 1, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3,
+  if (horizon.glow) {
+    const m = new THREE.MeshStandardMaterial({
+      vertexColors: true, color: new THREE.Color('#000000'), emissive: new THREE.Color(look.glow), emissiveIntensity: 1.4, roughness: 1, side: THREE.DoubleSide,
+    });
+    ownMats.push(m);
+    drawn(horizon.glow, m, 'horizon-glow').receiveShadow = false;
+  }
+
+  // Roads and plaza in the road surface, kerbs and boardwalks, then decals and puddles over them.
+  const roadGeo = buildRoadGeometry({
+    layout, surfaces, theme: spec.theme, paths: pathsMode, seed: spec.seed, quality, roadHex: look.road, wallHex: look.wall,
   });
-  const plazaGeo = new THREE.CircleGeometry(layout.plaza.r, 48).rotateX(-Math.PI / 2);
-  const plazaMesh = new THREE.Mesh(plazaGeo, plazaMat);
-  plazaMesh.position.set(layout.plaza.x, 0.03, layout.plaza.z);
-  plazaMesh.receiveShadow = true;
-  plazaMesh.name = 'plaza';
-  ownGeos.push(plazaGeo);
-  ownMats.push(plazaMat);
-  group.add(plazaMesh);
+  const offset = <M extends THREE.Material>(m: M, units: number): M => {
+    m.polygonOffset = true;
+    m.polygonOffsetFactor = units;
+    m.polygonOffsetUnits = units;
+    return m;
+  };
+  const roadMat = offset(surfaceMaterial(() => roadMaterial(surfaces, look, { ...surfaceOpts, variant: roadGeo.cls === 'track' ? 'track' : 'road' }), look.road), -2);
+  const plazaMat = offset(surfaceMaterial(() => roadMaterial(surfaces, look, { ...surfaceOpts, variant: 'plaza' }), look.road), -3);
+  ownMats.push(roadMat, plazaMat);
+  if (spec.theme === 'modern' && !style && pathsMode !== 'none') {
+    // Pavements: a paler band 1.5 m either side of each street.
+    const walkMat = offset(new THREE.MeshStandardMaterial({ color: new THREE.Color('#8a8d92'), roughness: 0.95 }), -1);
+    ownMats.push(walkMat);
+    for (const r of layout.roads) {
+      const q = roadRect(r);
+      const wide = r.az === r.bz;
+      const g = new THREE.PlaneGeometry(q.maxX - q.minX + (wide ? 0 : 3), q.maxZ - q.minZ + (wide ? 3 : 0)).rotateX(-Math.PI / 2);
+      g.translate((q.minX + q.maxX) / 2, 0.01, (q.minZ + q.maxZ) / 2);
+      drawn(g, walkMat, 'pavement');
+    }
+  }
+  for (const g of roadGeo.roads) drawn(g, roadMat, 'road');
+  drawn(roadGeo.plaza, plazaMat, 'plaza');
+  if (roadGeo.trim) {
+    const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92 });
+    ownMats.push(m);
+    drawn(roadGeo.trim, m, 'road-trim').castShadow = true;
+  }
+  if (roadGeo.decals) {
+    const m = offset(new THREE.MeshStandardMaterial({ vertexColors: true, transparent: true, depthWrite: false, roughness: 0.75 }), -4);
+    ownMats.push(m);
+    drawn(roadGeo.decals, m, 'road-decals', 1);
+  }
+  if (roadGeo.puddles) {
+    // Standing water: near-mirror smooth, no normal map, dark enough that what it shows is the sky and the lamps.
+    const m = offset(new THREE.MeshStandardMaterial({ vertexColors: true, transparent: true, depthWrite: false, roughness: 0.03, metalness: 0, envMapIntensity: 1.6 }), -5);
+    ownMats.push(m);
+    drawn(roadGeo.puddles, m, 'puddles', 2);
+  }
 
   // Plaza centrepiece, only when the kit has one (medieval well, scifi pad)
   const centre = bpMode ? null : kit.building('plaza', 'small', rng);
@@ -277,6 +374,8 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
     signs.set(b.id, sign);
   };
   const maxH = MAX_BUILDING_HEIGHT;
+  const heights = new Map<string, number>();
+  const builtFrom = new Map<string, Blueprint>();
   layout.buildings.forEach((b, index) => {
     doors.set(b.id, new THREE.Vector3(b.door.x, 0, b.door.z));
     if (style && bpMode) {
@@ -285,6 +384,8 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       if (bp) {
         const res = addBlueprint(bp, style, b, { batch, mats, rng });
         doors.set(b.id, res.door);
+        heights.set(b.id, res.height);
+        builtFrom.set(b.id, bp);
         placeSign(b, clamp(res.height * 0.6, 2.4, 4.2), -b.d / 2);
         return;
       }
@@ -302,9 +403,11 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       fitted.holder.updateMatrixWorld(true);
       group.add(fitted.holder);
       enableShadows(fitted.holder, statics, ownGeos);
+      heights.set(b.id, fitted.size.y);
       placeSign(b, clamp(fitted.size.y * 0.6, 2.8, 4.2), -fitted.size.z / 2);
     } else {
       const res = addProceduralBuilding(env, b, spec.palette.accent, rng);
+      heights.set(b.id, res.height);
       placeSign(b, res.signY, -b.d / 2);
     }
   });
@@ -362,6 +465,17 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
     }
   }
 
+  // Set dressing against the buildings, then the small stuff that fills the ground between them.
+  const dressed = dressTown({
+    layout, spec, style: look, surfaces, heights, blueprints: builtFrom,
+    keepClear: [...anchors.values()].map((a) => ({ x: a.x, z: a.z, r: 2.6 })), batch, visualBatch, mats, quality,
+  });
+  const scatter = buildScatter({
+    layout, ground: surfaces.ground, groundHex: look.ground, accents: [look.accent, look.glow, look.trim],
+    wild: spec.site?.wild ?? 0.3, wet: surfaces.wet, quality, seed: spec.seed, tracks: roadGeo.cls === 'track' && pathsMode !== 'none',
+  });
+  group.add(scatter.group);
+
   const merged = batch.build();
   for (const m of merged) {
     group.add(m);
@@ -374,7 +488,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
 
   let disposed = false;
   return {
-    group, statics, signs, doors,
+    group, statics, signs, doors, lights: dressed.lights, smoke: dressed.smoke,
     placeLandmark(id: string, object: THREE.Object3D, heightMetres: number): void {
       const a = anchors.get(id);
       if (!a || disposed) return;
@@ -417,14 +531,20 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       if (disposed) return;
       disposed = true;
       scene.remove(group);
-      for (const m of merged) m.geometry.dispose();
-      for (const m of visual) m.geometry.dispose();
+      // Surface materials are shared through their own cache; disposing one here only frees its program until it is next drawn.
+      for (const m of [...merged, ...visual]) {
+        m.geometry.dispose();
+        for (const mat of Array.isArray(m.material) ? m.material : [m.material]) mat.dispose();
+      }
       for (const s of signMeshes) disposeSign(s);
       for (const g of ownGeos) g.dispose();
       for (const m of ownMats) m.dispose();
       for (const o of placedModels.values()) disposeObject(o);
       placedModels.clear();
       plinths.clear();
+      scatter.dispose();
+      dressed.lights.length = 0;
+      dressed.smoke.length = 0;
       mats.dispose();
       group.clear();
       statics.length = 0;

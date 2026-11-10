@@ -11,6 +11,7 @@ import {
   MathUtils,
   PlaneGeometry,
   PMREMGenerator,
+  PointLight,
   Points,
   PointsMaterial,
   Quaternion,
@@ -22,6 +23,7 @@ import type { WebGLRenderer, WebGLRenderTarget } from 'three';
 import { Sky } from 'three/addons/objects/Sky.js';
 import type { SkyPreset } from '../world/spec';
 import { makeRng } from '../world/rng';
+import { AIR, currentQuality, onQuality, type Quality } from './post';
 
 export interface SkyRig {
   setHour(h: number): void;
@@ -30,6 +32,16 @@ export interface SkyRig {
   setFocus?(x: number, z: number): void;
   /** Tints the hemisphere light's ground bounce, as a '#rrggbb' colour. */
   setGroundTint?(hex: string): void;
+  /** Turns the dramatic key-light bias on or off (on by default). The clock and the sky colours are not affected. */
+  setCinematic?(on: boolean): void;
+  /** Camera heading on the ground plane; the shadow box is pushed ahead along it so it covers what is on screen. */
+  setViewDir?(x: number, z: number): void;
+  /** Advances the cloud drift. */
+  tick?(dt: number): void;
+  /** 0..1 lightning: a burst of cold light from away from the key. */
+  setFlash?(v: number): void;
+  getPreset?(): SkyPreset;
+  getFogHint?(): number;
   dispose(): void;
 }
 
@@ -70,6 +82,163 @@ export function sunFromHour(hour: number): SunState {
     -Math.cos(el) * Math.cos(az),
   ];
   return { elevationDeg, azimuthDeg, daylight: smoothstep(-3, 14, elevationDeg), direction };
+}
+
+export interface KeyLight {
+  elevationDeg: number;
+  azimuthDeg: number;
+  /** Unit vector from the origin towards the light. */
+  direction: [number, number, number];
+  /** 0 where the light is where the clock puts it, 1 at full bias. */
+  bias: number;
+}
+
+/** Elevation where the cinematic bias starts, and where it is complete. */
+export const CINEMATIC_BIAS_START_DEG = 38;
+export const CINEMATIC_BIAS_FULL_DEG = 62;
+/** The elevation a fully biased key light is pulled towards, and how far it is swung round. */
+export const CINEMATIC_KEY_ELEVATION_DEG = 36;
+export const CINEMATIC_SWING_DEG = 38;
+
+/**
+ * A high light makes short shadows that fall straight down the walls. The bias lowers it and swings it
+ * round, so shadows rake across the streets instead of lying along them. Low lights pass through untouched.
+ */
+export function cinematicAngles(elevationDeg: number, azimuthDeg: number): { elevationDeg: number; azimuthDeg: number; bias: number } {
+  const bias = smoothstep(CINEMATIC_BIAS_START_DEG, CINEMATIC_BIAS_FULL_DEG, elevationDeg);
+  return {
+    elevationDeg: MathUtils.lerp(elevationDeg, CINEMATIC_KEY_ELEVATION_DEG, 0.9 * bias),
+    azimuthDeg: (((azimuthDeg + CINEMATIC_SWING_DEG * bias) % 360) + 360) % 360,
+    bias,
+  };
+}
+
+function directionFrom(elevationDeg: number, azimuthDeg: number): [number, number, number] {
+  const el = MathUtils.degToRad(elevationDeg);
+  const az = MathUtils.degToRad(azimuthDeg);
+  return [Math.cos(el) * Math.sin(az), Math.sin(el), -Math.cos(el) * Math.cos(az)];
+}
+
+/** Where the sun's key light comes from at an hour. With `cinematic` off it is exactly the sun. */
+export function keyLightFor(hour: number, cinematic = true): KeyLight {
+  const sun = sunFromHour(hour);
+  if (!cinematic) return { elevationDeg: sun.elevationDeg, azimuthDeg: sun.azimuthDeg, direction: sun.direction, bias: 0 };
+  const a = cinematicAngles(sun.elevationDeg, sun.azimuthDeg);
+  return { ...a, direction: directionFrom(a.elevationDeg, a.azimuthDeg) };
+}
+
+/** The moon sits opposite the sun, never lower than 15 degrees; the same bias keeps it from standing overhead. */
+export function moonLightFor(hour: number, cinematic = true): KeyLight {
+  const sun = sunFromHour(hour);
+  const elevationDeg = Math.max(15, -sun.elevationDeg);
+  const azimuthDeg = (sun.azimuthDeg + 180) % 360;
+  if (!cinematic) return { elevationDeg, azimuthDeg, direction: directionFrom(elevationDeg, azimuthDeg), bias: 0 };
+  const a = cinematicAngles(elevationDeg, azimuthDeg);
+  return { ...a, direction: directionFrom(a.elevationDeg, a.azimuthDeg) };
+}
+
+// ---- Practical lights ----------------------------------------------------------------------------
+// Lamps, lit windows, fires. Any code may register one; the live sky rig lights the nearest few with
+// pooled point lights, so a town can hold hundreds of lamps at the cost of a dozen.
+
+interface Practical {
+  x: number;
+  y: number;
+  z: number;
+  color: Color;
+  radius: number;
+}
+
+const practicals: Practical[] = [];
+let practicalVersion = 0;
+const HEX6 = /^#?[0-9a-f]{6}$/i;
+
+/** How many of the nearest lamps are also handed to particle shaders. */
+export const GLOW_LAMPS = 6;
+/**
+ * The nearest lit lamps, nearest first, for shaders that light themselves (rain, snow): `pos` holds
+ * x, y, z, radius per lamp, `col` the colour times its slot weight, `gain` the day/night level.
+ */
+export const PRACTICAL_GLOW = {
+  pos: new Float32Array(GLOW_LAMPS * 4),
+  col: new Float32Array(GLOW_LAMPS * 3),
+  gain: 0,
+};
+
+/** Pool size per quality tier. */
+export const PRACTICAL_POOL: readonly [number, number, number] = [4, 8, 12];
+/** Lamps further than this from the focus stay dark. */
+export const PRACTICAL_RANGE = 90;
+
+/**
+ * Registers a warm practical light: `radius` is how far, in metres, it still reads on a wall. Returns the
+ * function that removes it. Cheap to call for every lamp and glowing window; only the nearest are lit.
+ */
+export function addPracticalLight(pos: Vector3, colorHex: string, radius: number): () => void {
+  const hex = HEX6.test(colorHex) ? (colorHex.startsWith('#') ? colorHex : `#${colorHex}`) : '#ffb469';
+  const r = Number.isFinite(radius) ? Math.min(30, Math.max(0.5, radius)) : 4;
+  const p: Practical = { x: pos.x, y: pos.y, z: pos.z, color: new Color(hex), radius: r };
+  practicals.push(p);
+  practicalVersion++;
+  let removed = false;
+  return () => {
+    if (removed) return;
+    removed = true;
+    const i = practicals.indexOf(p);
+    if (i >= 0) practicals.splice(i, 1);
+    practicalVersion++;
+  };
+}
+
+/**
+ * Picks the `count` points nearest to (fx, fz). Writes their indices to `outIndex` and a 0..1 weight to
+ * `outWeight` that falls to zero at the distance of the first point left out, so a lamp is already dark
+ * when it loses its slot. Returns how many were written.
+ */
+export function nearestPracticals(
+  points: readonly { x: number; z: number }[],
+  fx: number,
+  fz: number,
+  count: number,
+  outIndex: number[],
+  outWeight: number[],
+): number {
+  const keep = Math.max(0, Math.floor(count));
+  if (keep === 0) return 0;
+  let n = 0;
+  let cut = PRACTICAL_RANGE * PRACTICAL_RANGE;
+  // Insertion into a short sorted list; outWeight holds squared distances until the end.
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    if (p === undefined) continue;
+    const d2 = (p.x - fx) * (p.x - fx) + (p.z - fz) * (p.z - fz);
+    if (d2 >= cut) continue;
+    let j = n;
+    if (n === keep) {
+      // The list is full: this point or the current last one becomes the nearest one left out.
+      const last = outWeight[keep - 1] ?? cut;
+      if (d2 >= last) {
+        cut = d2;
+        continue;
+      }
+      cut = last;
+      j = keep - 1;
+    } else {
+      n++;
+    }
+    while (j > 0 && (outWeight[j - 1] ?? 0) > d2) {
+      outWeight[j] = outWeight[j - 1] ?? 0;
+      outIndex[j] = outIndex[j - 1] ?? 0;
+      j--;
+    }
+    outWeight[j] = d2;
+    outIndex[j] = i;
+  }
+  const edge = Math.sqrt(cut);
+  for (let i = 0; i < n; i++) {
+    outWeight[i] = 1 - smoothstep(0.7 * edge, edge, Math.sqrt(outWeight[i] ?? 0));
+  }
+  return n;
 }
 
 /** Index of the environment-map bucket for an hour; the PMREM is rebuilt only when this changes. */
@@ -186,6 +355,22 @@ const HEMI_SKY_DAY = new Color(0xb4d0ff);
 const HEMI_SKY_NIGHT = new Color(0x2a3f80);
 const HEMI_GROUND_DAY = new Color(0x6b5a45);
 const HEMI_GROUND_NIGHT = new Color(0x0d0f1a);
+const RIM_DAY = new Color(0xa8c8ff);
+const RIM_NIGHT = new Color(0x4a64b0);
+const FLASH = new Color(0xcfe0ff);
+
+/** Light levels. Cinematic: a strong key over a thin fill, with a cool rim from the far side. */
+export const LIGHT_RATIOS = {
+  cinematic: { key: 4.0, fill: 0.25, rim: 0.4, moon: 1.2 },
+  plain: { key: 3.4, fill: 0.55, rim: 0, moon: 0.6 },
+} as const;
+
+/** Shadow map size and the width of the box it covers, per quality tier. */
+export const SHADOW_TIERS: readonly [{ map: number; box: number }, { map: number; box: number }, { map: number; box: number }] = [
+  { map: 1024, box: 64 },
+  { map: 2048, box: 80 },
+  { map: 4096, box: 80 },
+];
 
 export interface SkyLook {
   /** Renderer tone mapping exposure. */
@@ -302,8 +487,13 @@ export function skyLookFor(preset: SkyPreset, hour: number): SkyLook {
 
 // ---- Rig ---------------------------------------------------------------------------------------
 
-const SHADOW_BOX = 90;
-const SHADOW_MAP = 2048;
+/** Share of the shadow box half-width the box is pushed ahead of the focus, along the camera heading. */
+const SHADOW_LEAD = 0.55;
+/** Radiance scale for the stars and the moon when the frame is tone-mapped after them. */
+const NIGHT_SKY_HDR = 2.6;
+const MOON_DISC = new Color(0xdfe8ff);
+/** Smallest change of hour that re-lights the scene: about seven seconds of town time. */
+const HOUR_STEP = 0.002;
 const LIGHT_DISTANCE = 120;
 const STAR_RADIUS = 1850;
 const MOON_RADIUS = 1700;
@@ -327,6 +517,7 @@ const HAZE_MIX = `
   float hazeA = mix( hazeHorizonAlpha, hazeTopAlpha, hazeT ) * ( 1.0 - 0.8 * hazeSun * ( 1.0 - hazeNight ) );
   vec3 hazeBase = texColor / ( 1.0 + HAZE_COMPRESS * ( 1.0 - hazeT ) * texColor );
   texColor = mix( hazeBase, mix( hazeHorizon, hazeTop, hazeT ), hazeA );
+  texColor = min( texColor, vec3( 64.0 ) );
 `;
 
 const MOON_VERTEX = /* glsl */ `
@@ -348,9 +539,7 @@ const MOON_FRAGMENT = /* glsl */ `
     #include <colorspace_fragment>
   }`;
 
-const HEX6 = /^#?[0-9a-f]{6}$/i;
-
-export function createSky(scene: Scene, renderer: WebGLRenderer): SkyRig {
+export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cinematic?: boolean } = {}): SkyRig {
   const sky = new Sky();
   sky.scale.setScalar(4000);
   sky.frustumCulled = false;
@@ -417,7 +606,7 @@ export function createSky(scene: Scene, renderer: WebGLRenderer): SkyRig {
   scene.add(stars);
 
   const moonMaterial = new ShaderMaterial({
-    uniforms: { color: { value: new Color(0xdfe8ff) }, opacity: { value: 0 } },
+    uniforms: { color: { value: MOON_DISC.clone() }, opacity: { value: 0 } },
     vertexShader: MOON_VERTEX,
     fragmentShader: MOON_FRAGMENT,
     transparent: true,
@@ -454,20 +643,61 @@ export function createSky(scene: Scene, renderer: WebGLRenderer): SkyRig {
 
   const light = new DirectionalLight(0xffffff, 1);
   light.castShadow = true;
-  light.shadow.mapSize.set(SHADOW_MAP, SHADOW_MAP);
   const cam = light.shadow.camera;
-  const half = SHADOW_BOX / 2;
-  cam.left = -half;
-  cam.right = half;
-  cam.top = half;
-  cam.bottom = -half;
   cam.near = 1;
   cam.far = LIGHT_DISTANCE * 2.2;
-  // About a texel and a half of normal offset: enough to stop acne on flat-shaded faces, small enough not to float shadows off walls.
   light.shadow.bias = -0.0003;
-  light.shadow.normalBias = 0.065;
   scene.add(light);
   scene.add(light.target);
+
+  // Cool light from the far side of the key: it lifts the shadow side of a building off the background.
+  const rim = new DirectionalLight(RIM_DAY, 0);
+  rim.castShadow = false;
+  scene.add(rim);
+  scene.add(rim.target);
+
+  let quality: Quality = currentQuality();
+  let texel = 1;
+  let shadowHalf = 1;
+  const applyShadowTier = (): void => {
+    const tier = SHADOW_TIERS[quality];
+    shadowHalf = tier.box / 2;
+    texel = tier.box / tier.map;
+    cam.left = -shadowHalf;
+    cam.right = shadowHalf;
+    cam.top = shadowHalf;
+    cam.bottom = -shadowHalf;
+    cam.updateProjectionMatrix();
+    // About a texel and a half of normal offset: enough to stop acne on flat-shaded faces, small enough not to float shadows off walls.
+    light.shadow.normalBias = texel * 1.5;
+    light.shadow.radius = quality === 2 ? 2.5 : 1.5;
+    if (light.shadow.mapSize.x !== tier.map) {
+      light.shadow.mapSize.set(tier.map, tier.map);
+      if (light.shadow.map !== null) {
+        light.shadow.map.dispose();
+        light.shadow.map = null;
+      }
+    }
+  };
+  applyShadowTier();
+
+  // Practical lights: a fixed pool, each moved to one of the lamps nearest the focus.
+  const pool: PointLight[] = [];
+  const poolBase: number[] = [];
+  const pickIndex: number[] = [];
+  const pickWeight: number[] = [];
+  for (let i = 0; i < PRACTICAL_POOL[2]; i++) {
+    const lamp = new PointLight(0xffb469, 0, 10, 2);
+    lamp.castShadow = false;
+    lamp.visible = false;
+    scene.add(lamp);
+    pool.push(lamp);
+    poolBase.push(0);
+  }
+  let seenPracticalVersion = -1;
+  let practicalX = Number.NaN;
+  let practicalZ = 0;
+  let practicalGain = 0;
 
   const fogColor = new Color();
   scene.fog = new FogExp2(0xbcd2e6, fogDensityFor(0.1));
@@ -483,11 +713,63 @@ export function createSky(scene: Scene, renderer: WebGLRenderer): SkyRig {
   const basisY = new Vector3();
   const focus = new Vector3();
   const UP = new Vector3(0, 1, 0);
-  const texel = SHADOW_BOX / SHADOW_MAP;
+  let cinematic = options.cinematic !== false;
+  let viewX = 0;
+  let viewZ = 0;
+  let flash = 0;
+  let rimLevel = 0;
+  let hemiLevel = 0;
+  const rimColor = new Color();
+  const hemiColor = new Color();
+  const moonQuat = new Quaternion();
+
+  /** Re-deals the pool when the lamps, the focus or the tier changed; otherwise leaves it alone. */
+  const assignPracticals = (force: boolean): void => {
+    const moved = !(Math.abs(focusX - practicalX) < 1.5 && Math.abs(focusZ - practicalZ) < 1.5);
+    if (!force && !moved && seenPracticalVersion === practicalVersion) return;
+    seenPracticalVersion = practicalVersion;
+    practicalX = focusX;
+    practicalZ = focusZ;
+    const size = practicals.length === 0 ? 0 : PRACTICAL_POOL[quality];
+    const n = nearestPracticals(practicals, focusX, focusZ, size, pickIndex, pickWeight);
+    PRACTICAL_GLOW.pos.fill(0);
+    PRACTICAL_GLOW.col.fill(0);
+    for (let i = 0; i < pool.length; i++) {
+      const lamp = pool[i];
+      if (lamp === undefined) continue;
+      // Every slot of the pool stays in the shader while any lamp exists, so walking about never recompiles a material.
+      lamp.visible = i < size;
+      const p = i < n ? practicals[pickIndex[i] ?? -1] : undefined;
+      if (p === undefined) {
+        poolBase[i] = 0;
+        lamp.intensity = 0;
+        continue;
+      }
+      lamp.position.set(p.x, p.y, p.z);
+      lamp.color.copy(p.color);
+      lamp.distance = p.radius * 1.7;
+      // Candela that leaves half a unit of light on a wall one radius away.
+      poolBase[i] = 0.5 * p.radius * p.radius * (pickWeight[i] ?? 0);
+      lamp.intensity = (poolBase[i] ?? 0) * practicalGain;
+      if (i < GLOW_LAMPS) {
+        const w = pickWeight[i] ?? 0;
+        PRACTICAL_GLOW.pos.set([p.x, p.y, p.z, p.radius], i * 4);
+        PRACTICAL_GLOW.col.set([p.color.r * w, p.color.g * w, p.color.b * w], i * 3);
+      }
+    }
+  };
+
+  const applyFlash = (): void => {
+    rim.intensity = rimLevel + flash * 3.2;
+    rim.color.copy(rimColor).lerp(FLASH, Math.min(1, flash * 1.5));
+    hemi.intensity = hemiLevel + flash * 1.4;
+    hemi.color.copy(hemiColor).lerp(FLASH, Math.min(1, flash));
+  };
 
   /** Puts the light and its target over the focus point, with the target snapped to shadow texels so edges do not crawl. */
   const placeLight = (): void => {
-    focus.set(focusX, 0, focusZ);
+    const lead = shadowHalf * SHADOW_LEAD;
+    focus.set(focusX + viewX * lead, 0, focusZ + viewZ * lead);
     basisX.crossVectors(UP, lightDir);
     if (basisX.lengthSq() > 1e-6) {
       basisX.normalize();
@@ -500,6 +782,13 @@ export function createSky(scene: Scene, renderer: WebGLRenderer): SkyRig {
     light.target.position.copy(focus);
     light.target.updateMatrixWorld();
     light.position.copy(focus).addScaledVector(lightDir, LIGHT_DISTANCE);
+
+    // The rim comes from the opposite side, low over the roofs.
+    const flat = Math.hypot(lightDir.x, lightDir.z);
+    rim.target.position.copy(focus);
+    rim.target.updateMatrixWorld();
+    if (flat > 0.05) rim.position.set(focus.x - (lightDir.x / flat) * 100, 42, focus.z - (lightDir.z / flat) * 100);
+    else rim.position.set(focus.x + 100, 42, focus.z);
   };
 
   const rebuildEnv = (): void => {
@@ -512,6 +801,9 @@ export function createSky(scene: Scene, renderer: WebGLRenderer): SkyRig {
   const apply = (): void => {
     const p = SKY_PRESETS[preset];
     const sun = sunFromHour(hour);
+    const key = keyLightFor(hour, cinematic);
+    const moonKey = moonLightFor(hour, cinematic);
+    const ratios = cinematic ? LIGHT_RATIOS.cinematic : LIGHT_RATIOS.plain;
     const look = skyLookFor(preset, hour);
     const u = sky.material.uniforms;
     const set = (key: string, value: number): void => {
@@ -524,7 +816,8 @@ export function createSky(scene: Scene, renderer: WebGLRenderer): SkyRig {
     set('mieDirectionalG', p.mieDirectionalG);
     set('cloudCoverage', p.cloudCoverage);
     const sunPos = u['sunPosition'];
-    if (sunPos !== undefined) (sunPos.value as Vector3).set(...sun.direction);
+    // The sun disc and the scattering follow the key light, so the shadows agree with the sun the player sees.
+    if (sunPos !== undefined) (sunPos.value as Vector3).set(...key.direction);
 
     hazeUniforms.hazeTop.value.copy(look.hazeTopColor);
     hazeUniforms.hazeHorizon.value.copy(look.hazeHorizonColor);
@@ -534,43 +827,74 @@ export function createSky(scene: Scene, renderer: WebGLRenderer): SkyRig {
 
     const d = sun.daylight;
     // Direct light: the sun by day, a blue moon (opposite the sun) once the sun is well down.
-    const sunIntensity = 3.4 * d * p.sunScale;
-    const moonIntensity = 0.6 * (1 - d);
-    if (sunIntensity >= moonIntensity) {
-      lightDir.set(...sun.direction);
+    const sunIntensity = ratios.key * d * p.sunScale;
+    const moonIntensity = ratios.moon * (1 - d);
+    const sunUp = sunIntensity >= moonIntensity;
+    if (sunUp) {
+      lightDir.set(...key.direction);
       light.intensity = sunIntensity;
       light.color.copy(SUN_LOW).lerp(SUN_HIGH, smoothstep(0, 35, sun.elevationDeg));
     } else {
-      lightDir.set(-sun.direction[0], Math.max(0.25, -sun.direction[1]), -sun.direction[2]).normalize();
+      lightDir.set(...moonKey.direction);
       light.intensity = moonIntensity;
       light.color.copy(MOON);
     }
     placeLight();
+    rimLevel = ratios.rim * (0.35 + 0.65 * d) * (preset === 'overcast' ? 0.6 : 1);
+    rimColor.copy(RIM_NIGHT).lerp(RIM_DAY, d);
 
     // Moon and stars: only once the sun is down.
-    moonDir.set(-sun.direction[0], Math.max(0.3, -sun.direction[1]), -sun.direction[2]).normalize();
+    moonDir.set(...moonKey.direction);
     moonOffset.copy(moonDir).multiplyScalar(MOON_RADIUS);
     moonAim.copy(moonDir).negate();
-    moon.quaternion.copy(new Quaternion().setFromUnitVectors(zAxis, moonAim));
+    moon.quaternion.copy(moonQuat.setFromUnitVectors(zAxis, moonAim));
+    // Drawn before tone mapping when the film pipeline is on, so they need radiance, not display colour.
+    const nightSky = AIR.postActive ? NIGHT_SKY_HDR : 1;
+    const moonColor = moonMaterial.uniforms['color'];
+    if (moonColor !== undefined) (moonColor.value as Color).copy(MOON_DISC).multiplyScalar(nightSky);
+    starMat.color.setScalar(nightSky);
     const cloudCut = preset === 'overcast' ? 0.15 : 1;
     const moonAlpha = look.nightness * cloudCut;
     moon.visible = moonAlpha > 0.01;
     const moonOpacity = moonMaterial.uniforms['opacity'];
     if (moonOpacity !== undefined) moonOpacity.value = moonAlpha;
-    const starAlpha = (d < STAR_DAYLIGHT_LIMIT ? 1 - d / STAR_DAYLIGHT_LIMIT : 0) * cloudCut;
+    // Cloud hides the stars more thoroughly than it hides the moon.
+    const starAlpha = (d < STAR_DAYLIGHT_LIMIT ? 1 - d / STAR_DAYLIGHT_LIMIT : 0) * cloudCut * cloudCut;
     stars.visible = starAlpha > 0.01;
     starMat.opacity = starAlpha;
 
-    hemi.color.copy(HEMI_SKY_NIGHT).lerp(HEMI_SKY_DAY, d);
+    hemiColor.copy(HEMI_SKY_NIGHT).lerp(HEMI_SKY_DAY, d);
     hemi.groundColor.copy(HEMI_GROUND_NIGHT).lerp(groundDay, d);
-    hemi.intensity = (0.3 + 0.25 * d) * p.ambientScale;
+    // A little more fill at night: the moon alone leaves the shadow side of a street unreadable.
+    hemiLevel = (cinematic ? ratios.fill + 0.13 * (1 - d) : 0.3 + 0.25 * d) * p.ambientScale;
+    applyFlash();
+
+    // Lamps come up as the daylight goes; by day they are a faint warm spill.
+    practicalGain = 0.12 + 0.88 * (1 - d) + (preset === 'overcast' ? 0.2 * d : 0);
+    PRACTICAL_GLOW.gain = practicalGain;
+    assignPracticals(false);
+    for (let i = 0; i < pool.length; i++) {
+      const lamp = pool[i];
+      if (lamp !== undefined) lamp.intensity = (poolBase[i] ?? 0) * practicalGain;
+    }
 
     fogColor.copy(look.fog);
+    const density = fogDensityFor(fogHint);
     const fog = scene.fog;
     if (fog instanceof FogExp2) {
+      // With the film pipeline the fog is drawn in post (height falloff, sun glow); the scene fog then only carries the colour.
       fog.color.copy(fogColor);
-      fog.density = fogDensityFor(fogHint);
+      fog.density = AIR.postActive ? 0 : density;
     }
+    AIR.fogColor.copy(fogColor);
+    AIR.fogDensity = density;
+    AIR.keyDir.copy(lightDir);
+    AIR.keyColor.copy(light.color).multiplyScalar(light.intensity);
+    AIR.ambient.copy(hemiColor).multiplyScalar(hemiLevel);
+    AIR.keyLevel = light.intensity;
+    AIR.daylight = d;
+    AIR.cloudCover = p.cloudCoverage;
+    AIR.beam = sunUp ? Math.min(1, p.sunScale) : 0.5;
     scene.environmentIntensity = 0.1 + 0.3 * d;
     renderer.toneMappingExposure = look.exposure;
 
@@ -583,10 +907,21 @@ export function createSky(scene: Scene, renderer: WebGLRenderer): SkyRig {
 
   apply();
 
+  const offQuality = onQuality((q) => {
+    if (disposed) return;
+    quality = q;
+    applyShadowTier();
+    placeLight();
+    assignPracticals(true);
+  });
+
   return {
     setHour(h) {
       if (disposed || !Number.isFinite(h)) return;
-      hour = wrapHour(h);
+      const next = wrapHour(h);
+      // Called every frame; the sun moves a thirtieth of a degree in this much time, so smaller steps wait.
+      if (Math.abs(next - hour) < HOUR_STEP) return;
+      hour = next;
       apply();
     },
     setPreset(p, fog) {
@@ -601,6 +936,37 @@ export function createSky(scene: Scene, renderer: WebGLRenderer): SkyRig {
       focusX = x;
       focusZ = z;
       placeLight();
+      assignPracticals(false);
+    },
+    setCinematic(on) {
+      if (disposed || on === cinematic) return;
+      cinematic = on;
+      apply();
+    },
+    setViewDir(x, z) {
+      if (disposed) return;
+      const len = Math.hypot(x, z);
+      if (!Number.isFinite(len) || len < 1e-4) return;
+      viewX = x / len;
+      viewZ = z / len;
+    },
+    tick(dt) {
+      if (disposed || !Number.isFinite(dt)) return;
+      const t = sky.material.uniforms['time'];
+      if (t !== undefined) t.value = ((t.value as number) + dt) % 36000;
+    },
+    setFlash(v) {
+      if (disposed || !Number.isFinite(v)) return;
+      const next = Math.min(1, Math.max(0, v));
+      if (next === flash) return;
+      flash = next;
+      applyFlash();
+    },
+    getPreset() {
+      return preset;
+    },
+    getFogHint() {
+      return fogHint;
     },
     setGroundTint(hex) {
       if (disposed || !HEX6.test(hex)) return;
@@ -611,7 +977,13 @@ export function createSky(scene: Scene, renderer: WebGLRenderer): SkyRig {
     dispose() {
       if (disposed) return;
       disposed = true;
-      scene.remove(sky, stars, moon, hemi, light, light.target);
+      offQuality();
+      scene.remove(sky, stars, moon, hemi, light, light.target, rim, rim.target, ...pool);
+      for (const lamp of pool) lamp.dispose();
+      PRACTICAL_GLOW.pos.fill(0);
+      PRACTICAL_GLOW.col.fill(0);
+      PRACTICAL_GLOW.gain = 0;
+      rim.dispose();
       envScene.remove(envSky);
       sky.geometry.dispose();
       sky.material.dispose();

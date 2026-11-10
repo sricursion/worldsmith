@@ -29,7 +29,7 @@ import { buildQuestions, sampleAction, localFallback } from './npc/decide';
 import { openDialogue, type DialogueSession } from './npc/dialogue';
 import { createSpeech, type Speech } from './npc/speech';
 import type { Api } from './net/api';
-import type { UI, DialogueHandle } from './ui/ui';
+import type { UI, DialogueHandle, SoundSettings } from './ui/ui';
 import { encodeShare, decodeShare } from './share';
 
 const TICK_SECONDS = 20;
@@ -101,6 +101,7 @@ export class Game {
     this.speech = createSpeech();
     this.atmosphere = createAtmosphere(deps.viewport, this.sky);
     this.audio = createAudio();
+    this.applySound(deps.ui.getSound());
     const unlock = (): void => this.audio.unlock();
     window.addEventListener('pointerdown', unlock, { once: true });
     window.addEventListener('keydown', unlock, { once: true });
@@ -118,7 +119,16 @@ export class Game {
       share: () => void this.share().then((r) => this.copyLink(r)),
       talk: () => this.tryTalk(),
       newTown: () => this.newTown(),
+      sound: (s) => this.applySound(s),
     });
+  }
+
+  private applySound(s: SoundSettings): void {
+    this.audio.setVolume(s.overall);
+    this.audio.setMuted(s.muted);
+    this.audio.setBackgroundVolume(s.background);
+    this.audio.setVoiceVolume(s.voices * s.overall);
+    this.speech.setVolume(s.muted ? 0 : s.voices * s.overall);
   }
 
   private async copyLink(r: { url: string; short: boolean }): Promise<void> {

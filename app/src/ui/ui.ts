@@ -5,6 +5,7 @@ import { Bag, el } from './dom';
 import { createDialogue, type DialogueHandle } from './dialogue';
 import { createHud, type HudHandlers } from './hud';
 import { createLanding } from './landing';
+import type { SoundSettings } from './sound';
 import { createNotices } from './notices';
 import { createRules } from './rules';
 import { createWhy } from './why';
@@ -12,6 +13,7 @@ import { createWhy } from './why';
 export { formatClock, splitSentencesForTypewriter } from './text';
 export type { DialogueHandle } from './dialogue';
 export type { HudHandlers } from './hud';
+export type { SoundSettings } from './sound';
 
 export interface UI {
   showLanding(examples: string[], onSubmit: (prompt: string) => void): void;
@@ -30,6 +32,8 @@ export interface UI {
   onHud(handlers: HudHandlers): void;
   /** Addition: text for the verified badge next to the clock, or null to hide it. */
   setBadge(text: string | null): void;
+  /** Addition: current levels from the sound panel (saved values until the player changes them). */
+  getSound(): SoundSettings;
   dispose(): void;
 }
 
@@ -52,6 +56,7 @@ export function createUI(root: HTMLElement): UI {
     if (notices.isErrorOpen()) notices.closeError();
     else if (dialogue.isOpen()) dialogue.close();
     else if (rules.isOpen()) rules.close();
+    else if (hud.isSoundOpen()) hud.closeSound();
     else if (why.isOpen()) why.close();
     else return;
     e.preventDefault();
@@ -81,6 +86,7 @@ export function createUI(root: HTMLElement): UI {
     showError: (text, retry) => notices.showError(text, retry),
     onHud: (handlers) => hud.setHandlers(handlers),
     setBadge: (text) => hud.setBadge(text),
+    getSound: () => hud.getSound(),
     dispose() {
       bag.dispose();
       notices.dispose();

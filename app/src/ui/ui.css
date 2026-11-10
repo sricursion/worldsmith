@@ -663,6 +663,73 @@ canvas {
   align-self: flex-end;
 }
 
+.tf-btn-sound svg {
+  vertical-align: -3px;
+}
+
+.tf-sound {
+  position: absolute;
+  right: var(--tf-gutter);
+  bottom: 96px;
+  width: min(320px, calc(100% - 2 * var(--tf-gutter)));
+  overflow: hidden;
+}
+
+.tf-sound-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px 16px 16px;
+}
+
+.tf-sound-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'label value'
+    'slider slider';
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.tf-sound-label {
+  grid-area: label;
+}
+
+.tf-sound-value {
+  grid-area: value;
+  min-width: 3ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--tf-fg-dim);
+}
+
+.tf-slider {
+  grid-area: slider;
+  pointer-events: auto;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.tf-sound-mute {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+.tf-sound-mute input {
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
 .tf-why {
   position: absolute;
   left: var(--tf-gutter);
@@ -812,6 +879,10 @@ canvas {
   }
 
   .tf-why {
+    bottom: 150px;
+  }
+
+  .tf-sound {
     bottom: 150px;
   }
 

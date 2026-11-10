@@ -28,6 +28,10 @@ export interface AudioRig {
   voiceBlip(pitch: number): void;
   setMuted(m: boolean): void;
   setVolume(v: number): void;
+  /** 0..1 multiplier on the ambience and music buses, kept through scene and indoor changes. */
+  setBackgroundVolume(v: number): void;
+  /** 0..1 multiplier on the voice blip bus. */
+  setVoiceVolume(v: number): void;
   dispose(): void;
 }
 
@@ -64,6 +68,8 @@ interface Core {
   ui(kind: UiKind): void;
   voiceBlip(pitch: number): void;
   setMaster(level: number): void;
+  setBackground(level: number): void;
+  setVoice(level: number): void;
   resume(): void;
   dispose(): void;
 }
@@ -80,7 +86,7 @@ function softClipCurve(): Float32Array<ArrayBuffer> {
   return curve;
 }
 
-function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number): Core {
+function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number, bgLevel: number, voiceLevel: number): Core {
   const kit: Kit = createKit(ctx, quality, AUDIO_SEED);
   const rng = kit.rng;
 
@@ -113,18 +119,18 @@ function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number): Co
   // Buses.
   const ambIn = gainNode(ctx, 1);
   const ambLp = filterNode(ctx, 'lowpass', 18000, 0.5);
-  const ambOut = gainNode(ctx, AMBIENCE_LEVEL);
+  const ambOut = gainNode(ctx, AMBIENCE_LEVEL * bgLevel);
   ambIn.connect(ambLp);
   ambLp.connect(ambOut);
   ambOut.connect(mix);
   const sfxIn = gainNode(ctx, 0.9);
   sfxIn.connect(mix);
-  const voiceIn = gainNode(ctx, 1);
+  const voiceIn = gainNode(ctx, voiceLevel);
   voiceIn.connect(sfxIn);
   const voiceSend = gainNode(ctx, 0.15);
   voiceIn.connect(voiceSend);
   voiceSend.connect(kit.reverbIn);
-  const musicIn = gainNode(ctx, MUSIC_LEVEL);
+  const musicIn = gainNode(ctx, MUSIC_LEVEL * bgLevel);
   const duckGain = gainNode(ctx, 1);
   musicIn.connect(duckGain);
   duckGain.connect(mix);
@@ -137,6 +143,7 @@ function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number): Co
   let scene: SceneOpts | null = null;
   let phase: DayPhase = 'day';
   let indoors = false;
+  let bg = bgLevel;
   let running = false;
   let wet = 0;
 
@@ -271,7 +278,7 @@ function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number): Co
         indoors = inside;
         // Under a roof the weather loses its top end and drops back.
         ambLp.frequency.setTargetAtTime(inside ? 900 : 18000, now, 0.25);
-        ambOut.gain.setTargetAtTime(AMBIENCE_LEVEL * (inside ? 0.7 : 1), now, 0.25);
+        ambOut.gain.setTargetAtTime(AMBIENCE_LEVEL * bg * (inside ? 0.7 : 1), now, 0.25);
       }
       if (clock.advance(dt, s.speed, s.running) > 0) footstep();
       if (scene && dayPhase(s.hour) !== phase) {
@@ -302,6 +309,15 @@ function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number): Co
     },
     setMaster(level) {
       master.gain.setTargetAtTime(level, ctx.currentTime, 0.03);
+    },
+    setBackground(level) {
+      bg = level;
+      const now = ctx.currentTime;
+      ambOut.gain.setTargetAtTime(AMBIENCE_LEVEL * bg * (indoors ? 0.7 : 1), now, 0.03);
+      musicIn.gain.setTargetAtTime(MUSIC_LEVEL * bg, now, 0.03);
+    },
+    setVoice(level) {
+      voiceIn.gain.setTargetAtTime(level, ctx.currentTime, 0.03);
     },
     resume() {
       if (ctx.state === 'suspended') void ctx.resume().catch(() => undefined);
@@ -349,6 +365,8 @@ export function createAudio(factory: AudioContextFactory = defaultFactory, optio
   let disposed = false;
   let muted = false;
   let volume = 0.8;
+  let background = 1;
+  let voices = 1;
   let pending: SceneOpts | null = null;
 
   const level = (): number => (muted ? 0 : volume);
@@ -383,7 +401,7 @@ export function createAudio(factory: AudioContextFactory = defaultFactory, optio
           failed = true;
           return;
         }
-        core = buildCore(ctx, quality, level());
+        core = buildCore(ctx, quality, level(), background, voices);
       } catch {
         // No audio on this device or the graph could not be built: stay silent.
         failed = true;
@@ -420,6 +438,14 @@ export function createAudio(factory: AudioContextFactory = defaultFactory, optio
     setVolume(v) {
       volume = Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : volume;
       guard((c) => c.setMaster(level()));
+    },
+    setBackgroundVolume(v) {
+      background = Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : background;
+      guard((c) => c.setBackground(background));
+    },
+    setVoiceVolume(v) {
+      voices = Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : voices;
+      guard((c) => c.setVoice(voices));
     },
     dispose() {
       if (disposed) return;

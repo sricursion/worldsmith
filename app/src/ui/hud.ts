@@ -1,6 +1,7 @@
 // Always-on heads-up display: title, clock, badge, objective, prompt hint and the button row.
 import type { WorldSpec } from '../world/spec';
 import { Bag, button, closeButton, el } from './dom';
+import { createSound, type SoundSettings } from './sound';
 import { controlsHint, formatClock, normalizeHex, promptLabel, readableOn } from './text';
 
 const HINT_MS = 15_000;
@@ -12,6 +13,7 @@ export interface HudHandlers {
   rules?: () => void;
   why?: () => void;
   share?: () => void;
+  sound?: (s: SoundSettings) => void;
 }
 
 export interface HudView {
@@ -22,6 +24,9 @@ export interface HudView {
   setBadge(text: string | null): void;
   setPrompt(label: string | null): void;
   setHandlers(handlers: HudHandlers): void;
+  getSound(): SoundSettings;
+  isSoundOpen(): boolean;
+  closeSound(): void;
   dispose(): void;
 }
 
@@ -83,6 +88,29 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
   mk('Why', '?', 'Why did they do that? (?)', () => handlers.why);
   mk('Share', null, 'Share this town', () => handlers.share);
 
+  const soundBtn = button('tf-btn tf-btn-sound', '');
+  const svgNs = 'http://www.w3.org/2000/svg';
+  const icon = document.createElementNS(svgNs, 'svg');
+  for (const [k, v] of Object.entries({
+    viewBox: '0 0 24 24', width: '16', height: '16', fill: 'none', stroke: 'currentColor',
+    'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true',
+  })) icon.setAttribute(k, v);
+  const shape = (tag: string, attr: Record<string, string>): void => {
+    const n = document.createElementNS(svgNs, tag);
+    for (const [k, v] of Object.entries(attr)) n.setAttribute(k, v);
+    icon.append(n);
+  };
+  shape('polygon', { points: '3 9 8 9 13 5 13 19 8 15 3 15' });
+  shape('path', { d: 'M16.5 9a4 4 0 0 1 0 6' });
+  shape('path', { d: 'M19 6.5a8 8 0 0 1 0 11' });
+  soundBtn.append(icon, ' Sound');
+  soundBtn.setAttribute('aria-label', 'Sound settings');
+  buttons.append(soundBtn);
+
+  const sound = createSound(layer, (s) => handlers.sound?.(s));
+  bag.on(soundBtn, 'click', () => sound.toggle());
+  bag.add(() => sound.dispose());
+
   bottom.append(hint, objective, prompt, buttons);
   hud.append(titleBox, topRight, bottom);
   layer.append(hud);
@@ -107,6 +135,7 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
     hide() {
       hud.hidden = true;
       hideHint();
+      sound.close();
     },
     setClock(hour, day) {
       const text = formatClock(hour, day);
@@ -126,7 +155,11 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
     },
     setHandlers(next) {
       handlers = next;
+      next.sound?.(sound.get());
     },
+    getSound: () => sound.get(),
+    isSoundOpen: () => sound.isOpen(),
+    closeSound: () => sound.close(),
     dispose() {
       bag.dispose();
       handlers = {};

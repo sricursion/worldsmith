@@ -7,6 +7,8 @@ export interface Speech {
   /** `key` (normally the NPC name) picks a stable voice; without it the pitch/rate pair is used. */
   speak(text: string, voice: NpcSpec['voice'], key?: string): void;
   cancel(): void;
+  /** 0..1, applied as the volume of every utterance spoken afterwards. */
+  setVolume(v: number): void;
   enabled: boolean;
 }
 
@@ -41,6 +43,7 @@ function getSynth(): SpeechSynthesis | null {
 
 export function createSpeech(): Speech {
   const synth = getSynth();
+  let volume = 1;
   const speech: Speech = {
     enabled: synth !== null,
     speak(text, voice, key) {
@@ -52,6 +55,7 @@ export function createSpeech(): Speech {
           const u = new SpeechSynthesisUtterance(sentence);
           u.pitch = clamp(voice.pitch, 0.5, 2);
           u.rate = clamp(voice.rate, 0.5, 2);
+          u.volume = volume;
           if (chosen) {
             u.voice = chosen;
             u.lang = chosen.lang;
@@ -61,6 +65,9 @@ export function createSpeech(): Speech {
       } catch {
         /* speech is a nicety; ignore platform errors */
       }
+    },
+    setVolume(v) {
+      volume = Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : volume;
     },
     cancel() {
       if (!synth) return;

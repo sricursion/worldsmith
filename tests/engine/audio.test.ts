@@ -250,6 +250,49 @@ describe('scene changes', () => {
   });
 });
 
+describe('background and voice volume', () => {
+  const near = (x: number, y: number): boolean => Math.abs(x - y) < 1e-9;
+  const gains = (fake: FakeContext): FakeParam[] => fake.params('gain', 'gain');
+  const lastTarget = (fake: FakeContext, v: number): boolean =>
+    gains(fake).some((p) => p.events.some((e) => e.kind === 'target' && near(e.value, v)));
+
+  it('remembers levels set before unlock and builds the buses with them', () => {
+    const fake = new FakeContext();
+    const rig = rigWith(fake);
+    rig.setBackgroundVolume(0.5);
+    rig.setVoiceVolume(0.25);
+    expect(fake.nodes.length).toBe(0);
+    rig.unlock();
+    const initial = gains(fake).map((p) => p.value);
+    expect(initial.some((v) => near(v, 0.8 * 0.5))).toBe(true);
+    expect(initial.some((v) => near(v, 0.3 * 0.5))).toBe(true);
+    expect(initial.some((v) => near(v, 0.25))).toBe(true);
+  });
+
+  it('keeps the background multiplier through scene and indoor changes', () => {
+    const fake = new FakeContext();
+    const rig = rigWith(fake);
+    rig.unlock();
+    rig.setScene({ theme: 'western', hour: 12, mood: mood({ music: 'bright guitar' }) });
+    rig.setBackgroundVolume(0.5);
+    rig.setVoiceVolume(0.25);
+    expect(lastTarget(fake, 0.4)).toBe(true);
+    expect(lastTarget(fake, 0.15)).toBe(true);
+    expect(lastTarget(fake, 0.25)).toBe(true);
+    run(rig, fake, 3, idle);
+    rig.setScene({ theme: 'scifi', hour: 12, mood: mood({ weather: 'rain', ambience: ['rain'], music: 'slow pad' }) });
+    run(rig, fake, 3, idle);
+    // The buses are only ever re-targeted by the user's level; crossfades run on per-bed faders.
+    expect(lastTarget(fake, 0.8)).toBe(false);
+    expect(lastTarget(fake, 0.3)).toBe(false);
+    run(rig, fake, 1, { ...idle, indoors: true });
+    expect(lastTarget(fake, 0.8 * 0.5 * 0.7)).toBe(true);
+    rig.setBackgroundVolume(1);
+    run(rig, fake, 1, { ...idle, indoors: true });
+    expect(lastTarget(fake, 0.8 * 0.7)).toBe(true);
+  });
+});
+
 describe('footsteps', () => {
   it('falls at walking and running cadence', () => {
     const count = (speed: number, running: boolean): number => {

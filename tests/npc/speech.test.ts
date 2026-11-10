@@ -63,6 +63,35 @@ describe('createSpeech', () => {
     expect(cancelled).toBe(1);
   });
 
+  it('applies the set volume to every utterance and nothing else', () => {
+    const spoken: { volume: number; pitch: number; rate: number }[] = [];
+    g['SpeechSynthesisUtterance'] = class {
+      pitch = 1;
+      rate = 1;
+      volume = 1;
+      constructor(public text: string) {}
+    };
+    g['window'] = {
+      speechSynthesis: {
+        getVoices: () => [],
+        speak: (u: { volume: number; pitch: number; rate: number }) => spoken.push(u),
+        cancel: () => undefined,
+      },
+    };
+    const s = createSpeech();
+    s.speak('One.', { pitch: 1.2, rate: 0.9 });
+    s.setVolume(0.35);
+    s.speak('Two. Three.', { pitch: 1.2, rate: 0.9 });
+    s.setVolume(0);
+    s.speak('Four.', { pitch: 1.2, rate: 0.9 });
+    s.setVolume(7);
+    s.speak('Five.', { pitch: 1.2, rate: 0.9 });
+    s.setVolume(Number.NaN);
+    s.speak('Six.', { pitch: 1.2, rate: 0.9 });
+    expect(spoken.map((u) => u.volume)).toEqual([1, 0.35, 0.35, 0, 1, 1]);
+    expect(spoken.every((u) => u.pitch === 1.2 && u.rate === 0.9)).toBe(true);
+  });
+
   it('never throws when the platform does', () => {
     g['SpeechSynthesisUtterance'] = class {};
     g['window'] = {

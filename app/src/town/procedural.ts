@@ -6,7 +6,7 @@ import type { Rng } from '../world/rng';
 import type { BuildingSize, SurfaceKind, ThemeId } from '../world/spec';
 import type { GeoBatch, MaterialCache } from './batch';
 import type { PlacedBuilding } from './layout';
-import { getSurface, surfaceDefaults, surfaceScale } from './surfaces';
+import { getSurface, groundTone, surfaceDefaults, surfaceScale } from './surfaces';
 import type { Quality } from './surfaces';
 import { projectWorldUV } from './surfaces/uv';
 
@@ -35,7 +35,7 @@ export interface ProcEnv {
 export class Part {
   constructor(private readonly env: ProcEnv, private readonly base: THREE.Matrix4) {}
 
-  /** With `kind` the part takes that generated surface in `color`, with UVs in metres; without, a flat colour. */
+  /** With `kind` the part takes that generated surface in `color` (held to the kind's natural range), with UVs in metres; without, a flat colour. */
   geo(g: THREE.BufferGeometry, color: string, x: number, y: number, z: number, opts?: Parameters<MaterialCache['get']>[1], kind?: SurfaceKind): void {
     if (!kind) {
       const m = new THREE.Matrix4().multiplyMatrices(this.base, new THREE.Matrix4().makeTranslation(x, y, z));
@@ -47,7 +47,10 @@ export class Part {
     n.translate(x, y, z);
     projectWorldUV(n, surfaceScale(kind));
     const env = this.env;
-    const mat = getSurface(kind, color, { wear: env.wear ?? 0.4, wet: env.wet ?? 0, quality: env.quality ?? surfaceDefaults().quality, seed: 0, tint: true });
+    const wear = env.wear ?? 0.4;
+    const quality = env.quality ?? surfaceDefaults().quality;
+    // The colour is held to what the material is found in, and the surface weathers in world space.
+    const mat = getSurface(kind, groundTone(kind, color, wear), { wear, wet: env.wet ?? 0, quality, seed: 0, tint: true, worn: quality > 0 });
     env.batch.add(n, mat, this.base);
   }
 

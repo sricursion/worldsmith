@@ -380,3 +380,79 @@ describe('surfaces on blueprint geometry', () => {
     expect(spanV(post)).toBeCloseTo(3, 4);
   });
 });
+
+describe('colour restraint and seating', () => {
+  const placed = { x: 0, z: 0, rotY: 0, w: 10, d: 8 };
+  const hsl = (hex: string): { h: number; s: number; l: number } => new THREE.Color(hex).getHSL({ h: 0, s: 0, l: 0 }, THREE.SRGBColorSpace);
+  const surfaces = { wall: 'planks', wall2: 'concrete', roof: 'tile', trim: 'timber', ground: 'dirt', road: 'dirt', wear: 0.4, wet: 0 } as const;
+  const loud = { ...STYLE, wall: '#ff7a00', wall2: '#8c8c8a', roof: '#ff1010', accent: '#ffe600', glow: '#ff9a3c', surfaces };
+
+  it('grounds every tone before it reaches a material; fresh paint and lamp light only on small parts', () => {
+    const bp: Blueprint = {
+      id: 'loud', summary: '', doorX: 0,
+      parts: [
+        part('box', { w: 0.8, d: 0.8, h: 4 }),
+        part('box', { x: 0.2, w: 0.3, d: 0.3, y: 4, h: 1, tone: 'wall2' }),
+        part('box', { y: 5, w: 0.9, d: 0.9, h: 0.3, tone: 'roof' }),
+        part('box', { x: -0.2, z: 0.45, w: 0.1, d: 0.02, h: 0.6, y: 2, tone: 'accent' }),
+        part('box', { x: 0.2, z: 0.45, w: 0.4, d: 0.02, h: 3, tone: 'accent' }),
+        part('box', { x: -0.3, z: 0.45, w: 0.03, d: 0.02, h: 0.3, y: 3, tone: 'glow' }),
+        part('box', { x: 0, z: -0.45, w: 0.6, d: 0.02, h: 3, tone: 'glow' }),
+      ],
+    };
+    const e = env();
+    addBlueprint(bp, loud, placed, e, { dress: false, quality: 0 });
+    const mats = e.batch.build().map((m) => {
+      m.geometry.dispose();
+      return m.material as THREE.MeshStandardMaterial;
+    });
+    const baked = (name: string): string[] => mats.filter((m) => m.name === name).map((m) => m.userData.baseHex as string);
+    const wall = hsl(baked('surface:planks')[0] as string);
+    expect(wall.s).toBeLessThanOrEqual(0.42);
+    expect(wall.h * 360).toBeGreaterThanOrEqual(13);
+    expect(wall.h * 360).toBeLessThanOrEqual(47);
+    expect(baked('surface:concrete')).toEqual(['#8c8c8a']);
+    expect(hsl(baked('surface:tile')[0] as string).s).toBeLessThanOrEqual(0.52);
+    // two paints: the big accent is an aged painted wall, the small one may be fresher but never pure
+    const paints = baked('surface:paint').map((h) => hsl(h).s).sort((a, b) => a - b);
+    expect(paints).toHaveLength(2);
+    expect(paints[0] as number).toBeLessThanOrEqual(0.55);
+    expect(paints[1] as number).toBeGreaterThan(paints[0] as number);
+    expect(paints[1] as number).toBeLessThanOrEqual(0.73);
+    // two lights in the glow colour as given: a lamp, and a large panel that only smoulders
+    const glows = mats.filter((m) => !m.map && m.emissiveIntensity > 0).map((m) => m.emissiveIntensity).sort((a, b) => a - b);
+    expect(glows).toHaveLength(2);
+    expect(glows[0] as number).toBeLessThan(0.6);
+    expect(glows[1] as number).toBeGreaterThan(1);
+    for (const m of mats.filter((x) => !x.map && x.emissiveIntensity > 0)) expect(m.emissive.getHexString()).toBe('ff9a3c');
+    e.mats.dispose();
+  });
+
+  it('raises a building on a foundation with steps down from the door, and carries the foundation below ground on a slope', () => {
+    const bp = BLUEPRINTS[0] as Blueprint;
+    const flat = env();
+    const a = addBlueprint(bp, STYLE, placed, flat, { quality: 0 });
+    const flatMeshes = flat.batch.build();
+    const raised = env();
+    const b = addBlueprint(bp, STYLE, { ...placed, y: 2 }, raised, { quality: 0, baseHeight: 0.9, skirt: 1.5 });
+    const meshes = raised.batch.build();
+    expect(b.height).toBeCloseTo(a.height + 0.9, 6);
+    // the door point is on the ground line, further out by the landing and the flight
+    expect(b.door.y).toBeCloseTo(2, 6);
+    const out = Math.abs(b.door.z) - Math.abs(a.door.z);
+    expect(out).toBeGreaterThan(1.5);
+    expect(out).toBeLessThan(3.2);
+    const box = new THREE.Box3();
+    for (const m of meshes) box.union(new THREE.Box3().setFromBufferAttribute(m.geometry.getAttribute('position') as THREE.BufferAttribute));
+    const flatBox = new THREE.Box3();
+    for (const m of flatMeshes) flatBox.union(new THREE.Box3().setFromBufferAttribute(m.geometry.getAttribute('position') as THREE.BufferAttribute));
+    expect(box.min.y).toBeCloseTo(2 - 1.5, 5);
+    expect(box.max.y).toBeCloseTo(flatBox.max.y + 2 + 0.9, 5);
+    // a foundation material exists that the flat build does not have, and every riser is walkable
+    expect(meshes.length).toBeGreaterThan(flatMeshes.length - 1);
+    expect(0.9 / Math.ceil(0.9 / 0.18)).toBeLessThanOrEqual(0.18);
+    for (const m of [...meshes, ...flatMeshes]) m.geometry.dispose();
+    flat.mats.dispose();
+    raised.mats.dispose();
+  });
+});

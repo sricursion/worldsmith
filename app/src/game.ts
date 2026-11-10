@@ -17,6 +17,7 @@ import { createAtmosphere, type Atmosphere } from './engine/atmosphere';
 import { createAudio, type AudioRig } from './engine/audio';
 import { createLife } from './engine/life';
 import { setSurfaceDefaults, setWindowGlow } from './town/surfaces';
+import { warmTownSurfaces } from './town/blueprint-mesh';
 import { updateScatter, WIND } from './town/scatter';
 import type { Input } from './engine/input';
 import { loadKit, type LoadedKit } from './engine/assets';
@@ -297,7 +298,8 @@ export class Game {
     try {
       const rng = makeRng(spec.seed, 'game');
       const layout = generateLayout(spec);
-      setSurfaceDefaults({ theme: spec.theme, mood: spec.mood, quality: viewport.getQuality?.() ?? 2 });
+      setSurfaceDefaults({ theme: spec.theme, mood: spec.mood, quality: viewport.getQuality?.() ?? 2, era: spec.era });
+      if (spec.style) await warmTownSurfaces(spec.style, { quality: viewport.getQuality?.() ?? 2, theme: spec.theme, mood: spec.mood });
       const objects = buildTown(layout, spec, kit, viewport.scene, { quality: viewport.getQuality?.() ?? 2 });
       created.objects = objects;
 

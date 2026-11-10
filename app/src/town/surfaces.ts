@@ -191,7 +191,7 @@ export function getSurface(kind: SurfaceId, baseHex: string, opts: SurfaceOpts):
     m.name = `surface:${id}`;
     m.userData.baseHex = cleanHex(baseHex);
     if (opts.worn) {
-      const look = wearLook(DEFS[id].family, wear, wet);
+      const look = wearLook(DEFS[id].family, wear, wet, id);
       m.userData.wearing = true;
       m.onBeforeCompile = (shader) => patchSurfaceShader(shader as unknown as ShaderSource, look);
       m.customProgramCacheKey = () => 'townforge-surface';
@@ -356,14 +356,18 @@ export interface WearLook {
   dripGloss: number;
   /** How much a worn edge lowers roughness: bare metal shines, chipped stone does not. */
   edgeGloss: number;
+  /** Rust in large patches with runs beneath them, laid in world space, 0..1. Sheet metal only. */
+  rust: number;
 }
 
 const EDGE_BY_FAMILY: Record<SurfaceFamily, number> = {
   wood: 0.8, masonry: 0.7, render: 0.5, metal: 1, glass: 0.2, roof: 0.5, fabric: 0.2, organic: 0.2, mineral: 0.3, ground: 0.3, paint: 1,
 };
 
-function wearLook(family: SurfaceFamily, wear: number, wet: number): WearLook {
+function wearLook(family: SurfaceFamily, wear: number, wet: number, kind?: SurfaceId): WearLook {
   return {
+    // Sheet already drawn as rusted through takes less on top; glass curtain walls take none.
+    rust: family === 'metal' ? Math.min(1, wear * (wet > 0.3 ? 1.15 : 1)) * (kind === 'rusted' ? 0.45 : 1) : 0,
     edge: EDGE_BY_FAMILY[family] * (0.25 + 0.75 * wear),
     grime: family === 'glass' ? 0.3 * wear : 0.3 + 0.7 * wear,
     bleach: family === 'glass' || family === 'mineral' ? 0.15 : 0.4 + 0.6 * wear,
@@ -379,11 +383,13 @@ function wearLook(family: SurfaceFamily, wear: number, wet: number): WearLook {
  * right, bottom and top edge of its face; see blueprint-mesh.ts): paler exposed material along convex
  * edges, broken up by noise; dark run-off hanging from the top edge of every upright face; dirt packed
  * along its foot. From the world normal: sun-bleach and dust on faces that look up, shade under ones
- * that look down.
+ * that look down. On sheet metal (`look.rust`): patches of rust that gather at the foot and the edges
+ * of a sheet and run down beneath themselves, matte and no longer metallic.
  */
 export function patchSurfaceShader(shader: ShaderSource, look: WearLook): void {
   shader.uniforms.uSurf = { value: new THREE.Vector4(look.edge, look.grime, look.bleach, look.dripGloss) };
   shader.uniforms.uSurfGloss = { value: look.edgeGloss };
+  shader.uniforms.uSurfRust = { value: look.rust };
   shader.vertexShader = shader.vertexShader
     .replace('#include <common>', '#include <common>\nattribute vec4 wearing;\nvarying vec4 vWearing;\nvarying vec3 vSurfP;\nvarying vec3 vSurfN;')
     .replace('#include <uv_vertex>', `#include <uv_vertex>
@@ -391,7 +397,7 @@ export function patchSurfaceShader(shader: ShaderSource, look: WearLook): void {
 	vSurfP = ( modelMatrix * vec4( position, 1.0 ) ).xyz;
 	vSurfN = normalize( mat3( modelMatrix ) * normal );`);
   shader.fragmentShader = shader.fragmentShader
-    .replace('#include <common>', `#include <common>\nuniform vec4 uSurf;\nuniform float uSurfGloss;\nvarying vec4 vWearing;\nvarying vec3 vSurfP;\nvarying vec3 vSurfN;\n${SURFACE_GLSL}`)
+    .replace('#include <common>', `#include <common>\nuniform vec4 uSurf;\nuniform float uSurfGloss;\nuniform float uSurfRust;\nvarying vec4 vWearing;\nvarying vec3 vSurfP;\nvarying vec3 vSurfN;\n${SURFACE_GLSL}`)
     .replace('#include <map_fragment>', `#include <map_fragment>
 	float sUp = vSurfN.y;
 	float sMacro = sNoise3( vSurfP * 0.31 ) * 0.6 + sNoise3( vSurfP * 1.17 + 11.0 ) * 0.4;
@@ -411,6 +417,18 @@ export function patchSurfaceShader(shader: ShaderSource, look: WearLook): void {
 	float sLum = dot( diffuseColor.rgb, vec3( 0.3, 0.59, 0.11 ) );
 	diffuseColor.rgb = mix( diffuseColor.rgb, mix( diffuseColor.rgb, vec3( sLum ), 0.5 ) * 1.5 + 0.035, sEdge * 0.6 );
 	float sAlong = vSurfP.x * vSurfN.z - vSurfP.z * vSurfN.x;
+	float sRust = 0.0;
+	if ( uSurfRust > 0.0 ) {
+		vec2 sRp = mix( vSurfP.xz * 0.8, vec2( sAlong * 1.1, vSurfP.y * 0.42 ), sUpright );
+		float sRnear = ( 1.0 - smoothstep( 0.0, 0.5, vWearing.z ) ) * 0.2 * sUpright + ( 1.0 - smoothstep( 0.0, 0.12, sNear ) ) * 0.1;
+		float sRth = mix( 0.95, 0.52, uSurfRust );
+		float sRn = sNoise2( sRp ) * 0.55 + sNoise2( sRp * 2.7 + 9.0 ) * 0.3 + sBreak * 0.15 + sRnear;
+		float sRabove = sNoise2( sRp + vec2( 0.0, 0.3 ) ) * 0.55 + sNoise2( sRp * 2.7 + vec2( 9.0, 9.81 ) ) * 0.3 + sBreak * 0.15 + sRnear;
+		float sRstreak = smoothstep( 0.4, 0.8, sNoise2( vec2( sAlong * 15.0, vSurfP.y * 0.6 ) ) ) * sUpright;
+		sRust = max( smoothstep( sRth, sRth + 0.05, sRn ), 0.7 * sRstreak * smoothstep( sRth, sRth + 0.05, sRabove ) );
+		vec3 sRcol = mix( vec3( 0.14, 0.036, 0.009 ), vec3( 0.034, 0.011, 0.005 ), smoothstep( sRth + 0.04, sRth + 0.17, sRn ) ) * ( 0.7 + 0.6 * sBreak );
+		diffuseColor.rgb = mix( diffuseColor.rgb, sRcol, 0.94 * sRust );
+	}
 	float sRun = sNoise2( vec2( sAlong * 9.0, vSurfP.y * 0.35 ) );
 	float sLen = min( 0.15 + 1.5 * sNoise2( vec2( sAlong * 2.3, 3.7 ) ), 0.6 * sFaceH );
 	float sDrip = sUpright * ( 1.0 - smoothstep( 0.0, sLen, vWearing.w ) ) * smoothstep( 0.42, 0.75, sRun ) * uSurf.y;
@@ -419,7 +437,10 @@ export function patchSurfaceShader(shader: ShaderSource, look: WearLook): void {
 	float sBleach = sTop * uSurf.z * ( 0.5 + 0.5 * sMacro );
 	diffuseColor.rgb = mix( diffuseColor.rgb, vec3( sLum ) * 1.15 + 0.03, 0.3 * sBleach );`)
     .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
-	roughnessFactor = clamp( roughnessFactor + ( sMacro - 0.5 ) * 0.22 + 0.12 * sBleach + 0.1 * sFoot - uSurf.w * sDrip - uSurfGloss * sEdge, 0.04, 1.0 );`);
+	roughnessFactor = clamp( roughnessFactor + ( sMacro - 0.5 ) * 0.22 + 0.12 * sBleach + 0.1 * sFoot - uSurf.w * sDrip - uSurfGloss * sEdge, 0.04, 1.0 );
+	roughnessFactor = mix( roughnessFactor, 0.93, sRust );`)
+    .replace('#include <metalnessmap_fragment>', `#include <metalnessmap_fragment>
+	metalnessFactor *= 1.0 - sRust;`);
 }
 
 /** Name of the per-vertex attribute patchSurfaceShader reads, and the value that means "far from any edge". */
@@ -709,7 +730,22 @@ export function groundRequests(surfaces: SurfaceSet, style: StyleSpec, opts: Gro
 }
 
 const now = (): number => (typeof performance !== 'undefined' ? performance.now() : Date.now());
-const breathe = (): Promise<void> => new Promise((resolve) => { setTimeout(resolve, 0); });
+/**
+ * Hands the thread back for one turn of the event loop. A message is used where there is one: timers
+ * are clamped (to a second each while the page is in a background tab), messages are not.
+ */
+const breathe = (): Promise<void> => new Promise((resolve) => {
+  if (typeof MessageChannel === 'undefined') {
+    setTimeout(resolve, 0);
+    return;
+  }
+  const channel = new MessageChannel();
+  channel.port1.onmessage = () => {
+    channel.port1.close();
+    resolve();
+  };
+  channel.port2.postMessage(0);
+});
 
 /**
  * Generates the maps for every surface in `list` that is not cached yet, a few rows at a time, handing

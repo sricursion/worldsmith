@@ -341,7 +341,10 @@ function palette(mats: MaterialCache, look: Look, shifts: { wall: number; wall2:
     return { material: getSurface(e.kind, e.hex, surfaceOpts(look, e.roof)), tile: surfaceScale(e.kind), grain: GRAIN[e.kind], tint, grime: !e.roof, vary: true };
   };
   const glow = safeHex(look.style.glow, '#ffd27a');
-  const lamp = (intensity: number): ToneLook => ({ material: mats.get(glow, { emissive: glow, emissiveIntensity: intensity }), tile: 1, tint: 1, grime: false, vary: false });
+  // A light source shows its emitted colour only. With a bright base colour as well, sun or lamp light on
+  // top of the emission clips the part to white and the hue is lost.
+  const unlit = `#${new THREE.Color(glow).multiplyScalar(0.12).getHexString()}`;
+  const lamp = (intensity: number): ToneLook => ({ material: mats.get(unlit, { emissive: glow, emissiveIntensity: intensity, roughness: 0.6 }), tile: 1, tint: 1, grime: false, vary: false });
   return {
     wall: surf('wall', driftFactor(plan.wall.hex, shifts.wall)),
     wall2: surf('wall2', driftFactor(plan.wall2.hex, shifts.wall2)),
@@ -352,8 +355,8 @@ function palette(mats: MaterialCache, look: Look, shifts: { wall: number; wall2:
     dark: surf('dark', 1),
     base: surf('base', 1),
     glass: { material: glassMaterial(safeHex(look.style.glass, '#6f9bb8'), glow), tile: GLASS_SCALE, tint: 1, grime: false, vary: false },
-    glow: lamp(1.6),
-    glowBig: lamp(0.45),
+    glow: lamp(1.05),
+    glowBig: lamp(0.28),
   };
 }
 

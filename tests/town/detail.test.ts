@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_DRESSED_PARTS, dressParts, partsBounds } from '../../app/src/town/detail';
+import { DOOR, MAX_DRESSED_PARTS, REACH_FAR, RISE, STOREY, dressParts, partsBounds } from '../../app/src/town/detail';
 import { expandBlueprintParts } from '../../app/src/town/blueprint-mesh';
 import { inferSurfaces } from '../../app/src/town/surfaces';
 import { makeRng } from '../../app/src/world/rng';
+import type { Stain } from '../../app/src/town/detail';
 import type { BlueprintPart, SurfaceSet } from '../../app/src/world/spec';
 import { BLUEPRINTS, STYLE, part } from './helpers';
 
@@ -36,20 +37,24 @@ describe('dressParts', () => {
     }
   });
 
-  it('stays inside the bounding box to within 12 cm and under the part cap', () => {
+  it('keeps trim near the walls, lets eaves, pipes and roof clutter reach only so far, and stays under the part cap', () => {
     for (const bp of [HOUSE, ...BLUEPRINTS.map((b) => b.parts)]) {
-      for (const wear of [0.2, 1]) {
-        const src = expandBlueprintParts(bp);
-        const before = partsBounds(src, W, D);
-        const out = dressParts(src, ctx({ wear }));
-        const after = partsBounds(out, W, D);
-        expect(out.length).toBeLessThanOrEqual(MAX_DRESSED_PARTS);
-        expect(after.x0).toBeGreaterThanOrEqual(before.x0 - 0.12);
-        expect(after.x1).toBeLessThanOrEqual(before.x1 + 0.12);
-        expect(after.z0).toBeGreaterThanOrEqual(before.z0 - 0.12);
-        expect(after.z1).toBeLessThanOrEqual(before.z1 + 0.12);
-        expect(after.top).toBeLessThanOrEqual(before.top + 0.12);
-        expect(after.y0).toBeGreaterThanOrEqual(0);
+      for (const wall of ['planks', 'corrugated'] as const) {
+        for (const wear of [0.2, 1]) {
+          const src = expandBlueprintParts(bp);
+          const before = partsBounds(src, W, D);
+          const out = dressParts(src, ctx({ wear, wall }));
+          const after = partsBounds(out, W, D);
+          // loose trim on a worn building hangs a degree or two out of true, which widens its box a little
+          const far = REACH_FAR + 0.06;
+          expect(out.length).toBeLessThanOrEqual(MAX_DRESSED_PARTS);
+          expect(after.x0).toBeGreaterThanOrEqual(before.x0 - far);
+          expect(after.x1).toBeLessThanOrEqual(before.x1 + far);
+          expect(after.z0).toBeGreaterThanOrEqual(before.z0 - far);
+          expect(after.z1).toBeLessThanOrEqual(before.z1 + far);
+          expect(after.top).toBeLessThanOrEqual(before.top + RISE + 0.01);
+          expect(after.y0).toBeGreaterThanOrEqual(0);
+        }
       }
     }
   });
@@ -132,5 +137,55 @@ describe('dressParts', () => {
     expect(dressParts(src, ctx({ wear: 0.9 }))).toEqual(dressParts(src, ctx({ wear: 0.9 })));
     expect(dressParts(src, ctx({ wear: 0.4 })).slice(src.length).every((p) => p.rot === 0)).toBe(true);
     expect(dressParts(src, ctx({ wear: 1 })).slice(src.length).some((p) => p.rot !== 0)).toBe(true);
+  });
+
+  it('builds to real proportions: storey bands every 3.2 m, a 1.0 by 2.1 m door, gutters with downpipes on the wall', () => {
+    const src = expandBlueprintParts([part('box', { w: 0.8, d: 0.8, h: 7 }), part('gable', { w: 0.8, d: 0.8, y: 7, h: 2, tone: 'roof' })]);
+    const out = dressParts(src, ctx({ wall: 'brick', roof: 'slate' }, 0)).slice(src.length);
+    const bands = out.filter((p) => p.h === 0.16 && p.w > 0.8 && p.y < 6);
+    expect(bands.map((p) => Math.round((p.y + 0.08) * 100) / 100)).toEqual([STOREY]);
+    const leaf = out.find((p) => p.tone === 'dark' && Math.abs(p.h - DOOR.h) < 1e-9 && Math.abs(p.w * W - DOOR.w) < 1e-9);
+    expect(leaf).toBeDefined();
+    // two gutters beyond the wall line, and under each a pipe that stands within 15 cm of the wall
+    const wallZ = 0.4 * D;
+    const gutters = out.filter((p) => p.tone === 'dark' && p.h === 0.1 && p.w * W > 6 && Math.abs(p.z * D) > wallZ + 0.2);
+    expect(gutters).toHaveLength(2);
+    const pipes = out.filter((p) => p.shape === 'cylinder' && p.h > 5);
+    expect(pipes).toHaveLength(2);
+    for (const p of pipes) {
+      expect(Math.abs(p.z * D) - wallZ).toBeGreaterThan(0.02);
+      expect(Math.abs(p.z * D) - wallZ).toBeLessThan(0.15);
+      expect(p.y + p.h).toBeLessThan(7);
+    }
+    // thatch sheds its own water: wider eaves, no gutter
+    const thatched = dressParts(src, ctx({ wall: 'plaster', roof: 'thatch' }, 0)).slice(src.length);
+    expect(thatched.some((p) => p.shape === 'cylinder' && p.h > 5)).toBe(false);
+    const eave = (list: BlueprintPart[]): number => Math.max(...list.filter((p) => p.tone === 'roof').map((p) => Math.abs(p.z * D) + (p.d * D) / 2));
+    expect(eave(thatched)).toBeGreaterThan(eave(out) + 0.1);
+  });
+
+  it('dresses metal buildings as industry: ladder, pipes on brackets, roof plant and rail, rust below the fixings', () => {
+    const src = expandBlueprintParts([part('box', { w: 0.8, d: 0.8, h: 7 }), part('box', { w: 0.84, d: 0.84, y: 7, h: 0.3, tone: 'roof' })]);
+    const stains: Stain[] = [];
+    const out = dressParts(src, { ...ctx({ wall: 'corrugated', roof: 'corrugated', wear: 0.7 }, 0), stains }).slice(src.length);
+    const rungs = out.filter((p) => p.h === 0.03 && Math.abs(p.d * D - 0.44) < 1e-9).sort((a, b) => a.y - b.y);
+    expect(rungs.length).toBeGreaterThanOrEqual(10);
+    const pitch = (rungs[1] as BlueprintPart).y - (rungs[0] as BlueprintPart).y;
+    expect(pitch).toBeGreaterThan(0.25);
+    expect(pitch).toBeLessThan(0.45);
+    expect(out.filter((p) => p.shape === 'cylinder' && p.h > 5 && Math.abs(p.x * W) > 0.4 * W).length).toBeGreaterThanOrEqual(2);
+    // on the roof: plant, a cowled vent and a guard rail about 1 m high
+    expect(out.some((p) => p.tone === 'wall2' && p.y > 7 && p.h > 0.6)).toBe(true);
+    expect(out.filter((p) => p.shape === 'cone' && p.y > 7).length).toBeGreaterThanOrEqual(1);
+    expect(out.filter((p) => p.y > 7 && p.h === 1.05).length).toBeGreaterThanOrEqual(3);
+    expect(stains.filter((s) => s.kind === 'rust').length).toBeGreaterThanOrEqual(2);
+    for (const s of stains) {
+      for (const v of [s.x, s.z, s.y, s.w, s.h, s.rot]) expect(Number.isFinite(v)).toBe(true);
+      expect(s.h).toBeLessThanOrEqual(s.y);
+    }
+    // timber gets none of it, and a chimney or flue instead
+    const timber = dressParts(src, ctx({ wall: 'planks', roof: 'shingle' }, 0)).slice(src.length);
+    expect(timber.some((p) => p.h === 0.03 && Math.abs(p.d * D - 0.44) < 1e-9)).toBe(false);
+    expect(timber.some((p) => p.y + p.h > 7.8 && p.w * W < 0.8)).toBe(true);
   });
 });

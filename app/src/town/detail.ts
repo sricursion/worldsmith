@@ -205,13 +205,28 @@ export function dressParts(parts: BlueprintPart[], ctx: DressContext): Blueprint
       place(out / 2, s.y - 0.13, out - 0.04, 0.06, 'trim', 5);
       if (!guttered) continue;
       place(out + 0.055, s.y - 0.15, 0.11, 0.1, 'dark', 5);
-      // A downpipe at one end of each eave, standing just off the wall beneath it.
+      // A downpipe at one end of each eave: it stands against the wall, and an offset under the soffit
+      // carries the water back to it from the gutter.
       const end = (index + (e.side > 0 ? 1 : 0)) % 2 === 0 ? 1 : -1;
       const at = end * (run / 2 - 0.3);
-      const pipeH = s.y - 0.15 - 0.12;
+      const gutterAt = half + out + 0.055;
+      let wallAt = half - 0.07;
+      if (bs && boxBody && Math.abs(Math.abs(bs.cos * s.cos + bs.sin * s.sin) - 1) < 0.01) {
+        // The body's face on this side, measured in the roof's own frame.
+        const rx = bs.cx - s.cx;
+        const rz = bs.cz - s.cz;
+        const centre = e.axis === 'z' ? rx * s.sin + rz * s.cos : rx * s.cos - rz * s.sin;
+        wallAt = Math.min(gutterAt, e.side * centre + (e.axis === 'z' ? bs.d : bs.w) / 2 + 0.07);
+      }
+      const pipeTop = s.y - 0.24;
       const piped = e.axis === 'z'
-        ? add('cylinder', s, at, e.side * (half + out + 0.055), 0.12, 0.09, 0.09, pipeH, 'dark', 6, { reach: REACH_FAR })
-        : add('cylinder', s, e.side * (half + out + 0.055), at, 0.12, 0.09, 0.09, pipeH, 'dark', 6, { reach: REACH_FAR });
+        ? add('cylinder', s, at, e.side * wallAt, 0.12, 0.09, 0.09, pipeTop - 0.12, 'dark', 6, { reach: REACH_FAR })
+        : add('cylinder', s, e.side * wallAt, at, 0.12, 0.09, 0.09, pipeTop - 0.12, 'dark', 6, { reach: REACH_FAR });
+      const offset = gutterAt - wallAt;
+      if (piped && offset > 0.1) {
+        if (e.axis === 'z') add('box', s, at, e.side * (wallAt + offset / 2), pipeTop - 0.04, 0.08, offset + 0.08, 0.08, 'dark', 7, { reach: REACH_FAR });
+        else add('box', s, e.side * (wallAt + offset / 2), at, pipeTop - 0.04, offset + 0.08, 0.08, 0.08, 'dark', 7, { reach: REACH_FAR });
+      }
       if (piped && bs && boxBody && Math.abs(Math.abs(bs.cos * s.cos + bs.sin * s.sin) - 1) < 0.01) {
         // Where the gutter overflows at its far end, the wall below is streaked.
         const sameAxis = e.axis;
@@ -388,7 +403,7 @@ export function dressParts(parts: BlueprintPart[], ctx: DressContext): Blueprint
     const lz0 = -0.22 * bs.d;
     const ladderH = bs.h + 0.9;
     for (const dz of [-0.22, 0.22]) add('box', bs, side * (wallX + 0.17), lz0 + dz, bs.y + 0.3, 0.05, 0.05, ladderH - 0.3, 'dark', 7, far);
-    const rungs = Math.min(16, Math.floor((ladderH - 0.6) / 0.3));
+    const rungs = Math.min(28, Math.floor((ladderH - 0.6) / 0.3));
     const pitch = (ladderH - 0.6) / rungs;
     for (let i = 0; i < rungs; i++) add('box', bs, side * (wallX + 0.17), lz0, bs.y + 0.5 + i * pitch, 0.03, 0.44, 0.03, 'dark', 9, far);
     for (const y of [bs.y + 0.8, bs.y + bs.h * 0.5, bs.y + bs.h - 0.3]) {

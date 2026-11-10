@@ -104,22 +104,101 @@ const WEATHER: Record<SurfaceFamily, Weather> = {
   paint: { stain: 0.25, streak: 0.25, moss: 0, chip: 1, rust: 0, soak: 0.15 },
 };
 
-function weather(u: number, v: number, t: Texel, c: GenCtx, w: Weather): void {
+/** A scalar field sampled on a coarse grid that wraps in both directions. */
+interface Grid { w: number; h: number; data: Float32Array }
+
+function makeGrid(w: number, h: number, f: (u: number, v: number) => number): Grid {
+  const data = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) data[y * w + x] = f(x / w, y / h);
+  return { w, h, data };
+}
+
+/** Bilinear read of a grid at (u, v), wrapping. */
+function gridAt(g: Grid, u: number, v: number): number {
+  const x = u * g.w;
+  const y = v * g.h;
+  const ix = Math.floor(x);
+  const iy = Math.floor(y);
+  const fx = x - ix;
+  const fy = y - iy;
+  let x0 = ix % g.w;
+  if (x0 < 0) x0 += g.w;
+  let y0 = iy % g.h;
+  if (y0 < 0) y0 += g.h;
+  const r0 = y0 * g.w;
+  const r1 = (y0 + 1 === g.h ? 0 : y0 + 1) * g.w;
+  const x1 = x0 + 1 === g.w ? 0 : x0 + 1;
+  const d = g.data;
+  const a = d[r0 + x0] as number;
+  const b = d[r0 + x1] as number;
+  const e = d[r1 + x0] as number;
+  return a + (b - a) * fx + (e - a) * fy + (a - b - e + (d[r1 + x1] as number)) * fx * fy;
+}
+
+/**
+ * The slow fields of the weathering pass for one tile. They vary over many texels, so a whole-tile
+ * render reads them from coarse grids instead of summing octaves of noise at every texel; a single
+ * texel (sampleSurface) computes them directly.
+ */
+interface Fields {
+  size: number;
+  blot: Grid;
+  chip: Grid | null;
+  /** Length of the rust run under a patch, per texel column. */
+  trail: Float32Array | null;
+  run: Grid | null;
+  grow: Grid | null;
+}
+
+const blotAt = (u: number, v: number, seed: number): number => fbm(u, v, 3, 3, 3, seed + 901);
+const chipAt = (u: number, v: number, seed: number): number => fbm(u, v, 7, 7, 4, seed + 911);
+const trailAt = (u: number, seed: number): number => 0.02 + 0.14 * vnoise(u, 0.5, 64, 1, seed + 919) * vnoise(u, 0.5, 9, 1, seed + 923);
+const runAt = (u: number, v: number, seed: number): number => fbm(u, v, 40, 2, 3, seed + 907);
+const growAt = (u: number, v: number, seed: number): number => fbm(u, v, 5, 5, 4, seed + 917);
+
+function makeFields(size: number, c: GenCtx, w: Weather): Fields | null {
+  if (!(c.wear > 0) || size < 64) return null;
+  const seed = c.seed;
+  const chipped = w.chip > 0 && c.wear > 0.15;
+  let trail: Float32Array | null = null;
+  if (chipped && w.rust > 0) {
+    trail = new Float32Array(size);
+    for (let x = 0; x < size; x++) trail[x] = trailAt((x + 0.5) / size, seed);
+  }
+  return {
+    size, trail,
+    blot: makeGrid(size >> 2, size >> 2, (u, v) => blotAt(u, v, seed)),
+    chip: chipped ? makeGrid(size >> 1, size >> 1, (u, v) => chipAt(u, v, seed)) : null,
+    // Streaks are fine across the sheet and long down it.
+    run: w.streak > 0 ? makeGrid(size, size >> 3, (u, v) => runAt(u, v, seed)) : null,
+    grow: w.moss > 0 && c.wear > 0.3 ? makeGrid(size >> 1, size >> 1, (u, v) => growAt(u, v, seed)) : null,
+  };
+}
+
+function weather(u: number, v: number, t: Texel, c: GenCtx, w: Weather, f: Fields | null): void {
   const wear = c.wear;
   if (wear > 0) {
     // Broad uneven staining, and dirt packed into every joint. Where dust has settled the surface is matte.
-    const blot = fbm(u, v, 3, 3, 3, c.seed + 901);
+    const blot = f ? gridAt(f.blot, u, v) : blotAt(u, v, c.seed);
     const dust = ss(0.35, 0.75, blot);
     mul(t, 1 - wear * w.stain * dust);
     t.rough += (1 - t.rough) * 0.3 * wear * dust;
     mul(t, 1 - t.crease * (0.1 + 0.35 * wear));
     // Paint and render failing in patches: the coat is gone, the substrate shows a step lower. On metal
-    // the patches smear down the sheet column by column, the way rust runs.
+    // the patches run down the sheet, the way rust does.
     let chipNear = 0;
     if (w.chip > 0 && wear > 0.15) {
-      const smear = w.rust > 0 ? 0.11 * (vnoise(u, 0.5, 48, 1, c.seed + 919) - 0.5) + 0.02 * vnoise(u, 0.5, 160, 1, c.seed + 923) : 0;
-      const chip = fbm(u, v + smear, 7, 7, 4, c.seed + 911);
-      const edge = 0.8 - 0.3 * wear * w.chip;
+      let chip = f?.chip ? gridAt(f.chip, u, v) : chipAt(u, v, c.seed);
+      if (w.rust > 0) {
+        // The same patches again, slid down the sheet by a length that changes from column to column and
+        // a little weaker: each patch keeps its upper edge and trails ragged runs beneath it.
+        const len = f?.trail ? (f.trail[(u * f.size) | 0] ?? 0.02) : trailAt(u, c.seed);
+        const trail = (f?.chip ? gridAt(f.chip, u, v + len) : chipAt(u, v + len, c.seed)) - 0.012;
+        if (trail > chip) chip = trail;
+      }
+      // On metal only small patches are drawn into the tile: a big one would be seen again at every
+      // repeat, so the large patches of rust are laid in world space by the surface shader instead.
+      const edge = w.rust > 0 ? 0.9 - 0.13 * wear : 0.8 - 0.3 * wear * w.chip;
       const m = ss(edge, edge + 0.025, chip);
       chipNear = ss(edge - 0.16, edge, chip);
       if (m > 0) {
@@ -143,7 +222,7 @@ function weather(u: number, v: number, t: Texel, c: GenCtx, w: Weather): void {
     // Run-off: narrow streaks that follow gravity (down v), strongest where the blotches are and, on
     // metal, around every rusting patch. Wet streaks shine; dry ones are a matte deposit.
     if (w.streak > 0) {
-      const run = fbm(u, v, 40, 2, 3, c.seed + 907);
+      const run = f?.run ? gridAt(f.run, u, v) : runAt(u, v, c.seed);
       const where = w.rust > 0 ? Math.max(ss(0.25, 0.6, blot) * 0.6, chipNear) : ss(0.25, 0.6, blot);
       const m = ss(0.58, 0.82, run) * where * wear * w.streak;
       if (w.rust > 0) {
@@ -157,7 +236,7 @@ function weather(u: number, v: number, t: Texel, c: GenCtx, w: Weather): void {
     }
     // Moss and algae where water sits.
     if (w.moss > 0 && wear > 0.3) {
-      const grow = fbm(u, v, 5, 5, 4, c.seed + 917);
+      const grow = f?.grow ? gridAt(f.grow, u, v) : growAt(u, v, c.seed);
       const m = sat((t.crease * 0.8 + ss(0.55, 0.8, grow) * 0.7) * ss(0.45, 0.7, grow) * ((wear - 0.3) / 0.7) * w.moss);
       if (m > 0) {
         const k = 0.8 + 0.5 * grow;
@@ -184,7 +263,7 @@ function context(base: readonly [number, number, number], opts: { wear: number; 
   return { seed: opts.seed | 0, base, wear: sat(opts.wear), wet: sat(opts.wet), bare: hi - lo < 0.12 };
 }
 
-function texel(def: SurfaceDef, u: number, v: number, t: Texel, ctx: GenCtx): void {
+function texel(def: SurfaceDef, u: number, v: number, t: Texel, ctx: GenCtx, fields: Fields | null): void {
   t.h = 0.5;
   t.r = ctx.base[0];
   t.g = ctx.base[1];
@@ -193,13 +272,13 @@ function texel(def: SurfaceDef, u: number, v: number, t: Texel, ctx: GenCtx): vo
   t.metal = 0;
   t.crease = 0;
   def.fn(u, v, t, ctx);
-  if (ctx.wear > 0 || ctx.wet > 0) weather(u, v, t, ctx, WEATHER[def.family]);
+  if (ctx.wear > 0 || ctx.wet > 0) weather(u, v, t, ctx, WEATHER[def.family], fields);
 }
 
 /** One weathered texel at any (u, v), including outside the unit square. Used to check that a surface repeats. */
 export function sampleSurface(def: SurfaceDef, base: readonly [number, number, number], u: number, v: number, opts: { wear: number; wet: number; seed: number }): Texel {
   const t: Texel = { h: 0, r: 0, g: 0, b: 0, rough: 0, metal: 0, crease: 0 };
-  texel(def, u, v, t, context(base, opts));
+  texel(def, u, v, t, context(base, opts), null);
   return t;
 }
 
@@ -236,6 +315,8 @@ export interface SurfaceJob {
   readonly def: SurfaceDef;
   readonly ctx: GenCtx;
   readonly height: Float32Array;
+  /** Coarse weathering fields, made when the first rows are generated. */
+  fields?: Fields | null;
 }
 
 export function beginSurface(def: SurfaceDef, base: readonly [number, number, number], opts: RenderOpts): SurfaceJob {
@@ -252,11 +333,13 @@ export function stepSurface(job: SurfaceJob, count: number): boolean {
   const { size, def, ctx, height } = job;
   const { albedo, data } = job.pixels;
   const t = SCRATCH;
+  if (job.fields === undefined) job.fields = makeFields(size, ctx, WEATHER[def.family]);
+  const fields = job.fields;
   const end = Math.min(size, job.rows + count);
   for (let y = job.rows; y < end; y++) {
     const v = (y + 0.5) / size;
     for (let x = 0; x < size; x++) {
-      texel(def, (x + 0.5) / size, v, t, ctx);
+      texel(def, (x + 0.5) / size, v, t, ctx, fields);
       const i = y * size + x;
       const o = i * 4;
       const h = t.h < 0 ? 0 : t.h > 1 ? 1 : t.h;

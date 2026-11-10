@@ -599,3 +599,327 @@ export function buildScatter(inp: ScatterInput): ScatterSet {
   set.update(posV.set(layout.spawn.x, 0, layout.spawn.z));
   return set;
 }
+
+// ---- Streaming windows -------------------------------------------------------------------------------------
+// Past the place itself the land goes on for ever, and what lies on it is made as it comes into reach. A window
+// is a square of `span` x `span` chunks that follows a focus. Every chunk owns a fixed run of instances in each
+// layer's buffer, found by its coordinate modulo the span, so when the focus moves on, the chunks left behind
+// hand their runs to the ones coming in: the buffers never grow and nothing is allocated after the first frame.
+// What stands in a chunk is decided by its coordinate alone, so it is the same every time it is walked back to.
+
+export interface WindowLayer { mesh: THREE.InstancedMesh; /** Instances a chunk may hold in this layer. */ cap: number }
+
+export class InstanceWindow {
+  /** Chunks filled so far, over the life of the window. */
+  recycles = 0;
+  private readonly slotX: Int32Array;
+  private readonly slotZ: Int32Array;
+  private readonly filled: Uint8Array;
+  private readonly dirty: Int32Array;
+  private readonly used: Int32Array;
+  private dirtyN = 0;
+  private dirtyAt = 0;
+  private baseX = Number.NaN;
+  private baseZ = Number.NaN;
+  private cur = 0;
+  private readonly m4 = new THREE.Matrix4();
+  private readonly quat = new THREE.Quaternion();
+  private readonly euler = new THREE.Euler();
+  private readonly pos = new THREE.Vector3();
+  private readonly scl = new THREE.Vector3();
+
+  /**
+   * `size` is a chunk's side in metres and `span` (even) the chunks along a side of the window. Each layer's
+   * mesh must hold span * span * cap instances. `fill` is called for one chunk at a time and places with put().
+   */
+  constructor(
+    readonly size: number, readonly span: number, readonly layers: readonly WindowLayer[],
+    private readonly fill: (cx: number, cz: number, win: InstanceWindow) => void,
+  ) {
+    const n = span * span;
+    this.slotX = new Int32Array(n);
+    this.slotZ = new Int32Array(n);
+    this.filled = new Uint8Array(n);
+    this.dirty = new Int32Array(n);
+    this.used = new Int32Array(layers.length);
+    for (const l of layers) {
+      const a = l.mesh.instanceMatrix.array;
+      a.fill(0);
+      for (let i = 15; i < a.length; i += 16) a[i] = 1;
+      l.mesh.count = n * l.cap;
+      l.mesh.instanceMatrix.needsUpdate = true;
+    }
+  }
+
+  /** Instances held over all layers: fixed for the life of the window. */
+  get capacity(): number {
+    return this.layers.reduce((n, l) => n + l.cap, 0) * this.span * this.span;
+  }
+
+  /** The slot being filled, during fill. */
+  get slot(): number { return this.cur; }
+
+  /** Instances placed so far in a layer of the chunk being filled. */
+  placed(layer: number): number { return this.used[layer] ?? 0; }
+
+  private slotFor(cx: number, cz: number): number {
+    const s = this.span;
+    return (((cx % s) + s) % s) + (((cz % s) + s) % s) * s;
+  }
+
+  /** The slot that holds the chunk over a point, or -1 while that chunk is not made. */
+  slotAt(x: number, z: number): number {
+    const cx = Math.floor(x / this.size);
+    const cz = Math.floor(z / this.size);
+    const s = this.slotFor(cx, cz);
+    return this.filled[s] === 1 && this.slotX[s] === cx && this.slotZ[s] === cz ? s : -1;
+  }
+
+  /** Moves the window to stand around a point. Chunks that came into it are queued; work() makes them. */
+  retarget(x: number, z: number): void {
+    if (!Number.isFinite(x) || !Number.isFinite(z)) return;
+    const bx = Math.floor(x / this.size) - this.span / 2;
+    const bz = Math.floor(z / this.size) - this.span / 2;
+    if (bx === this.baseX && bz === this.baseZ) return;
+    this.baseX = bx;
+    this.baseZ = bz;
+    this.dirtyN = 0;
+    this.dirtyAt = 0;
+    for (let j = 0; j < this.span; j++) {
+      for (let i = 0; i < this.span; i++) {
+        const cx = bx + i;
+        const cz = bz + j;
+        const s = this.slotFor(cx, cz);
+        if (this.filled[s] === 1 && this.slotX[s] === cx && this.slotZ[s] === cz) continue;
+        this.slotX[s] = cx;
+        this.slotZ[s] = cz;
+        this.filled[s] = 0;
+        this.dirty[this.dirtyN++] = s;
+      }
+    }
+  }
+
+  pending(): boolean { return this.dirtyAt < this.dirtyN; }
+
+  /** Makes one queued chunk. */
+  work(): void {
+    if (this.dirtyAt >= this.dirtyN) return;
+    const s = this.dirty[this.dirtyAt++] as number;
+    this.cur = s;
+    this.used.fill(0);
+    const cx = this.slotX[s] as number;
+    const cz = this.slotZ[s] as number;
+    for (const l of this.layers) {
+      // Whatever the last chunk left here shrinks to nothing; put() then writes over the front of the run.
+      const a = l.mesh.instanceMatrix.array;
+      const o = s * l.cap * 16;
+      a.fill(0, o, o + l.cap * 16);
+      for (let i = 0; i < l.cap; i++) {
+        a[o + i * 16 + 12] = (cx + 0.5) * this.size;
+        a[o + i * 16 + 14] = (cz + 0.5) * this.size;
+        a[o + i * 16 + 15] = 1;
+      }
+    }
+    this.fill(cx, cz, this);
+    this.filled[s] = 1;
+    this.recycles++;
+    for (const l of this.layers) {
+      this.touch(l.mesh.instanceMatrix, s * l.cap * 16, l.cap * 16);
+      if (l.mesh.instanceColor) this.touch(l.mesh.instanceColor, s * l.cap * 3, l.cap * 3);
+    }
+  }
+
+  private touch(attr: THREE.InstancedBufferAttribute, start: number, count: number): void {
+    // Ranges are cleared when the renderer uploads them; a mesh that is not being drawn must not pile them up.
+    if (attr.updateRanges.length > 24) attr.clearUpdateRanges();
+    else if (count > 0) attr.addUpdateRange(start, count);
+    attr.needsUpdate = true;
+  }
+
+  /** Places one instance in a layer of the chunk being filled. False when that chunk's run in the layer is full. */
+  put(layer: number, x: number, y: number, z: number, yaw: number, tiltX: number, tiltZ: number, sx: number, sy: number, sz: number, c?: THREE.Color): boolean {
+    const l = this.layers[layer];
+    const n = this.used[layer];
+    if (!l || n === undefined || n >= l.cap) return false;
+    const i = this.cur * l.cap + n;
+    this.euler.set(tiltX, yaw, tiltZ, 'YXZ');
+    this.m4.compose(this.pos.set(x, y, z), this.quat.setFromEuler(this.euler), this.scl.set(sx, sy, sz));
+    this.m4.toArray(l.mesh.instanceMatrix.array, i * 16);
+    if (c && l.mesh.instanceColor) {
+      const a = l.mesh.instanceColor.array;
+      a[i * 3] = c.r; a[i * 3 + 1] = c.g; a[i * 3 + 2] = c.b;
+    }
+    this.used[layer] = n + 1;
+    return true;
+  }
+}
+
+/** A mesh for one layer of a window: `total` instances, never culled as a whole, drawn from wherever the window is. */
+export function windowMesh(geo: THREE.BufferGeometry, mat: THREE.Material | THREE.Material[], total: number, name: string, coloured: boolean): THREE.InstancedMesh {
+  const mesh = new THREE.InstancedMesh(geo, mat, Math.max(1, total));
+  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  if (coloured) {
+    const ic = new THREE.InstancedBufferAttribute(new Float32Array(Math.max(1, total) * 3).fill(1), 3);
+    ic.setUsage(THREE.DynamicDrawUsage);
+    mesh.instanceColor = ic;
+  }
+  mesh.name = name;
+  mesh.frustumCulled = false;
+  mesh.matrixAutoUpdate = false;
+  return mesh;
+}
+
+/** Side of a chunk of far scatter, and the chunks along a side of its window: the focus is never nearer than SCATTER_FAR to its edge. */
+const FIELD_CHUNK = 24;
+const FIELD_SPAN = 8;
+
+export interface ScatterFieldInput extends ScatterInput {
+  heightAt: (x: number, z: number) => number;
+  /** What the scatter of the place itself came to, by layer: the far scatter is a little thinner than that. */
+  placed: Record<ScatterLayer, number>;
+}
+
+export interface ScatterField {
+  group: THREE.Group;
+  window: InstanceWindow;
+  dispose(): void;
+}
+
+/**
+ * The same tufts, flowers, stones and debris as buildScatter, for the land beyond the place: nothing within
+ * the margin buildScatter covers, everything past it, made a chunk at a time around the focus.
+ */
+export function buildScatterField(inp: ScatterFieldInput): ScatterField {
+  const { layout, quality, seed } = inp;
+  const mixOf = scatterMix(inp.ground);
+  const wild = clamp(Number.isFinite(inp.wild) ? inp.wild : 0.3, 0, 1);
+  const b = layout.bounds;
+  const area = (b.maxX - b.minX + 2 * MARGIN) * (b.maxZ - b.minZ + 2 * MARGIN);
+  const perChunk = (n: number): number => Math.max(0, Math.min(700, Math.ceil((n / Math.max(1, area)) * FIELD_CHUNK * FIELD_CHUNK * (mixOf.paved ? 0.4 : 0.8))));
+  const caps = [perChunk(inp.placed.tufts), perChunk(inp.placed.flowers), perChunk(inp.placed.stones), perChunk(inp.placed.debris)] as const;
+
+  const group = new THREE.Group();
+  group.name = 'scatter-far';
+  const texSize = quality === 0 ? 64 : 128;
+  const kind = mixOf.kind;
+  const tuftMat = new THREE.MeshStandardMaterial({ map: acquireTexture(false, texSize), alphaTest: 0.32, roughness: 0.92 });
+  const flowerMat = new THREE.MeshStandardMaterial({ map: acquireTexture(true, texSize), alphaTest: 0.32, roughness: 0.9 });
+  const stoneMat = new THREE.MeshStandardMaterial({ roughness: 0.88 - 0.45 * clamp(inp.wet, 0, 1), flatShading: true });
+  const debrisMat = new THREE.MeshStandardMaterial({ roughness: kind === 'clump' ? 0.75 : 0.9, flatShading: kind === 'shard' });
+  patch(tuftMat, 0.5);
+  patch(flowerMat, 0.6);
+  patch(stoneMat, 0);
+  patch(debrisMat, 0);
+  const cross = crossedQuads(quality === 2 ? 3 : 2, quality === 0 ? 1 : 2);
+  const geos = [cross, stoneGeometry(17), debrisGeometry(kind)];
+  const mats = [tuftMat, flowerMat, stoneMat, debrisMat];
+  const slots = FIELD_SPAN * FIELD_SPAN;
+  const names = ['tufts', 'flowers', 'stones', 'debris'];
+  const layers: WindowLayer[] = caps.map((cap, i) => ({
+    cap,
+    mesh: windowMesh(i < 2 ? cross : (geos[i - 1] as THREE.BufferGeometry), mats[i] as THREE.Material, slots * cap, `scatter-far:${names[i]}`, true),
+  }));
+  for (const l of layers) {
+    l.mesh.castShadow = false;
+    l.mesh.receiveShadow = true;
+    if (l.cap > 0) group.add(l.mesh);
+  }
+
+  const tuftBase = tuftColour(inp.ground, inp.groundHex);
+  const ground = new THREE.Color(inp.groundHex);
+  const petals = [...inp.accents, '#ffffff', '#f4e6a0'].map((h) => new THREE.Color(h).lerp(new THREE.Color('#ffffff'), 0.25));
+  const stoneBase = ground.clone().lerp(new THREE.Color('#7d7a74'), 0.5).multiplyScalar(1 - 0.3 * clamp(inp.wet, 0, 1));
+  const debrisBases: THREE.Color[] = kind === 'leaf'
+    ? [tuftBase.clone().lerp(new THREE.Color('#a8662c'), 0.75), tuftBase.clone().lerp(new THREE.Color('#7a4a22'), 0.85), tuftBase.clone().lerp(new THREE.Color('#c79a3a'), 0.6)]
+    : kind === 'twig' ? [new THREE.Color('#6b5a45'), new THREE.Color('#8a7a62')]
+      : kind === 'clump' ? [new THREE.Color('#eef2f6'), new THREE.Color('#dfe6ee')]
+        : kind === 'shard' ? [ground.clone().multiplyScalar(0.6), ground.clone().lerp(new THREE.Color('#3a3a40'), 0.6)]
+          : [new THREE.Color('#d6d0c2'), new THREE.Color('#b5ad9a'), new THREE.Color('#6d7074')];
+  const colour = new THREE.Color();
+  const dry = (x: number, z: number): boolean => outsideDistance(b, x, z) > MARGIN && !(inp.waterDepthAt && inp.waterDepthAt(x, z) > 0.08);
+  // The place's own scatter thins to 0.45 of itself at its margin: the far scatter starts there and fills out.
+  const ease = (x: number, z: number): number => 0.55 + 0.45 * smoothstep(MARGIN, MARGIN + 40, outsideDistance(b, x, z));
+
+  const window = new InstanceWindow(FIELD_CHUNK, FIELD_SPAN, layers, (cx, cz, win) => {
+    const rng = makeRng(seed, `far-scatter|${cx}|${cz}`);
+    const x0 = cx * FIELD_CHUNK;
+    const z0 = cz * FIELD_CHUNK;
+    // Wholly inside the place's own margin: nothing to do.
+    if (outsideDistance(b, x0 + FIELD_CHUNK / 2, z0 + FIELD_CHUNK / 2) + FIELD_CHUNK * Math.SQRT1_2 <= MARGIN) return;
+    for (let k = 0; k < caps[0]; k++) {
+      const x = x0 + rng.next() * FIELD_CHUNK;
+      const z = z0 + rng.next() * FIELD_CHUNK;
+      const patchy = mixOf.paved ? 0.3 : 0.1 + 0.9 * smoothstep(0.52 - 0.3 * wild, 0.66 - 0.2 * wild, fbm(x / 11, z / 11, seed + 101, 3));
+      const w = rng.range(0.5, 0.95);
+      const h = rng.range(0.26, 0.62) * (0.8 + 0.5 * wild);
+      const yaw = rng.range(0, Math.PI);
+      jitter(tuftBase, rng, 0.07, 0.025, colour);
+      if (rng.next() < patchy * ease(x, z) && dry(x, z)) win.put(0, x, inp.heightAt(x, z), z, yaw, 0, 0, w, h, w, colour);
+    }
+    for (let k = 0; k < caps[1]; k++) {
+      const x = x0 + rng.next() * FIELD_CHUNK;
+      const z = z0 + rng.next() * FIELD_CHUNK;
+      const patchy = (0.1 + 0.9 * smoothstep(0.52 - 0.3 * wild, 0.66 - 0.2 * wild, fbm(x / 11, z / 11, seed + 101, 3))) * smoothstep(0.5, 0.7, fbm(x / 14 + 9, z / 14, seed + 109, 2));
+      const w = rng.range(0.35, 0.6);
+      const h = rng.range(0.35, 0.7);
+      const yaw = rng.range(0, Math.PI);
+      jitter(rng.pick(petals), rng, 0.05, 0.01, colour);
+      if (rng.next() < patchy * ease(x, z) && dry(x, z)) win.put(1, x, inp.heightAt(x, z), z, yaw, 0, 0, w, h, w, colour);
+    }
+    for (let k = 0; k < caps[2]; k++) {
+      const x = x0 + rng.next() * FIELD_CHUNK;
+      const z = z0 + rng.next() * FIELD_CHUNK;
+      const dens = 0.25 + 0.75 * smoothstep(0.35, 0.7, fbm(x / 7, z / 7, seed + 103, 3));
+      const s = 0.05 + 0.4 * rng.next() ** 3.2;
+      const yaw = rng.range(0, Math.PI * 2);
+      const tilt = rng.range(-0.3, 0.3);
+      const sx = s * rng.range(0.8, 1.4);
+      const sy = s * rng.range(0.7, 1.1);
+      jitter(stoneBase, rng, 0.08, 0.015, colour);
+      if (rng.next() < dens * ease(x, z) && dry(x, z)) win.put(2, x, inp.heightAt(x, z), z, yaw, tilt, tilt * 0.6, sx, sy, s, colour);
+    }
+    for (let k = 0; k < caps[3]; k++) {
+      const x = x0 + rng.next() * FIELD_CHUNK;
+      const z = z0 + rng.next() * FIELD_CHUNK;
+      const dens = 0.12 + 0.88 * smoothstep(0.45, 0.72, fbm(x / 9 + 40, z / 9, seed + 107, 3));
+      const yaw = rng.range(0, 6.28);
+      const u = rng.next();
+      const v = rng.next();
+      jitter(rng.pick(debrisBases), rng, 0.06, 0.015, colour);
+      if (!(rng.next() < dens * ease(x, z) && dry(x, z))) continue;
+      const y = inp.heightAt(x, z);
+      if (kind === 'clump') { const s = 0.14 + 0.46 * u; win.put(3, x, y, z, yaw, 0, 0, s, s * (0.6 + 0.6 * v), s * (0.7 + 0.5 * v), colour); }
+      else if (kind === 'shard') { const s = 0.05 + 0.17 * u; win.put(3, x, y, z, yaw, v - 0.5, 0.6 * (v - 0.5), s * 1.6, s * 0.5, s, colour); }
+      else if (kind === 'twig') { const s = 0.18 + 0.42 * u; win.put(3, x, y, z, yaw, 0, 0, s, 1, 1, colour); }
+      else { const s = kind === 'leaf' ? 0.07 + 0.08 * u : 0.12 + 0.18 * u; win.put(3, x, y, z, yaw, 0, 0, s, s, s * (0.7 + 0.4 * v), colour); }
+    }
+  });
+
+  // Cards sit out any pass that draws with its own material (see buildScatter).
+  layers.forEach((l, i) => {
+    if (i >= 2) return;
+    let held = -1;
+    l.mesh.onBeforeRender = (_renderer, _scene, _camera, _geometry, material) => {
+      if (material !== l.mesh.material) { held = l.mesh.count; l.mesh.count = 0; }
+    };
+    l.mesh.onAfterRender = () => {
+      if (held >= 0) { l.mesh.count = held; held = -1; }
+    };
+  });
+
+  let disposed = false;
+  return {
+    group, window,
+    dispose(): void {
+      if (disposed) return;
+      disposed = true;
+      for (const l of layers) l.mesh.dispose();
+      for (const g of geos) g.dispose();
+      for (const m of mats) {
+        if (m.map) releaseTexture(m.map);
+        m.dispose();
+      }
+      group.clear();
+    },
+  };
+}

@@ -12,25 +12,32 @@
 // under every footprint, so a building is built as it always was and lifted whole onto its pad, each prop is
 // lifted to the ground under its own middle, and flat things (roads, decals, puddles) are draped over the
 // land vertex by vertex. Without terrain every height is zero and the town is built exactly as before.
+//
+// The land does not end at the margin. Once TownObjects.update is being called, the ground, its scatter, the
+// world's own growth and the odd place worth walking to are made around the focus as it moves (see endless.ts),
+// and TownObjects.roam is what a walker needs to leave the navmesh for it.
 import * as THREE from 'three';
 import type { LoadedKit } from '../engine/assets';
+import type { PlayerLand } from '../engine/player';
 import { makeRng } from '../world/rng';
 import type { Blueprint, LandmarkSpec, StyleSpec, SurfaceSet, WorldSpec } from '../world/spec';
 import { GeoBatch, MaterialCache } from './batch';
 import { addBlueprint } from './blueprint-mesh';
+import { createEndless, patchFarFog } from './endless';
+import type { EndlessStats } from './endless';
 import { MAX_BUILDING_HEIGHT, PROP_SIZES } from './kits';
 import { buildingAabb, distanceToRoad, roadRect } from './layout';
 import type { PlacedBuilding, Rect, TownLayout } from './layout';
 import { addProceduralBuilding } from './procedural';
 import type { ProcEnv } from './procedural';
-import { MAX_POLES, POLE_SPACING, addProceduralProp, buildBackdrop, dressTown, isVisualOnlyProp, scatterBlueprintProps } from './props';
+import { BACKDROP_REACH, MAX_POLES, POLE_SPACING, addProceduralProp, buildBackdrop, dressTown, isVisualOnlyProp, scatterBlueprintProps } from './props';
 import type { TownLight } from './props';
-import { buildScatter } from './scatter';
+import { buildScatter, buildScatterField } from './scatter';
 import { createSign, disposeSign } from './sign';
 import { groundMaterial, inferSurfaces, roadMaterial } from './surfaces';
 import {
   buildGroundGeometry, buildHorizonGeometry, buildRoadGeometry, buildWalkGeometry, groundHalfExtent, horizonForms, horizonKindFor,
-  horizonPalette, makeLand, makeTerrainField,
+  horizonPalette, horizonRadii, makeLand, makeTerrainField,
 } from './terrain';
 import type { Quality } from './terrain';
 import { buildWater } from './water';
@@ -42,6 +49,8 @@ export type { TownLight } from './props';
 export interface BuildOptions {
   /** 0 integrated graphics, 1 mid, 2 discrete GPU (default). Sets ground resolution, scatter count and dressing density. */
   quality?: Quality;
+  /** Milliseconds a frame TownObjects.update may spend making the land beyond the place. Default 4. */
+  streamBudgetMs?: number;
 }
 
 export interface TownObjects {
@@ -79,6 +88,16 @@ export interface TownObjects {
   waterBodies: { kind: WaterKind; x: number; z: number; r: number; level: number }[];
   /** Depth of water standing at a point, metres; 0 on dry land. */
   waterDepthAt(x: number, z: number): number;
+  /**
+   * Makes the land beyond the place around `focus` (the player): call it every frame. Ground, scatter, growth
+   * and places of interest are made a little at a time, within a few milliseconds a frame, and follow the
+   * focus for ever. Until it is first called nothing beyond the place is made and the town is as it always was.
+   */
+  update?(focus: THREE.Vector3, dt: number): void;
+  /** What a walker needs to leave the navmesh for the open land: pass it as createPlayer's `land` option. */
+  roam?: PlayerLand;
+  /** How the endless land stands: tiles drawn and held, pool sizes. For the debug overlay and for tests. */
+  endlessStats?(): EndlessStats;
   dispose(): void;
 }
 
@@ -434,7 +453,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   ownMats.push(groundMat);
   const doorPoints = layout.buildings.map((b) => b.door);
   const half = groundHalfExtent(layout.bounds);
-  drawn(buildGroundGeometry(layout, field, { quality, doors: doorPoints, half, land }), groundMat, 'terrain');
+  const terrainMesh = drawn(buildGroundGeometry(layout, field, { quality, doors: doorPoints, half, land }), groundMat, 'terrain');
 
   // Water the land holds, drawn over the carved ground.
   const water = shaped && land.water.length > 0
@@ -449,17 +468,22 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   const forms = horizonForms(field, horizonKind, quality);
   if (shaped) for (const f of forms) f.y = Math.min(land.heightAt(f.x, f.z), f.y + 30) - 4;
   const horizon = buildHorizonGeometry(forms, horizonPalette(look, horizonKind, surfaces.ground), quality);
-  if (horizon.solid) {
-    const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true });
+  // The ring is carried with the walker once the land is endless: its meshes and the fog they take are kept for that.
+  const horizonMeshes: THREE.Mesh[] = [];
+  const horizonFog: { value: number }[] = [];
+  const ring = (g: THREE.BufferGeometry, m: THREE.Material, name: string): void => {
     ownMats.push(m);
-    drawn(horizon.solid, m, 'horizon').receiveShadow = false;
-  }
+    horizonFog.push(patchFarFog(m));
+    const mesh = drawn(g, m, name);
+    mesh.receiveShadow = false;
+    horizonMeshes.push(mesh);
+  };
+  if (horizon.solid) ring(horizon.solid, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true }), 'horizon');
   if (horizon.glow) {
     const m = new THREE.MeshStandardMaterial({
       vertexColors: true, color: new THREE.Color('#000000'), emissive: new THREE.Color(look.glow), emissiveIntensity: 1.4, roughness: 1, side: THREE.DoubleSide,
     });
-    ownMats.push(m);
-    drawn(horizon.glow, m, 'horizon-glow').receiveShadow = false;
+    ring(horizon.glow, m, 'horizon-glow');
   }
 
   // Roads and plaza in the road surface, kerbs and boardwalks, then decals and puddles over them.
@@ -683,6 +707,39 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
     : null;
   if (backdrop) group.add(backdrop.group);
 
+  // The land beyond: nothing of it is made until update() is first called.
+  let surface: (x: number, z: number) => number = land.heightAt;
+  const farScatter = buildScatterField({
+    layout, ground: surfaces.ground, groundHex: look.ground, accents: [look.accent, look.glow, look.trim],
+    wild: spec.site?.wild ?? 0.3, wet: surfaces.wet, quality, seed: spec.seed, tracks: false,
+    heightAt: (x, z) => surface(x, z), waterDepthAt: shaped && land.water.length > 0 ? land.waterDepthAt : undefined, placed: scatter.counts,
+  });
+  farScatter.group.visible = false;
+  group.add(farScatter.group);
+  const radii = horizonRadii(layout.bounds);
+  const endless = createEndless({
+    land, seed: spec.seed, quality, terrain: terrainMesh, groundMaterial: groundMat, groundHex: look.ground,
+    horizon: { meshes: horizonMeshes, inner: radii.inner, outer: radii.outer, baseY: forms.reduce((n, f) => n + f.y, 0) / Math.max(1, forms.length), fog: horizonFog },
+    waterCovered: water ? water.covered : null,
+    tintWater: (kind, wl) => { if (kind === 'lava') wl.glowColour = `#${new THREE.Color(wl.glowColour).lerp(new THREE.Color(look.glow), 0.25).getHexString()}`; },
+    scatter: farScatter.window,
+    life: (spec.props?.length ?? 0) > 0 || blueprints.length > 0
+      ? { style: look, props: spec.props ?? [], blueprints, mats, wild: wildness, settled: settledness }
+      : null,
+    clear: backdrop ? BACKDROP_REACH : WALK_MARGIN + 6,
+    solids: backdrop?.solids, budgetMs: opts.streamBudgetMs,
+  });
+  surface = endless.surfaceAt;
+  group.add(endless.group);
+  const lb = layout.bounds;
+  const roam: PlayerLand = {
+    heightAt: endless.surfaceAt,
+    waterDepthAt: land.waterDepthAt,
+    // The navmesh reaches WALK_MARGIN past the bounds; a little inside its edge the land takes over.
+    coreBounds: { minX: lb.minX - (WALK_MARGIN - 3), maxX: lb.maxX + (WALK_MARGIN - 3), minZ: lb.minZ - (WALK_MARGIN - 3), maxZ: lb.maxZ + (WALK_MARGIN - 3) },
+    pushOut: endless.pushOut,
+  };
+
   const merged = batch.build();
   for (const m of merged) {
     group.add(m);
@@ -696,7 +753,14 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   let disposed = false;
   return {
     group, statics, signs, doors, lights: dressed.lights, smoke: dressed.smoke,
-    heightAt: land.heightAt, walkMesh, shaped, waterBodies: water ? water.bodies : [], waterDepthAt: land.waterDepthAt,
+    heightAt: endless.surfaceAt, walkMesh, shaped, waterBodies: water ? water.bodies : [], waterDepthAt: land.waterDepthAt,
+    roam,
+    update(focus: THREE.Vector3, dt: number): void {
+      if (disposed) return;
+      farScatter.group.visible = true;
+      endless.update(focus, dt);
+    },
+    endlessStats: () => endless.stats(),
     placeLandmark(id: string, object: THREE.Object3D, heightMetres: number): void {
       const a = anchors.get(id);
       if (!a || disposed) return;
@@ -751,6 +815,8 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       placedModels.clear();
       plinths.clear();
       scatter.dispose();
+      endless.dispose();
+      farScatter.dispose();
       water?.dispose();
       backdrop?.dispose();
       dressed.lights.length = 0;

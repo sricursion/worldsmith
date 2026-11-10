@@ -77,7 +77,7 @@ float wField(vec2 p) {
  * rest of the world; the surface itself is written in onBeforeCompile. The geometry it goes on must carry a
  * float attribute `waterDepth` and sit in world space.
  */
-export function waterMaterial(look: WaterLook): THREE.MeshStandardMaterial {
+export function waterMaterial(look: WaterLook, far?: { level: number; hole: Rect }): THREE.MeshStandardMaterial {
   const m = new THREE.MeshStandardMaterial({
     color: new THREE.Color('#ffffff'), roughness: look.roughness, metalness: look.metalness,
     transparent: !look.opaque, depthWrite: look.opaque, envMapIntensity: 1.3,
@@ -91,16 +91,20 @@ export function waterMaterial(look: WaterLook): THREE.MeshStandardMaterial {
     uWaterA: { value: new THREE.Vector4(look.alpha0, look.alpha1, Math.max(0.05, look.fade), Math.max(0.01, look.foamDepth)) },
     uWaterB: { value: new THREE.Vector4(look.foamAmount, look.bump, 1 / Math.max(0.1, look.scale), look.speed) },
     uWaterC: { value: new THREE.Vector2(look.glow, look.crack) },
+    // Far water (see endless.ts): drawn on the land's own tiles, flattened to `level`, and left out over `hole`.
+    uWaterLevel: { value: far ? far.level : 0 },
+    uWaterHole: { value: far ? new THREE.Vector4(far.hole.minX, far.hole.minZ, far.hole.maxX, far.hole.maxZ) : new THREE.Vector4() },
   };
   m.userData.water = uniforms;
   m.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, uniforms);
     shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nattribute float waterDepth;\nvarying float vWaterDepth;\nvarying vec2 vWaterXZ;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWaterDepth = waterDepth;\nvWaterXZ = position.xz;');
+      .replace('#include <common>', `#include <common>\nattribute float waterDepth;\nvarying float vWaterDepth;\nvarying vec2 vWaterXZ;${far ? '\nuniform float uWaterLevel;' : ''}`)
+      .replace('#include <begin_vertex>', `#include <begin_vertex>\nvWaterDepth = waterDepth;\nvWaterXZ = position.xz;${far ? '\ntransformed.y = uWaterLevel;' : ''}`);
     shader.fragmentShader = shader.fragmentShader
-      .replace('#include <common>', `#include <common>\n${NOISE}`)
+      .replace('#include <common>', `#include <common>\n${NOISE}${far ? 'uniform vec4 uWaterHole;\n' : ''}`)
       .replace('#include <color_fragment>', /* glsl */ `#include <color_fragment>
+        ${far ? 'if (vWaterDepth < -0.75 || (vWaterXZ.x > uWaterHole.x && vWaterXZ.y > uWaterHole.y && vWaterXZ.x < uWaterHole.z && vWaterXZ.y < uWaterHole.w)) discard;' : ''}
         vec2 wP = vWaterXZ * uWaterB.z;
         float wN = wField(wP);
         float wDeepness = smoothstep(0.0, uWaterA.z, vWaterDepth);
@@ -129,7 +133,7 @@ export function waterMaterial(look: WaterLook): THREE.MeshStandardMaterial {
           diffuseColor.a = mix(diffuseColor.a, max(diffuseColor.a, 0.96), wFresnel * step(0.001, diffuseColor.a));
         }`);
   };
-  m.customProgramCacheKey = () => 'town-water';
+  m.customProgramCacheKey = () => (far ? 'town-water-far' : 'town-water');
   return m;
 }
 
@@ -218,6 +222,8 @@ export interface WaterSet {
   /** One entry per body, for sound and life: a disc that stands for it and the height of its surface. */
   bodies: { kind: WaterKind; x: number; z: number; r: number; level: number }[];
   triangles: number;
+  /** The rectangle the wide sheets (sea, mist, swamp) are drawn over; water further out is the endless land's to draw. */
+  covered: Rect;
   dispose(): void;
 }
 
@@ -294,7 +300,7 @@ export function buildWater(inp: WaterInput): WaterSet {
   }
   let disposed = false;
   return {
-    group, bodies, triangles,
+    group, bodies, triangles, covered: far,
     dispose(): void {
       if (disposed) return;
       disposed = true;

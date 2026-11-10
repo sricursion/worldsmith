@@ -675,7 +675,25 @@ export interface Backdrop {
   /** Instances placed. */
   plants: number; structures: number;
   triangles: number;
+  /** What a walker goes round: x, z and radius of every plant's foot and every structure, three numbers each. */
+  solids: Float32Array;
   dispose(): void;
+}
+
+/**
+ * How wide a prop kind stands on the ground, metres at scale 1: the widest part that reaches down to it.
+ * A tree is its trunk here, not its crown.
+ */
+export function propFoot(kind: Pick<PropBlueprint, 'size' | 'parts'>): number {
+  const fp = Math.min(6, Math.max(0.3, kind.size));
+  let foot = 0;
+  let any = 0;
+  for (const p of expandBlueprintParts(kind.parts)) {
+    const w = Math.min(1.4, Math.max(0.002, Math.max(p.w, p.d))) * fp;
+    any = Math.max(any, w);
+    if (Math.min(30, Math.max(0, p.y)) * fp < 0.35) foot = Math.max(foot, w);
+  }
+  return foot > 0 ? foot : any * 0.5;
 }
 
 /** Which prop kinds stand in the middle distance: tall, not thin, unlit. Judged from their shape alone. */
@@ -709,6 +727,7 @@ export function buildBackdrop(inp: BackdropInput): Backdrop {
   const geos: THREE.BufferGeometry[] = [];
   const instanced: THREE.InstancedMesh[] = [];
   let triangles = 0;
+  const solids: number[] = [];
   const r0 = inp.inner;
   const r1 = Math.max(r0 + 20, BACKDROP_REACH);
   const outside = (x: number, z: number): number => Math.hypot(Math.max(b.minX - x, 0, x - b.maxX), Math.max(b.minZ - z, 0, z - b.maxZ));
@@ -767,6 +786,7 @@ export function buildBackdrop(inp: BackdropInput): Backdrop {
       const r = Math.hypot(fp.w, fp.d) * 0.5 * s + 2;
       if (taken.some((q) => Math.hypot(q.x - p.x, q.z - p.z) < q.r + r)) continue;
       taken.push({ x: p.x, z: p.z, r });
+      solids.push(p.x, p.z, Math.min(fp.w, fp.d) * 0.5 * s);
       const which = rng.int(0, inp.blueprints.length - 1);
       const list = per.get(which) ?? [];
       // Sunk a little, so no base floats where the land falls away under a wide footprint.
@@ -795,6 +815,7 @@ export function buildBackdrop(inp: BackdropInput): Backdrop {
     const want = Math.min(budget.plants, Math.floor(Math.max(0, budget.triangles - triangles) / Math.max(1, mean)));
     const lists = kinds.map((): { x: number; y: number; z: number; yaw: number; s: number }[] => []);
     const index = kinds.map((_, i) => i);
+    const feet = kinds.map((k) => propFoot(k));
     for (let k = 0; k < want; k++) {
       const p = spot();
       if (!p) continue;
@@ -803,6 +824,7 @@ export function buildBackdrop(inp: BackdropInput): Backdrop {
       // Giants behind the giants: what stands further off stands taller.
       const s = (1 + 1.3 * p.t) * rng.range(0.8, 1.3);
       (lists[i] as { x: number; y: number; z: number; yaw: number; s: number }[]).push({ x: p.x, y: inp.heightAt(p.x, p.z) - 0.15 * s, z: p.z, yaw: rng.range(0, Math.PI * 2), s });
+      solids.push(p.x, p.z, Math.min(2.5, Math.max(0.2, 0.5 * (feet[i] as number) * s)));
       plants++;
     }
     models.forEach((meshes, i) => place(meshes, lists[i] as { x: number; y: number; z: number; yaw: number; s: number }[], `backdrop:${(kinds[i] as PropBlueprint).kind}`));
@@ -810,7 +832,7 @@ export function buildBackdrop(inp: BackdropInput): Backdrop {
 
   let disposed = false;
   return {
-    group, plants, structures, triangles,
+    group, plants, structures, triangles, solids: new Float32Array(solids),
     dispose(): void {
       if (disposed) return;
       disposed = true;

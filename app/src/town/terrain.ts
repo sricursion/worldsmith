@@ -145,7 +145,19 @@ export function terrainHeight(f: TerrainField, x: number, z: number): number {
   if (e <= 0) return 0;
   const ramp = smoothstep(0, 75, e);
   const tilt = f.form === 'flats' ? 5 : 11;
-  return ramp * (relief(f, x, z) + tilt * (e / 160) ** 1.4);
+  return ramp * (relief(f, x, z) + tilt * (levelOff(e) / 160) ** 1.4);
+}
+
+/** Where the far rise stops growing: up to FAR_RISE metres out it is the distance itself, then it eases level. */
+const FAR_RISE = 260;
+const FAR_EASE = 200;
+/**
+ * The distance the outward tilt of the land is worked from. The land climbs away from the place so the far
+ * ground stands above eye level, but it cannot climb for ever now that it can be walked for ever: past
+ * FAR_RISE the climb eases off (slope continuous) onto a high plain.
+ */
+export function levelOff(e: number): number {
+  return e <= FAR_RISE ? e : FAR_RISE + FAR_EASE * (1 - Math.exp(-(e - FAR_RISE) / FAR_EASE));
 }
 
 // ---- The land ----------------------------------------------------------------------------------------------
@@ -415,7 +427,7 @@ export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, g
     const c = calmAt(x, z);
     let h = reliefLow + reliefDetail * (1 - 0.85 * c) * (benches ? 0.4 : 1);
     // Land that is not ringed by water climbs with distance, so the far ground stands above eye level.
-    if (!sunk) h += 9 * (Math.max(0, e - 30) / 160) ** 1.4;
+    if (!sunk) h += 9 * (levelOff(Math.max(0, e - 30)) / 160) ** 1.4;
     if (sheetBody && c > 0) h = mix(h, Math.max(h, sheetLevel + 0.5), c);
     // Benches belong to the place: beyond it they sink back into the land instead of running on as ruled lines.
     return h + benchAt(x, z) * (1 - 0.85 * smoothstep(14, 80, e));

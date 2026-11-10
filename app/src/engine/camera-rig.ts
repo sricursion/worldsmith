@@ -203,8 +203,10 @@ function lerp(a: number, b: number, t: number): number {
 export function createCameraRig(
   camera: THREE.PerspectiveCamera,
   collider: CameraCollider | null,
-  options: { firstPerson?: boolean; eyeHeight?: number } = {},
+  options: { firstPerson?: boolean; eyeHeight?: number; groundAt?: (x: number, z: number) => number } = {},
 ): CameraRig {
+  // Out on open land there is no collider under the camera: the height of the ground keeps it out of a hillside.
+  const groundAt = options.groundAt;
   let yaw = Math.PI;
   let firstPerson = options.firstPerson !== false;
   let pitch = firstPerson ? 0 : TP_PITCH_DEFAULT;
@@ -421,6 +423,10 @@ export function createCameraRig(
         if (d > 1e-5) pos.addScaledVector(near.sub(pos), -(CAMERA_RADIUS - d) / d);
         else pos.addScaledVector(dir, -CAMERA_RADIUS); // on the surface: back toward the head
       }
+    }
+    if (groundAt !== undefined && fp < 0.999) {
+      const g = groundAt(pos.x, pos.z) + FLOOR_CLEARANCE;
+      if (Number.isFinite(g) && pos.y < g) pos.y = g;
     }
     headDistance = pos.distanceTo(head);
 

@@ -349,7 +349,7 @@ export class Game {
       const playerRig = person('traveller', 'player');
       viewport.scene.add(playerRig.root);
       created.rigs.push(playerRig);
-      const player = createPlayer(playerRig, nav, viewport.camera, this.deps.input, objects.statics);
+      const player = createPlayer(playerRig, nav, viewport.camera, this.deps.input, objects.statics, { land: objects.roam });
       created.player = player;
       if (keep) player.teleport(keep.pos, keep.yaw);
       else player.teleport(new THREE.Vector3(layout.spawn.x, 0, layout.spawn.z), layout.spawn.rotY);
@@ -468,6 +468,7 @@ export class Game {
     this.deps.ui.setClock(t.state.hour, t.state.day);
 
     t.player.update(dt); // also advances the player's rig
+    t.objects.update?.(t.player.position, dt); // streams the endless land around the player
     this.sky.setFocus?.(t.player.position.x, t.player.position.z);
     this.atmosphere.update(dt, t.player.position, t.state.hour);
     t.life?.update(dt, t.player.position, t.state.hour);

@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import type { WorldSpec, WorldState, NpcSpec, RuleSpec, ThemeId, SkyPreset } from './world/spec';
 import { makeRng, seedFromPrompt, type Rng } from './world/rng';
 import { validateSpec, normalizeSpec } from './world/schema';
+import { coerceSpec, explainInvalid, lookSpec } from './world/coerce';
 import { FIXTURES, nearestTheme } from './world/fixtures';
 import { verifyQuest, repairQuest } from './world/verify';
 import { createState, applyEvent, type WorldEvent } from './world/state';
@@ -209,15 +210,35 @@ export class Game {
       const charPromise = Promise.all((['knight', 'barbarian', 'mage', 'rogue', 'rogue_hooded'] as const).map(loadCharacterBase));
       ui.showCompiling('Thinking about your town…');
 
-      const result = await api.compile(prompt, seed, (partial) => ui.showCompiling('Writing the world…', partial), ctl.signal);
+      // The town is shown as soon as its look arrives; the cast and quest follow a few seconds later.
+      let outline: unknown = null;
+      let preview: Promise<void> | null = null;
+      const result = await api.compile(prompt, seed, (partial) => { if (!this.town) ui.showCompiling('Writing the world…', partial); }, ctl.signal, {
+        onOutline: (o) => {
+          outline = o;
+          ui.showCompiling('Designing the buildings…');
+        },
+        onLook: (look) => {
+          const early = lookSpec(outline, look, prompt, seed);
+          if (!early || ctl.signal.aborted) return;
+          preview = Promise.all([kitPromise, charPromise])
+            .then(() => (ctl.signal.aborted ? undefined : this.playSpec(early)))
+            .then(() => { if (!ctl.signal.aborted) ui.toast('Walk around. The townsfolk and their story are still arriving.'); })
+            .catch((err: unknown) => console.warn('preview failed:', err instanceof Error ? err.message : String(err)));
+        },
+      });
       if (ctl.signal.aborted) return;
+      if (preview) await preview;
       let spec: WorldSpec;
       if (!result.ok) {
         ui.toast(`${friendlyError(result.error)}. Showing a saved town instead.`, 'warn');
         spec = { ...FIXTURES[theme], prompt, seed };
       } else {
-        const v = validateSpec(result.spec);
+        const coerced = coerceSpec(result.spec);
+        const v = validateSpec(coerced);
         if (!v.ok) {
+          console.warn('invalid world:', explainInvalid(coerced));
+          if (this.town) return; // keep the preview town rather than swapping to an unrelated one
           ui.toast('The world came back malformed; showing a saved town instead.', 'warn');
           spec = { ...FIXTURES[theme], prompt, seed };
         } else {
@@ -225,7 +246,7 @@ export class Game {
         }
       }
       spec = normalizeSpec({ ...spec, prompt, seed });
-      ui.showCompiling('Laying out streets…');
+      if (!this.town) ui.showCompiling('Laying out streets…');
       await Promise.all([kitPromise, charPromise]);
       if (ctl.signal.aborted) return;
       await this.playSpec(spec);
@@ -246,6 +267,10 @@ export class Game {
 
   async playSpec(input: WorldSpec): Promise<void> {
     const { ui, viewport } = this.deps;
+    // When a fuller version of the same world replaces a preview, the player stays where they stand.
+    const keep = this.town && this.town.spec.prompt === input.prompt && this.town.spec.seed === input.seed
+      ? { pos: this.town.player.position.clone(), yaw: this.town.player.rig.root.rotation.y }
+      : null;
     this.teardown();
     const repaired = repairQuest(normalizeSpec(input));
     const verified = verifyQuest(repaired);
@@ -281,7 +306,8 @@ export class Game {
       created.rigs.push(playerRig);
       const player = createPlayer(playerRig, nav, viewport.camera, this.deps.input, objects.statics);
       created.player = player;
-      player.teleport(new THREE.Vector3(layout.spawn.x, 0, layout.spawn.z), layout.spawn.rotY);
+      if (keep) player.teleport(keep.pos, keep.yaw);
+      else player.teleport(new THREE.Vector3(layout.spawn.x, 0, layout.spawn.z), layout.spawn.rotY);
 
       const state = createState(spec);
       const npcs = new Map<string, NpcRuntime>();

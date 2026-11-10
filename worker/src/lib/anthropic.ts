@@ -4,7 +4,14 @@ import type { Env } from './env';
 import { isRecord } from './http';
 import { readSseFrames, type SseFrame } from './sse';
 
-export const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+export const ANTHROPIC_BASE_URL = 'https://api.anthropic.com';
+export const ANTHROPIC_URL = `${ANTHROPIC_BASE_URL}/v1/messages`;
+
+/** <ANTHROPIC_BASE_URL or the default>/v1/messages; a trailing slash on the base is ignored. */
+export function messagesUrl(env: Env): string {
+  const base = (env.ANTHROPIC_BASE_URL ?? '').trim().replace(/\/+$/, '');
+  return `${base || ANTHROPIC_BASE_URL}/v1/messages`;
+}
 export const ANTHROPIC_VERSION = '2023-06-01';
 export const SONNET = 'claude-sonnet-5-5';
 export const HAIKU = 'claude-haiku-5-5';
@@ -30,7 +37,7 @@ export interface MessagesBody {
 }
 
 export function anthropicFetch(env: Env, body: MessagesBody, signal?: AbortSignal): Promise<Response> {
-  return fetch(ANTHROPIC_URL, {
+  return fetch(messagesUrl(env), {
     method: 'POST',
     headers: {
       'content-type': 'application/json',

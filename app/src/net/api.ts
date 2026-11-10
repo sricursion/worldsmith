@@ -1,6 +1,6 @@
 // Browser client for the Worker API. Errors are values: every method resolves, none rejects.
 import type { RuleSpec, WorldSpec } from '../world/spec';
-import type { NpcSayRequest, PatchRequest, TickRequest } from './types';
+import type { LandmarkStartRequest, LandmarkStartResponse, LandmarkStatusResponse, NpcSayRequest, PatchRequest, TickRequest } from './types';
 import { abortPromise, parseSse } from './sse';
 
 export interface Api {
@@ -11,6 +11,8 @@ export interface Api {
   share(spec: WorldSpec): Promise<{ ok: true; id: string } | { ok: false; error: string }>;
   load(id: string): Promise<{ ok: true; spec: unknown } | { ok: false; error: string }>;
   health(): Promise<{ ok: boolean; mock: boolean }>;
+  landmarkStart(body: LandmarkStartRequest): Promise<({ ok: true } & LandmarkStartResponse) | { ok: false; error: string }>;
+  landmarkStatus(jobId: string): Promise<({ ok: true } & LandmarkStatusResponse) | { ok: false; error: string }>;
 }
 
 export const COMPILE_IDLE_MS = 20_000;
@@ -235,6 +237,32 @@ export function createApi(base = '/api'): Api {
       if (!r.ok) return r;
       if (!isRecord(r.data)) return { ok: false, error: 'bad_response' };
       return { ok: true, spec: r.data };
+    },
+
+    async landmarkStart(body) {
+      const r = await requestJson('/landmark', postInit(body, false));
+      if (!r.ok) return r;
+      const d = r.data;
+      const jobId = isRecord(d) ? d['jobId'] : undefined;
+      if (!isRecord(d) || typeof jobId !== 'string' || jobId === '') return { ok: false, error: 'bad_response' };
+      const out: { ok: true } & LandmarkStartResponse = { ok: true, jobId };
+      const status = d['status'];
+      if (status === 'pending' || status === 'ready' || status === 'failed') out.status = status;
+      if (typeof d['url'] === 'string') out.url = d['url'];
+      if (typeof d['reason'] === 'string') out.reason = d['reason'];
+      return out;
+    },
+
+    async landmarkStatus(jobId) {
+      const r = await requestJson(`/landmark/${encodeURIComponent(jobId)}`, { method: 'GET', headers: { accept: 'application/json' } });
+      if (!r.ok) return r;
+      const d = r.data;
+      const status = isRecord(d) ? d['status'] : undefined;
+      if (!isRecord(d) || (status !== 'pending' && status !== 'ready' && status !== 'failed')) return { ok: false, error: 'bad_response' };
+      const out: { ok: true } & LandmarkStatusResponse = { ok: true, status };
+      if (typeof d['url'] === 'string') out.url = d['url'];
+      if (typeof d['reason'] === 'string') out.reason = d['reason'];
+      return out;
     },
 
     async health() {

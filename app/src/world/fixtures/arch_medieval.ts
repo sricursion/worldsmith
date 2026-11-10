@@ -1,0 +1,191 @@
+// Architecture for the medieval fixture: plaster and oak timber over stone, clay roofs.
+// In this style wall is plaster, wall2 is stone and trim is the dark oak frame.
+import type { LandmarkSpec, PropBlueprint, StyleSpec } from '../spec';
+import { arch, blueprint, box, cone, cyl, door, gable, propOf, pyramid, sphere, windows } from './util';
+
+export const medievalStyle: StyleSpec = {
+  name: 'plaster, oak frame and stone',
+  wall: '#d6c7a3',
+  wall2: '#8e8a80',
+  roof: '#8a4b34',
+  trim: '#4f3a26',
+  accent: '#9b2f2f',
+  dark: '#2a241f',
+  glass: '#6a7f8c',
+  glow: '#ffb347',
+  ground: '#7a8f55',
+  road: '#8b7d66',
+  variety: 0.3,
+};
+
+export const medievalBlueprints = [
+  // Upper floor juts out over the street on carved brackets; oak studs over plaster.
+  blueprint('jettied_house', 'timber-frame house with a jettied upper floor, oak studs and a stone chimney', -0.3, [
+    box(0, -0.02, 0, 0.9, 0.76, 2.8, 'wall'),
+    box(0, 0.01, 2.8, 1, 0.94, 2.6, 'wall'),
+    gable(0, 0.01, 5.4, 1.06, 1, 2, 'roof'),
+    box(0, 0.4, 2.4, 0.04, 0.1, 0.4, 'trim', { repeat: 4, gap: 0.3 }),
+    box(0, 0.48, 2.7, 1, 0.03, 0.12, 'trim'),
+    box(0, 0.485, 2.8, 0.04, 0.02, 2.6, 'trim', { repeat: 6, gap: 0.19 }),
+    box(0, 0.37, 0, 0.04, 0.02, 2.8, 'trim', { repeat: 4, gap: 0.3 }),
+    box(0, 0.485, 5.2, 1, 0.02, 0.1, 'trim'),
+    windows(0, 3.6, 2, 0.38, 0.48, 0.12, 0.9),
+    door(-0.3, 0.36, 0.14, 2.1, 'trim'),
+    windows(0.3, 0.9, 1, 0, 0.36, 0.2, 0.9),
+    box(0.3, 0.39, 0.8, 0.24, 0.06, 0.12, 'accent'),
+    box(0.35, -0.25, 5.4, 0.1, 0.12, 1.8, 'wall2'),
+    box(-0.3, 0.42, 0, 0.3, 0.1, 0.2, 'wall2'),
+  ]),
+  // Stone ground floor, plaster and timber above, chimney, and a sign hung from a bracket.
+  blueprint('timber_tavern', 'tavern with a stone ground floor, timbered upper storey, chimney and hanging sign', 0, [
+    box(0, 0, 0, 0.9, 0.8, 2.6, 'wall2'),
+    box(0, 0, 2.6, 0.9, 0.8, 2.4, 'wall'),
+    gable(0, 0, 5, 0.96, 0.86, 2, 'roof'),
+    box(0, 0.405, 2.6, 0.04, 0.02, 2.4, 'trim', { repeat: 6, gap: 0.17 }),
+    box(0, 0.405, 2.6, 0.9, 0.02, 0.1, 'trim'),
+    box(0, 0.405, 4.9, 0.9, 0.02, 0.1, 'trim'),
+    windows(0, 3.4, 2, 0.34, 0.4, 0.1, 0.9),
+    door(0, 0.4, 0.2, 2.2, 'trim'),
+    arch(0, 0.405, 2.2, 0.26, 0.04, 0.4, 'trim'),
+    windows(0, 1.1, 2, 0.64, 0.4, 0.12, 0.8),
+    box(0.32, -0.2, 5, 0.12, 0.14, 2.4, 'wall2'),
+    box(0.32, -0.2, 7.4, 0.16, 0.18, 0.15, 'dark'),
+    box(-0.3, 0.5, 3.9, 0.03, 0.3, 0.05, 'dark'),
+    box(-0.3, 0.5, 3.4, 0.3, 0.03, 0.5, 'accent'),
+    cyl(0.42, 0.46, 0, 0.07, 0.07, 0.8, 'trim'),
+  ]),
+  // Nave with a side bell tower, open belfry, buttresses and lancet windows.
+  blueprint('stone_chapel', 'stone chapel with a corner bell tower, spire, buttresses and lancet windows', 0.15, [
+    box(0, 0.05, 0, 0.7, 0.8, 3.2, 'wall2'),
+    gable(0, 0.05, 3.2, 0.9, 0.78, 1.8, 'roof', { rot: 90 }),
+    box(-0.27, 0.3, 0, 0.3, 0.34, 5, 'wall2'),
+    cyl(-0.27, 0.3, 5, 0.03, 0.03, 1.1, 'wall2', { repeat: 2, gap: 0.24 }),
+    cyl(-0.27, 0.3, 5, 0.03, 0.03, 1.1, 'wall2', { rot: 90, repeat: 2, gap: 0.26 }),
+    box(-0.27, 0.3, 5, 0.1, 0.1, 0.3, 'wall2'),
+    cone(-0.27, 0.3, 5.3, 0.06, 0.06, 0.5, 'accent'),
+    pyramid(-0.27, 0.3, 6.1, 0.36, 0.4, 2.4, 'roof'),
+    cyl(-0.27, 0.3, 8.5, 0.01, 0.01, 0.7, 'dark'),
+    box(0.37, 0, 0, 0.12, 0.05, 2, 'wall2', { rot: 90, repeat: 3, gap: 0.28 }),
+    box(-0.37, 0, 0, 0.12, 0.05, 2, 'wall2', { rot: 90, repeat: 3, gap: 0.28 }),
+    box(0.355, 0, 1.2, 0.1, 0.03, 1.5, 'glass', { rot: 90, repeat: 2, gap: 0.28 }),
+    box(0, 0.455, 2.2, 0.12, 0.02, 0.8, 'glass'),
+    door(0.15, 0.45, 0.14, 2.2, 'trim'),
+    box(0.15, 0.455, 2.2, 0.2, 0.04, 0.4, 'trim'),
+    box(0.15, 0.5, 0, 0.3, 0.12, 0.2, 'trim'),
+    box(-0.27, 0.475, 2.6, 0.08, 0.02, 1, 'glass'),
+  ]),
+  // Enclosed workshop with an open forge lean-to: hearth, glowing coals, chimney, anvil.
+  blueprint('smithy', 'smithy with an open forge lean-to, glowing hearth, chimney and anvil', -0.2, [
+    box(-0.2, 0, 0, 0.6, 0.8, 3, 'wall'),
+    gable(-0.2, 0, 3, 0.66, 0.86, 1.4, 'roof'),
+    box(0.3, 0, 0, 0.4, 0.8, 0.15, 'wall2'),
+    cyl(0.3, 0.38, 0.15, 0.04, 0.04, 2.2, 'trim', { repeat: 2, gap: 0.36 }),
+    box(0.3, 0, 2.35, 0.46, 0.9, 0.1, 'roof'),
+    box(0.38, -0.25, 0.15, 0.2, 0.25, 0.7, 'wall2'),
+    box(0.38, -0.3, 0.85, 0.12, 0.14, 3.4, 'wall2'),
+    box(0.38, -0.22, 0.85, 0.14, 0.16, 0.06, 'glow'),
+    box(0.2, 0.1, 0.15, 0.1, 0.08, 0.45, 'dark'),
+    box(0.2, 0.1, 0.6, 0.18, 0.08, 0.1, 'dark'),
+    door(-0.2, 0.4, 0.14, 2.2, 'trim'),
+    windows(-0.38, 1.2, 1, 0, 0.4, 0.08, 0.8),
+    cyl(-0.05, 0.46, 0, 0.07, 0.07, 0.6, 'trim'),
+    box(-0.2, 0.405, 2.4, 0.4, 0.02, 0.3, 'accent'),
+  ]),
+  // Open arcade of oak posts on a stone plinth, a plaster hall above and a bell cote.
+  blueprint('market_hall', 'market hall on oak posts with an upper hall, striped awning and a bell cote', 0, [
+    box(0, 0, 0, 0.98, 0.92, 0.3, 'wall2'),
+    cyl(0, 0.4, 0, 0.04, 0.04, 2.8, 'trim', { repeat: 5, gap: 0.22 }),
+    cyl(0, -0.4, 0, 0.04, 0.04, 2.8, 'trim', { repeat: 5, gap: 0.22 }),
+    cyl(0, 0, 0, 0.04, 0.04, 2.8, 'trim', { repeat: 3, gap: 0.4 }),
+    box(0, 0, 2.8, 0.96, 0.9, 0.3, 'trim'),
+    box(0, 0, 3.1, 0.9, 0.8, 2.4, 'wall'),
+    gable(0, 0, 5.5, 1, 0.9, 2.2, 'roof'),
+    box(0, 0.405, 3.1, 0.04, 0.02, 2.4, 'trim', { repeat: 7, gap: 0.13 }),
+    windows(0, 3.9, 3, 0.28, 0.4, 0.1, 1),
+    box(0, 0.2, 0.3, 0.5, 0.12, 0.9, 'wall2'),
+    box(0, 0.5, 2.4, 0.9, 0.14, 0.06, 'accent'),
+    box(0, 0.5, 2.46, 0.08, 0.14, 0.03, 'wall', { repeat: 7, gap: 0.14 }),
+    box(0, 0, 7.7, 0.14, 0.1, 0.15, 'trim'),
+    cone(0, 0, 7.8, 0.05, 0.05, 0.4, 'accent'),
+    cyl(0, 0, 7.7, 0.03, 0.03, 0.8, 'trim', { repeat: 2, gap: 0.14 }),
+    pyramid(0, 0, 8.5, 0.2, 0.2, 0.7, 'roof'),
+    box(0, 0.5, 0, 0.5, 0.12, 0.15, 'wall2'),
+  ]),
+  // Low cottage under a deep roof with a dormer, chimney and a broken garden fence.
+  blueprint('thatch_cottage', 'low cottage under a deep thatch roof with a dormer, chimney and garden fence', 0, [
+    box(0, 0, 0, 0.84, 0.8, 2.2, 'wall'),
+    gable(0, 0, 2.2, 0.98, 0.96, 2, 'roof'),
+    door(0, 0.4, 0.2, 1.9, 'trim'),
+    windows(0.28, 1, 1, 0, 0.4, 0.12, 0.7),
+    box(0, 0.405, 0, 0.04, 0.02, 2.2, 'trim', { repeat: 4, gap: 0.267 }),
+    box(-0.3, -0.15, 2.2, 0.12, 0.12, 2.4, 'wall2'),
+    gable(0.25, 0.3, 2.9, 0.25, 0.25, 0.7, 'roof', { rot: 90 }),
+    box(0.25, 0.43, 2.95, 0.08, 0.02, 0.45, 'glass'),
+    cyl(-0.3, 0.5, 0, 0.02, 0.02, 0.7, 'trim', { repeat: 3, gap: 0.12 }),
+    cyl(0.3, 0.5, 0, 0.02, 0.02, 0.7, 'trim', { repeat: 3, gap: 0.12 }),
+    box(-0.3, 0.5, 0.5, 0.3, 0.02, 0.04, 'trim'),
+    box(0.3, 0.5, 0.5, 0.3, 0.02, 0.04, 'trim'),
+    box(0, 0.45, 0, 0.3, 0.1, 0.15, 'wall2'),
+  ]),
+  // The reeve's hall: stone hall, crenellated corner tower, grand arched door and a banner.
+  blueprint('great_hall', 'stone great hall with a crenellated tower, arched door, buttresses and a banner', -0.3, [
+    box(-0.1, 0, 0, 0.8, 0.8, 4, 'wall2'),
+    gable(-0.1, 0, 4, 0.86, 0.86, 1.8, 'roof'),
+    box(0.33, 0.1, 0, 0.34, 0.5, 6.2, 'wall2'),
+    box(0.33, 0.1, 6.2, 0.38, 0.54, 0.15, 'trim'),
+    box(0.33, 0.33, 6.35, 0.08, 0.06, 0.4, 'wall2', { repeat: 3, gap: 0.12 }),
+    box(0.33, -0.13, 6.35, 0.08, 0.06, 0.4, 'wall2', { repeat: 3, gap: 0.12 }),
+    cyl(0.33, 0.1, 6.35, 0.015, 0.015, 1.4, 'dark'),
+    box(0.4, 0.1, 7, 0.1, 0.01, 0.4, 'accent'),
+    door(-0.3, 0.4, 0.18, 2.6, 'trim'),
+    arch(-0.3, 0.405, 2.6, 0.26, 0.04, 0.8, 'wall2'),
+    windows(0, 2.4, 2, 0.3, 0.4, 0.08, 1),
+    box(0.33, 0.36, 3.5, 0.03, 0.02, 0.8, 'dark'),
+    box(-0.3, 0.5, 0, 0.4, 0.14, 0.2, 'wall2'),
+    box(-0.35, -0.2, 4, 0.1, 0.12, 2.2, 'wall2'),
+    box(-0.1, 0.41, 0, 0.08, 0.06, 3, 'wall2', { repeat: 3, gap: 0.4 }),
+  ]),
+];
+
+// Props are authored at unit scale (longest dimension 1) and scaled up to `size` metres.
+export const medievalProps: PropBlueprint[] = [
+  propOf('stone_well', 1.8, 2, [
+    cyl(0, 0, 0, 0.8, 0.8, 0.35, 'wall2'),
+    cyl(0, 0, 0.3, 0.6, 0.6, 0.05, 'glass'),
+    box(0, 0, 0.35, 0.06, 0.06, 0.5, 'trim', { repeat: 2, gap: 0.64 }),
+    gable(0, 0, 0.85, 0.8, 0.7, 0.15, 'roof'),
+  ]),
+  propOf('hay_bale', 1.1, 3, [
+    box(-0.2, 0, 0, 0.5, 0.4, 0.35, 'wall'),
+    box(0.28, 0.05, 0, 0.4, 0.4, 0.3, 'wall', { rot: 15 }),
+    box(0, 0, 0.35, 0.5, 0.4, 0.3, 'wall'),
+  ]),
+  propOf('market_stall', 2.4, 2, [
+    cyl(0, 0.1, 0, 0.04, 0.04, 0.3, 'trim', { repeat: 2, gap: 0.8 }),
+    box(0, 0.1, 0.3, 0.9, 0.4, 0.06, 'trim'),
+    cyl(0, -0.25, 0, 0.04, 0.04, 0.7, 'trim', { repeat: 2, gap: 0.9 }),
+    box(0, -0.1, 0.7, 0.98, 0.7, 0.05, 'accent'),
+    sphere(-0.2, 0.1, 0.36, 0.12, 0.12, 0.1, 'accent'),
+    sphere(0.15, 0.1, 0.36, 0.12, 0.12, 0.1, 'glow'),
+  ]),
+  propOf('torch_post', 2.6, 2, [
+    cyl(0, 0, 0, 0.08, 0.08, 0.8, 'trim'),
+    cone(0, 0, 0.8, 0.18, 0.18, 0.12, 'dark'),
+    cone(0, 0, 0.9, 0.12, 0.12, 0.1, 'glow'),
+  ]),
+  propOf('wood_pile', 1.3, 2, [
+    box(0, 0, 0, 0.9, 0.3, 0.2, 'trim'),
+    box(0, 0, 0.2, 0.9, 0.3, 0.2, 'trim'),
+    box(0, 0, 0.4, 0.8, 0.3, 0.2, 'trim'),
+    box(0, 0, 0.6, 0.7, 0.3, 0.2, 'trim'),
+  ]),
+];
+
+export const medievalLandmarks: LandmarkSpec[] = [
+  {
+    id: 'market_cross',
+    prompt: 'a tall carved stone market cross on a three-tier stepped base with a small peaked canopy, weathered grey stone, low-poly, single object',
+    place: 'plaza',
+    height: 6,
+  },
+];

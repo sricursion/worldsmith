@@ -1,6 +1,7 @@
 import { SPEC_VERSION } from '../spec';
 import type { WorldSpec } from '../spec';
 import { at, bias } from './util';
+import { modernBlueprints, modernLandmarks, modernProps, modernStyle } from './arch_modern';
 
 export const modern: WorldSpec = {
   version: SPEC_VERSION,
@@ -13,14 +14,14 @@ export const modern: WorldSpec = {
   palette: { ground: '#9aa58b', accent: '#e07a3f', sky: 'overcast', fog: 0.25 },
   time: { startHour: 8, minutesPerRealSecond: 4 },
   buildings: [
-    { id: 'cafe', role: 'cafe', label: 'Tide & Grind', size: 'medium', keyBuilding: true },
-    { id: 'clerk_office', role: 'office', label: "Town Clerk's Office", size: 'medium', keyBuilding: true },
-    { id: 'shop', role: 'shop', label: 'Alvarez Hardware & Pet Supply', size: 'medium', keyBuilding: true },
-    { id: 'garage', role: 'garage', label: "Pruitt's Auto & Marine", size: 'medium' },
-    { id: 'apartments', role: 'apartment', label: 'Harbor View Apartments', size: 'large' },
-    { id: 'station', role: 'station', label: 'Harbor Police Station', size: 'small' },
-    { id: 'school', role: 'school', label: 'Gull Harbor Elementary', size: 'medium' },
-    { id: 'house', role: 'house', label: 'Bell House', size: 'small' },
+    { id: 'cafe', role: 'cafe', label: 'Tide & Grind', size: 'medium', keyBuilding: true, blueprint: 'cafe_corner' },
+    { id: 'clerk_office', role: 'office', label: "Town Clerk's Office", size: 'medium', keyBuilding: true, blueprint: 'office_block' },
+    { id: 'shop', role: 'shop', label: 'Alvarez Hardware & Pet Supply', size: 'medium', keyBuilding: true, blueprint: 'corner_shop' },
+    { id: 'garage', role: 'garage', label: "Pruitt's Auto & Marine", size: 'medium', blueprint: 'roller_garage' },
+    { id: 'apartments', role: 'apartment', label: 'Harbor View Apartments', size: 'large', blueprint: 'apartment_block' },
+    { id: 'station', role: 'station', label: 'Harbor Police Station', size: 'small', blueprint: 'corner_shop' },
+    { id: 'school', role: 'school', label: 'Gull Harbor Elementary', size: 'medium', blueprint: 'school_hall' },
+    { id: 'house', role: 'house', label: 'Bell House', size: 'small', blueprint: 'gable_house' },
   ],
   npcs: [
     {
@@ -255,4 +256,8 @@ export const modern: WorldSpec = {
     'flyer — a poster for the lost dog',
     'permit — a signed approval from the clerk’s office',
   ],
+  style: modernStyle,
+  blueprints: modernBlueprints,
+  props: modernProps,
+  landmarks: modernLandmarks,
 };

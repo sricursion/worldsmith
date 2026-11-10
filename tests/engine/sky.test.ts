@@ -1,13 +1,21 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   ENV_STEPS,
+  HAZE_MARKER,
   MAX_SUN_ELEVATION_DEG,
   SKY_PRESETS,
+  acesDisplay,
+  exposureFor,
   envStepForHour,
   fogDensityFor,
+  radianceFor,
+  skyLookFor,
   sunFromHour,
   wrapHour,
 } from '../../app/src/engine/sky';
+import { Color } from 'three';
+import type { SkyPreset } from '../../app/src/world/spec';
 import { joystickAxis, keyAxis } from '../../app/src/engine/input';
 
 describe('sunFromHour', () => {
@@ -103,6 +111,67 @@ describe('presets and fog', () => {
     expect(fogDensityFor(5)).toBe(fogDensityFor(1));
     expect(fogDensityFor(-1)).toBe(fogDensityFor(0));
     expect(fogDensityFor(Number.NaN)).toBe(fogDensityFor(0));
+  });
+});
+
+const PRESET_KEYS: SkyPreset[] = ['dawn', 'day', 'dusk', 'night', 'overcast'];
+const HOURS = [0, 3, 5, 6.5, 8, 10, 12, 14, 16, 17.5, 19, 21, 23];
+
+describe('sky look', () => {
+  it('keeps exposure within 0.25..0.9 for every preset and hour', () => {
+    for (const k of PRESET_KEYS) {
+      for (const h of HOURS) {
+        const e = exposureFor(k, h);
+        expect(e).toBeGreaterThanOrEqual(0.25);
+        expect(e).toBeLessThanOrEqual(0.9);
+        expect(skyLookFor(k, h).exposure).toBe(e);
+      }
+    }
+  });
+
+  it('keeps turbidity at or below 10 outside overcast', () => {
+    for (const k of PRESET_KEYS) {
+      if (k !== 'overcast') expect(SKY_PRESETS[k].turbidity).toBeLessThanOrEqual(10);
+    }
+  });
+
+  it('never makes the daytime fog lighter than #f0f0f0 on screen', () => {
+    const limit = new Color('#f0f0f0').r; // linear value of 0xf0
+    for (const k of PRESET_KEYS) {
+      for (const h of [8, 10, 12, 14, 16]) {
+        const look = skyLookFor(k, h);
+        const shown = acesDisplay([look.fog.r, look.fog.g, look.fog.b], look.exposure);
+        expect(0.2126 * shown[0] + 0.7152 * shown[1] + 0.0722 * shown[2]).toBeLessThan(limit);
+      }
+    }
+  });
+
+  it('makes the night sky blue and dark, and overcast grey-blue rather than white', () => {
+    const night = skyLookFor('day', 0);
+    const shown = acesDisplay([night.fog.r, night.fog.g, night.fog.b], night.exposure);
+    expect(shown[2]).toBeGreaterThan(shown[0]);
+    expect(shown[2]).toBeLessThan(0.3);
+    const gray = skyLookFor('overcast', 12);
+    const g = acesDisplay([gray.fog.r, gray.fog.g, gray.fog.b], gray.exposure);
+    expect(Math.max(...g)).toBeLessThan(0.6);
+    expect(g[2]).toBeGreaterThanOrEqual(g[0]);
+  });
+
+  it('inverts the tone curve for haze colours', () => {
+    for (const hex of ['#9fb0c0', '#f08d68', '#d9d2c8']) {
+      const want = new Color(hex);
+      const r = radianceFor(want, 0.5);
+      const back = acesDisplay([r.r, r.g, r.b], 0.5);
+      expect(back[0]).toBeCloseTo(want.r, 2);
+      expect(back[1]).toBeCloseTo(want.g, 2);
+      expect(back[2]).toBeCloseTo(want.b, 2);
+    }
+  });
+
+  it('still finds the Sky shader line the haze is injected before', () => {
+    const src = readFileSync('node_modules/three/examples/jsm/objects/Sky.js', 'utf8');
+    expect(src).toContain(HAZE_MARKER);
+    expect(src.split('void main() {').length).toBeGreaterThan(1);
   });
 });
 

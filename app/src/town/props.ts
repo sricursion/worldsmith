@@ -1,7 +1,10 @@
 // Procedural fallback props, used when the kit has no mesh for a prop kind.
 // Sizes follow PROP_SIZES at scale 1; the world matrix (position, yaw, scale) is baked into the batch.
 import * as THREE from 'three';
-import type { ThemeId } from '../world/spec';
+import type { Rng } from '../world/rng';
+import type { PropBlueprint, StyleSpec, ThemeId } from '../world/spec';
+import type { GeoBatch, MaterialCache } from './batch';
+import { addPropParts } from './blueprint-mesh';
 import type { PlacedProp } from './layout';
 import { Part } from './procedural';
 import type { ProcEnv } from './procedural';
@@ -128,4 +131,32 @@ export function addProceduralProp(env: ProcEnv, prop: PlacedProp): void {
     default:
       p.box(0.7, 0.7, 0.7, 0, 0.35, 0, '#a08060');
   }
+}
+
+/**
+ * Scatters generated prop kinds over the layout's prop slots. Each slot takes one spec prop, picked by
+ * weight with the rng; the slot's position, yaw and scale are kept. Returns how many were placed per kind.
+ */
+export function scatterBlueprintProps(
+  slots: readonly PlacedProp[], kinds: readonly PropBlueprint[], style: StyleSpec,
+  env: { batch: GeoBatch; mats: MaterialCache; rng: Rng },
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  const usable = kinds.filter((k) => k.parts.length > 0);
+  if (usable.length === 0) return counts;
+  const weights = usable.map((k) => Math.min(5, Math.max(1, Number.isFinite(k.weight) ? k.weight : 1)));
+  const total = weights.reduce((a, b) => a + b, 0);
+  for (const slot of slots) {
+    let t = env.rng.next() * total;
+    let idx = weights.length - 1;
+    for (let i = 0; i < weights.length; i++) {
+      t -= weights[i] ?? 0;
+      if (t < 0) { idx = i; break; }
+    }
+    const kind = usable[idx];
+    if (!kind) continue;
+    addPropParts(kind.parts, kind.size, style, slot, env);
+    counts.set(kind.kind, (counts.get(kind.kind) ?? 0) + 1);
+  }
+  return counts;
 }

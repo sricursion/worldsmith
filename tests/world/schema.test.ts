@@ -60,6 +60,185 @@ describe('worldSpecJsonSchema', () => {
   });
 });
 
+describe('worldSpecJsonSchema architecture fields', () => {
+  const schema = worldSpecJsonSchema() as {
+    required: string[];
+    properties: Record<string, { items: { required: string[]; properties: Record<string, unknown> } }>;
+  };
+
+  it('requires style, blueprints, props, landmarks and building.blueprint', () => {
+    for (const k of ['style', 'blueprints', 'props', 'landmarks']) {
+      expect(schema.required).toContain(k);
+      expect(schema.properties[k]).toBeDefined();
+    }
+    expect(schema.properties.buildings?.items.required).toContain('blueprint');
+    expect(schema.properties.buildings?.items.required).not.toContain('position');
+  });
+
+  it('uses no oneOf, no range keywords, and closes every object', () => {
+    const text = JSON.stringify(schema);
+    expect(text).not.toContain('"oneOf"');
+    expect(text).not.toContain('"$ref"');
+    for (const k of ['minimum', 'maximum', 'minLength', 'maxLength', 'pattern', 'minItems', 'maxItems']) {
+      expect(text).not.toContain(`"${k}"`);
+    }
+    const bad: string[] = [];
+    const walk = (node: unknown, path: string): void => {
+      if (Array.isArray(node)) return node.forEach((n, i) => walk(n, `${path}[${i}]`));
+      if (typeof node !== 'object' || node === null) return;
+      const o = node as Record<string, unknown>;
+      if (o.type === 'object' && o.additionalProperties !== false) bad.push(path);
+      for (const [k, v] of Object.entries(o)) walk(v, `${path}.${k}`);
+    };
+    walk(schema, '$');
+    expect(bad).toEqual([]);
+    const part = (schema.properties.blueprints as unknown as { items: { properties: { parts: { items: { required: string[] } } } } }).items.properties.parts.items;
+    expect(part.required.sort()).toEqual(['d', 'gap', 'h', 'repeat', 'rot', 'shape', 'tone', 'w', 'x', 'y', 'z']);
+  });
+});
+
+describe('specs without architecture', () => {
+  const legacy = (): WorldSpec => {
+    const s = clone(FIXTURES.western);
+    delete s.style;
+    delete s.blueprints;
+    delete s.props;
+    delete s.landmarks;
+    for (const b of s.buildings) delete b.blueprint;
+    return s;
+  };
+
+  it('still validate and normalize without gaining fields', () => {
+    const s = legacy();
+    expect(validateSpec(JSON.parse(JSON.stringify(s))).ok).toBe(true);
+    const n = normalizeSpec(s);
+    expect(n.style).toBeUndefined();
+    expect(n.blueprints).toBeUndefined();
+    expect(n.props).toBeUndefined();
+    expect(n.landmarks).toBeUndefined();
+    expect(n.buildings.every((b) => b.blueprint === undefined)).toBe(true);
+  });
+
+  it('drops building blueprint ids when the spec has no blueprints', () => {
+    const s = legacy();
+    s.buildings[0]!.blueprint = 'ghost';
+    expect(normalizeSpec(s).buildings[0]?.blueprint).toBeUndefined();
+  });
+});
+
+describe('normalizeSpec architecture', () => {
+  const messy = (): WorldSpec => {
+    const s = clone(FIXTURES.modern);
+    const bps = s.blueprints!;
+    bps[0]!.id = 'Cafe Corner!';
+    bps[1]!.id = 'Cafe Corner';
+    return s;
+  };
+
+  it('slugifies and dedupes blueprint ids, and follows renamed ids from buildings', () => {
+    const s = messy();
+    s.buildings.find((b) => b.id === 'cafe')!.blueprint = 'Cafe Corner!';
+    const n = normalizeSpec(s);
+    const ids = n.blueprints!.map((b) => b.id);
+    expect(ids.slice(0, 2)).toEqual(['cafe_corner', 'cafe_corner_2']);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(n.buildings.find((b) => b.id === 'cafe')?.blueprint).toBe('cafe_corner');
+    expect(validateSpec(n).ok).toBe(true);
+  });
+
+  it('clamps part, prop, blueprint and style ranges and coerces unknown shape and tone', () => {
+    const s = clone(FIXTURES.scifi);
+    const part = s.blueprints![0]!.parts[0]!;
+    Object.assign(part, { x: 4, z: -4, y: -2, w: 9, d: 0, h: 99, rot: 450, repeat: 40, gap: 9 });
+    (part as { shape: string }).shape = 'torus';
+    (part as { tone: string }).tone = 'purple';
+    s.blueprints![0]!.doorX = 3;
+    s.props![0]!.size = 40;
+    s.props![0]!.weight = 0;
+    s.style!.variety = 7;
+    const n = normalizeSpec(s);
+    const p = n.blueprints![0]!.parts[0]!;
+    expect(p).toMatchObject({ shape: 'box', tone: 'wall', x: 0.5, z: -0.5, y: 0, w: 1.4, d: 0.02, h: 30, rot: 90, repeat: 12, gap: 1.4 });
+    expect(n.blueprints![0]!.doorX).toBe(0.4);
+    expect(n.props![0]!.size).toBe(6);
+    expect(n.props![0]!.weight).toBe(1);
+    expect(n.style!.variety).toBe(1);
+    expect(validateSpec(n).ok).toBe(true);
+  });
+
+  it('caps counts: 8 blueprints, 28 parts, 6 props with 8 parts, 2 landmarks', () => {
+    const s = clone(FIXTURES.medieval);
+    const first = s.blueprints![0]!;
+    while (s.blueprints!.length < 12) s.blueprints!.push({ ...structuredClone(first), id: `extra_${s.blueprints!.length}` });
+    while (first.parts.length < 40) first.parts.push({ ...first.parts[0]! });
+    const prop = s.props![0]!;
+    while (s.props!.length < 9) s.props!.push({ ...structuredClone(prop), kind: `prop ${s.props!.length}` });
+    while (prop.parts.length < 12) prop.parts.push({ ...prop.parts[0]! });
+    s.landmarks!.push({ ...s.landmarks![0]!, id: 'second' }, { ...s.landmarks![0]!, id: 'third' });
+    const n = normalizeSpec(s);
+    expect(n.blueprints).toHaveLength(8);
+    expect(n.blueprints![0]!.parts).toHaveLength(28);
+    expect(n.props).toHaveLength(6);
+    expect(n.props![0]!.parts).toHaveLength(8);
+    expect(new Set(n.props!.map((p) => p.kind)).size).toBe(6);
+    expect(n.landmarks).toHaveLength(2);
+  });
+
+  it('replaces bad hex colours with neutrals and keeps good ones, expanding short hex', () => {
+    const s = clone(FIXTURES.western);
+    s.style!.wall = 'red';
+    s.style!.roof = '#ABC';
+    s.style!.glow = '#12345';
+    const st = normalizeSpec(s).style!;
+    expect(st.wall).toMatch(/^#[0-9a-f]{6}$/);
+    expect(st.wall).not.toBe('red');
+    expect(st.roof).toBe('#aabbcc');
+    expect(st.glow).toMatch(/^#[0-9a-f]{6}$/);
+    expect(st.trim).toBe(FIXTURES.western.style!.trim);
+  });
+
+  it('drops dangling building blueprint ids and assigns by role word, else round-robin', () => {
+    const s = clone(FIXTURES.modern);
+    for (const b of s.buildings) delete b.blueprint;
+    s.buildings.find((b) => b.id === 'cafe')!.blueprint = 'nowhere';
+    const n = normalizeSpec(s);
+    const by = (id: string): string | undefined => n.buildings.find((b) => b.id === id)?.blueprint;
+    expect(by('cafe')).toBe('cafe_corner');
+    expect(by('garage')).toBe('roller_garage');
+    expect(by('school')).toBe('school_hall');
+    expect(by('house')).toBe('gable_house');
+    const ids = new Set(n.blueprints!.map((b) => b.id));
+    for (const b of n.buildings) expect(ids.has(b.blueprint ?? '')).toBe(true);
+    // Deterministic.
+    expect(normalizeSpec(s)).toEqual(n);
+
+    const round = clone(FIXTURES.modern);
+    round.blueprints = round.blueprints!.map((b, i) => ({ ...b, id: `style_${i}`, summary: 'a building' }));
+    for (const b of round.buildings) delete b.blueprint;
+    const r = normalizeSpec(round);
+    expect(r.buildings.slice(0, 3).map((b) => b.blueprint)).toEqual(['style_0', 'style_1', 'style_2']);
+  });
+
+  it('repairs a floating blueprint part during normalisation', () => {
+    const s = clone(FIXTURES.western);
+    s.blueprints![0]!.parts.push({ ...s.blueprints![0]!.parts[0]!, y: 20, x: 0.2, z: 0.2, w: 0.1, d: 0.1, h: 1 });
+    const part = normalizeSpec(s).blueprints![0]!.parts.at(-1)!;
+    expect(part.y).toBeLessThan(20);
+  });
+
+  it('repairs landmark places and clamps height', () => {
+    const s = clone(FIXTURES.western);
+    s.landmarks = [
+      { id: 'a', prompt: 'x', place: 'The Dusty Spur', height: 0.1 },
+      { id: 'b', prompt: 'y', place: 'nowhere', height: 99 },
+    ];
+    s.buildings[0]!.id = 'The Dusty Spur';
+    const n = normalizeSpec(s);
+    expect(n.landmarks![0]).toMatchObject({ place: 'the_dusty_spur', height: 2 });
+    expect(n.landmarks![1]).toMatchObject({ place: 'plaza', height: 14 });
+  });
+});
+
 describe('slugify', () => {
   it('produces slugs', () => {
     expect(slugify('The Dusty Spur!')).toBe('the_dusty_spur');

@@ -64,4 +64,26 @@ export interface CompileRequest {
   seed: number;
 }
 
+export interface LandmarkStartRequest {
+  sessionId: string;
+  id: string;
+  prompt: string;
+  height: number;
+}
+
+/** jobId 'none' means generation is disabled; the client keeps the placeholder. */
+export interface LandmarkStartResponse {
+  jobId: string;
+  status?: 'pending' | 'ready' | 'failed';
+  url?: string;
+  reason?: string;
+}
+
+export interface LandmarkStatusResponse {
+  status: 'pending' | 'ready' | 'failed';
+  /** Same-origin path of the GLB when ready. */
+  url?: string;
+  reason?: string;
+}
+
 export type ApiError = { error: string; reason?: 'resting' | 'rate_limited' | 'refusal' | 'upstream' | 'bad_request' };

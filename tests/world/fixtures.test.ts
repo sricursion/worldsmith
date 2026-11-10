@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { FIXTURES, nearestTheme } from '../../app/src/world/fixtures';
 import { normalizeSpec, validateSpec } from '../../app/src/world/schema';
+import { lintBlueprint } from '../../app/src/world/blueprints';
 import { verifyQuest } from '../../app/src/world/verify';
 import type { ThemeId } from '../../app/src/world/spec';
 
@@ -16,6 +17,10 @@ describe.each(THEMES)('fixture %s', (theme) => {
 
   it('round-trips through normalizeSpec unchanged', () => {
     expect(normalizeSpec(spec)).toEqual(spec);
+  });
+
+  it('has blueprints that lint with no warnings', () => {
+    for (const b of spec.blueprints ?? []) expect(lintBlueprint(b), b.id).toEqual([]);
   });
 
   it('has a winnable, problem-free quest', () => {
@@ -67,6 +72,47 @@ describe.each(THEMES)('fixture %s', (theme) => {
       }
     }
     expect(revealed).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe.each(THEMES)('fixture %s architecture', (theme) => {
+  const spec = FIXTURES[theme];
+  const hex = /^#[0-9a-f]{6}$/;
+
+  it('has a style with valid colours', () => {
+    const st = spec.style;
+    expect(st).toBeDefined();
+    for (const k of ['wall', 'wall2', 'roof', 'trim', 'accent', 'dark', 'glass', 'glow', 'ground', 'road'] as const) {
+      expect(st?.[k], k).toMatch(hex);
+    }
+    expect(st?.variety).toBeGreaterThanOrEqual(0);
+    expect(st?.variety).toBeLessThanOrEqual(1);
+  });
+
+  it('has 5 to 7 blueprints of 12 to 24 parts, and every building uses one', () => {
+    const bps = spec.blueprints ?? [];
+    expect(bps.length).toBeGreaterThanOrEqual(5);
+    expect(bps.length).toBeLessThanOrEqual(7);
+    for (const b of bps) {
+      expect(b.parts.length, b.id).toBeGreaterThanOrEqual(12);
+      expect(b.parts.length, b.id).toBeLessThanOrEqual(24);
+      expect(b.parts.some((p) => p.repeat > 1), `${b.id} uses repeat`).toBe(true);
+    }
+    const ids = new Set(bps.map((b) => b.id));
+    expect(ids.size).toBe(bps.length);
+    for (const b of spec.buildings) expect(ids.has(b.blueprint ?? ''), b.id).toBe(true);
+    for (const id of ids) expect(spec.buildings.some((b) => b.blueprint === id), id).toBe(true);
+  });
+
+  it('has 4 to 6 props and one landmark', () => {
+    expect(spec.props?.length).toBeGreaterThanOrEqual(4);
+    expect(spec.props?.length).toBeLessThanOrEqual(6);
+    for (const p of spec.props ?? []) {
+      expect(p.parts.length).toBeGreaterThanOrEqual(1);
+      expect(p.parts.length).toBeLessThanOrEqual(8);
+    }
+    expect(spec.landmarks).toHaveLength(1);
+    expect(spec.landmarks?.[0]?.place).toBe('plaza');
   });
 });
 

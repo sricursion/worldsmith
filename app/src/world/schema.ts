@@ -1,8 +1,10 @@
 // Zod mirror of spec.ts, plus normalisation and the JSON schema handed to the compile model.
 import { z } from 'zod';
 import { SPEC_VERSION } from './spec';
+import { repairBlueprint } from './blueprints';
 import type {
-  BuildingRole, BuildingSpec, NpcActionId, NpcSpec, QuestStep, RuleEffect, RuleSpec, ScheduleEntry, WorldSpec,
+  Blueprint, BlueprintPart, BuildingRole, BuildingSpec, LandmarkSpec, NpcActionId, NpcSpec, PartShape, PartTone,
+  PropBlueprint, QuestStep, RuleEffect, RuleSpec, ScheduleEntry, StyleSpec, WorldSpec,
 } from './spec';
 
 export const NPC_ACTION_IDS: readonly NpcActionId[] = [
@@ -34,6 +36,7 @@ const BuildingS = z.object({
   position: z.object({ x: z.number(), z: z.number(), rotY: z.number() }).optional(),
   footprint: z.object({ w: z.number(), d: z.number() }).optional(),
   keyBuilding: z.boolean().optional(),
+  blueprint: z.string().optional(),
 });
 
 const NpcS = z.object({
@@ -90,6 +93,41 @@ const EffectS = z.discriminatedUnion('type', [
 
 const RuleS = z.object({ id: z.string(), text: z.string(), effect: EffectS, source: z.enum(['world', 'player']) });
 
+const PART_SHAPES: readonly PartShape[] = ['box', 'cylinder', 'cone', 'pyramid', 'gable', 'dome', 'sphere', 'wedge', 'arch', 'ring'];
+const PART_TONES: readonly PartTone[] = ['wall', 'wall2', 'roof', 'trim', 'accent', 'dark', 'glass', 'glow'];
+
+const PartS = z.object({
+  shape: z.enum(PART_SHAPES as [PartShape, ...PartShape[]]),
+  x: z.number(),
+  z: z.number(),
+  y: z.number(),
+  w: z.number(),
+  d: z.number(),
+  h: z.number(),
+  rot: z.number(),
+  tone: z.enum(PART_TONES as [PartTone, ...PartTone[]]),
+  repeat: z.number(),
+  gap: z.number(),
+});
+
+const BlueprintS = z.object({ id: z.string(), summary: z.string(), parts: z.array(PartS), doorX: z.number() });
+const PropS = z.object({ kind: z.string(), size: z.number(), parts: z.array(PartS), weight: z.number() });
+const StyleS = z.object({
+  name: z.string(),
+  wall: z.string(),
+  wall2: z.string(),
+  roof: z.string(),
+  trim: z.string(),
+  accent: z.string(),
+  dark: z.string(),
+  glass: z.string(),
+  glow: z.string(),
+  ground: z.string(),
+  road: z.string(),
+  variety: z.number(),
+});
+const LandmarkS = z.object({ id: z.string(), prompt: z.string(), place: z.string(), height: z.number() });
+
 export const WorldSpecSchema: z.ZodType<WorldSpec> = z.object({
   version: z.literal(SPEC_VERSION),
   seed: z.number(),
@@ -106,6 +144,10 @@ export const WorldSpecSchema: z.ZodType<WorldSpec> = z.object({
   quest: QuestS,
   rules: z.array(RuleS),
   lexicon: z.array(z.string()),
+  style: StyleS.optional(),
+  blueprints: z.array(BlueprintS).optional(),
+  props: z.array(PropS).optional(),
+  landmarks: z.array(LandmarkS).optional(),
 });
 
 function formatPath(path: readonly PropertyKey[]): string {
@@ -139,6 +181,11 @@ function cleanJson(node: unknown): unknown {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(src)) {
     if (DROP_KEYS.has(k)) continue;
+    // Structured-output schemas accept anyOf only; the discriminated union exports as oneOf.
+    if (k === 'oneOf') {
+      out.anyOf = cleanJson(v);
+      continue;
+    }
     if (k === 'properties' && typeof v === 'object' && v !== null) {
       const props: Record<string, unknown> = {};
       for (const [pk, pv] of Object.entries(v as Record<string, unknown>)) props[pk] = cleanJson(pv);
@@ -161,6 +208,14 @@ export function worldSpecJsonSchema(): object {
   const raw = z.toJSONSchema(WorldSpecSchema, { io: 'output' });
   const cleaned = cleanJson(raw) as Record<string, unknown>;
   delete cleaned.$defs;
+  // Optional in zod so old share links validate; required for the model so every new town carries them.
+  const require = (node: unknown, keys: string[]): void => {
+    const o = node as { required?: string[] };
+    o.required = [...new Set([...(o.required ?? []), ...keys])];
+  };
+  const props = cleaned.properties as Record<string, unknown>;
+  require(cleaned, ['style', 'blueprints', 'props', 'landmarks']);
+  require((props.buildings as { items: unknown }).items, ['blueprint']);
   return cleaned;
 }
 
@@ -312,6 +367,105 @@ function fixEffect(e: RuleEffect, c: FixCtx): RuleEffect | null {
   }
 }
 
+const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+function hexOr(v: unknown, fallback: string): string {
+  if (typeof v !== 'string') return fallback;
+  const t = v.trim();
+  if (!HEX_RE.test(t)) return fallback;
+  const h = t.slice(1).toLowerCase();
+  return `#${h.length === 3 ? h.split('').map((c) => c + c).join('') : h}`;
+}
+
+const NEUTRAL_STYLE: StyleSpec = {
+  name: 'plain',
+  wall: '#b8a88a', wall2: '#9c8c70', roof: '#6b4f3a', trim: '#d8ceb8', accent: '#b5532d',
+  dark: '#2b2622', glass: '#3b5568', glow: '#ffd27a', ground: '#8a8a6a', road: '#6e6a60', variety: 0.2,
+};
+
+function fixStyle(s: StyleSpec): StyleSpec {
+  const out: StyleSpec = { ...NEUTRAL_STYLE, name: s.name.trim() || NEUTRAL_STYLE.name, variety: clamp(s.variety, 0, 1) };
+  for (const k of ['wall', 'wall2', 'roof', 'trim', 'accent', 'dark', 'glass', 'glow', 'ground', 'road'] as const) {
+    out[k] = hexOr(s[k], NEUTRAL_STYLE[k]);
+  }
+  return out;
+}
+
+function fixPart(p: BlueprintPart): BlueprintPart {
+  const repeat = Math.round(clamp(p.repeat, 1, 12));
+  const rot = Number.isFinite(p.rot) ? (p.rot >= -180 && p.rot <= 180 ? p.rot : ((((p.rot + 180) % 360) + 360) % 360) - 180) : 0;
+  return {
+    shape: PART_SHAPES.includes(p.shape) ? p.shape : 'box',
+    x: clamp(p.x, -0.5, 0.5),
+    z: clamp(p.z, -0.5, 0.5),
+    y: clamp(p.y, 0, 30),
+    w: clamp(p.w, 0.02, 1.4),
+    d: clamp(p.d, 0.02, 1.4),
+    h: clamp(p.h, 0.05, 30),
+    rot,
+    tone: PART_TONES.includes(p.tone) ? p.tone : 'wall',
+    repeat,
+    gap: repeat === 1 ? 0 : clamp(p.gap, 0, 1.4),
+  };
+}
+
+function fixBlueprints(input: Blueprint[]): Blueprint[] {
+  const src = input.slice(0, 8);
+  const ids = makeIdMap(src.map((b) => b.id), 'blueprint').ids;
+  return src.map((b, i) =>
+    repairBlueprint({
+      id: ids[i] as string,
+      summary: b.summary.trim(),
+      parts: b.parts.slice(0, 28).map(fixPart),
+      doorX: clamp(b.doorX, -0.4, 0.4),
+    }),
+  );
+}
+
+function fixProps(input: PropBlueprint[]): PropBlueprint[] {
+  const src = input.slice(0, 6);
+  const ids = makeIdMap(src.map((p) => p.kind), 'prop').ids;
+  const out: PropBlueprint[] = [];
+  src.forEach((p, i) => {
+    if (p.parts.length === 0) return;
+    out.push({
+      kind: ids[i] as string,
+      size: clamp(p.size, 0.3, 6),
+      parts: p.parts.slice(0, 8).map(fixPart),
+      weight: clamp(p.weight, 1, 5),
+    });
+  });
+  return out;
+}
+
+function fixLandmarks(input: LandmarkSpec[], bMap: IdMap): LandmarkSpec[] {
+  const src = input.slice(0, 2);
+  const ids = makeIdMap(src.map((l) => l.id), 'landmark').ids;
+  return src.map((l, i) => ({
+    id: ids[i] as string,
+    prompt: l.prompt.trim(),
+    place: l.place === 'plaza' ? 'plaza' : (bMap.resolve(l.place) ?? 'plaza'),
+    height: clamp(l.height, 2, 14),
+  }));
+}
+
+/** Picks a blueprint for a building that has none: by role word in id or summary, else round-robin. */
+function assignBlueprints(buildings: BuildingSpec[], bps: Blueprint[]): BuildingSpec[] {
+  let next = 0;
+  return buildings.map((b) => {
+    if (b.blueprint !== undefined) return b;
+    const words = [b.role.replace(/_/g, ' ')];
+    const last = b.role.split('_').pop() ?? b.role;
+    if (last.length >= 4) words.push(last);
+    let hit: Blueprint | undefined;
+    for (const w of words) {
+      hit = bps.find((bp) => bp.id.replace(/_/g, ' ').includes(w) || bp.summary.toLowerCase().includes(w));
+      if (hit) break;
+    }
+    return { ...b, blueprint: (hit ?? (bps[next++ % bps.length] as Blueprint)).id };
+  });
+}
+
 export function normalizeSpec(input: WorldSpec): WorldSpec {
   const spec = structuredClone(input);
 
@@ -322,6 +476,15 @@ export function normalizeSpec(input: WorldSpec): WorldSpec {
   }
   const bMap = makeIdMap(buildings.map((b) => b.id), 'building');
   buildings = buildings.map((b, i) => ({ ...b, id: bMap.ids[i] as string, label: b.label.trim() || b.id }));
+
+  const bps = spec.blueprints ? fixBlueprints(spec.blueprints) : undefined;
+  const bpMap = makeIdMap((spec.blueprints ?? []).slice(0, 8).map((b) => b.id), 'blueprint');
+  buildings = buildings.map((b) => {
+    const { blueprint: old, ...rest } = b;
+    const id = old !== undefined ? bpMap.resolve(old) : undefined;
+    return id !== undefined && bps?.some((x) => x.id === id) ? { ...rest, blueprint: id } : rest;
+  });
+  if (bps && bps.length > 0) buildings = assignBlueprints(buildings, bps);
 
   const npcsIn = spec.npcs.slice(0, 10);
   const nMap = makeIdMap(npcsIn.map((n) => n.id), 'npc');
@@ -450,8 +613,15 @@ export function normalizeSpec(input: WorldSpec): WorldSpec {
     if (effect) rules.push({ ...r, id: rMap.ids[i] as string, effect });
   });
 
+  const arch: Partial<Pick<WorldSpec, 'style' | 'blueprints' | 'props' | 'landmarks'>> = {};
+  if (spec.style) arch.style = fixStyle(spec.style);
+  if (bps) arch.blueprints = bps;
+  if (spec.props) arch.props = fixProps(spec.props);
+  if (spec.landmarks) arch.landmarks = fixLandmarks(spec.landmarks, bMap);
+
   return {
     ...spec,
+    ...arch,
     seed: Math.trunc(Number.isFinite(spec.seed) ? spec.seed : 0) >>> 0,
     palette: { ...spec.palette, fog: clamp(spec.palette.fog, 0, 1) },
     time: {

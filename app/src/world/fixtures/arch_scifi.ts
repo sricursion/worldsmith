@@ -1,0 +1,186 @@
+// Architecture for the sci-fi fixture: pale pressure hulls, dark glass, cyan and orange accents.
+import type { LandmarkSpec, PropBlueprint, StyleSpec } from '../spec';
+import { arch, blueprint, box, cone, cyl, dome, door, propOf, ring, sphere, windows } from './util';
+
+export const scifiStyle: StyleSpec = {
+  name: 'pale pressure hulls with cyan light',
+  wall: '#cfd6e0',
+  wall2: '#7f8ba0',
+  roof: '#47546a',
+  trim: '#35c2d6',
+  accent: '#ff7a3d',
+  dark: '#161a24',
+  glass: '#1f4f7a',
+  glow: '#6ff3ff',
+  ground: '#4a4f5c',
+  road: '#2f333d',
+  variety: 0.12,
+};
+
+export const scifiBlueprints = [
+  // Pressurised dome on a drum, with an airlock, mast and a supply tank.
+  blueprint('habitat_dome', 'pressurised habitat dome on a drum with an airlock, ribs, mast and supply tank', 0, [
+    cyl(0, 0, 0, 0.9, 0.9, 1, 'wall2'),
+    cyl(0, 0, 1, 0.92, 0.92, 0.6, 'glass'),
+    dome(0, 0, 1.6, 0.88, 0.88, 3, 'wall'),
+    box(0, 0.38, 0, 0.3, 0.22, 2.3, 'wall'),
+    box(0, 0.38, 2.3, 0.34, 0.26, 0.12, 'trim'),
+    door(0, 0.49, 0.12, 1.9),
+    box(0, 0.5, 2, 0.1, 0.02, 0.06, 'glow'),
+    cyl(0, 0, 4.6, 0.02, 0.02, 1.2, 'dark'),
+    sphere(0, 0, 5.8, 0.05, 0.05, 0.2, 'glow'),
+    ring(0, 0, 2.4, 0.8, 0.8, 0.1, 'trim'),
+    ring(0, 0, 3.2, 0.55, 0.55, 0.1, 'trim'),
+    cyl(-0.35, 0.35, 0, 0.05, 0.05, 1.1, 'dark', { repeat: 2, gap: 0.1 }),
+    cyl(0.42, 0.4, 0, 0.18, 0.18, 1.4, 'wall2'),
+    dome(0.42, 0.4, 1.4, 0.18, 0.18, 0.3, 'wall2'),
+    cyl(0.5, -0.2, 0, 0.02, 0.02, 1.6, 'dark'),
+    box(0.5, -0.2, 1.6, 0.3, 0.04, 0.8, 'glass'),
+  ]),
+  // Tall tower on a plinth: window bands, command saucer, mast and two antenna rings.
+  blueprint('command_spire', 'tall command spire on a plinth with a glazed saucer deck and an antenna ring mast', 0, [
+    box(0, 0, 0, 0.95, 0.85, 3, 'wall2'),
+    box(0, 0, 3, 1, 0.9, 0.15, 'trim'),
+    box(0, 0.43, 0, 0.95, 0.02, 0.25, 'accent'),
+    door(0, 0.425, 0.2, 2.4),
+    box(0, 0.43, 2.4, 0.26, 0.04, 0.12, 'trim'),
+    windows(0, 1.2, 2, 0.5, 0.425, 0.2, 1),
+    box(0, 0.5, 0, 0.5, 0.12, 0.15, 'wall2'),
+    cyl(0, -0.05, 3, 0.4, 0.4, 5, 'wall'),
+    cyl(0, -0.05, 5, 0.42, 0.42, 0.6, 'glass'),
+    cyl(0, -0.05, 8, 0.32, 0.32, 3, 'wall2'),
+    cyl(0, -0.05, 11, 0.6, 0.6, 0.5, 'wall2'),
+    cyl(0, -0.05, 11.5, 0.58, 0.58, 0.5, 'glass'),
+    dome(0, -0.05, 12, 0.5, 0.5, 0.6, 'wall2'),
+    cyl(0, -0.05, 12.6, 0.03, 0.03, 3, 'dark'),
+    ring(0, -0.05, 14, 0.35, 0.35, 0.1, 'glow'),
+    ring(0, -0.05, 15, 0.22, 0.22, 0.1, 'trim'),
+    sphere(0, -0.05, 15.6, 0.04, 0.04, 0.25, 'glow'),
+  ]),
+  // Containment hall with an exposed glowing core, grid of cooling fins, collars and a vent stack.
+  blueprint('reactor_hall', 'reactor hall with a glowing core, cooling fins, collars and a vent stack', 0, [
+    box(0, -0.05, 0, 0.95, 0.8, 3.5, 'wall'),
+    cyl(0, -0.05, 3.5, 0.3, 0.3, 5, 'glow'),
+    box(0, -0.05, 3.5, 0.04, 0.36, 3.4, 'wall2', { repeat: 5, gap: 0.14 }),
+    box(0, -0.05, 3.5, 0.04, 0.36, 3.4, 'wall2', { rot: 90, repeat: 5, gap: 0.14 }),
+    ring(0, -0.05, 4.4, 0.4, 0.4, 0.12, 'trim'),
+    ring(0, -0.05, 7.2, 0.4, 0.4, 0.12, 'trim'),
+    dome(0, -0.05, 8.5, 0.34, 0.34, 0.8, 'wall2'),
+    cyl(0.3, -0.2, 3.5, 0.1, 0.1, 4, 'dark'),
+    sphere(0.3, -0.2, 7.5, 0.05, 0.05, 0.2, 'glow'),
+    door(0, 0.35, 0.3, 2.6),
+    box(0, 0.355, 2.7, 0.5, 0.02, 0.15, 'accent'),
+    box(0.3, 0.355, 1.6, 0.12, 0.02, 0.4, 'accent'),
+    box(0, 0.355, 0.9, 0.06, 0.02, 0.8, 'glow', { repeat: 2, gap: 0.6 }),
+    box(0, 0.37, 0.4, 0.35, 0.04, 0.12, 'dark', { repeat: 2, gap: 0.6 }),
+    box(-0.3, -0.05, 3.5, 0.12, 0.12, 0.6, 'dark'),
+  ]),
+  // Two-storey lab with a continuous glass band, rooftop equipment and a culture tank.
+  blueprint('glass_lab', 'two-storey lab with a continuous glass band, rooftop dome and culture tank', 0, [
+    box(0, 0, 0, 0.9, 0.8, 2.3, 'wall'),
+    box(0, 0, 2.3, 0.9, 0.8, 1.2, 'glass'),
+    box(0, 0, 3.5, 0.98, 0.88, 0.15, 'trim'),
+    box(0, 0.41, 2.3, 0.02, 0.02, 1.2, 'wall2', { repeat: 7, gap: 0.15 }),
+    dome(0.3, -0.1, 3.65, 0.25, 0.25, 0.4, 'wall2'),
+    cyl(-0.3, -0.1, 3.65, 0.12, 0.12, 0.5, 'dark'),
+    cyl(0.1, 0.2, 3.65, 0.02, 0.02, 1.2, 'dark'),
+    door(0, 0.4, 0.2, 2.1),
+    windows(0, 1, 2, 0.62, 0.4, 0.16, 0.9, 'glow'),
+    box(0, 0.405, 2.1, 0.3, 0.02, 0.2, 'accent'),
+    box(0, 0.405, 0, 0.9, 0.02, 0.15, 'accent'),
+    cyl(0.5, 0, 0, 0.16, 0.16, 2, 'wall2'),
+    dome(0.5, 0, 2, 0.16, 0.16, 0.3, 'wall2'),
+    box(0, 0.46, 0, 0.5, 0.12, 0.15, 'wall2'),
+  ]),
+  // Vaulted hangar: wide arched hull, dark door opening, control tower and fuel tanks.
+  blueprint('hangar_arch', 'arched hangar with a dark door opening, control tower, radar dome and fuel tanks', 0, [
+    arch(0, -0.02, 0, 0.9, 0.92, 6.5, 'wall2'),
+    arch(0, 0.455, 0, 0.6, 0.03, 4.8, 'dark'),
+    box(0, 0.455, 5, 0.6, 0.03, 0.1, 'glow'),
+    box(0, 0.455, 0, 0.62, 0.03, 0.1, 'accent'),
+    box(-0.5, 0.1, 0, 0.18, 0.2, 4, 'wall'),
+    box(-0.5, 0.1, 4, 0.24, 0.24, 0.9, 'glass'),
+    box(-0.5, 0.1, 4.9, 0.28, 0.28, 0.1, 'trim'),
+    cyl(-0.5, 0.1, 5, 0.02, 0.02, 1.4, 'dark'),
+    dome(0, -0.2, 6.5, 0.2, 0.2, 0.5, 'wall'),
+    cyl(0, -0.2, 7, 0.02, 0.02, 1.6, 'dark'),
+    cyl(0.5, 0, 0, 0.14, 0.14, 2.2, 'wall2', { rot: 90, repeat: 2, gap: 0.3 }),
+    dome(0.5, 0, 2.2, 0.14, 0.14, 0.3, 'wall2', { rot: 90, repeat: 2, gap: 0.3 }),
+    box(0, 0.5, 0, 0.02, 0.02, 0.2, 'glow', { repeat: 5, gap: 0.12 }),
+    box(0.5, -0.4, 0, 0.1, 0.1, 0.6, 'accent'),
+  ]),
+  // Low bar pod with a domed roof, neon band, glowing windows, canopy and crates.
+  blueprint('cantina_pod', 'low cantina pod with a domed roof, neon band, glowing windows and a canopy', 0, [
+    box(0, 0, 0, 0.9, 0.8, 3, 'wall2'),
+    dome(0, 0, 3, 0.9, 0.8, 1.2, 'wall'),
+    box(0, 0.405, 2.3, 0.9, 0.02, 0.1, 'glow'),
+    box(0, 0.41, 2.55, 0.5, 0.02, 0.35, 'accent'),
+    windows(0, 1.1, 2, 0.62, 0.4, 0.16, 0.9, 'glow'),
+    door(0, 0.4, 0.18, 2.1),
+    box(0, 0.5, 2.3, 0.5, 0.22, 0.08, 'trim'),
+    cyl(0, 0.5, 0, 0.02, 0.02, 2.3, 'dark', { repeat: 2, gap: 0.4 }),
+    cyl(0.3, -0.2, 3, 0.08, 0.08, 0.8, 'dark'),
+    cyl(-0.15, -0.1, 3.5, 0.02, 0.02, 1.2, 'dark'),
+    box(0.38, 0.46, 0, 0.12, 0.1, 0.5, 'wall'),
+    cyl(-0.38, 0.46, 0, 0.08, 0.08, 0.7, 'accent'),
+    cone(-0.15, -0.1, 4.7, 0.06, 0.06, 0.25, 'glow'),
+  ]),
+  // Four stacked cargo containers under a tarp, with a gantry crane and a floodlight.
+  blueprint('cargo_stack', 'stacked cargo modules under a tarp with a gantry crane and floodlight', -0.25, [
+    box(-0.25, 0, 0, 0.48, 0.8, 2.6, 'wall2'),
+    box(0.25, 0, 0, 0.48, 0.8, 2.6, 'accent'),
+    box(-0.25, 0, 2.6, 0.48, 0.8, 2.6, 'accent'),
+    box(0.25, 0, 2.6, 0.48, 0.8, 2.6, 'wall2'),
+    box(0, 0, 5.2, 1, 0.86, 0.1, 'roof'),
+    box(0.25, 0.405, 0, 0.02, 0.02, 2.6, 'dark', { repeat: 5, gap: 0.1 }),
+    box(-0.25, 0.405, 2.6, 0.02, 0.02, 2.6, 'dark', { repeat: 5, gap: 0.1 }),
+    box(0.25, 0.405, 2.6, 0.02, 0.02, 2.6, 'dark', { repeat: 5, gap: 0.1 }),
+    door(-0.25, 0.4, 0.3, 2.3),
+    box(-0.25, 0.41, 2.3, 0.1, 0.02, 0.08, 'glow'),
+    cyl(-0.5, -0.4, 0, 0.04, 0.04, 6.5, 'dark'),
+    box(-0.25, -0.4, 6.5, 0.5, 0.04, 0.12, 'dark'),
+    cyl(0, -0.4, 5.4, 0.01, 0.01, 1.1, 'dark'),
+    cyl(0.4, 0, 5.3, 0.03, 0.03, 0.7, 'dark'),
+    sphere(0.4, 0, 6, 0.06, 0.06, 0.2, 'glow'),
+  ]),
+];
+
+// Props are authored at unit scale (longest dimension 1) and scaled up to `size` metres.
+export const scifiProps: PropBlueprint[] = [
+  propOf('fuel_drum_cluster', 1.2, 3, [
+    cyl(-0.22, 0, 0, 0.4, 0.4, 0.7, 'wall2'),
+    cyl(0.25, 0.05, 0, 0.4, 0.4, 0.7, 'accent'),
+    cyl(0, -0.25, 0, 0.4, 0.4, 0.7, 'wall2'),
+    cyl(-0.22, 0, 0.7, 0.34, 0.34, 0.06, 'dark'),
+  ]),
+  propOf('solar_array', 2.2, 2, [
+    cyl(0, 0, 0, 0.05, 0.05, 0.5, 'dark'),
+    box(0, 0, 0.5, 1, 0.5, 0.05, 'glass'),
+    box(0, 0, 0.55, 0.02, 0.5, 0.03, 'trim', { repeat: 5, gap: 0.2 }),
+  ]),
+  propOf('floodlight_mast', 4, 2, [
+    cyl(0, 0, 0, 0.05, 0.05, 0.9, 'dark'),
+    box(0, 0, 0.9, 0.3, 0.12, 0.1, 'dark'),
+    box(0, 0.07, 0.9, 0.06, 0.02, 0.06, 'glow', { repeat: 3, gap: 0.1 }),
+  ]),
+  propOf('cargo_crate', 1.4, 3, [
+    box(-0.15, 0, 0, 0.6, 0.5, 0.45, 'wall2'),
+    box(0.3, 0.1, 0, 0.35, 0.35, 0.35, 'accent'),
+    box(-0.15, 0, 0.45, 0.4, 0.4, 0.3, 'wall'),
+  ]),
+  propOf('antenna_pylon', 5, 1, [
+    cyl(0, 0, 0, 0.06, 0.06, 0.9, 'wall2'),
+    ring(0, 0, 0.5, 0.3, 0.3, 0.04, 'trim'),
+    ring(0, 0, 0.75, 0.2, 0.2, 0.04, 'trim'),
+    sphere(0, 0, 0.9, 0.08, 0.08, 0.1, 'glow'),
+  ]),
+];
+
+export const scifiLandmarks: LandmarkSpec[] = [
+  {
+    id: 'comms_array',
+    prompt: 'a large parabolic communications dish array on a steel lattice tower with blinking red beacons, industrial sci-fi, low-poly, single object',
+    place: 'plaza',
+    height: 12,
+  },
+];

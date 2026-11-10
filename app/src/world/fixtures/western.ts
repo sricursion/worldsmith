@@ -1,6 +1,7 @@
 import { SPEC_VERSION } from '../spec';
 import type { WorldSpec } from '../spec';
 import { at, bias } from './util';
+import { westernBlueprints, westernLandmarks, westernProps, westernStyle } from './arch_western';
 
 export const western: WorldSpec = {
   version: SPEC_VERSION,
@@ -13,15 +14,15 @@ export const western: WorldSpec = {
   palette: { ground: '#c9a26b', accent: '#b5532d', sky: 'day', fog: 0.15 },
   time: { startHour: 9, minutesPerRealSecond: 4 },
   buildings: [
-    { id: 'saloon', role: 'saloon', label: 'The Dusty Spur', size: 'large', keyBuilding: true },
-    { id: 'sheriff', role: 'sheriff', label: "Sheriff's Office", size: 'medium', keyBuilding: true },
-    { id: 'bank', role: 'bank', label: 'Territorial Bank of Dry Gulch', size: 'medium', keyBuilding: true },
-    { id: 'store', role: 'general_store', label: 'Hargrove Dry Goods', size: 'medium' },
-    { id: 'church', role: 'church', label: 'Mission of San Dimas', size: 'medium' },
-    { id: 'stable', role: 'stable', label: "Pruitt's Livery", size: 'medium' },
-    { id: 'hotel', role: 'hotel', label: 'The Palomino House', size: 'large' },
-    { id: 'undertaker', role: 'undertaker', label: 'Voss & Son Undertaking', size: 'small' },
-    { id: 'marsh_house', role: 'house', label: "Widow Marsh's Cottage", size: 'small' },
+    { id: 'saloon', role: 'saloon', label: 'The Dusty Spur', size: 'large', keyBuilding: true, blueprint: 'false_front_saloon' },
+    { id: 'sheriff', role: 'sheriff', label: "Sheriff's Office", size: 'medium', keyBuilding: true, blueprint: 'sheriff_office' },
+    { id: 'bank', role: 'bank', label: 'Territorial Bank of Dry Gulch', size: 'medium', keyBuilding: true, blueprint: 'stone_bank' },
+    { id: 'store', role: 'general_store', label: 'Hargrove Dry Goods', size: 'medium', blueprint: 'general_store' },
+    { id: 'church', role: 'church', label: 'Mission of San Dimas', size: 'medium', blueprint: 'mission_church' },
+    { id: 'stable', role: 'stable', label: "Pruitt's Livery", size: 'medium', blueprint: 'livery_stable' },
+    { id: 'hotel', role: 'hotel', label: 'The Palomino House', size: 'large', blueprint: 'false_front_saloon' },
+    { id: 'undertaker', role: 'undertaker', label: 'Voss & Son Undertaking', size: 'small', blueprint: 'general_store' },
+    { id: 'marsh_house', role: 'house', label: "Widow Marsh's Cottage", size: 'small', blueprint: 'adobe_cabin' },
   ],
   npcs: [
     {
@@ -308,4 +309,8 @@ export const western: WorldSpec = {
     'vamoose — leave at once',
     'payroll — the silver that pays the mine crew each Saturday',
   ],
+  style: westernStyle,
+  blueprints: westernBlueprints,
+  props: westernProps,
+  landmarks: westernLandmarks,
 };

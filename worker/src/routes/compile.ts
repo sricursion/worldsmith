@@ -10,6 +10,7 @@ import { errorJson, isRecord, readJson, sleep } from '../lib/http';
 import { createSse, type SseWriter } from '../lib/sse';
 import { FIXTURES, nearestTheme, worldSpecJsonSchema } from '../lib/shared';
 import { validateCompile } from '../lib/validate';
+import { mockSpec } from '../lib/mockstyle';
 import { compileSystemPrompt, compileUserMessage } from '../prompts/compile';
 
 const MOCK_CHUNKS = 12;
@@ -17,7 +18,7 @@ const MOCK_GAP_MS = 80;
 const PING_EVERY_MS = 4000;
 
 async function runMock(sse: SseWriter, prompt: string, seed: number): Promise<void> {
-  const spec = { ...FIXTURES[nearestTheme(prompt)], prompt, seed };
+  const spec = mockSpec(FIXTURES[nearestTheme(prompt)], prompt, seed);
   const text = JSON.stringify(spec);
   const size = Math.ceil(text.length / MOCK_CHUNKS);
   for (let i = 0; i < text.length; i += size) {
@@ -32,7 +33,7 @@ async function runReal(sse: SseWriter, env: Env, prompt: string, seed: number, s
   try {
     res = await anthropicFetch(env, {
       model: SONNET,
-      max_tokens: 8000,
+      max_tokens: 12000,
       stream: true,
       thinking: { type: 'between_tools' },
       output_config: { effort: 'low', format: { type: 'json_schema', schema: worldSpecJsonSchema() } },

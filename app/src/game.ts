@@ -17,6 +17,7 @@ import { loadKit, type LoadedKit } from './engine/assets';
 import { loadCharacterBase, createCharacter, type CharacterRig } from './engine/character';
 import { buildNav, type NavWorld, type NavAgent } from './engine/nav';
 import { createPlayer, type Player } from './engine/player';
+import { loadLandmark, pollLandmark } from './engine/landmark';
 import { planTick, type NpcIntent } from './npc/brain';
 import { buildQuestions, sampleAction, localFallback } from './npc/decide';
 import { openDialogue, type DialogueSession } from './npc/dialogue';
@@ -300,6 +301,8 @@ export class Game {
 
     this.applyWeather();
     this.sky.setHour(this.town.state.hour);
+    this.sky.setGroundTint?.(spec.style?.ground ?? spec.palette.ground);
+    void this.forgeLandmarks(this.town);
     document.documentElement.style.setProperty('--accent', spec.palette.accent);
     ui.showHud(spec);
     ui.setBadge(verified.winnable ? `quest verified · ${verified.order.length} steps` : 'quest unverified');
@@ -308,6 +311,29 @@ export class Game {
     this.pushLog('world', `${spec.title} wakes at ${this.fmtHour(this.town.state.hour)}`);
     const hash = encodeShare(spec);
     if (hash.length < 4000) history.replaceState(null, '', '#' + hash);
+  }
+
+  /** Generates each landmark as a full 3D model in the background and swaps it in when it lands. */
+  private async forgeLandmarks(t: Town): Promise<void> {
+    for (const lm of t.spec.landmarks ?? []) {
+      try {
+        const start = await this.deps.api.landmarkStart({ sessionId: this.sessionId, id: lm.id, prompt: lm.prompt, height: lm.height });
+        if (this.town !== t) return;
+        if (!start.ok || start.jobId === 'none' || start.status === 'failed') continue;
+        const done = start.status === 'ready' && start.url
+          ? { ok: true as const, url: start.url }
+          : await pollLandmark(this.deps.api, start.jobId, {});
+        if (this.town !== t) return;
+        if (!done.ok) continue;
+        const model = await loadLandmark(done.url);
+        if (this.town !== t) return;
+        t.objects.placeLandmark?.(lm.id, model, lm.height);
+        this.deps.ui.toast('A landmark was forged for this town.');
+        this.pushLog('world', `a landmark took shape: ${lm.prompt}`);
+      } catch (err) {
+        console.warn('landmark failed:', err instanceof Error ? err.message : String(err));
+      }
+    }
   }
 
   /** The newest weather rule wins; with none, the spec's palette applies. */
@@ -337,6 +363,7 @@ export class Game {
     this.deps.ui.setClock(t.state.hour, t.state.day);
 
     t.player.update(dt); // also advances the player's rig
+    this.sky.setFocus?.(t.player.position.x, t.player.position.z);
     t.nav.update(dt);
 
     for (const n of t.npcs.values()) {

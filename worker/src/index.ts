@@ -4,6 +4,7 @@ import type { Env } from './lib/env';
 import { isMock } from './lib/env';
 import { errorJson, json, originAllowed, preflight, withCors } from './lib/http';
 import { handleCompile } from './routes/compile';
+import { handleLandmarkFile, handleLandmarkStart, handleLandmarkStatus } from './routes/landmark';
 import { handleNpcSay } from './routes/npc';
 import { handleRulesPatch } from './routes/rules';
 import { handleLoad, handleShare } from './routes/share';
@@ -19,6 +20,11 @@ async function route(req: Request, env: Env, ctx: ExecutionContext, url: URL): P
   if (path === '/api/tick' && post) return handleTick(req, env, url);
   if (path === '/api/rules/patch' && post) return handleRulesPatch(req, env);
   if (path === '/api/share' && post) return handleShare(req, env);
+  if (path === '/api/landmark' && post) return handleLandmarkStart(req, env);
+  const lmFile = /^\/api\/landmark\/file\/([^/]+)$/.exec(path);
+  if (lmFile && req.method === 'GET') return handleLandmarkFile(lmFile[1] ?? '', env);
+  const lmJob = /^\/api\/landmark\/([^/]+)$/.exec(path);
+  if (lmJob && req.method === 'GET') return handleLandmarkStatus(req, env, lmJob[1] ?? '');
   const load = /^\/api\/load\/([^/]+)$/.exec(path);
   if (load && req.method === 'GET') return handleLoad(load[1] ?? '', env);
 

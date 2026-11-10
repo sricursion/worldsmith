@@ -3,6 +3,8 @@
 
 export interface Env {
   ANTHROPIC_API_KEY?: string;
+  /** Optional gateway origin for model calls; requests go to <base>/v1/messages. Default https://api.anthropic.com. */
+  ANTHROPIC_BASE_URL?: string;
   GROQ_API_KEY?: string;
   TYPESAFE_API_KEY?: string;
   /** Daily output-token ceilings; wrangler vars, strings. See budget.ts for defaults. */

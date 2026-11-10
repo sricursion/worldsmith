@@ -33,9 +33,11 @@ export function createViewport(canvas: HTMLCanvasElement): Viewport | null {
 
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.5;
+  renderer.toneMappingExposure = 0.5; // the sky rig takes over per hour
+  renderer.setClearColor(0x2c4f8a); // a blue frame, not black, if the sky has not drawn yet
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = true;
 
   const scene = new Scene();
   const camera = new PerspectiveCamera(55, 1, 0.1, 6000);

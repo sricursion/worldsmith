@@ -1,6 +1,7 @@
 import { SPEC_VERSION } from '../spec';
 import type { WorldSpec } from '../spec';
 import { at, bias } from './util';
+import { medievalBlueprints, medievalLandmarks, medievalProps, medievalStyle } from './arch_medieval';
 
 export const medieval: WorldSpec = {
   version: SPEC_VERSION,
@@ -13,14 +14,14 @@ export const medieval: WorldSpec = {
   palette: { ground: '#7a8f55', accent: '#8a2f2f', sky: 'overcast', fog: 0.3 },
   time: { startHour: 8, minutesPerRealSecond: 4 },
   buildings: [
-    { id: 'market', role: 'market', label: 'Ford Market', size: 'large', keyBuilding: true },
-    { id: 'hall', role: 'townhall', label: "Reeve's Hall", size: 'large', keyBuilding: true },
-    { id: 'chapel', role: 'church', label: 'Chapel of Saint Wulfstan', size: 'medium', keyBuilding: true },
-    { id: 'tavern', role: 'tavern', label: 'The Drowned Heron', size: 'medium' },
-    { id: 'inn', role: 'inn', label: "The Ferryman's Rest", size: 'medium' },
-    { id: 'forge', role: 'blacksmith', label: "Aldric's Forge", size: 'medium' },
-    { id: 'herbhouse', role: 'doctor', label: "Edda's Herb House", size: 'small' },
-    { id: 'cottage', role: 'house', label: "Weaver's Cottage", size: 'small' },
+    { id: 'market', role: 'market', label: 'Ford Market', size: 'large', keyBuilding: true, blueprint: 'market_hall' },
+    { id: 'hall', role: 'townhall', label: "Reeve's Hall", size: 'large', keyBuilding: true, blueprint: 'great_hall' },
+    { id: 'chapel', role: 'church', label: 'Chapel of Saint Wulfstan', size: 'medium', keyBuilding: true, blueprint: 'stone_chapel' },
+    { id: 'tavern', role: 'tavern', label: 'The Drowned Heron', size: 'medium', blueprint: 'timber_tavern' },
+    { id: 'inn', role: 'inn', label: "The Ferryman's Rest", size: 'medium', blueprint: 'jettied_house' },
+    { id: 'forge', role: 'blacksmith', label: "Aldric's Forge", size: 'medium', blueprint: 'smithy' },
+    { id: 'herbhouse', role: 'doctor', label: "Edda's Herb House", size: 'small', blueprint: 'thatch_cottage' },
+    { id: 'cottage', role: 'house', label: "Weaver's Cottage", size: 'small', blueprint: 'thatch_cottage' },
   ],
   npcs: [
     {
@@ -256,4 +257,8 @@ export const medieval: WorldSpec = {
     'pilgrim — a traveller who came for the saint’s feast',
     'reliquary — a casket that holds a holy relic',
   ],
+  style: medievalStyle,
+  blueprints: medievalBlueprints,
+  props: medievalProps,
+  landmarks: medievalLandmarks,
 };

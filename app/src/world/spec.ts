@@ -26,6 +26,8 @@ export interface BuildingSpec {
   position?: { x: number; z: number; rotY: number };
   footprint?: { w: number; d: number }; // metres, filled by the generator from the kit
   keyBuilding?: boolean;       // placed on the main street near the centre
+  /** Blueprint id from WorldSpec.blueprints. When set and found, the engine builds this instead of a kit mesh. */
+  blueprint?: string;
 }
 
 /** What an NPC does at a given hour. The brain interpolates between entries. */
@@ -119,6 +121,70 @@ export interface RuleSpec {
   source: 'world' | 'player';
 }
 
+// ---- Blueprints: buildings and props authored as data by the compile model --------------------
+// A blueprint is a small list of primitive parts. The engine turns it into geometry, so a town in
+// any setting (a pirate cove, an Edo village, a neon arcology) gets its own architecture without a
+// pre-made kit. Kits and the procedural fallback remain for specs that carry no blueprints.
+
+export type PartShape = 'box' | 'cylinder' | 'cone' | 'pyramid' | 'gable' | 'dome' | 'sphere' | 'wedge' | 'arch' | 'ring';
+
+/** Which style colour a part takes. 'glow' is emissive; 'glass' is dark and glossy. */
+export type PartTone = 'wall' | 'wall2' | 'roof' | 'trim' | 'accent' | 'dark' | 'glass' | 'glow';
+
+export interface BlueprintPart {
+  shape: PartShape;
+  /** Centre of the part on the footprint: x and z are fractions of the footprint, -0.5..0.5; +z is the street-facing front. */
+  x: number;
+  z: number;
+  /** Height of the part's base above the ground, metres, 0..30. */
+  y: number;
+  /** Size: w and d are fractions of the footprint (0.02..1.4), h is metres (0.05..30). */
+  w: number;
+  d: number;
+  h: number;
+  /** Rotation about the vertical axis in degrees. Gable ridges and wedge slopes run along local x. */
+  rot: number;
+  tone: PartTone;
+  /** Repeats the part along its local x axis: `count` copies spaced `gap` (fraction of footprint) apart, centred on x. */
+  repeat: number;   // 1..12
+  gap: number;      // 0 when repeat is 1
+}
+
+export interface Blueprint {
+  id: string;                  // slug, unique in the town
+  /** What it is, e.g. "two-storey saloon with a false front and balcony". Shown in the build log. */
+  summary: string;
+  parts: BlueprintPart[];      // 4..28, the first part should be the main body
+  /** Where the door is on the front face, fraction of footprint width, -0.4..0.4. The engine paths NPCs here. */
+  doorX: number;
+}
+
+export interface PropBlueprint {
+  kind: string;                // slug, e.g. "hitching_post", "paper_lantern", "coral_spire"
+  /** Longest dimension in metres, 0.3..6. Parts use a 1 x 1 footprint scaled to this. */
+  size: number;
+  parts: BlueprintPart[];      // 1..8
+  /** Relative frequency when scattering, 1..5. */
+  weight: number;
+}
+
+/** The look of one town. Every colour is a hex string. */
+export interface StyleSpec {
+  name: string;                // "weathered frontier timber", "lacquered Edo townhouse"
+  wall: string;
+  wall2: string;
+  roof: string;
+  trim: string;
+  accent: string;
+  dark: string;
+  glass: string;
+  glow: string;
+  ground: string;
+  road: string;
+  /** How much per-building colour drift the engine applies, 0..1. */
+  variety: number;
+}
+
 export interface PaletteSpec {
   ground: string;             // hex
   accent: string;             // hex, used for signs and UI tint
@@ -143,6 +209,22 @@ export interface WorldSpec {
   rules: RuleSpec[];
   /** Short glossary the dialogue model is told to use: slang, currency, place names. */
   lexicon: string[];
+  /** Optional generated architecture. Present on every model-compiled town; absent on old share links. */
+  style?: StyleSpec;
+  blueprints?: Blueprint[];    // 3..8 archetypes shared by the buildings
+  props?: PropBlueprint[];     // 0..6 kinds scattered instead of kit props
+  /** One or two set pieces worth generating as full 3D models in the background. */
+  landmarks?: LandmarkSpec[];
+}
+
+export interface LandmarkSpec {
+  id: string;
+  /** Text-to-3D prompt: one object, no scene, e.g. "a weathered wooden water tower on stilts, low-poly". */
+  prompt: string;
+  /** Where it stands: 'plaza' or a building id (placed beside that building's lot). */
+  place: string;
+  /** Target height in metres, 2..14. */
+  height: number;
 }
 
 /** Runtime-only state layered over the spec. Never sent to the compile model; sent (trimmed) to the dialogue model. */

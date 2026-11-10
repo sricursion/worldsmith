@@ -1,6 +1,7 @@
 import { SPEC_VERSION } from '../spec';
 import type { WorldSpec } from '../spec';
 import { at, bias } from './util';
+import { scifiBlueprints, scifiLandmarks, scifiProps, scifiStyle } from './arch_scifi';
 
 export const scifi: WorldSpec = {
   version: SPEC_VERSION,
@@ -13,14 +14,14 @@ export const scifi: WorldSpec = {
   palette: { ground: '#4a4f5c', accent: '#35c2d6', sky: 'night', fog: 0.2 },
   time: { startHour: 7, minutesPerRealSecond: 5 },
   buildings: [
-    { id: 'command', role: 'command', label: 'Command Deck', size: 'large', keyBuilding: true },
-    { id: 'reactor', role: 'reactor', label: 'Reactor Hall 1', size: 'large', keyBuilding: true },
-    { id: 'lab', role: 'lab', label: 'Regolith Lab', size: 'medium' },
-    { id: 'hangar', role: 'hangar', label: 'Hauler Hangar', size: 'large' },
-    { id: 'cantina', role: 'cantina', label: 'The Slag Heap', size: 'medium' },
-    { id: 'habitat', role: 'habitat', label: 'Crew Habitat Ring', size: 'medium' },
-    { id: 'warehouse', role: 'warehouse', label: 'Cold Stores', size: 'medium' },
-    { id: 'station', role: 'station', label: 'Relay Station', size: 'small' },
+    { id: 'command', role: 'command', label: 'Command Deck', size: 'large', keyBuilding: true, blueprint: 'command_spire' },
+    { id: 'reactor', role: 'reactor', label: 'Reactor Hall 1', size: 'large', keyBuilding: true, blueprint: 'reactor_hall' },
+    { id: 'lab', role: 'lab', label: 'Regolith Lab', size: 'medium', blueprint: 'glass_lab' },
+    { id: 'hangar', role: 'hangar', label: 'Hauler Hangar', size: 'large', blueprint: 'hangar_arch' },
+    { id: 'cantina', role: 'cantina', label: 'The Slag Heap', size: 'medium', blueprint: 'cantina_pod' },
+    { id: 'habitat', role: 'habitat', label: 'Crew Habitat Ring', size: 'medium', blueprint: 'habitat_dome' },
+    { id: 'warehouse', role: 'warehouse', label: 'Cold Stores', size: 'medium', blueprint: 'cargo_stack' },
+    { id: 'station', role: 'station', label: 'Relay Station', size: 'small', blueprint: 'habitat_dome' },
   ],
   npcs: [
     {
@@ -261,4 +262,8 @@ export const scifi: WorldSpec = {
     'the Ring — the rotating habitat',
     'burn — a rocket engine firing',
   ],
+  style: scifiStyle,
+  blueprints: scifiBlueprints,
+  props: scifiProps,
+  landmarks: scifiLandmarks,
 };

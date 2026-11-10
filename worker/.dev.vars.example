@@ -1,5 +1,8 @@
 # Copy to worker/.dev.vars (gitignored). In production use `wrangler secret put <NAME>`.
 ANTHROPIC_API_KEY=
+# Optional: origin of a compatible gateway for local development. Requests go to <base>/v1/messages.
+# Leave empty to use https://api.anthropic.com.
+ANTHROPIC_BASE_URL=
 GROQ_API_KEY=
 TYPESAFE_API_KEY=
 # Set to 1 to answer every model route from fixtures, ignoring the keys above.

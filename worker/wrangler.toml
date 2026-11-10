@@ -14,6 +14,8 @@ not_found_handling = "single-page-application"
 BUDGET_SESSION_TOKENS = "300000"
 BUDGET_IP_TOKENS = "600000"
 BUDGET_GLOBAL_TOKENS = "6000000"
+# Hard daily cap on generated landmarks (text-to-3D vendor tasks).
+LANDMARK_DAILY_CAP = "150"
 
 [[kv_namespaces]]
 binding = "TOWNS"
@@ -21,6 +23,13 @@ id = "REPLACE_WITH_KV_NAMESPACE_ID"
 
 [ai]
 binding = "AI"
+
+# Landmark models. Optional: without it GLBs are kept in KV (under 20 MB each).
+# To use R2: `npx wrangler r2 bucket create townforge-landmarks`, then uncomment.
+# [[r2_buckets]]
+# binding = "LANDMARKS"
+# bucket_name = "townforge-landmarks"
+# Secrets (never commit): `npx wrangler secret put TRIPO_API_KEY` (or MESHY_API_KEY).
 
 # Rate Limiting binding, per IP. Wrangler 4.x spells this [[ratelimits]]; it replaces the older
 # [[unsafe.bindings]] type = "ratelimit" form.

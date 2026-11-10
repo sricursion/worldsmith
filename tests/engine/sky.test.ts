@@ -127,13 +127,19 @@ const PRESET_KEYS: SkyPreset[] = ['dawn', 'day', 'dusk', 'night', 'overcast'];
 const HOURS = [0, 3, 5, 6.5, 8, 10, 12, 14, 16, 17.5, 19, 21, 23];
 
 describe('sky look', () => {
-  it('keeps exposure within 0.25..0.9 for every preset and hour', () => {
+  it('keeps exposure within 0.25..1.1 for every preset and hour, and within 0.25..1.45 over any ground', () => {
     for (const k of PRESET_KEYS) {
       for (const h of HOURS) {
         const e = exposureFor(k, h);
         expect(e).toBeGreaterThanOrEqual(0.25);
-        expect(e).toBeLessThanOrEqual(0.9);
+        expect(e).toBeLessThanOrEqual(1.1);
         expect(skyLookFor(k, h).exposure).toBe(e);
+        for (const ground of [0.01, 0.18, 0.8]) {
+          const g = exposureFor(k, h, ground);
+          expect(g).toBeGreaterThanOrEqual(0.25);
+          expect(g).toBeLessThanOrEqual(1.45);
+          expect(skyLookFor(k, h, ground).exposure).toBe(g);
+        }
       }
     }
   });

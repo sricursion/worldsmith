@@ -140,33 +140,138 @@ export function addProceduralProp(env: ProcEnv, prop: PlacedProp): void {
   }
 }
 
+export interface TownLight { pos: THREE.Vector3; color: string; radius: number }
+
+// ---- Poles ---------------------------------------------------------------------------------------------------
+// Lamp posts, masts and antennas read as clutter long before anything else does: a thin dark line against the
+// sky from every angle. A town keeps a handful, along its streets and by its doors, and each lamp among them
+// gets a real light.
+
+/** A prop is a pole when it stands taller than this and its width, averaged over its height, is under POLE_MAX_WIDTH. */
+export const POLE_MIN_HEIGHT = 3;
+export const POLE_MAX_WIDTH = 0.6;
+/** How many poles a town keeps, and how far apart they stand. */
+export const MAX_POLES = 14;
+export const POLE_SPACING = 9;
+
+export interface PropProfile {
+  /** Top of the tallest part, metres. */
+  height: number;
+  /** Width of the parts averaged over their heights, metres: a lamp post is its shaft, a tree is its crown. */
+  width: number;
+  /** Centre height of the highest glowing part, or null when nothing on it glows. */
+  glowY: number | null;
+}
+
+/** The outline of a prop kind at a slot scale, measured the way addPropParts builds it. */
+export function propProfile(kind: Pick<PropBlueprint, 'size' | 'parts'>, scale = 1): PropProfile {
+  const fp = Math.min(6, Math.max(0.3, kind.size)) * scale;
+  let height = 0;
+  let area = 0;
+  let span = 0;
+  let glowY: number | null = null;
+  for (const p of expandBlueprintParts(kind.parts)) {
+    const h = Math.min(30, Math.max(0.02, p.h)) * fp;
+    const y = Math.min(30, Math.max(0, p.y)) * fp;
+    const w = Math.min(1.4, Math.max(0.002, Math.max(p.w, p.d))) * fp;
+    height = Math.max(height, y + h);
+    area += w * h;
+    span += h;
+    if (p.tone === 'glow') glowY = Math.max(glowY ?? 0, y + h / 2);
+  }
+  return { height, width: span > 0 ? area / span : 0, glowY };
+}
+
+export function isPole(profile: Pick<PropProfile, 'height' | 'width'>): boolean {
+  return profile.height > POLE_MIN_HEIGHT && profile.width < POLE_MAX_WIDTH;
+}
+
+/**
+ * Which of the candidate spots keep their pole: those nearest a road or a door first, each at least
+ * `spacing` metres from every one already kept, `max` at most. Returns indices into `spots`.
+ */
+export function pickPoleSpots(
+  spots: readonly { x: number; z: number }[], layout: Pick<TownLayout, 'roads' | 'buildings'>, max = MAX_POLES, spacing = POLE_SPACING,
+): number[] {
+  const ranked = spots.map((s, index) => {
+    let near = Infinity;
+    for (const rd of layout.roads) near = Math.min(near, distanceToRoad(rd, s.x, s.z));
+    for (const b of layout.buildings) near = Math.min(near, Math.hypot(s.x - b.door.x, s.z - b.door.z));
+    return { index, near };
+  }).sort((a, b) => a.near - b.near || a.index - b.index);
+  const kept: number[] = [];
+  for (const c of ranked) {
+    if (kept.length >= max) break;
+    const s = spots[c.index] as { x: number; z: number };
+    if (kept.some((k) => Math.hypot((spots[k] as { x: number; z: number }).x - s.x, (spots[k] as { x: number; z: number }).z - s.z) < spacing)) continue;
+    kept.push(c.index);
+  }
+  return kept;
+}
+
+/** How far a lamp of this height lights the ground, metres: it has to reach the ground to be worth a light. */
+export function lampRadius(glowY: number): number {
+  return Math.min(18, Math.max(7, glowY * 1.4));
+}
+
+function pickWeighted<T>(items: readonly T[], weights: readonly number[], rng: Rng): T | undefined {
+  const total = weights.reduce((a, b) => a + b, 0);
+  let t = rng.next() * total;
+  for (let i = 0; i < items.length; i++) {
+    t -= weights[i] ?? 0;
+    if (t < 0) return items[i];
+  }
+  return items[items.length - 1];
+}
+
 /**
  * Scatters generated prop kinds over the layout's prop slots. Each slot takes one spec prop, picked by
- * weight with the rng; the slot's position, yaw and scale are kept. Returns how many were placed per kind.
+ * weight with the rng; the slot's position, yaw and scale are kept. Poles are capped (see pickPoleSpots,
+ * which needs `layout`): a slot that loses its pole takes another kind of prop, or stays empty when the
+ * town has no other kind. A kept pole with a glowing part adds a light to `lights`, unless it glows too
+ * high up to light the ground. Returns how many were placed per kind.
  */
 export function scatterBlueprintProps(
   slots: readonly PlacedProp[], kinds: readonly PropBlueprint[], style: StyleSpec,
-  env: { batch: GeoBatch; mats: MaterialCache; rng: Rng; visualBatch?: GeoBatch },
+  env: {
+    batch: GeoBatch; mats: MaterialCache; rng: Rng; visualBatch?: GeoBatch;
+    layout?: Pick<TownLayout, 'roads' | 'buildings'>; lights?: TownLight[];
+  },
 ): Map<string, number> {
   const counts = new Map<string, number>();
   const usable = kinds.filter((k) => k.parts.length > 0);
   if (usable.length === 0) return counts;
-  const weights = usable.map((k) => Math.min(5, Math.max(1, Number.isFinite(k.weight) ? k.weight : 1)));
-  const total = weights.reduce((a, b) => a + b, 0);
-  for (const slot of slots) {
-    let t = env.rng.next() * total;
-    let idx = weights.length - 1;
-    for (let i = 0; i < weights.length; i++) {
-      t -= weights[i] ?? 0;
-      if (t < 0) { idx = i; break; }
-    }
-    const kind = usable[idx];
-    if (!kind) continue;
+  const weight = (k: PropBlueprint): number => Math.min(5, Math.max(1, Number.isFinite(k.weight) ? k.weight : 1));
+  const weights = usable.map(weight);
+  const picks = slots.map(() => pickWeighted(usable, weights, env.rng));
+
+  // Poles: a kind is one or is not, judged at its own size; then the slots that drew one, and the few that keep it.
+  const poles = new Set(usable.filter((k) => isPole(propProfile(k))));
+  const poleSlots: number[] = [];
+  picks.forEach((kind, i) => {
+    if (kind && poles.has(kind)) poleSlots.push(i);
+  });
+  const keptPoles = new Set(
+    pickPoleSpots(poleSlots.map((i) => slots[i] as PlacedProp), env.layout ?? { roads: [], buildings: [] }).map((k) => poleSlots[k] as number),
+  );
+  const sturdy = usable.filter((k) => !poles.has(k));
+  const sturdyWeights = sturdy.map(weight);
+
+  slots.forEach((slot, i) => {
+    let kind = picks[i];
+    const pole = keptPoles.has(i);
+    if (!pole && kind !== undefined && poles.has(kind)) kind = sturdy.length > 0 ? pickWeighted(sturdy, sturdyWeights, env.rng) : undefined;
+    if (!kind) return;
     const small = isVisualOnlyProp(kind.size * slot.scale);
     const target = small && env.visualBatch ? env.visualBatch : env.batch;
     addPropParts(kind.parts, kind.size, style, slot, { batch: target, mats: env.mats, rng: env.rng });
     counts.set(kind.kind, (counts.get(kind.kind) ?? 0) + 1);
-  }
+    const glowY = pole ? propProfile(kind, slot.scale).glowY : null;
+    // A beacon on a mast too tall for its light to reach the ground is left as a glow.
+    if (glowY !== null && env.lights && lampRadius(glowY) >= glowY) {
+      env.lights.push({ pos: new THREE.Vector3(slot.x, glowY, slot.z), color: style.glow, radius: lampRadius(glowY) });
+    }
+  });
   return counts;
 }
 
@@ -174,8 +279,6 @@ export function scatterBlueprintProps(
 // What accumulates against buildings: goods stacked by a side wall, planks left leaning, a sign on a bracket,
 // a lantern on a post by the door, lines strung across the street. Stacks of crates and barrels are solid
 // (they go to `batch`, so the navmesh and the camera respect them); everything else is drawn only.
-
-export interface TownLight { pos: THREE.Vector3; color: string; radius: number }
 
 export interface DressInput {
   layout: TownLayout; spec: WorldSpec; style: StyleSpec; surfaces: SurfaceSet;

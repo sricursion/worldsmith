@@ -185,6 +185,11 @@ export interface GradeParams {
   vignette: number;
   /** Grain amplitude in display units. */
   grain: number;
+  /**
+   * 0..1: how much of a saturated warm colour (a lamp, a neon sign, a fire) is spared from the grade, so a
+   * cool look still carries its complementary accents. See accentWeight.
+   */
+  keep: number;
 }
 
 export const GRADE_KINDS: readonly GradeKind[] = [
@@ -194,43 +199,43 @@ export const GRADE_KINDS: readonly GradeKind[] = [
 export const GRADES: Record<GradeKind, GradeParams> = {
   neutral: {
     lift: [0, 0, 0], gamma: [1, 1, 1], gain: [1, 1, 1], shadows: [1, 1, 1], highlights: [1, 1, 1],
-    saturation: 1.04, contrast: 0.18, exposure: 1, vignette: 0.26, grain: 0.022,
+    saturation: 1.04, contrast: 0.18, exposure: 1, vignette: 0.26, grain: 0.022, keep: 0,
   },
   golden: {
     lift: [0.012, 0.006, 0], gamma: [1.03, 1.0, 0.96], gain: [1.04, 1.0, 0.93], shadows: [0.92, 1.0, 1.1], highlights: [1.06, 1.0, 0.88],
-    saturation: 1.06, contrast: 0.3, exposure: 1.04, vignette: 0.34, grain: 0.03,
+    saturation: 1.06, contrast: 0.3, exposure: 1.04, vignette: 0.34, grain: 0.03, keep: 0.5,
   },
   teal_orange: {
     lift: [0, 0.004, 0.01], gamma: [1, 1, 1], gain: [1.03, 1.0, 0.95], shadows: [0.8, 1.02, 1.18], highlights: [1.14, 1.0, 0.84],
-    saturation: 1.14, contrast: 0.38, exposure: 1, vignette: 0.34, grain: 0.026,
+    saturation: 1.14, contrast: 0.38, exposure: 1, vignette: 0.34, grain: 0.026, keep: 0.7,
   },
   cold_steel: {
     lift: [0, 0.004, 0.012], gamma: [0.97, 1.0, 1.03], gain: [0.94, 1.0, 1.07], shadows: [0.84, 0.98, 1.18], highlights: [0.96, 1.0, 1.06],
-    saturation: 0.72, contrast: 0.42, exposure: 0.97, vignette: 0.38, grain: 0.034,
+    saturation: 0.72, contrast: 0.42, exposure: 0.97, vignette: 0.38, grain: 0.034, keep: 0.8,
   },
   sepia: {
     lift: [0.024, 0.014, 0.002], gamma: [1.03, 1.0, 0.95], gain: [1.08, 1.0, 0.82], shadows: [1.08, 0.98, 0.88], highlights: [1.06, 1.0, 0.86],
-    saturation: 0.34, contrast: 0.26, exposure: 1.03, vignette: 0.42, grain: 0.05,
+    saturation: 0.34, contrast: 0.26, exposure: 1.03, vignette: 0.42, grain: 0.05, keep: 0,
   },
   neon_noir: {
-    lift: [-0.012, -0.012, -0.004], gamma: [0.96, 0.94, 1.02], gain: [1.04, 0.98, 1.08], shadows: [0.78, 0.92, 1.3], highlights: [1.16, 0.94, 1.1],
-    saturation: 1.3, contrast: 0.55, exposure: 1.06, vignette: 0.44, grain: 0.038,
+    lift: [0, 0.002, 0.008], gamma: [0.98, 0.97, 1.02], gain: [1.03, 0.99, 1.05], shadows: [0.86, 0.95, 1.2], highlights: [1.1, 0.97, 1.04],
+    saturation: 1.16, contrast: 0.34, exposure: 1.18, vignette: 0.4, grain: 0.038, keep: 0.85,
   },
   verdant: {
     lift: [0.002, 0.008, 0.002], gamma: [0.98, 1.03, 0.97], gain: [0.97, 1.04, 0.94], shadows: [0.88, 1.04, 1.02], highlights: [1.06, 1.03, 0.88],
-    saturation: 1.12, contrast: 0.24, exposure: 1, vignette: 0.3, grain: 0.024,
+    saturation: 1.12, contrast: 0.24, exposure: 1, vignette: 0.3, grain: 0.024, keep: 0.7,
   },
   bleached: {
     lift: [0.016, 0.016, 0.018], gamma: [1.02, 1.02, 1.02], gain: [1.05, 1.05, 1.04], shadows: [0.98, 1.0, 1.04], highlights: [1.02, 1.0, 0.97],
-    saturation: 0.52, contrast: 0.6, exposure: 1.08, vignette: 0.3, grain: 0.042,
+    saturation: 0.52, contrast: 0.6, exposure: 1.08, vignette: 0.3, grain: 0.042, keep: 0,
   },
   crimson: {
     lift: [0.01, 0, 0.002], gamma: [1.03, 0.97, 0.97], gain: [1.08, 0.95, 0.92], shadows: [1.0, 0.86, 0.96], highlights: [1.14, 0.96, 0.88],
-    saturation: 1.06, contrast: 0.46, exposure: 0.98, vignette: 0.44, grain: 0.034,
+    saturation: 1.06, contrast: 0.46, exposure: 0.98, vignette: 0.44, grain: 0.034, keep: 0.5,
   },
   moonlit: {
     lift: [0, 0.004, 0.014], gamma: [0.96, 1.0, 1.05], gain: [0.86, 0.97, 1.12], shadows: [0.76, 0.94, 1.26], highlights: [0.92, 1.0, 1.1],
-    saturation: 0.62, contrast: 0.34, exposure: 1.1, vignette: 0.4, grain: 0.04,
+    saturation: 0.62, contrast: 0.34, exposure: 1.1, vignette: 0.4, grain: 0.04, keep: 0.85,
   },
 };
 
@@ -243,6 +248,36 @@ function clamp01(v: number): number {
 function smooth01(v: number): number {
   const t = clamp01(v);
   return t * t * (3 - 2 * t);
+}
+
+const ACCENT_SATURATION: readonly [number, number] = [0.35, 0.7];
+const ACCENT_WARMTH: readonly [number, number] = [0.1, 0.4];
+const ACCENT_FLOOR = 0.06;
+
+/**
+ * 0..1: how much a display colour counts as a warm accent. 1 for a saturated orange, yellow, red or magenta
+ * that is not lost in the blacks; 0 for greys, for cool colours and for near-black. Kept in step with
+ * GRADE_GLSL below.
+ */
+export function accentWeight(rgb: Vec3): number {
+  const hi = Math.max(rgb[0], rgb[1], rgb[2]);
+  const lo = Math.min(rgb[0], rgb[1], rgb[2]);
+  const inv = 1 / Math.max(hi, 1e-4);
+  const sat = smooth01(((hi - lo) * inv - ACCENT_SATURATION[0]) / (ACCENT_SATURATION[1] - ACCENT_SATURATION[0]));
+  const warm = smooth01(((rgb[0] - rgb[2]) * inv - ACCENT_WARMTH[0]) / (ACCENT_WARMTH[1] - ACCENT_WARMTH[0]));
+  return sat * warm * smooth01(hi / ACCENT_FLOOR);
+}
+
+/**
+ * The cast a grade gives a neutral mid-tone, with its brightest channel at 1. The player fill light takes
+ * this colour, so the light on the character belongs to the look.
+ */
+export function gradeTint(grade: GradeParams, strength = 1): [number, number, number] {
+  const k = clamp01(strength);
+  const c: [number, number, number] = [0, 0, 0];
+  for (let i = 0; i < 3; i++) c[i] = (grade.gain[i] ?? 1) * 0.5 * ((grade.shadows[i] ?? 1) + (grade.highlights[i] ?? 1));
+  const top = Math.max(c[0], c[1], c[2], 1e-4);
+  return [1 + (c[0] / top - 1) * k, 1 + (c[1] / top - 1) * k, 1 + (c[2] / top - 1) * k];
 }
 
 /**
@@ -267,7 +302,7 @@ export function applyGrade(rgb: Vec3, grade: GradeParams, strength = 1): [number
     c[i] = (c[i] ?? 0) * (sh + ((grade.highlights[i] ?? 1) - sh) * t);
   }
   l = c[0] * LUMA[0] + c[1] * LUMA[1] + c[2] * LUMA[2];
-  const k = clamp01(strength);
+  const k = clamp01(strength) * (1 - clamp01(grade.keep) * accentWeight(o));
   return [
     (o[0] ?? 0) + (clamp01(l + (c[0] - l) * grade.saturation) - (o[0] ?? 0)) * k,
     (o[1] ?? 0) + (clamp01(l + (c[1] - l) * grade.saturation) - (o[1] ?? 0)) * k,
@@ -276,6 +311,9 @@ export function applyGrade(rgb: Vec3, grade: GradeParams, strength = 1): [number
 }
 
 const GRADE_GLSL = /* glsl */ `
+  const vec2 ACCENT_SAT = vec2(${ACCENT_SATURATION[0].toFixed(3)}, ${ACCENT_SATURATION[1].toFixed(3)});
+  const vec2 ACCENT_WARM = vec2(${ACCENT_WARMTH[0].toFixed(3)}, ${ACCENT_WARMTH[1].toFixed(3)});
+  const float ACCENT_FLOOR = ${ACCENT_FLOOR.toFixed(3)};
   vec3 applyGrade(vec3 c) {
     vec3 o = c;
     vec3 g = pow(max(uGain * (c + uLift * (1.0 - c)), vec3(0.0)), 1.0 / uGamma);
@@ -287,7 +325,13 @@ const GRADE_GLSL = /* glsl */ `
     c *= mix(uShadows, uHighlights, t);
     l = dot(c, LUMA);
     c = clamp(mix(vec3(l), c, uSaturation), 0.0, 1.0);
-    return mix(o, c, uStrength);
+    // Warm accents are spared: see accentWeight.
+    float hi = max(o.r, max(o.g, o.b));
+    float lo = min(o.r, min(o.g, o.b));
+    float inv = 1.0 / max(hi, 1e-4);
+    float accent = smoothstep(ACCENT_SAT.x, ACCENT_SAT.y, (hi - lo) * inv) * smoothstep(ACCENT_WARM.x, ACCENT_WARM.y, (o.r - o.b) * inv)
+      * smoothstep(0.0, ACCENT_FLOOR, hi);
+    return mix(o, c, uStrength * (1.0 - uKeep * accent));
   }
 `;
 
@@ -317,6 +361,10 @@ export const AIR = {
   cloudCover: 0.35,
   /** 0..1: how much of the key reaches the ground as a beam (low under overcast). */
   beam: 1,
+
+  // ---- written by the pipeline when the grade changes
+  /** Colour cast of the grade; the sky rig tints the player fill light with it. */
+  fillTint: new Color(1, 1, 1),
 
   // ---- written by the atmosphere
   densityMul: 1,
@@ -379,6 +427,19 @@ const BLOOM_FLOOR = 0.8;
 /** Radiance where bloom starts: above anything the key light can make a matt surface, and above the horizon haze. */
 export function bloomThresholdFor(keyLevel: number, fogLuminance: number): number {
   return Math.max(BLOOM_FLOOR, 1.02 * keyLevel, 1.3 * fogLuminance);
+}
+
+/** How much brighter than the horizon the fog is drawn at night, at full haze. */
+export const NIGHT_FOG_LIFT = 0.35;
+
+/**
+ * Multiplier on the fog colour. By day it is 1: the fog is the horizon. At night hazy air catches the moon
+ * and the lamps, so distant walls fade into a pale veil that still shows their shape, not into the dark.
+ */
+export function nightFogGain(haze: number, daylight: number): number {
+  const h = Number.isFinite(haze) ? clamp01(haze) : 0;
+  const d = Number.isFinite(daylight) ? clamp01(daylight) : 1;
+  return 1 + NIGHT_FOG_LIFT * h * (1 - d);
 }
 
 /** Optical depth of the height fog along a ray, as the air pass computes it. `dirY` is the ray's vertical direction cosine. */
@@ -592,6 +653,7 @@ const FINAL_FRAGMENT = /* glsl */ `
   uniform float uSaturation;
   uniform float uContrast;
   uniform float uStrength;
+  uniform float uKeep;
   uniform float uVignette;
   uniform float uGrain;
   uniform float uAberration;
@@ -840,6 +902,7 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
       uSaturation: { value: startGrade.saturation },
       uContrast: { value: startGrade.contrast },
       uStrength: { value: 1 },
+      uKeep: { value: startGrade.keep },
       uVignette: { value: startGrade.vignette },
       uGrain: { value: startGrade.grain },
       uAberration: { value: 0.0065 },
@@ -917,8 +980,10 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
     frame = (frame + 1) % 1024;
     clock = (clock + dt) % 4096;
 
-    const fogLum = 0.2126 * AIR.fogColor.r + 0.7152 * AIR.fogColor.g + 0.0722 * AIR.fogColor.b;
-    fogColor.copy(AIR.fogColor);
+    const haze = Math.min(1, Math.max(0, AIR.haze));
+    const fogGain = nightFogGain(haze, AIR.daylight);
+    const fogLum = fogGain * (0.2126 * AIR.fogColor.r + 0.7152 * AIR.fogColor.g + 0.0722 * AIR.fogColor.b);
+    fogColor.copy(AIR.fogColor).multiplyScalar(fogGain);
     if (AIR.fogTintMix > 0) {
       // A tint changes the hue of the fog, not how bright the horizon is.
       const tl = Math.max(0.02, 0.2126 * AIR.fogTint.r + 0.7152 * AIR.fogTint.g + 0.0722 * AIR.fogTint.b);
@@ -926,7 +991,6 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
       fogColor.lerp(tint, Math.min(1, AIR.fogTintMix));
     }
     const threshold = bloomThresholdFor(AIR.keyLevel, fogLum);
-    const haze = Math.min(1, Math.max(0, AIR.haze));
 
     camera.getWorldPosition(camPos);
     sunDir.copy(AIR.keyDir);
@@ -1005,6 +1069,8 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
       setNumber(fin, 'uSaturation', g.saturation);
       setNumber(fin, 'uContrast', g.contrast);
       setNumber(fin, 'uStrength', k);
+      setNumber(fin, 'uKeep', g.keep);
+      AIR.fillTint.setRGB(...gradeTint(g, k));
       setNumber(fin, 'uVignette', 0.22 + (g.vignette - 0.22) * k);
       setNumber(fin, 'uGrain', 0.02 + (g.grain - 0.02) * k);
       gradeExposure = 1 + (g.exposure - 1) * k;
@@ -1013,6 +1079,7 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
       if (disposed) return;
       disposed = true;
       AIR.postActive = false;
+      AIR.fillTint.setRGB(1, 1, 1);
       AIR_UNIFORMS.tDepth.value = null;
       AIR_UNIFORMS.tNoise.value = null;
       gtao.dispose();

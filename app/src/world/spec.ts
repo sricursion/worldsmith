@@ -179,7 +179,7 @@ export interface PropBlueprint {
 }
 
 /** How the place is laid out. Not every world is a street of houses. */
-export type SitePattern = 'street' | 'ring' | 'scatter' | 'grid' | 'terraces';
+export type SitePattern = 'street' | 'ring' | 'scatter' | 'grid' | 'terraces' | 'wild' | 'path' | 'shoreline' | 'cliffside';
 
 export interface SiteSpec {
   pattern: SitePattern;        // street: main road and cross streets; ring: around a centre; scatter: a camp or grove with paths; grid: city blocks; terraces: rows stepping back
@@ -214,6 +214,72 @@ export interface SurfaceSet {
 
 export type WeatherKind = 'clear' | 'rain' | 'storm' | 'snow' | 'fog' | 'dust' | 'ash' | 'spores' | 'embers' | 'fireflies' | 'mist';
 export type GradeKind = 'neutral' | 'golden' | 'teal_orange' | 'cold_steel' | 'sepia' | 'neon_noir' | 'verdant' | 'bleached' | 'crimson' | 'moonlit';
+
+// ---- The land, the sky and the living things: what makes a world more than a town --------------
+
+/** Shape of the walkable land. The engine keeps slopes gentle enough to walk. */
+export type ReliefKind = 'flat' | 'rolling' | 'dunes' | 'craggy' | 'terraced' | 'crater' | 'canyon' | 'icefield' | 'swamp' | 'islands';
+export type WaterKind = 'none' | 'pond' | 'river' | 'shore' | 'lake' | 'lava' | 'acid' | 'ice_sheet' | 'mist_sea';
+
+export interface TerrainSpec {
+  relief: ReliefKind;
+  /** 0..1: how tall the relief is inside the playable area (0.2 gentle, 1 dramatic). */
+  ruggedness: number;
+  water: WaterKind;
+  /** 0..1: how much of the area the water takes. */
+  waterAmount: number;
+  /** What the far distance is made of, in a few words: "red mesas", "glacier wall", "jungle canopy", "megacity skyline", "ringed gas giant on the horizon". */
+  horizon: string;
+  /** 0..1: how much of the place is settlement versus wilderness. 0 is untouched nature with a few points of interest; 1 is dense city. */
+  settled: number;
+}
+
+/** The people of this world, as a body plan. Humans are one setting among many. */
+export interface FolkSpec {
+  name: string;                // "frontier settlers", "kobolds", "maintenance androids", "moss sprites"
+  /** Typical adult height in metres, 0.5..3. */
+  height: number;
+  /** 0 slight .. 1 massive. */
+  bulk: number;
+  /** Head size relative to a real human (1 = realistic; keep 0.9..1.3 unless the folk are stylised by nature). */
+  head: number;
+  features: ('tail' | 'horns' | 'long_ears' | 'snout' | 'visor' | 'antenna' | 'wings' | 'hood' | 'hat' | 'cloak' | 'armor' | 'pack' | 'mask' | 'glow_eyes')[];
+  /** Hex ranges to draw from: skin or shell, cloth, trim. */
+  skin: string[];
+  cloth: string[];
+  trim: string[];
+}
+
+/** Things in the sky. */
+export interface SkyFeature {
+  kind: 'moon' | 'planet' | 'ringed_planet' | 'second_sun' | 'aurora' | 'nebula' | 'comet' | 'floating_islands' | 'orbital_ring' | 'storm_wall' | 'eclipse';
+  /** Apparent size 0..1 and a hex tint. */
+  size: number;
+  color: string;
+}
+
+/** Body plans for non-human life. Dials reshape each plan far beyond its name. */
+export type CreatureFamily = 'quadruped' | 'biped' | 'winged' | 'serpent' | 'bird' | 'swimmer' | 'crawler' | 'floater' | 'colossus' | 'swarm';
+export type CreatureBehaviour = 'roam' | 'graze' | 'patrol' | 'perch' | 'circle' | 'sleep' | 'guard' | 'flock' | 'stalk';
+
+export interface CreatureSpec {
+  id: string;
+  name: string;                // "ash dragon", "sand strider", "arctic fox", "maintenance drone"
+  family: CreatureFamily;
+  dials: Record<string, number | string>;
+  /** Body length or height in metres, 0.2..40. */
+  size: number;
+  count: number;               // 1..24
+  behaviour: CreatureBehaviour;
+  /** Where it keeps to: 'sky', 'water', 'wild', 'plaza', or a building id. */
+  haunt: string;
+  /** Hex colours: body, secondary, glow (eyes, fire, lights). */
+  body: string;
+  accent: string;
+  glow: string;
+  /** One sentence the player sees when they look at it. */
+  note: string;
+}
 
 /** The mood of the place: what the light, air and sound are doing. */
 export interface MoodSpec {
@@ -276,6 +342,10 @@ export interface WorldSpec {
   style?: StyleSpec;
   site?: SiteSpec;
   mood?: MoodSpec;
+  terrain?: TerrainSpec;
+  skyFeatures?: SkyFeature[];   // 0..3
+  creatures?: CreatureSpec[];   // 0..6 kinds
+  folk?: FolkSpec;
   blueprints?: Blueprint[];    // 3..8 archetypes shared by the buildings
   props?: PropBlueprint[];     // 0..6 kinds scattered instead of kit props
   /** One or two set pieces worth generating as full 3D models in the background. */

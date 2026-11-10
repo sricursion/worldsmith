@@ -6,8 +6,8 @@ import { Color, Vector3 } from 'three';
 import type { GradeKind, MoodSpec, SkyPreset, StyleSpec, SurfaceKind, ThemeId, WeatherKind } from '../world/spec';
 import { makeRng } from '../world/rng';
 import type { Viewport } from './renderer';
-import { AIR, onQuality, resetAirMods } from './post';
-import { sunFromHour, type SkyRig } from './sky';
+import { AIR, GRADES, applyGrade, gradeTint, onQuality, resetAirMods } from './post';
+import { REFERENCE_ALBEDO, acesDisplay, lightRigFor, playerFillIrradiance, skyLookFor, sunFromHour, type SkyRig } from './sky';
 import { createWeather, type WeatherTint } from './weather';
 
 /** 0 dry .. 1 soaked. The atmosphere sets it; a ground material may read `WET.value` or hold the object as a uniform. */
@@ -198,6 +198,65 @@ export function airFor(mood: MoodSpec, baseWet = 0): AirSettings {
     wet: Math.min(1, Math.max(Number.isFinite(baseWet) ? Math.max(0, baseWet) : 0, w.wet * i)),
     wind: w.wind * (0.5 + 0.5 * i),
   };
+}
+
+// ---- Brightness estimate -----------------------------------------------------------------------
+
+export interface ShownLuminance {
+  /** Linear display luminance, 0..1, after tone mapping and the grade. */
+  linear: number;
+  /** The same as an sRGB-encoded signal level, 0..1: what a waveform monitor reads. */
+  encoded: number;
+  /** Exposure the final pass uses: sky rig times weather times grade. */
+  exposure: number;
+}
+
+export interface LuminanceInput {
+  preset: SkyPreset;
+  hour: number;
+  mood: Pick<MoodSpec, 'weather' | 'intensity' | 'grade' | 'haze'>;
+  /** Linear RGB albedo of the surface; mid-grey when left out. */
+  albedo?: readonly [number, number, number];
+  /** Linear luminance of the town's ground colour, as the sky rig is told it; mid-grey when left out. */
+  groundLuminance?: number;
+  /** Metres from the player, for the player fill. Infinity leaves the fill out. Default 0. */
+  distance?: number;
+}
+
+const RIM_COSINE = 42 / Math.hypot(42, 100);
+const srgbEncode = (v: number): number => (v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
+
+/**
+ * Estimates how bright a matt, level, unshadowed surface is shown, from the same numbers the sky rig, the
+ * weather and the grade apply. Left out: ambient occlusion, cloud shadow, fog between the camera and the
+ * surface, lamps, bloom and the vignette. Good for setting levels, not for pixel values.
+ */
+export function shownLuminance(input: LuminanceInput): ShownLuminance {
+  const rig = lightRigFor(input.preset, input.hour, input.groundLuminance === undefined ? {} : { groundLuminance: input.groundLuminance });
+  const look = skyLookFor(input.preset, input.hour, input.groundLuminance);
+  const grade = GRADES[input.mood.grade];
+  const air = airFor({ ...input.mood, ambience: [], music: '' });
+  const albedo = input.albedo ?? [REFERENCE_ALBEDO, REFERENCE_ALBEDO, REFERENCE_ALBEDO];
+  const distance = input.distance ?? 0;
+  const fill = Number.isFinite(distance) ? playerFillIrradiance(rig.fillCandela, distance) : 0;
+  const tint = gradeTint(grade);
+  const key = rig.keyIntensity * Math.max(0, rig.keyDirection[1]);
+  // The environment map is the sky: roughly the mean of its zenith and horizon colours, seen by a level surface.
+  const env = look.hazeTopColor.clone().lerp(look.hazeHorizonColor, 0.5).multiplyScalar(rig.envIntensity * Math.PI);
+  const irradiance: [number, number, number] = [
+    rig.keyColor.r * key + rig.hemiSky.r * rig.hemiLevel + rig.rimColor.r * rig.rimLevel * RIM_COSINE + rig.fillColor.r * tint[0] * fill + env.r,
+    rig.keyColor.g * key + rig.hemiSky.g * rig.hemiLevel + rig.rimColor.g * rig.rimLevel * RIM_COSINE + rig.fillColor.g * tint[1] * fill + env.g,
+    rig.keyColor.b * key + rig.hemiSky.b * rig.hemiLevel + rig.rimColor.b * rig.rimLevel * RIM_COSINE + rig.fillColor.b * tint[2] * fill + env.b,
+  ];
+  const exposure = rig.exposure * air.exposureMul * grade.exposure;
+  const radiance: [number, number, number] = [
+    (albedo[0] / Math.PI) * irradiance[0],
+    (albedo[1] / Math.PI) * irradiance[1],
+    (albedo[2] / Math.PI) * irradiance[2],
+  ];
+  const shown = applyGrade(acesDisplay(radiance, exposure), grade);
+  const linear = 0.2126 * shown[0] + 0.7152 * shown[1] + 0.0722 * shown[2];
+  return { linear, encoded: srgbEncode(linear), exposure };
 }
 
 /** Lightning: brightness `age` seconds into a strike made of up to three pulses (start time, strength). */

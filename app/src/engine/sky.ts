@@ -30,7 +30,10 @@ export interface SkyRig {
   setPreset(p: SkyPreset, fog: number): void;
   /** Moves the shadow box so it is centred on this ground position (metres). */
   setFocus?(x: number, z: number): void;
-  /** Tints the hemisphere light's ground bounce, as a '#rrggbb' colour. */
+  /**
+   * Tints the hemisphere light's ground bounce, as a '#rrggbb' colour. The same colour tells the rig how
+   * dark the ground is, so the low-light fill and exposure can make up for it (see groundLift).
+   */
   setGroundTint?(hex: string): void;
   /** Turns the dramatic key-light bias on or off (on by default). The clock and the sky colours are not affected. */
   setCinematic?(on: boolean): void;
@@ -255,6 +258,8 @@ export interface SkyPresetParams {
   sunScale: number;
   /** Multiplier on hemisphere light. */
   ambientScale: number;
+  /** 0..1 floor on the low-light fill: a preset whose sky stays dark all day keeps that much of it at noon. */
+  gloom: number;
   /** Cloud cover of the sky shader, 0..1. */
   cloudCoverage: number;
   /** Colour layer drawn over the physical sky: colour and opacity at the zenith and at the horizon. */
@@ -270,23 +275,23 @@ export interface SkyPresetParams {
  */
 export const SKY_PRESETS: Record<SkyPreset, SkyPresetParams> = {
   dawn: {
-    turbidity: 3, rayleigh: 1.0, mieCoefficient: 0.004, mieDirectionalG: 0.85, sunScale: 1, ambientScale: 1,
+    turbidity: 3, rayleigh: 1.0, mieCoefficient: 0.004, mieDirectionalG: 0.85, sunScale: 1, ambientScale: 1, gloom: 0,
     cloudCoverage: 0.35, hazeTop: '#5f7fd0', hazeTopAlpha: 0.4, hazeHorizon: '#f0a4c4', hazeHorizonAlpha: 0.94,
   },
   day: {
-    turbidity: 2.2, rayleigh: 0.8, mieCoefficient: 0.0028, mieDirectionalG: 0.78, sunScale: 1, ambientScale: 1,
+    turbidity: 2.2, rayleigh: 0.8, mieCoefficient: 0.0028, mieDirectionalG: 0.78, sunScale: 1, ambientScale: 1, gloom: 0,
     cloudCoverage: 0.35, hazeTop: '#3a78d0', hazeTopAlpha: 0.45, hazeHorizon: '#dcd5c8', hazeHorizonAlpha: 0.94,
   },
   dusk: {
-    turbidity: 4, rayleigh: 1.2, mieCoefficient: 0.006, mieDirectionalG: 0.88, sunScale: 1, ambientScale: 1,
+    turbidity: 4, rayleigh: 1.2, mieCoefficient: 0.006, mieDirectionalG: 0.88, sunScale: 1, ambientScale: 1, gloom: 0,
     cloudCoverage: 0.4, hazeTop: '#4a4090', hazeTopAlpha: 0.55, hazeHorizon: '#f58a58', hazeHorizonAlpha: 0.95,
   },
   night: {
-    turbidity: 2, rayleigh: 0.3, mieCoefficient: 0.002, mieDirectionalG: 0.7, sunScale: 0.55, ambientScale: 1,
+    turbidity: 2, rayleigh: 0.3, mieCoefficient: 0.002, mieDirectionalG: 0.7, sunScale: 0.55, ambientScale: 1, gloom: 0.7,
     cloudCoverage: 0.2, hazeTop: '#050a22', hazeTopAlpha: 0.97, hazeHorizon: '#1c326a', hazeHorizonAlpha: 0.97,
   },
   overcast: {
-    turbidity: 6, rayleigh: 0.9, mieCoefficient: 0.01, mieDirectionalG: 0.6, sunScale: 0.35, ambientScale: 1.6,
+    turbidity: 6, rayleigh: 0.9, mieCoefficient: 0.01, mieDirectionalG: 0.6, sunScale: 0.35, ambientScale: 1.6, gloom: 0.5,
     cloudCoverage: 0.9, hazeTop: '#6a7f94', hazeTopAlpha: 0.99, hazeHorizon: '#9fb0c0', hazeHorizonAlpha: 0.95,
   },
 };
@@ -347,23 +352,149 @@ export function skyRadiance(
 
 const NIGHT_TOP = new Color('#040922');
 const NIGHT_HORIZON = new Color('#1a2f6a');
-const NIGHT_EXPOSURE = 0.58;
+/** Exposure with the sun well down, over mid-grey ground. Night is shot bright and graded cool, not left dark. */
+export const NIGHT_EXPOSURE = 0.84;
+/** Added around sunrise and sunset, when neither the sun nor the moon carries the frame. */
+export const TWILIGHT_EXPOSURE = 0.22;
 const SUN_LOW = new Color(0xffb27a);
 const SUN_HIGH = new Color(0xfff1d8);
 const MOON = new Color(0x9db4ff);
 const HEMI_SKY_DAY = new Color(0xb4d0ff);
-const HEMI_SKY_NIGHT = new Color(0x2a3f80);
+const HEMI_SKY_NIGHT = new Color(0x4a63b8);
 const HEMI_GROUND_DAY = new Color(0x6b5a45);
-const HEMI_GROUND_NIGHT = new Color(0x0d0f1a);
+const HEMI_GROUND_NIGHT = new Color(0x161b30);
 const RIM_DAY = new Color(0xa8c8ff);
 const RIM_NIGHT = new Color(0x4a64b0);
 const FLASH = new Color(0xcfe0ff);
 
 /** Light levels. Cinematic: a strong key over a thin fill, with a cool rim from the far side. */
 export const LIGHT_RATIOS = {
-  cinematic: { key: 4.0, fill: 0.25, rim: 0.4, moon: 1.2 },
-  plain: { key: 3.4, fill: 0.55, rim: 0, moon: 0.6 },
+  cinematic: { key: 4.0, fill: 0.25, rim: 0.4, moon: 1.6 },
+  plain: { key: 3.4, fill: 0.55, rim: 0, moon: 1.0 },
 } as const;
+
+/** Sky fill added to the hemisphere light once the sun is down, and the level it has around sunrise and sunset. */
+export const NIGHT_FILL = 1.7;
+export const TWILIGHT_FILL = 2.4;
+/** Share of the moon that gets through an overcast sky, and how much more the cloud spreads into the fill. */
+const OVERCAST_MOON = 0.6;
+const OVERCAST_FILL = 1.5;
+
+/**
+ * The player fill: a wide, shadowless light that rides above the player on the camera's side, so the
+ * character and the ground around it stay readable when the sun is down. Candela at full strength, its
+ * height over the ground, how far it sits back towards the camera, and where it cuts off.
+ */
+export const PLAYER_FILL = { candela: 5, height: 8, back: 3, range: 34 } as const;
+const PLAYER_FILL_COLOR = new Color(0xd6e0ff);
+
+/** The albedo the low-light levels are set for, and how far they may be pushed for darker or paler ground. */
+export const REFERENCE_ALBEDO = 0.18;
+export const GROUND_LIFT_MIN = 0.5;
+export const GROUND_LIFT_MAX = 1.6;
+
+/**
+ * How much the low-light fill is scaled for the ground the town stands on: 1 on mid-grey, less on snow or
+ * pale sand (which need no help), more on dark asphalt or moss. `groundLuminance` is the linear luminance
+ * of the ground colour; undefined means mid-grey.
+ */
+export function groundLift(groundLuminance?: number): number {
+  if (groundLuminance === undefined || !Number.isFinite(groundLuminance)) return 1;
+  return Math.min(GROUND_LIFT_MAX, Math.max(GROUND_LIFT_MIN, Math.sqrt(REFERENCE_ALBEDO / Math.max(groundLuminance, 0.005))));
+}
+
+/**
+ * Two 0..1 weights from the sun's elevation. `dark` is 1 from night until the sun clears the horizon and
+ * gone by 26 degrees (never below `gloom`, a preset's own floor); `twilight` is the bump around the
+ * horizon, where the sun is too low to light the ground and the moon has not taken over.
+ */
+export function lowLight(elevationDeg: number, gloom = 0): { dark: number; twilight: number } {
+  return {
+    dark: Math.max(gloom, 1 - smoothstep(-2, 26, elevationDeg)),
+    twilight: smoothstep(-24, -8, elevationDeg) * (1 - smoothstep(6, 26, elevationDeg)),
+  };
+}
+
+/** Irradiance the player fill leaves on flat ground `distance` metres from the player, for a light of `candela`. */
+export function playerFillIrradiance(candela: number, distance: number): number {
+  const flat = Math.max(0, distance) + PLAYER_FILL.back;
+  const d = Math.hypot(flat, PLAYER_FILL.height);
+  const cut = Math.min(1, Math.max(0, 1 - Math.pow(d / PLAYER_FILL.range, 4)));
+  // The light is built with decay 1: it thins with distance, not with its square, so the pool has no hard edge.
+  return (candela / d) * cut * cut * (PLAYER_FILL.height / d);
+}
+
+export interface LightRig {
+  daylight: number;
+  dark: number;
+  twilight: number;
+  /** Ground lift in force (see groundLift). */
+  lift: number;
+  /** True while the key is the sun, false while it is the moon. */
+  sunUp: boolean;
+  keyIntensity: number;
+  keyColor: Color;
+  /** Unit vector towards the key light. */
+  keyDirection: [number, number, number];
+  hemiLevel: number;
+  hemiSky: Color;
+  rimLevel: number;
+  rimColor: Color;
+  /** Candela of the player fill; its colour is tinted by the grade when it is applied. */
+  fillCandela: number;
+  fillColor: Color;
+  envIntensity: number;
+  /** 0..1 level of lamps and lit windows. */
+  practicalGain: number;
+  exposure: number;
+}
+
+/** Every light level and the exposure for a preset and hour. The live rig applies exactly these. */
+export function lightRigFor(preset: SkyPreset, hour: number, options: { cinematic?: boolean; groundLuminance?: number } = {}): LightRig {
+  const cinematic = options.cinematic !== false;
+  const p = SKY_PRESETS[preset];
+  const sun = sunFromHour(hour);
+  const d = sun.daylight;
+  const { dark, twilight } = lowLight(sun.elevationDeg, p.gloom);
+  const lift = groundLift(options.groundLuminance);
+  // The fill takes most of the correction for the ground; the exposure takes the rest (see exposureFor).
+  const fillLift = Math.pow(lift, 1.5);
+  const ratios = cinematic ? LIGHT_RATIOS.cinematic : LIGHT_RATIOS.plain;
+  const overcast = preset === 'overcast';
+
+  // Direct light: the sun by day, a blue moon (opposite the sun) once the sun is well down.
+  const sunIntensity = ratios.key * d * p.sunScale;
+  // The moon is turned down over pale ground but never up: the bloom threshold follows the key.
+  const moonIntensity = ratios.moon * (1 - d) * (overcast ? OVERCAST_MOON : 1) * Math.min(1, fillLift);
+  const sunUp = sunIntensity >= moonIntensity;
+  const key = sunUp ? keyLightFor(hour, cinematic) : moonLightFor(hour, cinematic);
+  const keyColor = sunUp ? SUN_LOW.clone().lerp(SUN_HIGH, smoothstep(0, 35, sun.elevationDeg)) : MOON.clone();
+
+  // The moon alone leaves the shadow side of a street unreadable, so the sky fill does most of the work in low light.
+  const fill = cinematic ? ratios.fill : 0.3 + 0.25 * d;
+  const lowFill = (NIGHT_FILL * dark + (TWILIGHT_FILL - NIGHT_FILL * dark) * twilight) * (overcast ? OVERCAST_FILL : 1);
+
+  return {
+    daylight: d,
+    dark,
+    twilight,
+    lift,
+    sunUp,
+    keyIntensity: sunUp ? sunIntensity : moonIntensity,
+    keyColor,
+    keyDirection: key.direction,
+    hemiLevel: fill * p.ambientScale + lowFill * fillLift,
+    hemiSky: HEMI_SKY_NIGHT.clone().lerp(HEMI_SKY_DAY, Math.max(d, 0.6 * twilight)),
+    rimLevel: ratios.rim * (0.35 + 0.65 * d) * (overcast ? 0.6 : 1),
+    rimColor: RIM_NIGHT.clone().lerp(RIM_DAY, d),
+    fillCandela: PLAYER_FILL.candela * dark * fillLift,
+    fillColor: PLAYER_FILL_COLOR.clone(),
+    envIntensity: 0.1 + 0.3 * d,
+    // Lamps come up as the daylight goes; by day they are a faint warm spill.
+    practicalGain: 0.12 + 0.88 * (1 - d) + (overcast ? 0.2 * d : 0),
+    exposure: exposureFor(preset, hour, options.groundLuminance),
+  };
+}
 
 /** Shadow map size and the width of the box it covers, per quality tier. */
 export const SHADOW_TIERS: readonly [{ map: number; box: number }, { map: number; box: number }, { map: number; box: number }] = [
@@ -395,11 +526,18 @@ function horizonSample(sunAzimuthDeg: number): [number, number, number] {
   return [Math.cos(el) * Math.sin(az), Math.sin(el), -Math.cos(el) * Math.cos(az)];
 }
 
-export function exposureFor(preset: SkyPreset, hour: number): number {
+/**
+ * Renderer exposure. `groundLuminance` (linear, see groundLift) opens it up over dark ground and closes it
+ * over snow while the light is low; by day it has no effect.
+ */
+export function exposureFor(preset: SkyPreset, hour: number, groundLuminance?: number): number {
   const sun = sunFromHour(hour);
   const lowSun = 1 - smoothstep(8, 55, sun.elevationDeg);
   const day = 0.46 + 0.14 * lowSun + (preset === 'overcast' ? 0.05 : 0);
-  return MathUtils.lerp(NIGHT_EXPOSURE, day, sun.daylight);
+  const { dark, twilight } = lowLight(sun.elevationDeg, SKY_PRESETS[preset].gloom);
+  const lift = Math.sqrt(groundLift(groundLuminance));
+  const base = MathUtils.lerp(NIGHT_EXPOSURE, day, sun.daylight) + TWILIGHT_EXPOSURE * twilight;
+  return base * (1 + (lift - 1) * dark);
 }
 
 /** What the shader does with the haze layer, for a view direction with the given y. */
@@ -458,7 +596,7 @@ export function radianceFor(display: Color, exposure: number): Color {
   return new Color(x[0], x[1], x[2]);
 }
 
-export function skyLookFor(preset: SkyPreset, hour: number): SkyLook {
+export function skyLookFor(preset: SkyPreset, hour: number, groundLuminance?: number): SkyLook {
   const p = SKY_PRESETS[preset];
   const sun = sunFromHour(hour);
   const d = sun.daylight;
@@ -467,7 +605,7 @@ export function skyLookFor(preset: SkyPreset, hour: number): SkyLook {
 
   // Overcast gets darker with the sun, so an evening storm is not as bright as noon.
   const bright = preset === 'overcast' ? OVERCAST_DARKEN_MIN + (1 - OVERCAST_DARKEN_MIN) * d : 1;
-  const exposure = exposureFor(preset, hour);
+  const exposure = exposureFor(preset, hour, groundLuminance);
   const hazeTop = new Color(p.hazeTop).multiplyScalar(bright);
   const hazeHor = new Color(p.hazeHorizon).multiplyScalar(bright);
   const topAlpha = p.hazeTopAlpha;
@@ -656,6 +794,11 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
   scene.add(rim);
   scene.add(rim.target);
 
+  // The player fill stays in the scene at all hours (zero by day), so the light count never changes.
+  const playerFill = new PointLight(PLAYER_FILL_COLOR, 0, PLAYER_FILL.range, 1);
+  playerFill.castShadow = false;
+  scene.add(playerFill);
+
   let quality: Quality = currentQuality();
   let texel = 1;
   let shadowHalf = 1;
@@ -719,8 +862,10 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
   let flash = 0;
   let rimLevel = 0;
   let hemiLevel = 0;
+  let groundLuminance: number | undefined;
   const rimColor = new Color();
   const hemiColor = new Color();
+  const fillColor = new Color();
   const moonQuat = new Quaternion();
 
   /** Re-deals the pool when the lamps, the focus or the tier changed; otherwise leaves it alone. */
@@ -789,6 +934,10 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
     rim.target.updateMatrixWorld();
     if (flat > 0.05) rim.position.set(focus.x - (lightDir.x / flat) * 100, 42, focus.z - (lightDir.z / flat) * 100);
     else rim.position.set(focus.x + 100, 42, focus.z);
+
+    // The player fill hangs over the player, set back towards the camera so it lights the side the camera sees.
+    playerFill.position.set(focusX - viewX * PLAYER_FILL.back, AIR.groundY + PLAYER_FILL.height, focusZ - viewZ * PLAYER_FILL.back);
+    playerFill.color.copy(fillColor).multiply(AIR.fillTint);
   };
 
   const rebuildEnv = (): void => {
@@ -800,11 +949,10 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
 
   const apply = (): void => {
     const p = SKY_PRESETS[preset];
-    const sun = sunFromHour(hour);
     const key = keyLightFor(hour, cinematic);
     const moonKey = moonLightFor(hour, cinematic);
-    const ratios = cinematic ? LIGHT_RATIOS.cinematic : LIGHT_RATIOS.plain;
-    const look = skyLookFor(preset, hour);
+    const rig = lightRigFor(preset, hour, { cinematic, groundLuminance });
+    const look = skyLookFor(preset, hour, groundLuminance);
     const u = sky.material.uniforms;
     const set = (key: string, value: number): void => {
       const uni = u[key];
@@ -825,23 +973,16 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
     hazeUniforms.hazeHorizonAlpha.value = look.hazeHorizonAlpha;
     hazeUniforms.hazeNight.value = look.nightness;
 
-    const d = sun.daylight;
-    // Direct light: the sun by day, a blue moon (opposite the sun) once the sun is well down.
-    const sunIntensity = ratios.key * d * p.sunScale;
-    const moonIntensity = ratios.moon * (1 - d);
-    const sunUp = sunIntensity >= moonIntensity;
-    if (sunUp) {
-      lightDir.set(...key.direction);
-      light.intensity = sunIntensity;
-      light.color.copy(SUN_LOW).lerp(SUN_HIGH, smoothstep(0, 35, sun.elevationDeg));
-    } else {
-      lightDir.set(...moonKey.direction);
-      light.intensity = moonIntensity;
-      light.color.copy(MOON);
-    }
+    const d = rig.daylight;
+    const sunUp = rig.sunUp;
+    lightDir.set(...rig.keyDirection);
+    light.intensity = rig.keyIntensity;
+    light.color.copy(rig.keyColor);
+    fillColor.copy(rig.fillColor);
+    playerFill.intensity = rig.fillCandela;
     placeLight();
-    rimLevel = ratios.rim * (0.35 + 0.65 * d) * (preset === 'overcast' ? 0.6 : 1);
-    rimColor.copy(RIM_NIGHT).lerp(RIM_DAY, d);
+    rimLevel = rig.rimLevel;
+    rimColor.copy(rig.rimColor);
 
     // Moon and stars: only once the sun is down.
     moonDir.set(...moonKey.direction);
@@ -863,14 +1004,12 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
     stars.visible = starAlpha > 0.01;
     starMat.opacity = starAlpha;
 
-    hemiColor.copy(HEMI_SKY_NIGHT).lerp(HEMI_SKY_DAY, d);
-    hemi.groundColor.copy(HEMI_GROUND_NIGHT).lerp(groundDay, d);
-    // A little more fill at night: the moon alone leaves the shadow side of a street unreadable.
-    hemiLevel = (cinematic ? ratios.fill + 0.13 * (1 - d) : 0.3 + 0.25 * d) * p.ambientScale;
+    hemiColor.copy(rig.hemiSky);
+    hemi.groundColor.copy(HEMI_GROUND_NIGHT).lerp(groundDay, Math.max(d, 0.6 * rig.twilight));
+    hemiLevel = rig.hemiLevel;
     applyFlash();
 
-    // Lamps come up as the daylight goes; by day they are a faint warm spill.
-    practicalGain = 0.12 + 0.88 * (1 - d) + (preset === 'overcast' ? 0.2 * d : 0);
+    practicalGain = rig.practicalGain;
     PRACTICAL_GLOW.gain = practicalGain;
     assignPracticals(false);
     for (let i = 0; i < pool.length; i++) {
@@ -891,11 +1030,13 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
     AIR.keyDir.copy(lightDir);
     AIR.keyColor.copy(light.color).multiplyScalar(light.intensity);
     AIR.ambient.copy(hemiColor).multiplyScalar(hemiLevel);
-    AIR.keyLevel = light.intensity;
+    // Weighted by how bright the key's colour is: a blue moon lights a wall far less than its intensity says,
+    // and the bloom threshold that follows this must stay under the lamps.
+    AIR.keyLevel = light.intensity * (0.2126 * light.color.r + 0.7152 * light.color.g + 0.0722 * light.color.b);
     AIR.daylight = d;
     AIR.cloudCover = p.cloudCoverage;
     AIR.beam = sunUp ? Math.min(1, p.sunScale) : 0.5;
-    scene.environmentIntensity = 0.1 + 0.3 * d;
+    scene.environmentIntensity = rig.envIntensity;
     renderer.toneMappingExposure = look.exposure;
 
     const step = envStepForHour(hour);
@@ -971,14 +1112,17 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
     setGroundTint(hex) {
       if (disposed || !HEX6.test(hex)) return;
       // A bounce is the tint lit by the sun: keep it close to the default so a saturated tint stays gentle.
-      groundDay.copy(HEMI_GROUND_DAY).lerp(new Color(hex.startsWith('#') ? hex : `#${hex}`), 0.65);
+      const tint = new Color(hex.startsWith('#') ? hex : `#${hex}`);
+      groundDay.copy(HEMI_GROUND_DAY).lerp(tint, 0.65);
+      groundLuminance = 0.2126 * tint.r + 0.7152 * tint.g + 0.0722 * tint.b;
       apply();
     },
     dispose() {
       if (disposed) return;
       disposed = true;
       offQuality();
-      scene.remove(sky, stars, moon, hemi, light, light.target, rim, rim.target, ...pool);
+      scene.remove(sky, stars, moon, hemi, light, light.target, rim, rim.target, playerFill, ...pool);
+      playerFill.dispose();
       for (const lamp of pool) lamp.dispose();
       PRACTICAL_GLOW.pos.fill(0);
       PRACTICAL_GLOW.col.fill(0);

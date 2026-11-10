@@ -176,6 +176,13 @@ function surfaceMaterial(make: () => THREE.Material, fallbackHex: string): THREE
   return m;
 }
 
+/**
+ * The placeholder a landmark stands on until its model loads: width across and height in metres, the outer
+ * radius and width of the lit inlay in its top face, the inlay's emissive level, and the grey the town's dark
+ * colour is mixed towards so the block reads as stone.
+ */
+export const PLINTH = { width: 1.6, height: 0.5, inlay: 0.5, inlayWidth: 0.035, glow: 0.45, stone: '#8b8780' } as const;
+
 const LANDMARK_ROAD_MARGIN = 1.2;
 const LANDMARK_BUILDING_MARGIN = 1.5;
 
@@ -413,8 +420,9 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   });
 
   // Props
+  const propLights: TownLight[] = [];
   if (style && bpMode && spec.props?.length) {
-    scatterBlueprintProps(layout.props, spec.props, style, { batch, mats, rng, visualBatch });
+    scatterBlueprintProps(layout.props, spec.props, style, { batch, mats, rng, visualBatch, layout, lights: propLights });
   } else for (const p of layout.props) {
     const obj = bpMode ? null : kit.prop(p.kind);
     const target = (PROP_SIZES[p.kind] ?? 1) * p.scale;
@@ -434,15 +442,18 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
     }
   }
 
-  // Landmark plinths: a low octagonal base with a glow ring, replaced when the model arrives.
+  // Landmark plinths: a knee-high stone block with a thin lit inlay set into its top, waiting for its statue.
+  // It is replaced when the model arrives.
   const anchors = new Map<string, { x: number; z: number; rotY: number }>();
   const plinths = new Map<string, THREE.Group>();
   const placedModels = new Map<string, THREE.Object3D>();
   if (spec.landmarks?.length) {
-    const baseMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(hexOr(style?.dark, '#3a3633')), roughness: 0.9 });
+    const stone = new THREE.Color(hexOr(style?.dark, '#3a3633')).lerp(new THREE.Color(PLINTH.stone), 0.55);
+    const baseMat = new THREE.MeshStandardMaterial({ color: stone, roughness: 0.95, flatShading: true });
     const glowColour = hexOr(style?.glow, spec.palette.accent);
+    // Dim: under the bloom threshold at every hour, so the line is seen and the stone around it is not washed out.
     const glowMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(glowColour), emissive: new THREE.Color(glowColour), emissiveIntensity: 1.6, roughness: 0.5,
+      color: stone.clone().multiplyScalar(0.5), emissive: new THREE.Color(glowColour), emissiveIntensity: PLINTH.glow, roughness: 0.6,
     });
     ownMats.push(baseMat, glowMat);
     for (const lm of spec.landmarks) {
@@ -450,14 +461,18 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       anchors.set(lm.id, a);
       const plinth = new THREE.Group();
       plinth.name = `plinth:${lm.id}`;
-      const baseGeo = new THREE.CylinderGeometry(1.6, 1.8, 0.3, 8);
-      const ringGeo = new THREE.TorusGeometry(1.3, 0.06, 6, 24).rotateX(Math.PI / 2);
-      ownGeos.push(baseGeo, ringGeo);
+      const r = PLINTH.width / 2;
+      const baseGeo = new THREE.CylinderGeometry(r * 0.88, r, PLINTH.height, 8);
+      const inlayGeo = new THREE.RingGeometry(PLINTH.inlay - PLINTH.inlayWidth, PLINTH.inlay, 8).rotateX(-Math.PI / 2);
+      ownGeos.push(baseGeo, inlayGeo);
       const base = new THREE.Mesh(baseGeo, baseMat);
-      base.position.y = 0.15;
-      const ring = new THREE.Mesh(ringGeo, glowMat);
-      ring.position.y = 0.34;
-      for (const m of [base, ring]) { m.castShadow = true; m.receiveShadow = true; plinth.add(m); }
+      base.name = 'plinth-base';
+      base.position.y = PLINTH.height / 2;
+      const inlay = new THREE.Mesh(inlayGeo, glowMat);
+      inlay.name = 'plinth-inlay';
+      inlay.position.y = PLINTH.height + 0.004;
+      base.castShadow = true;
+      for (const m of [base, inlay]) { m.receiveShadow = true; plinth.add(m); }
       plinth.position.set(a.x, 0, a.z);
       plinth.rotation.y = a.rotY;
       group.add(plinth);
@@ -470,6 +485,8 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
     layout, spec, style: look, surfaces, heights, blueprints: builtFrom,
     keepClear: [...anchors.values()].map((a) => ({ x: a.x, z: a.z, r: 2.6 })), batch, visualBatch, mats, quality,
   });
+  // The street lamps that kept their place light the ground too, alongside the door lanterns.
+  dressed.lights.push(...propLights);
   const scatter = buildScatter({
     layout, ground: surfaces.ground, groundHex: look.ground, accents: [look.accent, look.glow, look.trim],
     wild: spec.site?.wild ?? 0.3, wet: surfaces.wet, quality, seed: spec.seed, tracks: roadGeo.cls === 'track' && pathsMode !== 'none',

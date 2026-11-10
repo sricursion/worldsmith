@@ -194,7 +194,7 @@ export function getSurface(kind: SurfaceId, baseHex: string, opts: SurfaceOpts):
       const look = wearLook(DEFS[id].family, wear, wet, id);
       m.userData.wearing = true;
       m.onBeforeCompile = (shader) => patchSurfaceShader(shader as unknown as ShaderSource, look);
-      m.customProgramCacheKey = () => 'townforge-surface';
+      m.customProgramCacheKey = () => 'worldsmith-surface';
     }
   });
 }
@@ -517,7 +517,7 @@ export function stainMaterial(kind: 'stain' | 'rust' = 'stain'): THREE.MeshBasic
 	gl_FragColor.rgb = mix( gl_FragColor.rgb, vec3( 1.0 ), stainFog );
 #endif`);
     };
-    m.customProgramCacheKey = () => 'townforge-stain';
+    m.customProgramCacheKey = () => 'worldsmith-stain';
     stainMats.set(kind, m);
   }
   return m;
@@ -671,7 +671,7 @@ function worldMaterial(kind: SurfaceKind, hex: string, wear: number, wet: number
   return standard(s, `world${offset}`, (m) => {
     const tile = DEFS[kind].scale;
     m.onBeforeCompile = (shader) => patchGroundShader(shader as unknown as ShaderSource, tile, w);
-    m.customProgramCacheKey = () => 'townforge-ground';
+    m.customProgramCacheKey = () => 'worldsmith-ground';
     m.name = `ground:${kind}`;
     // baseHex is the colour the style asked for; bakedHex is the colour in the map, after restraint.
     m.userData.baseHex = cleanHex(styleHex);

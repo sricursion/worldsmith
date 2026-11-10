@@ -1,6 +1,6 @@
-# Townforge architecture
+# Worldsmith architecture
 
-Townforge turns a plain-language prompt into a small playable town in the browser. A language model
+Worldsmith turns a plain-language prompt into a small playable town in the browser. A language model
 compiles the prompt into a **world spec** (data only). The engine builds the town, runs the clock,
 moves the NPCs, tracks the quest, and enforces the rules. A second, cheaper model voices NPC lines.
 A decision model picks per-tick NPC actions from choices the engine offers. Nothing in the hot loop

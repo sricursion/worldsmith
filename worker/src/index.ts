@@ -1,4 +1,4 @@
-// Townforge Worker: model proxy, decision proxy, share links. Static files are served by the
+// Worldsmith Worker: model proxy, decision proxy, share links. Static files are served by the
 // assets binding; only /api/* reaches this code (run_worker_first).
 import type { Env } from './lib/env';
 import { isMock } from './lib/env';

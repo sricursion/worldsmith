@@ -32,7 +32,7 @@ function boot(): void {
   });
 
   // Debug hook for scripted checks; harmless in production.
-  (window as unknown as { __townforge?: unknown }).__townforge = { game, viewport, api };
+  (window as unknown as { __worldsmith?: unknown }).__worldsmith = { game, viewport, api };
 }
 
 boot();

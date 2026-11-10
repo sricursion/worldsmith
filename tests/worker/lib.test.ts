@@ -104,10 +104,10 @@ describe('SSE framing', () => {
 });
 
 describe('origin check', () => {
-  const u = new URL('https://townforge.example/api/compile');
+  const u = new URL('https://worldsmith.example/api/compile');
   it('allows no origin and same host', () => {
     expect(originAllowed(null, u)).toBe(true);
-    expect(originAllowed('https://townforge.example', u)).toBe(true);
+    expect(originAllowed('https://worldsmith.example', u)).toBe(true);
   });
   it('rejects other hosts, including localhost against a public host', () => {
     expect(originAllowed('https://evil.example', u)).toBe(false);

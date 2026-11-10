@@ -96,7 +96,7 @@ describe('character rig on the shipped models', () => {
       expect(mat).toBeInstanceOf(MeshStandardMaterial);
       expect(mat.roughness).toBe(CHARACTER_ROUGHNESS);
       expect(mat.metalness).toBe(0);
-      expect(mat.customProgramCacheKey()).toBe('townforge-character-rim');
+      expect(mat.customProgramCacheKey()).toBe('worldsmith-character-rim');
     });
     expect(skinned).toBeGreaterThanOrEqual(6);
     const blob = rig.root.getObjectByName('contact_shadow') as Mesh;

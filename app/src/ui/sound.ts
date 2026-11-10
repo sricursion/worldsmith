@@ -8,7 +8,7 @@ export interface SoundSettings {
   muted: boolean;
 }
 
-export const SOUND_KEY = 'townforge.sound';
+export const SOUND_KEY = 'worldsmith.sound';
 export const SOUND_DEFAULTS: Readonly<SoundSettings> = { overall: 0.8, voices: 0.9, background: 0.7, muted: false };
 
 export type SoundStorage = Pick<Storage, 'getItem' | 'setItem'>;

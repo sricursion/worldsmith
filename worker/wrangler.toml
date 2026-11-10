@@ -1,4 +1,4 @@
-name = "townforge"
+name = "worldsmith"
 main = "src/index.ts"
 compatibility_date = "2026-10-01"
 
@@ -25,10 +25,10 @@ id = "REPLACE_WITH_KV_NAMESPACE_ID"
 binding = "AI"
 
 # Landmark models. Optional: without it GLBs are kept in KV (under 20 MB each).
-# To use R2: `npx wrangler r2 bucket create townforge-landmarks`, then uncomment.
+# To use R2: `npx wrangler r2 bucket create worldsmith-landmarks`, then uncomment.
 # [[r2_buckets]]
 # binding = "LANDMARKS"
-# bucket_name = "townforge-landmarks"
+# bucket_name = "worldsmith-landmarks"
 # Secrets (never commit): `npx wrangler secret put TRIPO_API_KEY` (or MESHY_API_KEY).
 
 # Rate Limiting binding, per IP. Wrangler 4.x spells this [[ratelimits]]; it replaces the older

@@ -1,4 +1,4 @@
-/* Townforge overlay. Dark-first, because the game is a 3D canvas. */
+/* Worldsmith overlay. Dark-first, because the game is a 3D canvas. */
 :root {
   --tf-bg: rgba(15, 17, 23, 0.78);
   --tf-bg-solid: #12141b;

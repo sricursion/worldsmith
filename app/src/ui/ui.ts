@@ -28,7 +28,7 @@ export interface UI {
   showWhy(lines: string[]): void;
   setPrompt(label: string | null): void;
   showError(text: string, retry?: () => void): void;
-  /** Addition: wires the HUD buttons (New town, Rules, Why, Share) and the talk pill to the game. */
+  /** Addition: wires the HUD buttons (New world, Rules, Why, Share) and the talk pill to the game. */
   onHud(handlers: HudHandlers): void;
   /** Addition: text for the verified badge next to the clock, or null to hide it. */
   setBadge(text: string | null): void;

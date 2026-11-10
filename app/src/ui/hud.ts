@@ -83,7 +83,7 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
     bag.on(b, 'click', () => pick()?.());
     buttons.append(b);
   };
-  mk('New town', null, 'Start over with a new town description', () => handlers.newTown);
+  mk('New world', null, 'Start over with a new world description', () => handlers.newTown);
   mk('Rules', 'R', 'Open the rules (R)', () => handlers.rules);
   mk('Why', '?', 'Why did they do that? (?)', () => handlers.why);
   mk('Share', null, 'Share this town', () => handlers.share);

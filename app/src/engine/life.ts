@@ -707,7 +707,7 @@ function buildFlags(kind: FlagKind, at: readonly Vector3[], o: LifeOptions, shar
         '#include <emissivemap_fragment>\n  totalEmissiveRadiance += diffuseColor.rgb * uGlow * vFly.y * ( 0.7 + 0.3 * sin( vClothUv.y * 90.0 - uTime * 3.0 ) );',
       );
   };
-  mat.customProgramCacheKey = () => 'townforge-life-flag';
+  mat.customProgramCacheKey = () => 'worldsmith-life-flag';
   const mesh = new InstancedMesh(flagGeometry(kind), mat, at.length);
   const dummy = new Object3D();
   const tint = new Color();

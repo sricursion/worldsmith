@@ -72,10 +72,10 @@ for(const slug of kenney) {
 for(const [repo,pack] of kaykit) {
   const api=`https://api.github.com/repos/KayKit-Game-Assets/${repo}`;
   try {
-    const meta=await fetch(api,{headers:{'User-Agent':'Townforge asset fetcher','Accept':'application/vnd.github+json'}});
+    const meta=await fetch(api,{headers:{'User-Agent':'Worldsmith asset fetcher','Accept':'application/vnd.github+json'}});
     if(!meta.ok) { console.log(`SKIP ${pack}: repository ${repo} unavailable (HTTP ${meta.status})`); continue; }
     const info=await meta.json(), branch=info.default_branch;
-    const got=await cacheZip(pack,`https://codeload.github.com/KayKit-Game-Assets/${repo}/zip/refs/heads/${branch}`,{'User-Agent':'Townforge asset fetcher'});
+    const got=await cacheZip(pack,`https://codeload.github.com/KayKit-Game-Assets/${repo}/zip/refs/heads/${branch}`,{'User-Agent':'Worldsmith asset fetcher'});
     await copySelected(pack,got.zip,info.html_url,got.sourceFile,'kaykit'); console.log(`Fetched ${pack}`);
   } catch(e) { if(/LICENSE|CC0/.test(e.message)) throw e; console.log(`SKIP ${pack}: ${e.message}`); }
 }

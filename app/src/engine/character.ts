@@ -148,7 +148,7 @@ const rim = { color: { value: new Color(0x9fb4d6) }, strength: { value: 0.6 } };
 let rimManual = false;
 let quality: 0 | 1 | 2 = 2;
 const BLOB_OPACITY: readonly [number, number, number] = [0.6, 0.45, 0.24];
-const RIM_KEY = 'townforge-character-rim';
+const RIM_KEY = 'worldsmith-character-rim';
 
 /**
  * Tints the fresnel rim on every character. Pass the sky colour near the horizon (linear working space).
@@ -299,7 +299,7 @@ export function loadCharacterBase(base: CharacterBase): Promise<void> {
       loaded.set(file, prepareBase(file, gltf.scene, gltf.animations));
     } catch (err) {
       pending.delete(file);
-      warnOnce(file, `Townforge: character ${file}.glb failed to load (${err instanceof Error ? err.message : 'error'}); using placeholder`);
+      warnOnce(file, `Worldsmith: character ${file}.glb failed to load (${err instanceof Error ? err.message : 'error'}); using placeholder`);
     }
   })();
   pending.set(file, p);
@@ -378,7 +378,7 @@ export function setTalking(rig: CharacterRig, amount: number): void {
 }
 
 function placeholderRig(): CharacterRig {
-  warnOnce('placeholder', 'Townforge: createCharacter called before its base loaded; returning a placeholder');
+  warnOnce('placeholder', 'Worldsmith: createCharacter called before its base loaded; returning a placeholder');
   const geo = new CapsuleGeometry(0.25, CHARACTER_HEIGHT_M - 0.5, 4, 8);
   const mat = new MeshStandardMaterial({ color: 0xb08968, roughness: CHARACTER_ROUGHNESS });
   const mesh = new Mesh(geo, mat);

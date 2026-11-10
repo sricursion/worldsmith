@@ -1,6 +1,6 @@
-# Townforge
+# Worldsmith
 
-Type a sentence, get a small playable town. Townforge compiles a plain-language prompt into a data
+Type a sentence, get a small playable town. Worldsmith compiles a plain-language prompt into a data
 spec, lays out streets and buildings deterministically, fills the town with NPCs on schedules, and
 generates a quest that is checked to be winnable. You walk in, talk to people, and rewrite the
 town's rules in plain language while it runs.

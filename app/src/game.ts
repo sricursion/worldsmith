@@ -82,10 +82,10 @@ export interface GameDeps {
 
 /** Turns transport and model error codes into one line a player can act on. */
 export function friendlyError(code: string): string {
-  if (code === 'resting' || code === 'rate_limited') return 'The town is resting for a moment';
+  if (code === 'resting' || code === 'rate_limited') return 'The forge is resting for a moment';
   if (code === 'refusal') return 'That prompt could not be built as written';
   if (code === 'timeout' || code === 'network' || code === 'stream_ended' || code === 'upstream' || /^http_5/.test(code)) {
-    return 'The town forge could not be reached';
+    return 'The forge could not be reached';
   }
   if (code === 'bad_spec' || code === 'invalid_spec_json' || code === 'truncated') return 'The world came back malformed';
   return 'Something went wrong';
@@ -140,7 +140,7 @@ export class Game {
   private async copyLink(r: { url: string; short: boolean }): Promise<void> {
     try {
       await navigator.clipboard.writeText(r.url);
-      this.deps.ui.toast(r.short ? 'Share link copied.' : 'Share link copied. The whole town travels in the URL.');
+      this.deps.ui.toast(r.short ? 'Share link copied.' : 'Share link copied. The whole world travels in the URL.');
     } catch {
       this.deps.ui.toast('Could not copy automatically. The link is in the address bar.', 'warn');
     }
@@ -149,7 +149,7 @@ export class Game {
   /** Entry point: show the landing card, or load a shared town from the URL hash. */
   async start(): Promise<void> {
     if (location.hash.length > 1) {
-      this.deps.ui.showCompiling('Opening shared town…');
+      this.deps.ui.showCompiling('Opening shared world…');
       const shared = await this.loadShared(location.hash.slice(1));
       if (shared) {
         try {
@@ -160,7 +160,7 @@ export class Game {
           return;
         }
       }
-      this.deps.ui.toast('That link did not hold a town. Start a new one.', 'warn');
+      this.deps.ui.toast('That link did not hold a world. Start a new one.', 'warn');
       this.clearHash();
     }
     this.showLanding();
@@ -206,7 +206,7 @@ export class Game {
     const message = err instanceof Error ? err.message : String(err);
     console.warn('town build failed:', message);
     this.teardown();
-    this.deps.ui.showError('Could not build that town. Try the prompt again or pick an example.', () => {
+    this.deps.ui.showError('Could not build that world. Try the prompt again or pick an example.', () => {
       this.clearHash();
       this.showLanding();
     });
@@ -239,7 +239,7 @@ export class Game {
           if (!early || ctl.signal.aborted) return;
           preview = Promise.all([kitPromise, charPromise])
             .then(() => (ctl.signal.aborted ? undefined : this.playSpec(early)))
-            .then(() => { if (!ctl.signal.aborted) ui.toast('Walk around. The townsfolk and their story are still arriving.'); })
+            .then(() => { if (!ctl.signal.aborted) ui.toast('Walk around. The people and their story are still arriving.'); })
             .catch((err: unknown) => console.warn('preview failed:', err instanceof Error ? err.message : String(err)));
         },
       });
@@ -247,7 +247,7 @@ export class Game {
       if (preview) await preview;
       let spec: WorldSpec;
       if (!result.ok) {
-        ui.toast(`${friendlyError(result.error)}. Showing a saved town instead.`, 'warn');
+        ui.toast(`${friendlyError(result.error)}. Showing a saved world instead.`, 'warn');
         spec = { ...FIXTURES[theme], prompt, seed };
       } else {
         const coerced = coerceSpec(result.spec);
@@ -255,7 +255,7 @@ export class Game {
         if (!v.ok) {
           console.warn('invalid world:', explainInvalid(coerced));
           if (this.town) return; // keep the preview town rather than swapping to an unrelated one
-          ui.toast('The world came back malformed; showing a saved town instead.', 'warn');
+          ui.toast('The world came back malformed; showing a saved world instead.', 'warn');
           spec = { ...FIXTURES[theme], prompt, seed };
         } else {
           spec = v.value;

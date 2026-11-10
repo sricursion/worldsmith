@@ -19,16 +19,16 @@ export function createLanding(layer: HTMLElement): LandingView {
   const card = el('section', 'tf-landing tf-panel');
   card.hidden = true;
   card.setAttribute('aria-labelledby', 'tf-landing-title');
-  const title = el('h1', 'tf-landing-title', 'Townforge');
+  const title = el('h1', 'tf-landing-title', 'Worldsmith');
   title.id = 'tf-landing-title';
-  const promise = el('p', 'tf-promise', 'Describe a town. Walk in.');
+  const promise = el('p', 'tf-promise', 'Describe a world. Walk in.');
   const label = el('label', 'tf-sr-only', 'Describe your town');
   const input = el('textarea', 'tf-prompt-input');
   input.id = 'tf-prompt-input';
   label.htmlFor = input.id;
   input.rows = 3;
   input.maxLength = MAX_PROMPT;
-  input.placeholder = 'A sleepy frontier town where the sheriff is hiding something…';
+  input.placeholder = "A rain-soaked harbour at dawn, a dragon's lair, the first colony on Mars…";
   input.spellcheck = true;
   const row = el('div', 'tf-landing-row');
   const hint = el('span', 'tf-hint', 'Ctrl/Cmd + Enter to build');
@@ -41,7 +41,7 @@ export function createLanding(layer: HTMLElement): LandingView {
 
   const bar = el('section', 'tf-compiling tf-panel');
   bar.hidden = true;
-  bar.setAttribute('aria-label', 'Building your town');
+  bar.setAttribute('aria-label', 'Building your world');
   const status = el('p', 'tf-compiling-status');
   status.setAttribute('role', 'status');
   const stream = el('pre', 'tf-stream');

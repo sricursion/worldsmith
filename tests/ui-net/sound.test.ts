@@ -18,12 +18,12 @@ describe('sound settings storage', () => {
     expect(loadSound(null)).toEqual(SOUND_DEFAULTS);
   });
 
-  it('round-trips through storage under townforge.sound', () => {
+  it('round-trips through storage under worldsmith.sound', () => {
     const store = new FakeStorage();
     const s: SoundSettings = { overall: 0.25, voices: 1, background: 0, muted: true };
     saveSound(s, store);
-    expect(SOUND_KEY).toBe('townforge.sound');
-    expect(store.data.has('townforge.sound')).toBe(true);
+    expect(SOUND_KEY).toBe('worldsmith.sound');
+    expect(store.data.has('worldsmith.sound')).toBe(true);
     expect(loadSound(store)).toEqual(s);
   });
 

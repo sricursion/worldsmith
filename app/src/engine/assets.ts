@@ -34,7 +34,7 @@ const warned = new Set<string>();
 function warnOnce(url: string, why: string): void {
   if (warned.has(url)) return;
   warned.add(url);
-  console.warn(`Townforge: asset ${url} unavailable (${why}); using fallback geometry`);
+  console.warn(`Worldsmith: asset ${url} unavailable (${why}); using fallback geometry`);
 }
 
 const kitCache = new Map<ThemeId, Promise<LoadedKit>>();

@@ -36,15 +36,24 @@ async function runReal(sse: SseWriter, env: Env, prompt: string, seed: number, s
       max_tokens: 12000,
       stream: true,
       thinking: { type: 'between_tools' },
-      output_config: { effort: 'low', format: { type: 'json_schema', schema: worldSpecJsonSchema() } },
-      system: [{ type: 'text', text: compileSystemPrompt(), cache_control: { type: 'ephemeral' } }],
+      // The full world schema compiles to a grammar the API rejects as too large, so the schema is
+      // given as text and the reply is parsed and repaired on our side.
+      output_config: { effort: 'low' },
+      system: [{ type: 'text', text: `${compileSystemPrompt()}
+
+OUTPUT FORMAT
+Reply with one JSON object and nothing else: no prose, no code fence. It must satisfy this JSON Schema (every listed property is required):
+${JSON.stringify(worldSpecJsonSchema())}`, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: compileUserMessage(prompt, seed) }],
     });
-  } catch {
+  } catch (err) {
+    console.warn('compile fetch failed', err instanceof Error ? err.message : String(err));
     await sse.send('error', { error: 'upstream', reason: 'upstream' });
     return;
   }
   if (!res.ok) {
+    // Status and the vendor's error text only; request headers are never logged.
+    console.warn('compile upstream', res.status, (await res.text().catch(() => '')).slice(0, 400));
     await sse.send('error', { error: 'upstream', reason: res.status === 429 ? 'rate_limited' : 'upstream' });
     return;
   }
@@ -93,7 +102,9 @@ async function runReal(sse: SseWriter, env: Env, prompt: string, seed: number, s
   }
   let parsed: unknown;
   try {
-    parsed = JSON.parse(acc);
+    const first = acc.indexOf('{');
+    const last = acc.lastIndexOf('}');
+    parsed = JSON.parse(first >= 0 && last > first ? acc.slice(first, last + 1) : acc);
   } catch {
     await sse.send('error', { error: 'invalid_spec_json', reason: 'upstream' });
     return;

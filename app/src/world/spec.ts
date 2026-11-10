@@ -152,6 +152,13 @@ export interface BlueprintPart {
 
 export interface Blueprint {
   id: string;                  // slug, unique in the town
+  /**
+   * Optional skeleton: a general structural family (see world/skeletons.ts) plus dial settings.
+   * The skeleton supplies the bones (massing, roof, openings); `parts` then adds what makes this
+   * building belong to this world. With no family, `parts` is the whole building.
+   */
+  family?: string;
+  dials?: Record<string, number | string>;
   /** What it is, e.g. "two-storey saloon with a false front and balcony". Shown in the build log. */
   summary: string;
   parts: BlueprintPart[];      // 4..28, the first part should be the main body
@@ -160,12 +167,28 @@ export interface Blueprint {
 }
 
 export interface PropBlueprint {
+  /** Optional skeleton family and dials, as on Blueprint; `parts` are additions. */
+  family?: string;
+  dials?: Record<string, number | string>;
   kind: string;                // slug, e.g. "hitching_post", "paper_lantern", "coral_spire"
   /** Longest dimension in metres, 0.3..6. Parts use a 1 x 1 footprint scaled to this. */
   size: number;
   parts: BlueprintPart[];      // 1..8
   /** Relative frequency when scattering, 1..5. */
   weight: number;
+}
+
+/** How the place is laid out. Not every world is a street of houses. */
+export type SitePattern = 'street' | 'ring' | 'scatter' | 'grid' | 'terraces';
+
+export interface SiteSpec {
+  pattern: SitePattern;        // street: main road and cross streets; ring: around a centre; scatter: a camp or grove with paths; grid: city blocks; terraces: rows stepping back
+  /** 0..1: how much of the open ground is filled with scattered props (trees, rocks, crystals). A forest is 0.9, a plaza city 0.1. */
+  wild: number;
+  /** Whether paths are drawn as roads, worn tracks, or not at all. */
+  paths: 'road' | 'track' | 'none';
+  /** Typical spacing between structures in metres, 2..14. */
+  spacing: number;
 }
 
 /** The look of one town. Every colour is a hex string. */
@@ -211,6 +234,7 @@ export interface WorldSpec {
   lexicon: string[];
   /** Optional generated architecture. Present on every model-compiled town; absent on old share links. */
   style?: StyleSpec;
+  site?: SiteSpec;
   blueprints?: Blueprint[];    // 3..8 archetypes shared by the buildings
   props?: PropBlueprint[];     // 0..6 kinds scattered instead of kit props
   /** One or two set pieces worth generating as full 3D models in the background. */

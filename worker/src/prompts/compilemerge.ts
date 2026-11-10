@@ -237,10 +237,22 @@ const START_HOUR: Record<SkyPreset, number> = { dawn: 6, day: 9, dusk: 17.5, nig
  * follows the hour (rain at noon is overcast, a night hour is a night sky) and fog never sits below what the
  * weather needs. Whatever the model left out is read from the prompt's own words.
  */
+const WET_WORDS = /\b(rain\w*|drizzl\w*|monsoon|downpour|shower\w*|soak\w*|drench\w*|sodden|storm\w*|thunder\w*|tempest|hurricane|typhoon|lightning|wet|puddle\w*)\b/i;
+
+/**
+ * Rain and storms appear only when the player asked for them. The model reaches for rain as a mood
+ * far too often; an unasked downpour becomes clear air with the same grade, and the rain beds leave
+ * the ambience.
+ */
+export function dryUnlessAsked<M extends { weather: string; intensity: number; ambience: string[] }>(mood: M, prompt: string): M {
+  if ((mood.weather !== 'rain' && mood.weather !== 'storm') || WET_WORDS.test(prompt)) return mood;
+  return { ...mood, weather: 'clear', intensity: 0, ambience: mood.ambience.filter((w) => w !== 'rain' && w !== 'thunder') };
+}
+
 export function coerceAir(r: Record<string, unknown>, theme: ThemeId, prompt: string): Pick<Outline, 'mood' | 'time' | 'palette'> {
   const pal = rec(r.palette);
   const guess = mockAir(prompt, theme);
-  const mood = isRecord(r.mood) ? coerceMood(r.mood) : guess.mood;
+  const mood = dryUnlessAsked(isRecord(r.mood) ? coerceMood(r.mood) : guess.mood, prompt);
   const given = SKIES.find((x) => x === pal.sky);
   const rawHour = num(rec(r.time).startHour, num(r.startHour, NaN));
   const hour = Number.isFinite(rawHour) && rawHour >= 0 && rawHour < 24

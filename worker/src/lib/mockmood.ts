@@ -16,7 +16,7 @@ const THEME_AIR: Record<ThemeId, Required<MoodHint>> = {
   western: { weather: 'dust', intensity: 0.45, grade: 'golden', haze: 0.6, hour: 17.5, ambience: ['wind', 'dust', 'saloon'], music: 'lonely harmonica' },
   medieval: { weather: 'mist', intensity: 0.55, grade: 'golden', haze: 0.7, hour: 6, ambience: ['birds', 'stream', 'wind'], music: 'gentle lute' },
   scifi: { weather: 'snow', intensity: 0.3, grade: 'cold_steel', haze: 0.4, hour: 21, ambience: ['hum', 'wind', 'vent'], music: 'low synth drone' },
-  modern: { weather: 'rain', intensity: 0.7, grade: 'neon_noir', haze: 0.55, hour: 18.5, ambience: ['rain', 'street', 'neon'], music: 'slow noir piano' },
+  modern: { weather: 'clear', intensity: 0, grade: 'teal_orange', haze: 0.4, hour: 18.5, ambience: ['street', 'crowd'], music: 'slow noir piano' },
 };
 
 /** Weather words. The first match sets the weather; each carries the light and hour that suit it. */

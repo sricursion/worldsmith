@@ -121,7 +121,7 @@ describe('mock mood and surfaces', () => {
     expect(plain('medieval').palette.sky).toBe('dawn');
     expect(plain('scifi').mood).toMatchObject({ weather: 'snow', grade: 'cold_steel' });
     expect(plain('scifi').mood?.intensity ?? 1).toBeLessThan(0.5);
-    expect(plain('modern').mood).toMatchObject({ weather: 'rain', grade: 'neon_noir' });
+    expect(plain('modern').mood).toMatchObject({ weather: 'clear', grade: 'teal_orange' });
     expect(plain('modern').palette.sky).toBe('dusk');
     for (const t of ['western', 'medieval', 'scifi', 'modern'] as const) {
       const s = plain(t);

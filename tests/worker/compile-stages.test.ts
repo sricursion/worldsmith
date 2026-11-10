@@ -163,8 +163,12 @@ describe('coercion and merge', () => {
 
   it('keeps the outline mood and hour, and makes sky and fog agree with them', () => {
     const mood = { weather: 'rain', intensity: 0.8, grade: 'teal_orange', haze: 0.6, ambience: ['Rain', 'harbor'], music: 'slow noir piano' };
-    const o = coerceOutline({ ...rawOutline, mood, time: { startHour: 13 }, palette: { sky: 'day', fog: 0.05 } }, 'western', prompt);
+    const wet = 'a harbour town in heavy rain';
+    const o = coerceOutline({ ...rawOutline, mood, time: { startHour: 13 }, palette: { sky: 'day', fog: 0.05 } }, 'western', wet);
     expect(o?.mood).toEqual({ ...mood, ambience: ['rain', 'harbor'] });
+    // Rain the player never asked for is dropped: clear air, no rain bed.
+    const dry = coerceOutline({ ...rawOutline, mood, time: { startHour: 13 }, palette: { sky: 'day', fog: 0.05 } }, 'western', 'a harbour town');
+    expect(dry?.mood).toMatchObject({ weather: 'clear', intensity: 0, ambience: ['harbor'] });
     expect(o?.time.startHour).toBe(13);
     expect(o?.palette.sky).toBe('overcast');
     expect(o?.palette.fog ?? 0).toBeGreaterThanOrEqual(0.25);
@@ -181,7 +185,7 @@ describe('coercion and merge', () => {
   });
 
   it('carries surfaces on the look: the model kinds, a prompt-read set for the rest, never dry under rain', () => {
-    const o = coerceOutline({ ...rawOutline, mood: { weather: 'storm', intensity: 0.9, grade: 'cold_steel', haze: 0.5, ambience: [], music: '' } }, 'western', prompt);
+    const o = coerceOutline({ ...rawOutline, mood: { weather: 'storm', intensity: 0.9, grade: 'cold_steel', haze: 0.5, ambience: [], music: '' } }, 'western', `${prompt} in a storm`);
     if (!o) throw new Error('outline');
     const withSurfaces = { ...rawLook, style: { ...rawLook.style, surfaces: { wall: 'organic', wall2: 'bark', roof: 'organic', trim: 'nonsense', ground: 'moss', road: 'dirt', wear: 0.3, wet: 0 } } };
     const s = coerceLook(withSurfaces, o, BASE.western, prompt)?.style.surfaces;

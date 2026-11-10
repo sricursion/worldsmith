@@ -132,6 +132,11 @@ export function createInput(target: HTMLElement): Input {
     keys.clear();
   };
 
+  // Hover look state: horizontal cursor position over the canvas in -1..1, and when it last moved.
+  let hoverX = 0;
+  let hoverAt = 0;
+  let edgeClock = 0;
+
   const onPointerDown = (e: PointerEvent): void => {
     if (e.pointerType === 'touch') {
       const rect = target.getBoundingClientRect();
@@ -185,7 +190,22 @@ export function createInput(target: HTMLElement): Input {
       dragDy += e.clientY - mouseLy;
       mouseLx = e.clientX;
       mouseLy = e.clientY;
+      return;
     }
+    // Hover look: where the pointer cannot be captured, moving the mouse over the world still turns the
+    // view with no button held. Near the left or right edge the view keeps turning (see pointerDelta).
+    if (e.pointerType === 'mouse' && e.target === target && !typing()) {
+      if (Math.abs(e.movementX) <= LOCK_MOVE_LIMIT_PX && Math.abs(e.movementY) <= LOCK_MOVE_LIMIT_PX) {
+        dragDx += e.movementX;
+        dragDy += e.movementY;
+      }
+      const rect = target.getBoundingClientRect();
+      hoverX = rect.width > 0 ? ((e.clientX - rect.left) / rect.width) * 2 - 1 : 0;
+      hoverAt = performance.now();
+    }
+  };
+  const onPointerLeave = (): void => {
+    hoverX = 0;
   };
 
   const onPointerUp = (e: PointerEvent): void => {
@@ -215,6 +235,7 @@ export function createInput(target: HTMLElement): Input {
   window.addEventListener('blur', onBlur);
   target.addEventListener('pointerdown', onPointerDown);
   window.addEventListener('pointermove', onPointerMove);
+  target.addEventListener('pointerleave', onPointerLeave);
   window.addEventListener('pointerup', onPointerUp);
   window.addEventListener('pointercancel', onPointerUp);
   target.addEventListener('wheel', onWheel, { passive: false });
@@ -249,6 +270,15 @@ export function createInput(target: HTMLElement): Input {
       };
     },
     pointerDelta() {
+      // Without a captured pointer the cursor stops at the screen edge, so the outer 18 percent on either
+      // side keeps the view turning while the mouse rests there.
+      const now = performance.now();
+      const dtMs = Math.min(100, now - edgeClock);
+      edgeClock = now;
+      if (!locked() && mouseId === null && Math.abs(hoverX) > 0.64 && now - hoverAt < 6000) {
+        const push = (Math.abs(hoverX) - 0.64) / 0.36;
+        dragDx += Math.sign(hoverX) * push * push * 0.9 * dtMs;
+      }
       const out = { dx: dragDx, dy: dragDy };
       dragDx = 0;
       dragDy = 0;
@@ -269,6 +299,7 @@ export function createInput(target: HTMLElement): Input {
       window.removeEventListener('blur', onBlur);
       target.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
+      target.removeEventListener('pointerleave', onPointerLeave);
       window.removeEventListener('pointerup', onPointerUp);
       window.removeEventListener('pointercancel', onPointerUp);
       target.removeEventListener('wheel', onWheel);

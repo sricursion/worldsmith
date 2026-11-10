@@ -460,9 +460,11 @@ export function createBody(plan: BodyPlan, colors: BodyColors, opts: BodyOptions
         const up = A * Math.sin(flap) + 0.1 + glide * 0.07 * Math.sin(t * 0.7 + phase);
         const rise = Math.max(0, Math.cos(flap)) * flapAmp;
         const open = 1 - fold;
-        w.root.rotation.set(0, s * fold * 1.2, s * (up * open + fold * 0.3));
-        w.mid.rotation.set(0, s * (0.38 * rise * open - fold * 2.35), s * 0.5 * A * Math.sin(flap - 0.9) * open);
-        w.tip.rotation.set(0, s * (0.3 * Math.max(0, Math.cos(flap - 0.5)) * flapAmp * open + fold * 2.4), s * 0.45 * A * Math.sin(flap - 1.6) * open);
+        // Folded, the arm lies back along the flank in a tight Z and the slack surface gathers in.
+        w.root.rotation.set(0, s * fold * 1.4, s * (up * open + fold * 0.15));
+        w.root.scale.set(1 - 0.2 * fold, 1, 1 - 0.55 * fold);
+        w.mid.rotation.set(0, s * (0.38 * rise * open - fold * 2.75), s * 0.5 * A * Math.sin(flap - 0.9) * open);
+        w.tip.rotation.set(0, s * (0.3 * Math.max(0, Math.cos(flap - 0.5)) * flapAmp * open + fold * 2.75), s * 0.45 * A * Math.sin(flap - 1.6) * open);
       }
 
       // ---- Arms ----

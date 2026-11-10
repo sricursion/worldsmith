@@ -753,9 +753,9 @@ function winged(d: Dials, g: Rig, bird: boolean): void {
   }
 
   // Wings rest spread, as in a glide; the animator folds them on the ground.
-  const hsn = L(0.9, 2.7, d.n('wingspan', 0.6));
+  const hsn = L(0.9, 2.7, d.n('wingspan', 0.6)) * (bird ? 1 : 1.35);
   const feather = bird || d.n('feather', 0) > 0.5;
-  const chord = L(0.4, 1.0, d.n('chord', feather ? 0.45 : 0.7));
+  const chord = L(0.4, 1.0, d.n('chord', feather ? 0.45 : 0.7)) * (bird ? 1 : 1.3);
   for (const s of SIDES) {
     const a0: V3 = [s * R * 0.7, pf[1] + R * 0.55, half * 0.45];
     const a1: V3 = add(a0, [s * hsn * 0.26, hsn * 0.05, hsn * 0.06]);

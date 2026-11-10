@@ -20,7 +20,10 @@ import { setSurfaceDefaults, setWindowGlow } from './town/surfaces';
 import { updateScatter, WIND } from './town/scatter';
 import type { Input } from './engine/input';
 import { loadKit, type LoadedKit } from './engine/assets';
-import { loadCharacterBase, createCharacter, setOutfit, setTalking, type CharacterRig } from './engine/character';
+import type { CharacterRig } from './engine/character';
+import { createFigure, disposeBodyCache } from './engine/bodies';
+import { createCreatures } from './engine/creatures';
+import { hash32 } from './world/rng';
 import { buildNav, type NavWorld, type NavAgent } from './engine/nav';
 import { createPlayer, type Player } from './engine/player';
 import { loadLandmark, pollLandmark } from './engine/landmark';
@@ -34,12 +37,13 @@ import { encodeShare, decodeShare } from './share';
 
 const TICK_SECONDS = 20;
 const TALK_DISTANCE = 3.2;
-const PLAYER_BASE = 'rogue_hooded' as const;
+/** People are built from the world's own folk body plan; talking is driven on the figure itself. */
+type Person = CharacterRig & { setTalking?(amount: number): void };
 const NAV_MARGIN = 18; // metres of walkable ground around the town bounds
 
 interface NpcRuntime {
   spec: NpcSpec;
-  rig: CharacterRig;
+  rig: Person;
   agent: NavAgent;
   place: string;        // where the brain thinks they are or are heading
   targetPlace: string;
@@ -54,6 +58,7 @@ interface Town {
   nav: NavWorld;
   navGround: THREE.Mesh;
   life: { update(dt: number, focus: THREE.Vector3, hour: number): void; dispose(): void } | null;
+  creatures: ReturnType<typeof createCreatures> | null;
   lightRemovers: (() => void)[];
   player: Player;
   npcs: Map<string, NpcRuntime>;
@@ -217,7 +222,7 @@ export class Game {
     try {
       // Start the heavy loads now so the town appears the moment the spec lands.
       const kitPromise = this.ensureKit(theme);
-      const charPromise = Promise.all((['knight', 'barbarian', 'mage', 'rogue', 'rogue_hooded'] as const).map(loadCharacterBase));
+      const charPromise = Promise.resolve();
       ui.showCompiling('Thinking about your town…');
 
       // The town is shown as soon as its look arrives; the cast and quest follow a few seconds later.
@@ -286,7 +291,6 @@ export class Game {
     const verified = verifyQuest(repaired);
     const spec = repaired;
     const kit = await this.ensureKit(spec.theme);
-    await Promise.all([loadCharacterBase(PLAYER_BASE), ...spec.npcs.map((n) => loadCharacterBase(n.appearance.base))]);
 
     // Everything created below is registered here so a failure half-way cannot orphan it in the scene.
     const created: { objects?: TownObjects; nav?: NavWorld; navGround?: THREE.Mesh; rigs: CharacterRig[]; agents: NavAgent[]; player?: Player } = { rigs: [], agents: [] };
@@ -310,8 +314,8 @@ export class Game {
       const nav = await buildNav(objects.statics.filter((m) => m.name !== 'ground'), navGround);
       created.nav = nav;
 
-      const playerRig = createCharacter(PLAYER_BASE);
-      playerRig.setPalette(0, spec.theme);
+      const quality = viewport.getQuality?.() ?? 2;
+      const playerRig: Person = createFigure({ folk: spec.folk, role: 'traveller', theme: spec.theme, seed: hash32(`${spec.seed}|player`), quality });
       viewport.scene.add(playerRig.root);
       created.rigs.push(playerRig);
       const player = createPlayer(playerRig, nav, viewport.camera, this.deps.input, objects.statics);
@@ -322,9 +326,7 @@ export class Game {
       const state = createState(spec);
       const npcs = new Map<string, NpcRuntime>();
       for (const n of spec.npcs) {
-        const rig = createCharacter(n.appearance.base);
-        rig.setPalette(n.appearance.palette, spec.theme);
-        setOutfit(rig, { theme: spec.theme, role: n.role, rng });
+        const rig: Person = createFigure({ folk: spec.folk, role: n.role, theme: spec.theme, seed: hash32(`${spec.seed}|${n.id}`), quality });
         viewport.scene.add(rig.root);
         created.rigs.push(rig);
         const place = state.npcPlaces[n.id] ?? n.home;
@@ -337,8 +339,15 @@ export class Game {
 
       const lightRemovers = (objects.lights ?? []).map((l) => addPracticalLight(l.pos, l.color, l.radius));
       const life = createLife(viewport.scene, { theme: spec.theme, mood: spec.mood, style: spec.style, bounds: layout.bounds, smoke: objects.smoke, rng: makeRng(spec.seed, 'life') });
+      const land = objects as typeof objects & { heightAt?(x: number, z: number): number; waterBodies?: { kind: string; x: number; z: number; r: number }[] };
+      const creatures = (spec.creatures?.length ?? 0) > 0
+        ? createCreatures(viewport.scene, {
+            creatures: spec.creatures ?? [], nav, heightAt: (x, z) => land.heightAt?.(x, z) ?? 0, bounds: layout.bounds,
+            doors: objects.doors, plaza: { x: layout.plaza.x, z: layout.plaza.z }, water: land.waterBodies, rng: makeRng(spec.seed, 'creatures'), quality,
+          })
+        : null;
       this.town = {
-        spec, state, layout, objects, nav, navGround, player, npcs, rng, life, lightRemovers,
+        spec, state, layout, objects, nav, navGround, player, npcs, rng, life, lightRemovers, creatures,
         elapsed: 0, nextTickAt: 2, tickInFlight: false, dialogue: null, dialogueNpc: null, handle: null, verified,
       };
     } catch (err) {
@@ -427,6 +436,7 @@ export class Game {
     this.sky.setFocus?.(t.player.position.x, t.player.position.z);
     this.atmosphere.update(dt, t.player.position, t.state.hour);
     t.life?.update(dt, t.player.position, t.state.hour);
+    t.creatures?.update(dt, t.player.position, t.state.hour);
     updateScatter(t.player.position);
     WIND.time.value += dt;
     const h = t.state.hour;
@@ -454,7 +464,13 @@ export class Game {
     }
 
     const near = this.nearestNpcId();
-    this.deps.ui.setPrompt(near && !t.dialogue ? `E · talk to ${t.npcs.get(near)?.spec.name ?? ''}` : null);
+    if (near && !t.dialogue) {
+      this.deps.ui.setPrompt(`E · talk to ${t.npcs.get(near)?.spec.name ?? ''}`);
+    } else {
+      // Nobody to talk to: name the nearest creature and what the player is looking at.
+      const seen = t.dialogue ? null : t.creatures?.nearest(t.player.position, 30) ?? null;
+      this.deps.ui.setPrompt(seen ? `${seen.name} · ${seen.note}` : null);
+    }
 
     if (t.elapsed >= t.nextTickAt && !t.dialogue && !t.tickInFlight) {
       t.nextTickAt = t.elapsed + TICK_SECONDS;
@@ -675,7 +691,7 @@ export class Game {
     t.dialogueNpc = null;
     t.handle = null;
     t.player.frameTarget?.(null);
-    for (const n of t.npcs.values()) setTalking(n.rig, -1);
+    for (const n of t.npcs.values()) n.rig.setTalking?.(-1);
     this.audio.ui('close');
     this.speech.cancel();
     t.nextTickAt = Math.min(t.nextTickAt, t.elapsed + 2);
@@ -833,11 +849,13 @@ export class Game {
     t.player.dispose();
     t.player.rig.dispose();
     t.life?.dispose();
+    t.creatures?.dispose();
     for (const r of t.lightRemovers) r();
     t.nav.dispose();
     t.navGround.geometry.dispose();
     (t.navGround.material as THREE.Material).dispose();
     t.objects.dispose();
+    disposeBodyCache();
     this.town = null;
   }
 

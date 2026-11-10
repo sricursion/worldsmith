@@ -8,8 +8,24 @@ export interface SoundSettings {
   muted: boolean;
 }
 
-export const SOUND_KEY = 'worldsmith.sound';
-export const SOUND_DEFAULTS: Readonly<SoundSettings> = { overall: 0.8, voices: 0.9, background: 0.7, muted: false };
+export const SOUND_KEY = 'worldsmith.sound.v2';
+export const SOUND_DEFAULTS: Readonly<SoundSettings> = { overall: 0.8, voices: 0.9, background: 0.35, muted: false };
+
+/** Deltas in 0..1 units (0.1 is one keyboard step); toggleMute flips the mute switch. */
+export interface SoundChange { overall?: number; background?: number; voices?: number; toggleMute?: boolean }
+
+const roundLevel = (v: number): number => Math.round(v * 100) / 100;
+
+/** Applies a change to a copy of the settings, clamping every level to 0..1. */
+export function applySoundChange(s: SoundSettings, change: SoundChange): SoundSettings {
+  const out = { ...s };
+  for (const k of ['overall', 'voices', 'background'] as const) {
+    const d = change[k];
+    if (typeof d === 'number' && Number.isFinite(d)) out[k] = level(roundLevel(out[k] + d), out[k]);
+  }
+  if (change.toggleMute === true) out.muted = !out.muted;
+  return out;
+}
 
 export type SoundStorage = Pick<Storage, 'getItem' | 'setItem'>;
 
@@ -59,6 +75,7 @@ export interface SoundView {
   toggle(): void;
   isOpen(): boolean;
   get(): SoundSettings;
+  adjust(change: SoundChange): SoundSettings;
   dispose(): void;
 }
 
@@ -85,6 +102,7 @@ export function createSound(layer: HTMLElement, notify: (s: SoundSettings) => vo
     notify({ ...state });
   };
 
+  const syncs: (() => void)[] = [];
   const slider = (id: string, text: string, key: 'overall' | 'voices' | 'background'): void => {
     const row = el('div', 'tf-sound-row');
     const label = el('label', 'tf-sound-label', text);
@@ -103,6 +121,10 @@ export function createSound(layer: HTMLElement, notify: (s: SoundSettings) => vo
       out.textContent = String(Math.round(state[key] * 100));
       changed();
     });
+    syncs.push(() => {
+      input.value = String(Math.round(state[key] * 100));
+      out.textContent = input.value;
+    });
     row.append(label, input, out);
     body.append(row);
   };
@@ -110,6 +132,7 @@ export function createSound(layer: HTMLElement, notify: (s: SoundSettings) => vo
   slider('voices', 'Voices', 'voices');
   slider('background', 'Background', 'background');
 
+  let syncMute = (): void => undefined;
   const muteLabel = el('label', 'tf-sound-mute');
   const mute = el('input');
   mute.type = 'checkbox';
@@ -118,8 +141,12 @@ export function createSound(layer: HTMLElement, notify: (s: SoundSettings) => vo
     state.muted = mute.checked;
     changed();
   });
+  syncMute = (): void => {
+    mute.checked = state.muted;
+  };
   muteLabel.append(mute, el('span', undefined, 'Mute all'));
   body.append(muteLabel);
+  body.append(el('p', 'tf-sound-keys', '- / = volume · [ / ] background · M mute'));
 
   panel.append(head, body);
   layer.append(panel);
@@ -139,6 +166,13 @@ export function createSound(layer: HTMLElement, notify: (s: SoundSettings) => vo
     },
     isOpen: () => open,
     get: () => ({ ...state }),
+    adjust(change) {
+      Object.assign(state, applySoundChange(state, change));
+      for (const sync of syncs) sync();
+      syncMute();
+      changed();
+      return { ...state };
+    },
     dispose() {
       bag.dispose();
       open = false;

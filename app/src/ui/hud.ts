@@ -1,7 +1,7 @@
 // Always-on heads-up display: title, clock, badge, objective, prompt hint and the button row.
 import type { WorldSpec } from '../world/spec';
 import { Bag, button, closeButton, el } from './dom';
-import { createSound, type SoundSettings } from './sound';
+import { createSound, type SoundChange, type SoundSettings } from './sound';
 import { controlsHint, formatClock, normalizeHex, promptLabel, readableOn } from './text';
 
 const HINT_MS = 15_000;
@@ -25,6 +25,7 @@ export interface HudView {
   setPrompt(label: string | null): void;
   setHandlers(handlers: HudHandlers): void;
   getSound(): SoundSettings;
+  adjustSound(change: SoundChange): SoundSettings;
   isSoundOpen(): boolean;
   closeSound(): void;
   dispose(): void;
@@ -158,6 +159,7 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
       next.sound?.(sound.get());
     },
     getSound: () => sound.get(),
+    adjustSound: (change) => sound.adjust(change),
     isSoundOpen: () => sound.isOpen(),
     closeSound: () => sound.close(),
     dispose() {

@@ -127,3 +127,29 @@ describe('pickVoice', () => {
     expect(pickVoice([v('a', 'de-DE')], 'x')?.name).toBe('a');
   });
 });
+
+describe('speech only speaks speech', () => {
+  it('splitSentences drops actions, including an unterminated one', () => {
+    expect(splitSentences('*leans on the plaza rail, grinning* Well, look at you...')).toEqual(['Well, look at you...']);
+    expect(splitSentences("*tips hat slow, keeps one eye on the roadNot now, friend. Come back when the street's quieter.")).toEqual([
+      'Not now, friend.', "Come back when the street's quieter.",
+    ]);
+    expect(splitSentences('(nods) Evening.')).toEqual(['Evening.']);
+    expect(splitSentences('*sighs*')).toEqual([]);
+  });
+
+  it('speak() never hands an action to the synthesiser', () => {
+    const spoken: string[] = [];
+    g['SpeechSynthesisUtterance'] = class {
+      pitch = 1;
+      rate = 1;
+      volume = 1;
+      constructor(public text: string) {}
+    };
+    g['window'] = { speechSynthesis: { getVoices: () => [], speak: (u: { text: string }) => spoken.push(u.text), cancel: () => undefined } };
+    const s = createSpeech();
+    s.speak('*leans on the plaza rail, grinning* Well, look at you...', { pitch: 1, rate: 1 }, 'Nell');
+    s.speak('*sighs*', { pitch: 1, rate: 1 }, 'Nell');
+    expect(spoken).toEqual(['Well, look at you...']);
+  });
+});

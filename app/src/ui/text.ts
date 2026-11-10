@@ -70,7 +70,15 @@ export function effectLabel(type: string): string {
   return type.replace(/_/g, ' ');
 }
 
-export const CONTROLS_HINT_DESKTOP = 'WASD move · move the mouse to look · Shift run · E talk · V first person';
+/** "Nell leans on the rail, grinning." from a character name and the bare action text. */
+export function formatAction(name: string, action: string): string {
+  const first = name.trim().split(/\s+/)[0] ?? '';
+  const body = action.trim().replace(/[\s.!?…,;:]+$/, '');
+  if (body === '') return '';
+  return `${first === '' ? '' : first + ' '}${body}.`;
+}
+
+export const CONTROLS_HINT_DESKTOP = 'WASD move · mouse look · Shift run · E talk · V view · -/= volume · M mute · [/] background';
 export const CONTROLS_HINT_TOUCH = 'Left half: move · right half: look · tap the pill to talk';
 
 /** Controls hint text for the given pointer type. */

@@ -18,7 +18,7 @@ export interface DialogueSession {
 const HISTORY_TURNS = 8;
 const LOG_LINES = 5;
 const MAX_CHARS = 600;
-const MAX_DIRECTION = 40;
+const MAX_ACTION = 60;
 
 const LEAK_MARKERS: readonly string[] = [
   'let me think', 'i should', 'as an ai', 'i am an ai', 'language model',
@@ -128,10 +128,90 @@ function stripNamePrefix(s: string, npcName?: string): string {
   return s.replace(GENERIC_PREFIX, '');
 }
 
-function longDirection(s: string): boolean {
-  const re = /\[[^\]]*\]|\*[^*]+\*/g;
-  for (const m of s.matchAll(re)) if (m[0].length > MAX_DIRECTION) return true;
-  return false;
+export interface LineSegment { kind: 'action' | 'speech'; text: string }
+
+/** Where an unterminated *action* ends: first sentence-ending punctuation, or a capital glued to a lowercase letter. */
+function splitUnterminated(s: string): { action: string; rest: string } {
+  const m = /[.!?…]+|(?<=[a-z])(?=[A-Z])/.exec(s);
+  if (!m) return { action: s, rest: '' };
+  return { action: s.slice(0, m.index), rest: s.slice(m.index + m[0].length) };
+}
+
+/**
+ * Splits an NPC line into body actions and spoken words. Actions sit between asterisks, or in
+ * parentheses/brackets at the very start of the line; an asterisk that is never closed ends at the first
+ * sentence end or at a missing space ("roadNot"). Works on partial streamed text too.
+ */
+export function parseLine(text: string): LineSegment[] {
+  const out: LineSegment[] = [];
+  const push = (kind: LineSegment['kind'], t: string): void => {
+    const v = t.replace(/\s+/g, ' ').trim();
+    if (v !== '') out.push({ kind, text: v });
+  };
+  let s = text.trim();
+  const lead = /^[([]/.exec(s);
+  if (lead) {
+    const close = s.indexOf(lead[0] === '(' ? ')' : ']');
+    if (close > 0) {
+      push('action', s.slice(1, close));
+      s = s.slice(close + 1);
+    } else {
+      const u = splitUnterminated(s.slice(1));
+      push('action', u.action);
+      s = u.rest;
+    }
+  }
+  while (s !== '') {
+    const star = s.indexOf('*');
+    if (star < 0) {
+      push('speech', s);
+      break;
+    }
+    push('speech', s.slice(0, star));
+    s = s.slice(star + 1);
+    const close = s.indexOf('*');
+    if (close >= 0) {
+      push('action', s.slice(0, close));
+      s = s.slice(close + 1);
+    } else {
+      const u = splitUnterminated(s);
+      push('action', u.action);
+      s = u.rest;
+    }
+  }
+  return out;
+}
+
+/** Only the words the character says, for speech synthesis. */
+export function speechOf(text: string): string {
+  return parseLine(text).filter((g) => g.kind === 'speech').map((g) => g.text).join(' ');
+}
+
+/** The line rebuilt as "*action* speech", with over-long actions dropped. Idempotent. */
+export function normalizeLine(text: string): string {
+  return parseLine(text)
+    .filter((g) => g.kind === 'speech' || g.text.length <= MAX_ACTION)
+    .map((g) => (g.kind === 'action' ? `*${g.text}*` : g.text))
+    .join(' ');
+}
+
+const GESTURES: readonly (readonly [RegExp, 'gesture' | 'cheer' | 'use' | 'look_around' | 'sit' | 'wave' | 'talk'])[] = [
+  [/^(tips?|tipping|nods?|nodding|waves?|waving|salutes?|saluting)$/, 'wave'],
+  [/^(sits?|sitting)$/, 'sit'],
+  [/^(leans?|leaning|slumps?|slumping|shrugs?|shrugging|spreads?|spreading|gestures?|gesturing)$/, 'gesture'],
+  [/^(grins?|grinning|laughs?|laughing|chuckles?|chuckling|cheers?|cheering)$/, 'cheer'],
+  [/^(points?|pointing|hands?|handing|pours?|pouring|wipes?|wiping|polishes?|polishing|counts?|counting)$/, 'use'],
+  [/^(glances?|glancing|looks?|looking|squints?|squinting|eyes?|watches?|watching)$/, 'look_around'],
+  [/^(says?|speaks?|whispers?|murmurs?|mutters?|clears?)$/, 'talk'],
+];
+
+/** Which body clip best matches an action, by its first recognised verb. */
+export function gestureFor(action: string): 'gesture' | 'cheer' | 'use' | 'look_around' | 'sit' | 'wave' | 'talk' | null {
+  for (const w of action.toLowerCase().split(/[^a-z]+/)) {
+    if (w === '') continue;
+    for (const [re, clip] of GESTURES) if (re.test(w)) return clip;
+  }
+  return null;
 }
 
 function trimToSentence(s: string): string {
@@ -153,11 +233,10 @@ function trimToSentence(s: string): string {
 export function validateLine(text: string, npcName?: string): { ok: boolean; cleaned: string; reason?: string } {
   const raw = text.trim();
   if (raw.length === 0) return { ok: false, cleaned: '', reason: 'empty' };
-  const cleaned = trimToSentence(stripNamePrefix(stripWrapQuotes(stripNamePrefix(stripWrapQuotes(raw), npcName)), npcName));
+  const cleaned = trimToSentence(normalizeLine(stripNamePrefix(stripWrapQuotes(stripNamePrefix(stripWrapQuotes(raw), npcName)), npcName)));
   const leak = isLeak(raw);
   if (leak !== null) return { ok: false, cleaned, reason: `leak: ${leak}` };
-  if (longDirection(raw)) return { ok: false, cleaned, reason: 'long stage direction' };
-  if (cleaned.length === 0) return { ok: false, cleaned: '', reason: 'empty' };
+  if (speechOf(cleaned) === '') return { ok: false, cleaned: '', reason: 'no speech' };
   return { ok: true, cleaned };
 }
 
@@ -257,12 +336,14 @@ export function openDialogue(spec: WorldSpec, getState: () => WorldState, npcId:
       const handleToken = (t: string): void => {
         if (closed || suppressed) return;
         acc += t;
-        // Once a leak marker or a long stage direction shows up, stop showing text and wait for the verdict.
-        if (isLeak(acc) !== null || longDirection(acc)) {
+        // Once a leak marker shows up, stop showing text and wait for the verdict.
+        if (isLeak(acc) !== null) {
           suppressed = true;
           return;
         }
-        onToken(acc);
+        // Always the full text so far: the UI replaces the line with whatever it is given.
+        const shown = normalizeLine(acc);
+        if (shown !== '') onToken(shown);
       };
 
       let verdict: { ok: boolean; cleaned: string } = { ok: false, cleaned: '' };

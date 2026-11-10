@@ -5,7 +5,7 @@ import { Bag, el } from './dom';
 import { createDialogue, type DialogueHandle } from './dialogue';
 import { createHud, type HudHandlers } from './hud';
 import { createLanding } from './landing';
-import type { SoundSettings } from './sound';
+import type { SoundChange, SoundSettings } from './sound';
 import { createNotices } from './notices';
 import { createRules } from './rules';
 import { createWhy } from './why';
@@ -13,7 +13,7 @@ import { createWhy } from './why';
 export { formatClock, splitSentencesForTypewriter } from './text';
 export type { DialogueHandle } from './dialogue';
 export type { HudHandlers } from './hud';
-export type { SoundSettings } from './sound';
+export type { SoundChange, SoundSettings } from './sound';
 
 export interface UI {
   showLanding(examples: string[], onSubmit: (prompt: string) => void): void;
@@ -34,6 +34,8 @@ export interface UI {
   setBadge(text: string | null): void;
   /** Addition: current levels from the sound panel (saved values until the player changes them). */
   getSound(): SoundSettings;
+  /** Applies level deltas (0..1 units) or a mute toggle, saves, updates the panel and notifies the sound handler. */
+  adjustSound(change: SoundChange): SoundSettings;
   dispose(): void;
 }
 
@@ -87,6 +89,7 @@ export function createUI(root: HTMLElement): UI {
     onHud: (handlers) => hud.setHandlers(handlers),
     setBadge: (text) => hud.setBadge(text),
     getSound: () => hud.getSound(),
+    adjustSound: (change) => hud.adjustSound(change),
     dispose() {
       bag.dispose();
       notices.dispose();

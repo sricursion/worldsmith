@@ -31,16 +31,29 @@ import { createPlayer, type Player } from './engine/player';
 import { loadLandmark, pollLandmark } from './engine/landmark';
 import { planTick, type NpcIntent } from './npc/brain';
 import { buildQuestions, sampleAction, localFallback } from './npc/decide';
-import { openDialogue, type DialogueSession } from './npc/dialogue';
+import { gestureFor, openDialogue, parseLine, speechOf, type DialogueSession } from './npc/dialogue';
 import { createSpeech, type Speech } from './npc/speech';
 import type { Api } from './net/api';
-import type { UI, DialogueHandle, SoundSettings } from './ui/ui';
+import type { UI, DialogueHandle, SoundChange, SoundSettings } from './ui/ui';
 import { encodeShare, decodeShare } from './share';
 
 const TICK_SECONDS = 20;
 const TALK_DISTANCE = 3.2;
 /** People are built from the world's own folk body plan; talking is driven on the figure itself. */
 type Person = CharacterRig & { setTalking?(amount: number): void };
+
+/** What the body of the character in conversation is doing while their line arrives (times on Town.elapsed). */
+interface Beat {
+  clip: Parameters<Person['play']>[0] | null;
+  poseUntil: number;
+  /** Speech is being revealed. */
+  talking: boolean;
+  /** Keeps talking until this time once the line is complete (roughly as long as it takes to say it). */
+  talkUntil: number;
+  performed: boolean;
+}
+
+const GESTURE_HOLD_S = 1.6;
 
 interface NpcRuntime {
   spec: NpcSpec;
@@ -101,6 +114,7 @@ export class Game {
   private compiling: AbortController | null = null;
   private readonly sessionId = Math.floor(performance.now() * 1000).toString(36) + '-' + Date.now().toString(36);
   private unsubscribe: (() => void)[] = [];
+  private readonly beats = new Map<string, Beat>();
 
   constructor(private readonly deps: GameDeps) {
     this.sky = createSky(deps.viewport.scene, deps.viewport.renderer);
@@ -118,6 +132,11 @@ export class Game {
       input.onKey('Slash', () => this.showWhy()),
       input.onKey('Escape', () => this.closeDialogue()),
       input.onKey('KeyV', () => this.town?.player.toggleView?.()),
+      input.onKey('Minus', () => this.adjustSound({ overall: -0.1 })),
+      input.onKey('Equal', () => this.adjustSound({ overall: 0.1 })),
+      input.onKey('KeyM', () => this.adjustSound({ toggleMute: true })),
+      input.onKey('BracketLeft', () => this.adjustSound({ background: -0.1 })),
+      input.onKey('BracketRight', () => this.adjustSound({ background: 0.1 })),
     );
     deps.ui.onHud({
       rules: () => this.openRules(),
@@ -127,6 +146,18 @@ export class Game {
       newTown: () => this.newTown(),
       sound: (s) => this.applySound(s),
     });
+  }
+
+  /** Keyboard sound control: applies the change through the UI (which saves, syncs the panel and calls applySound). */
+  private adjustSound(change: SoundChange): void {
+    const s = this.deps.ui.adjustSound(change);
+    const pct = (v: number): number => Math.round(v * 100);
+    let text: string;
+    if (change.toggleMute) text = s.muted ? 'Muted' : 'Unmuted';
+    else if (change.background !== undefined) text = `Background ${pct(s.background)}`;
+    else text = `Volume ${pct(s.overall)}`;
+    if (s.muted && !change.toggleMute) text += ' (muted)';
+    this.deps.ui.toast(text);
   }
 
   private applySound(s: SoundSettings): void {
@@ -453,7 +484,11 @@ export class Game {
         n.rig.root.rotation.y = Math.atan2(v.x, v.z);
         n.rig.play(speed > 2.5 ? 'run' : 'walk');
       } else if (t.dialogueNpc === n.spec.id) {
-        n.rig.play('talk');
+        const b = this.beats.get(n.spec.id);
+        const speaking = b !== undefined && (b.talking || t.elapsed < b.talkUntil);
+        if (b?.clip && t.elapsed < b.poseUntil) n.rig.play(b.clip);
+        else n.rig.play(speaking ? 'talk' : 'idle');
+        n.rig.setTalking?.(speaking ? 1 : 0);
       } else {
         n.rig.play('idle');
       }
@@ -619,10 +654,10 @@ export class Game {
     t.handle = handle;
     this.afterEvent(res.completed);
     this.offerItemActions(n, handle);
-    void session.say('(walks up)', (partial) => handle.stream(partial)).then((r) => {
+    this.beats.set(id, this.freshBeat());
+    void session.say('(walks up)', (full) => this.showLine(n, handle, full)).then((r) => {
       if (t.handle !== handle) return;
-      handle.done();
-      this.speech.speak(r.text, n.spec.voice, n.spec.name);
+      this.finishLine(n, handle, r.text);
     });
   }
 
@@ -632,15 +667,48 @@ export class Game {
     const n = t.npcs.get(t.dialogueNpc);
     const handle = t.handle;
     if (!n || !handle) return;
-    const r = await t.dialogue.say(text, (partial) => handle.stream(partial));
+    this.beats.set(n.spec.id, this.freshBeat());
+    const r = await t.dialogue.say(text, (full) => this.showLine(n, handle, full));
     if (t.handle !== handle) return;
-    handle.done();
-    this.speech.speak(r.text, n.spec.voice, n.spec.name);
+    this.finishLine(n, handle, r.text);
     // A confront step completes on any exchange once its requirements are met.
     const res = applyEvent(t.spec, t.state, { type: 'talk', npcId: n.spec.id });
     t.state = res.state;
     this.afterEvent(res.completed);
     this.offerItemActions(n, handle);
+  }
+
+  private freshBeat(): Beat {
+    return { clip: null, poseUntil: 0, talking: false, talkUntil: 0, performed: false };
+  }
+
+  /** `full` is always the whole line so far; the panel replaces its text and the body follows the words. */
+  private showLine(n: NpcRuntime, handle: DialogueHandle, full: string): void {
+    const t = this.town;
+    if (!t || t.handle !== handle) return;
+    handle.stream(full);
+    const b = this.beats.get(n.spec.id) ?? this.freshBeat();
+    this.beats.set(n.spec.id, b);
+    const segs = parseLine(full);
+    const action = segs.find((g) => g.kind === 'action');
+    if (action && !b.performed) {
+      b.performed = true;
+      b.clip = gestureFor(action.text);
+      if (b.clip) b.poseUntil = t.elapsed + GESTURE_HOLD_S;
+    }
+    b.talking = segs.some((g) => g.kind === 'speech');
+  }
+
+  private finishLine(n: NpcRuntime, handle: DialogueHandle, full: string): void {
+    const t = this.town;
+    handle.done();
+    const words = speechOf(full);
+    const b = this.beats.get(n.spec.id);
+    if (b) {
+      b.talking = false;
+      b.talkUntil = t && this.speech.enabled ? t.elapsed + Math.min(8, Math.max(1, words.length * 0.06)) : 0;
+    }
+    if (words !== '') this.speech.speak(words, n.spec.voice, n.spec.name);
   }
 
   private offerItemActions(n: NpcRuntime, h: DialogueHandle): void {
@@ -688,6 +756,7 @@ export class Game {
     t.dialogue = null;
     t.dialogueNpc = null;
     t.handle = null;
+    this.beats.clear();
     t.player.frameTarget?.(null);
     for (const n of t.npcs.values()) n.rig.setTalking?.(-1);
     this.audio.ui('close');

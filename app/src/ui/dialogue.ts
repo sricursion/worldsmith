@@ -1,10 +1,11 @@
 // Dialogue panel: transcript with streamed NPC text, a text input and game-injected action buttons.
 import type { NpcSpec } from '../world/spec';
 import { Bag, button, closeButton, el, focusSoon } from './dom';
-import { splitSentencesForTypewriter } from './text';
+import { parseLine } from '../npc/dialogue';
+import { formatAction, splitSentencesForTypewriter } from './text';
 
 export interface DialogueHandle {
-  /** Text so far for the NPC line being spoken. A string that extends the current text replaces it; anything else is appended. */
+  /** Full text so far for the NPC line being spoken; always replaces the current line (a fallback replaces a partial). */
   stream(partial: string): void;
   /** Marks the NPC line finished. */
   done(): void;
@@ -94,27 +95,42 @@ export function createDialogue(layer: HTMLElement, root: HTMLElement): DialogueV
       send.disabled = on;
       if (!on) focusSoon(input);
     };
-    let line: { box: HTMLElement; text: HTMLElement; value: string } | null = null;
+    interface Line { box: HTMLElement; text: HTMLElement; actions: HTMLElement | null; value: string }
+    let line: Line | null = null;
     const scroll = (): void => {
       log.scrollTop = log.scrollHeight;
     };
-    const addLine = (speaker: 'player' | 'npc', text: string): { box: HTMLElement; text: HTMLElement; value: string } => {
+    const addLine = (speaker: 'player' | 'npc', text: string): Line => {
       const box = el('div', `tf-line ${speaker === 'player' ? 'tf-line-player' : 'tf-line-npc'}`);
       const body = el('p', 'tf-line-text', text);
-      box.append(el('span', 'tf-line-who', speaker === 'player' ? 'You' : npc.name), body);
+      const actions = speaker === 'npc' ? el('div', 'tf-line-actions') : null;
+      box.append(el('span', 'tf-line-who', speaker === 'player' ? 'You' : npc.name));
+      if (actions) box.append(actions);
+      box.append(body);
       log.append(box);
       scroll();
-      return { box, text: body, value: text };
+      return { box, text: body, actions, value: text };
+    };
+    /** Actions go on their own dim italic lines above the speech bubble; re-parsed on every update. */
+    const render = (l: Line, typewriter: boolean): void => {
+      const segs = parseLine(l.value);
+      const acts = segs.filter((g) => g.kind === 'action').map((g) => formatAction(npc.name, g.text)).filter((t) => t !== '');
+      const speech = segs.filter((g) => g.kind === 'speech').map((g) => g.text).join(' ');
+      l.actions?.replaceChildren(...acts.map((t) => el('p', 'tf-line-action', t)));
+      const parts = typewriter ? splitSentencesForTypewriter(speech) : [];
+      if (parts.length > 1) {
+        l.text.replaceChildren(...parts.flatMap((s, i) => [...(i > 0 ? [document.createTextNode(' ')] : []), el('span', 'tf-sentence', s)]));
+      } else {
+        l.text.textContent = speech;
+      }
+      l.text.hidden = speech === '';
     };
     const finish = (): void => {
       if (!line) return;
       if (line.value.trim() === '') {
         line.box.remove();
       } else {
-        const parts = splitSentencesForTypewriter(line.value);
-        if (parts.length > 1) {
-          line.text.replaceChildren(...parts.flatMap((s, i) => [...(i > 0 ? [document.createTextNode(' ')] : []), el('span', 'tf-sentence', s)]));
-        }
+        render(line, true);
         line.box.classList.remove('tf-pending');
       }
       line = null;
@@ -143,10 +159,10 @@ export function createDialogue(layer: HTMLElement, root: HTMLElement): DialogueV
           line = addLine('npc', '');
           line.box.classList.add('tf-pending');
         }
-        const next = partial.startsWith(line.value) ? partial : line.value + partial;
-        if (next === line.value) return;
-        line.value = next;
-        line.text.textContent = next;
+        if (partial === line.value) return;
+        line.value = partial;
+        if (parseLine(partial).length === 0) return; // nothing readable yet: keep the dots
+        render(line, false);
         line.box.classList.remove('tf-pending');
         scroll();
       },

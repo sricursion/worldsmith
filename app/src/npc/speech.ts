@@ -2,6 +2,7 @@
 // API is missing and none of them can throw.
 import { hash32 } from '../world/rng';
 import type { NpcSpec } from '../world/spec';
+import { speechOf } from './dialogue';
 
 export interface Speech {
   /** `key` (normally the NPC name) picks a stable voice; without it the pitch/rate pair is used. */
@@ -13,7 +14,7 @@ export interface Speech {
 }
 
 export function splitSentences(text: string): string[] {
-  const cleaned = text.replace(/\*[^*]*\*/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim();
+  const cleaned = speechOf(text);
   if (cleaned.length === 0) return [];
   const parts = cleaned.match(/[^.!?…]+(?:[.!?…]+["'”’)]*|$)/g) ?? [cleaned];
   return parts.map((p) => p.trim()).filter((p) => p.length > 0);

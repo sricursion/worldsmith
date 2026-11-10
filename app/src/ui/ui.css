@@ -550,6 +550,26 @@ canvas {
   white-space: pre-wrap;
 }
 
+.tf-line-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tf-line-actions:empty {
+  display: none;
+}
+
+.tf-line-action {
+  margin: 0;
+  padding: 0 2px;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--tf-fg-dim);
+  opacity: 0.85;
+  overflow-wrap: anywhere;
+}
+
 .tf-line-player .tf-line-text {
   background: var(--accent);
   color: var(--on-accent);
@@ -728,6 +748,13 @@ canvas {
   height: 18px;
   margin: 0;
   accent-color: var(--accent);
+}
+
+.tf-sound-keys {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--tf-fg-dim);
 }
 
 .tf-why {

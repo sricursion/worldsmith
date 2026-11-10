@@ -4,7 +4,7 @@ vi.mock('../../app/src/world/state', () => ({
   activeRules: (state: { rules: unknown[] }) => state.rules,
 }));
 
-import { cannedLine, MOODS, openDialogue, validateLine } from '../../app/src/npc/dialogue';
+import { cannedLine, gestureFor, MOODS, normalizeLine, openDialogue, parseLine, speechOf, validateLine } from '../../app/src/npc/dialogue';
 import type { Api } from '../../app/src/net/api';
 import type { NpcSayRequest } from '../../app/src/net/types';
 import { makeRng } from '../../app/src/world/rng';
@@ -37,12 +37,17 @@ describe('validateLine', () => {
   it('rejects a leak buried mid-text', () => {
     expect(validateLine('Howdy there. It is a fine day. Let me think about the bank.').ok).toBe(false);
   });
-  it('keeps short stage directions and rejects long ones', () => {
-    expect(validateLine('*tips hat* Evening, friend.').ok).toBe(true);
-    expect(validateLine('[nods] Evening.').ok).toBe(true);
-    const long = `*${'slowly leans across the bar and lowers his voice'.padEnd(50, ' x')}* Evening.`;
-    expect(validateLine(long).ok).toBe(false);
-    expect(validateLine(`[${'a'.repeat(45)}] Evening.`).ok).toBe(false);
+  it('keeps short actions, drops actions over 60 characters, and needs speech', () => {
+    expect(validateLine('*tips hat* Evening, friend.')).toEqual({ ok: true, cleaned: '*tips hat* Evening, friend.' });
+    expect(validateLine('[nods] Evening.').cleaned).toBe('*nods* Evening.');
+    const long = `*${'slowly leans across the bar and lowers his voice'.padEnd(70, ' x')}* Evening.`;
+    expect(validateLine(long)).toEqual({ ok: true, cleaned: 'Evening.' });
+    expect(validateLine(`*${'a'.repeat(60)}* Evening.`).cleaned).toBe(`*${'a'.repeat(60)}* Evening.`);
+    expect(validateLine('*tips hat slowly*').ok).toBe(false);
+    expect(validateLine(`[${'a'.repeat(61)}]`).ok).toBe(false);
+  });
+  it('repairs an unterminated action run into the speech', () => {
+    expect(validateLine("*tips hat slow, keeps one eye on the roadNot now, friend.").cleaned).toBe('*tips hat slow, keeps one eye on the road* Not now, friend.');
   });
   it('strips surrounding quotes and a Name: prefix', () => {
     expect(validateLine('"Howdy, stranger."').cleaned).toBe('Howdy, stranger.');
@@ -63,6 +68,65 @@ describe('validateLine', () => {
     const v = validateLine('word '.repeat(200));
     expect(v.ok).toBe(true);
     expect(v.cleaned.length).toBeLessThanOrEqual(604);
+  });
+});
+
+describe('parseLine', () => {
+  it('splits the unterminated run into action and the canned fallback line (exact example a)', () => {
+    expect(parseLine("*tips hat slow, keeps one eye on the roadNot now, friend. Come back when the street's quieter.")).toEqual([
+      { kind: 'action', text: 'tips hat slow, keeps one eye on the road' },
+      { kind: 'speech', text: "Not now, friend. Come back when the street's quieter." },
+    ]);
+  });
+  it('treats a terminated asterisk action as an action (exact example b)', () => {
+    expect(parseLine('*leans on the plaza rail, grinning* Well, look at you...')).toEqual([
+      { kind: 'action', text: 'leans on the plaza rail, grinning' },
+      { kind: 'speech', text: 'Well, look at you...' },
+    ]);
+  });
+  it('ends an unterminated action at sentence-ending punctuation', () => {
+    expect(parseLine('*sighs. Fine, come in.')).toEqual([
+      { kind: 'action', text: 'sighs' },
+      { kind: 'speech', text: 'Fine, come in.' },
+    ]);
+  });
+  it('handles leading parentheses and brackets, mid-line actions and plain speech', () => {
+    expect(parseLine('(nods) Evening.')).toEqual([{ kind: 'action', text: 'nods' }, { kind: 'speech', text: 'Evening.' }]);
+    expect(parseLine('[shrugs] Who knows.')).toEqual([{ kind: 'action', text: 'shrugs' }, { kind: 'speech', text: 'Who knows.' }]);
+    expect(parseLine('Well *grins* then.')).toEqual([
+      { kind: 'speech', text: 'Well' }, { kind: 'action', text: 'grins' }, { kind: 'speech', text: 'then.' },
+    ]);
+    expect(parseLine('I saw (him) leave.')).toEqual([{ kind: 'speech', text: 'I saw (him) leave.' }]);
+    expect(parseLine('Hello there.')).toEqual([{ kind: 'speech', text: 'Hello there.' }]);
+  });
+  it('trims and drops empty segments, and copes with partial text', () => {
+    expect(parseLine('   ')).toEqual([]);
+    expect(parseLine('** **')).toEqual([]);
+    expect(parseLine('*')).toEqual([]);
+    expect(parseLine('*tips ha')).toEqual([{ kind: 'action', text: 'tips ha' }]);
+  });
+  it('speechOf and normalizeLine keep only what is said / rebuild the line', () => {
+    expect(speechOf('*leans on the plaza rail, grinning* Well, look at you...')).toBe('Well, look at you...');
+    expect(speechOf('*sighs*')).toBe('');
+    expect(normalizeLine('(nods) Evening.')).toBe('*nods* Evening.');
+    expect(normalizeLine(normalizeLine('*tips hat* Hi.'))).toBe('*tips hat* Hi.');
+  });
+});
+
+describe('gestureFor', () => {
+  it.each([
+    ['tips hat slow', 'wave'], ['nods', 'wave'], ['waves', 'wave'], ['salutes', 'wave'],
+    ['sits down', 'sit'], ['leans on the plaza rail, grinning', 'gesture'], ['slumps', 'gesture'],
+    ['shrugs', 'gesture'], ['spreads hands', 'gesture'], ['gestures wide', 'gesture'],
+    ['grins', 'cheer'], ['laughs', 'cheer'], ['cheers', 'cheer'],
+    ['points east', 'use'], ['pours a drink', 'use'], ['wipes the bar', 'use'], ['polishes a glass', 'use'], ['counts coins', 'use'],
+    ['glances at the door', 'look_around'], ['squints', 'look_around'], ['watches you', 'look_around'],
+  ])('%s -> %s', (action, clip) => {
+    expect(gestureFor(action)).toBe(clip);
+  });
+  it('is null when nothing matches', () => {
+    expect(gestureFor('')).toBeNull();
+    expect(gestureFor('hums quietly')).toBeNull();
   });
 });
 
@@ -217,5 +281,41 @@ describe('openDialogue', () => {
     await s.say('Hi', () => undefined);
     s.close();
     expect(signal?.aborted).toBe(true);
+  });
+});
+
+describe('streaming contract', () => {
+  const spec = mkSpec();
+  const state = mkState({ unlockedSteps: [], completedSteps: [], flags: {}, rules: [], log: [] });
+
+  it('only ever passes the full text so far, and a fallback replaces the partial line', async () => {
+    const api = fakeApi(async (_b, onToken) => {
+      onToken('*tips hat slow, ');
+      onToken('keeps one eye on the road');
+      return { ok: false, error: 'upstream' };
+    });
+    const s = openDialogue(spec, () => state, 'cole', api);
+    const shown: string[] = [];
+    let line = '';
+    const r = await s.say('Hi', (full) => {
+      shown.push(full);
+      line = full; // the panel replaces the line with whatever it is given
+    });
+    expect(r.source).toBe('fallback');
+    expect(shown[0]).toBe('*tips hat slow,*');
+    expect(line).toBe(r.text);
+    expect(line).not.toContain('tips hat');
+    expect(parseLine(line).every((g) => g.kind === 'speech')).toBe(true);
+  });
+
+  it('each streamed call extends the previous full text', async () => {
+    const api = fakeApi(async (_b, onToken) => {
+      onToken('*nods* Ev');
+      onToken('ening, friend.');
+      return { ok: true, text: '*nods* Evening, friend.' };
+    });
+    const shown: string[] = [];
+    await openDialogue(spec, () => state, 'cole', api).say('Hi', (f) => shown.push(f));
+    expect(shown).toEqual(['*nods* Ev', '*nods* Evening, friend.', '*nods* Evening, friend.']);
   });
 });

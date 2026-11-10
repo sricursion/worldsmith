@@ -51,13 +51,14 @@ function rainBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
   chain(rack.loop(ctx, kit.noise('pink'), 1.3), rack.add(filterNode(ctx, 'bandpass', 900, 0.6)), wash, out);
 
   // Mid: individual drops, pre-rendered as a stereo loop.
-  const patterBase = 0.55 + 0.35 * amount;
+  // Kept far down and very dense: single audible drops read as ticking, so this layer only adds grain to the wash.
+  const patterBase = 0.05 + 0.05 * amount;
   const patter = rack.add(gainNode(ctx, patterBase));
-  const drops = ([18, 45, 95] as const)[variant];
+  const drops = ([260, 420, 640] as const)[variant];
   chain(rack.loop(ctx, kit.buffer(`rain-patter:${variant}`, (sr, r) => renderRainPatter(sr, 6.5, drops, r))), patter, out);
 
   // Low: drumming on roofs; louder than everything else once the listener is under one.
-  const drumBase = 0.3 + 0.4 * amount;
+  const drumBase = 0.1 + 0.14 * amount;
   const drum = rack.add(gainNode(ctx, drumBase));
   const hits = ([6, 14, 26] as const)[variant];
   chain(

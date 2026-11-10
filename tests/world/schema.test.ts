@@ -32,7 +32,9 @@ describe('worldSpecJsonSchema', () => {
       const o = node as Record<string, unknown>;
       if (o.type === 'object') {
         objects++;
-        expect(o.additionalProperties, `${path} additionalProperties`).toBe(false);
+        // Skeleton dials are free-form name -> number|string; the only open object in the schema.
+        if (path.endsWith('.dials')) expect(o.additionalProperties).toEqual({ anyOf: [{ type: 'number' }, { type: 'string' }] });
+        else expect(o.additionalProperties, `${path} additionalProperties`).toBe(false);
       }
       for (const [k, v] of Object.entries(o)) {
         if (k === 'properties') {
@@ -66,13 +68,14 @@ describe('worldSpecJsonSchema architecture fields', () => {
     properties: Record<string, { items: { required: string[]; properties: Record<string, unknown> } }>;
   };
 
-  it('requires style, blueprints, props, landmarks and building.blueprint', () => {
-    for (const k of ['style', 'blueprints', 'props', 'landmarks']) {
+  it('requires style, site, blueprints, props, landmarks and building.blueprint', () => {
+    for (const k of ['style', 'site', 'blueprints', 'props', 'landmarks']) {
       expect(schema.required).toContain(k);
       expect(schema.properties[k]).toBeDefined();
     }
     expect(schema.properties.buildings?.items.required).toContain('blueprint');
-    expect(schema.properties.buildings?.items.required).not.toContain('position');
+    expect(schema.properties.buildings?.items.required).not.toContain('position');    expect(schema.properties.blueprints?.items.required).toEqual(expect.arrayContaining(['family', 'dials']));
+    expect(schema.properties.props?.items.required).toEqual(expect.arrayContaining(['family', 'dials']));
   });
 
   it('uses no oneOf, no range keywords, and closes every object', () => {
@@ -80,14 +83,15 @@ describe('worldSpecJsonSchema architecture fields', () => {
     expect(text).not.toContain('"oneOf"');
     expect(text).not.toContain('"$ref"');
     for (const k of ['minimum', 'maximum', 'minLength', 'maxLength', 'pattern', 'minItems', 'maxItems']) {
-      expect(text).not.toContain(`"${k}"`);
+      // `pattern` is also the name of a SiteSpec field (an object schema), never a string keyword.
+      expect(text).not.toContain(k === 'pattern' ? '"pattern":"' : `"${k}"`);
     }
     const bad: string[] = [];
     const walk = (node: unknown, path: string): void => {
       if (Array.isArray(node)) return node.forEach((n, i) => walk(n, `${path}[${i}]`));
       if (typeof node !== 'object' || node === null) return;
       const o = node as Record<string, unknown>;
-      if (o.type === 'object' && o.additionalProperties !== false) bad.push(path);
+      if (o.type === 'object' && o.additionalProperties !== false && !path.endsWith('.dials')) bad.push(path);
       for (const [k, v] of Object.entries(o)) walk(v, `${path}.${k}`);
     };
     walk(schema, '$');

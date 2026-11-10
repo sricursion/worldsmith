@@ -9,6 +9,10 @@ import type { PlacedProp } from './layout';
 import { Part } from './procedural';
 import type { ProcEnv } from './procedural';
 
+/** Props whose longest side is under this many metres are drawn but never block the navmesh. */
+export const VISUAL_ONLY_SIZE = 0.8;
+export const isVisualOnlyProp = (sizeMetres: number): boolean => sizeMetres < VISUAL_ONLY_SIZE;
+
 const WOOD = '#7a5233';
 const DARK_WOOD = '#4e3422';
 const METAL = '#6a7078';
@@ -139,7 +143,7 @@ export function addProceduralProp(env: ProcEnv, prop: PlacedProp): void {
  */
 export function scatterBlueprintProps(
   slots: readonly PlacedProp[], kinds: readonly PropBlueprint[], style: StyleSpec,
-  env: { batch: GeoBatch; mats: MaterialCache; rng: Rng },
+  env: { batch: GeoBatch; mats: MaterialCache; rng: Rng; visualBatch?: GeoBatch },
 ): Map<string, number> {
   const counts = new Map<string, number>();
   const usable = kinds.filter((k) => k.parts.length > 0);
@@ -155,7 +159,9 @@ export function scatterBlueprintProps(
     }
     const kind = usable[idx];
     if (!kind) continue;
-    addPropParts(kind.parts, kind.size, style, slot, env);
+    const small = isVisualOnlyProp(kind.size * slot.scale);
+    const target = small && env.visualBatch ? env.visualBatch : env.batch;
+    addPropParts(kind.parts, kind.size, style, slot, { batch: target, mats: env.mats, rng: env.rng });
     counts.set(kind.kind, (counts.get(kind.kind) ?? 0) + 1);
   }
   return counts;

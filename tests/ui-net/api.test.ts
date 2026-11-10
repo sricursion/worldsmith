@@ -68,12 +68,12 @@ describe('compile', () => {
     expect(await createApi().compile('x', 1, () => undefined)).toEqual({ ok: false, error: 'bad model output' });
   });
 
-  it('times out after 20 s of silence on a stream that never resolves', async () => {
+  it('times out after 45 s of silence on a stream that never resolves', async () => {
     vi.useFakeTimers();
     fetchMock.mockResolvedValue(stalledResponse('event: partial\ndata: {"text":"hi"}\n\n'));
     const partials: string[] = [];
     const pending = createApi().compile('x', 1, (t) => partials.push(t));
-    await vi.advanceTimersByTimeAsync(19_000);
+    await vi.advanceTimersByTimeAsync(44_000);
     let settled = false;
     void pending.then(() => {
       settled = true;
@@ -89,7 +89,7 @@ describe('compile', () => {
     vi.useFakeTimers();
     fetchMock.mockReturnValue(new Promise<Response>(() => undefined));
     const pending = createApi().compile('x', 1, () => undefined);
-    await vi.advanceTimersByTimeAsync(20_001);
+    await vi.advanceTimersByTimeAsync(45_001);
     expect(await pending).toEqual({ ok: false, error: 'timeout' });
   });
 

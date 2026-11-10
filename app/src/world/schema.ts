@@ -2,9 +2,11 @@
 import { z } from 'zod';
 import { SPEC_VERSION } from './spec';
 import { repairBlueprint } from './blueprints';
+import { hash32 } from './rng';
+import { buildSkeleton } from './skeletons';
 import type {
   Blueprint, BlueprintPart, BuildingRole, BuildingSpec, LandmarkSpec, NpcActionId, NpcSpec, PartShape, PartTone,
-  PropBlueprint, QuestStep, RuleEffect, RuleSpec, ScheduleEntry, StyleSpec, WorldSpec,
+  PropBlueprint, QuestStep, RuleEffect, RuleSpec, ScheduleEntry, SitePattern, SiteSpec, StyleSpec, WorldSpec,
 } from './spec';
 
 export const NPC_ACTION_IDS: readonly NpcActionId[] = [
@@ -110,8 +112,21 @@ const PartS = z.object({
   gap: z.number(),
 });
 
-const BlueprintS = z.object({ id: z.string(), summary: z.string(), parts: z.array(PartS), doorX: z.number() });
-const PropS = z.object({ kind: z.string(), size: z.number(), parts: z.array(PartS), weight: z.number() });
+const SITE_PATTERNS: readonly SitePattern[] = ['street', 'ring', 'scatter', 'grid', 'terraces'];
+const SITE_PATHS: readonly SiteSpec['paths'][] = ['road', 'track', 'none'];
+const DialsS = z.record(z.string(), z.union([z.number(), z.string()]));
+const BlueprintS = z.object({
+  id: z.string(), family: z.string().optional(), dials: DialsS.optional(), summary: z.string(), parts: z.array(PartS), doorX: z.number(),
+});
+const PropS = z.object({
+  family: z.string().optional(), dials: DialsS.optional(), kind: z.string(), size: z.number(), parts: z.array(PartS), weight: z.number(),
+});
+const SiteS = z.object({
+  pattern: z.enum(SITE_PATTERNS as [SitePattern, ...SitePattern[]]),
+  wild: z.number(),
+  paths: z.enum(SITE_PATHS as [SiteSpec['paths'], ...SiteSpec['paths'][]]),
+  spacing: z.number(),
+});
 const StyleS = z.object({
   name: z.string(),
   wall: z.string(),
@@ -145,6 +160,7 @@ export const WorldSpecSchema: z.ZodType<WorldSpec> = z.object({
   rules: z.array(RuleS),
   lexicon: z.array(z.string()),
   style: StyleS.optional(),
+  site: SiteS.optional(),
   blueprints: z.array(BlueprintS).optional(),
   props: z.array(PropS).optional(),
   landmarks: z.array(LandmarkS).optional(),
@@ -156,8 +172,20 @@ function formatPath(path: readonly PropertyKey[]): string {
   return out || '(root)';
 }
 
+/** An unknown site pattern or path style is a slip in one field, not a reason to reject the whole world. */
+function lenientSite(raw: unknown): unknown {
+  if (typeof raw !== 'object' || raw === null) return raw;
+  const r = raw as Record<string, unknown>;
+  const s = r.site;
+  if (typeof s !== 'object' || s === null) return raw;
+  const site = s as Record<string, unknown>;
+  const pattern = SITE_PATTERNS.includes(site.pattern as SitePattern) ? site.pattern : 'street';
+  const paths = SITE_PATHS.includes(site.paths as SiteSpec['paths']) ? site.paths : 'road';
+  return { ...r, site: { ...site, pattern, paths } };
+}
+
 export function validateSpec(raw: unknown): { ok: true; value: WorldSpec } | { ok: false; error: string } {
-  const r = WorldSpecSchema.safeParse(raw);
+  const r = WorldSpecSchema.safeParse(lenientSite(raw));
   if (r.success) return { ok: true, value: r.data };
   const first = r.error.issues[0];
   const more = r.error.issues.length > 1 ? ` (+${r.error.issues.length - 1} more)` : '';
@@ -168,6 +196,9 @@ export function validateSpec(raw: unknown): { ok: true; value: WorldSpec } | { o
 // ---------------------------------------------------------------------------------------------
 // JSON schema for the compile model
 // ---------------------------------------------------------------------------------------------
+
+/** Free-form skeleton dials: the one object in the model schema that is not closed. */
+const DIALS_JSON = { type: 'object', additionalProperties: { anyOf: [{ type: 'number' }, { type: 'string' }] } };
 
 const DROP_KEYS = new Set([
   '$schema', 'minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf', 'minLength', 'maxLength',
@@ -188,7 +219,7 @@ function cleanJson(node: unknown): unknown {
     }
     if (k === 'properties' && typeof v === 'object' && v !== null) {
       const props: Record<string, unknown> = {};
-      for (const [pk, pv] of Object.entries(v as Record<string, unknown>)) props[pk] = cleanJson(pv);
+      for (const [pk, pv] of Object.entries(v as Record<string, unknown>)) props[pk] = pk === 'dials' ? DIALS_JSON : cleanJson(pv);
       out[k] = props;
     } else out[k] = cleanJson(v);
   }
@@ -214,8 +245,11 @@ export function worldSpecJsonSchema(): object {
     o.required = [...new Set([...(o.required ?? []), ...keys])];
   };
   const props = cleaned.properties as Record<string, unknown>;
-  require(cleaned, ['style', 'blueprints', 'props', 'landmarks']);
+  require(cleaned, ['style', 'site', 'blueprints', 'props', 'landmarks']);
   require((props.buildings as { items: unknown }).items, ['blueprint']);
+  // Every blueprint and prop names a skeleton family and its dials; an empty family string means none.
+  require((props.blueprints as { items: unknown }).items, ['family', 'dials']);
+  require((props.props as { items: unknown }).items, ['family', 'dials']);
   return cleaned;
 }
 
@@ -409,33 +443,50 @@ function fixPart(p: BlueprintPart): BlueprintPart {
   };
 }
 
-function fixBlueprints(input: Blueprint[]): Blueprint[] {
+/**
+ * Skeleton expansion: final parts are the skeleton's parts followed by the model's own, capped at 28 with
+ * the skeleton first. The result carries no family or dials, so expansion happens once and normalizeSpec
+ * is idempotent. Share links carry the expanded parts.
+ */
+function fixBlueprints(input: Blueprint[], seed: number): Blueprint[] {
   const src = input.slice(0, 8);
   const ids = makeIdMap(src.map((b) => b.id), 'blueprint').ids;
-  return src.map((b, i) =>
-    repairBlueprint({
+  return src.map((b, i) => {
+    const bones = b.family ? buildSkeleton(b.family, b.dials, hash32(`${seed}|${b.id}`)) : [];
+    return repairBlueprint({
       id: ids[i] as string,
       summary: b.summary.trim(),
-      parts: b.parts.slice(0, 28).map(fixPart),
+      parts: [...bones, ...b.parts].slice(0, 28).map(fixPart),
       doorX: clamp(b.doorX, -0.4, 0.4),
-    }),
-  );
+    });
+  });
 }
 
-function fixProps(input: PropBlueprint[]): PropBlueprint[] {
+function fixProps(input: PropBlueprint[], seed: number): PropBlueprint[] {
   const src = input.slice(0, 6);
   const ids = makeIdMap(src.map((p) => p.kind), 'prop').ids;
   const out: PropBlueprint[] = [];
   src.forEach((p, i) => {
-    if (p.parts.length === 0) return;
+    const bones = p.family ? buildSkeleton(p.family, p.dials, hash32(`${seed}|${p.kind}`)) : [];
+    const parts = [...bones, ...p.parts].slice(0, bones.length > 0 ? 28 : 8).map(fixPart);
+    if (parts.length === 0) return;
     out.push({
       kind: ids[i] as string,
       size: clamp(p.size, 0.3, 6),
-      parts: p.parts.slice(0, 8).map(fixPart),
+      parts,
       weight: clamp(p.weight, 1, 5),
     });
   });
   return out;
+}
+
+function fixSite(s: SiteSpec): SiteSpec {
+  return {
+    pattern: SITE_PATTERNS.includes(s.pattern) ? s.pattern : 'street',
+    wild: clamp(s.wild, 0, 1),
+    paths: SITE_PATHS.includes(s.paths) ? s.paths : 'road',
+    spacing: clamp(s.spacing, 2, 14),
+  };
 }
 
 function fixLandmarks(input: LandmarkSpec[], bMap: IdMap): LandmarkSpec[] {
@@ -477,7 +528,8 @@ export function normalizeSpec(input: WorldSpec): WorldSpec {
   const bMap = makeIdMap(buildings.map((b) => b.id), 'building');
   buildings = buildings.map((b, i) => ({ ...b, id: bMap.ids[i] as string, label: b.label.trim() || b.id }));
 
-  const bps = spec.blueprints ? fixBlueprints(spec.blueprints) : undefined;
+  const seed = Math.trunc(Number.isFinite(spec.seed) ? spec.seed : 0) >>> 0;
+  const bps = spec.blueprints ? fixBlueprints(spec.blueprints, seed) : undefined;
   const bpMap = makeIdMap((spec.blueprints ?? []).slice(0, 8).map((b) => b.id), 'blueprint');
   buildings = buildings.map((b) => {
     const { blueprint: old, ...rest } = b;
@@ -613,16 +665,17 @@ export function normalizeSpec(input: WorldSpec): WorldSpec {
     if (effect) rules.push({ ...r, id: rMap.ids[i] as string, effect });
   });
 
-  const arch: Partial<Pick<WorldSpec, 'style' | 'blueprints' | 'props' | 'landmarks'>> = {};
+  const arch: Partial<Pick<WorldSpec, 'style' | 'site' | 'blueprints' | 'props' | 'landmarks'>> = {};
   if (spec.style) arch.style = fixStyle(spec.style);
+  if (spec.site) arch.site = fixSite(spec.site);
   if (bps) arch.blueprints = bps;
-  if (spec.props) arch.props = fixProps(spec.props);
+  if (spec.props) arch.props = fixProps(spec.props, seed);
   if (spec.landmarks) arch.landmarks = fixLandmarks(spec.landmarks, bMap);
 
   return {
     ...spec,
     ...arch,
-    seed: Math.trunc(Number.isFinite(spec.seed) ? spec.seed : 0) >>> 0,
+    seed,
     palette: { ...spec.palette, fog: clamp(spec.palette.fog, 0, 1) },
     time: {
       startHour: clamp(spec.time.startHour, 0, 23),

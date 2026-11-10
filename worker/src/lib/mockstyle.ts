@@ -4,7 +4,7 @@ import { HOUSE_BLUEPRINT, LANTERN_PROP, MOCK_BLUEPRINTS, PAGODA_BLUEPRINT, SALOO
 
 type Look = Partial<StyleSpec> & { sky?: SkyPreset; fog?: number };
 
-const BASE: Record<ThemeId, StyleSpec> = {
+export const BASE: Record<ThemeId, StyleSpec> = {
   western: { name: 'weathered frontier timber', wall: '#b98b5a', wall2: '#d9c7a1', roof: '#6d4a35', trim: '#f0e6d0', accent: '#b5412e', dark: '#2a211c', glass: '#3b4a52', glow: '#ffbf5e', ground: '#c9a56b', road: '#a98a5a', variety: 0.25 },
   medieval: { name: 'timber and plaster village', wall: '#e3d3b0', wall2: '#8a6a4a', roof: '#7a3b2e', trim: '#4a3526', accent: '#2f5d8a', dark: '#241d19', glass: '#3a4a58', glow: '#ffb347', ground: '#6f9a52', road: '#a89878', variety: 0.3 },
   scifi: { name: 'brushed alloy station', wall: '#aeb8c4', wall2: '#5d6b7a', roof: '#3a4553', trim: '#d8e0ea', accent: '#ff8a2a', dark: '#14181e', glass: '#1d3a4a', glow: '#4de3ff', ground: '#4a5460', road: '#2f353d', variety: 0.15 },

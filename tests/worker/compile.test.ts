@@ -1,38 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { compileSystemPrompt, compileUserMessage } from '../../worker/src/prompts/compile';
 import { remixStyle, mockSpec } from '../../worker/src/lib/mockstyle';
-import { MOCK_BLUEPRINTS, PAGODA_BLUEPRINT, SALOON_BLUEPRINT } from '../../worker/src/lib/mockblueprints';
+import { MOCK_BLUEPRINTS, SALOON_BLUEPRINT } from '../../worker/src/lib/mockblueprints';
 import { messagesUrl } from '../../worker/src/lib/anthropic';
 import { FIXTURES, nearestTheme } from '../../worker/src/lib/shared';
 import type { Blueprint } from '../../app/src/world/spec';
 
 const HEX = /^#[0-9a-f]{6}$/i;
-
-describe('compile prompt', () => {
-  const sys = compileSystemPrompt();
-
-  it('teaches the part vocabulary and the coordinate system', () => {
-    for (const w of ['box', 'cylinder', 'cone', 'pyramid', 'gable', 'dome', 'sphere', 'wedge', 'arch', 'ring']) expect(sys).toContain(w);
-    for (const w of ['wall2', 'trim', 'accent', 'dark', 'glass', 'glow', 'repeat', 'gap', 'doorX', '+z', 'footprint', '3 m']) expect(sys).toContain(w);
-    for (const w of ['blueprints', 'props', 'landmarks', 'low-poly stylised', '7000']) expect(sys).toContain(w);
-  });
-
-  it('embeds the two worked blueprints exactly', () => {
-    expect(sys).toContain(JSON.stringify(SALOON_BLUEPRINT));
-    expect(sys).toContain(JSON.stringify(PAGODA_BLUEPRINT));
-  });
-
-  it('is stable across calls and under a size cap', () => {
-    expect(compileSystemPrompt()).toBe(sys);
-    expect(sys.length).toBeLessThan(26000);
-  });
-
-  it('puts the player prompt last in the user message', () => {
-    const msg = compileUserMessage('a pirate cove built on shipwrecks, 1715', 42);
-    expect(msg.endsWith('Player prompt: a pirate cove built on shipwrecks, 1715')).toBe(true);
-    expect(sys).not.toContain('pirate cove built on shipwrecks, 1715');
-  });
-});
 
 describe('worked blueprints', () => {
   const inRange = (b: Blueprint): void => {

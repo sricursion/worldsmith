@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Townforge skeleton gallery</title>
+<style>
+  body { margin: 0; background: #1d1f24; color: #e8e6e1; font: 14px/1.4 system-ui, sans-serif; }
+  header { padding: 16px 20px 4px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p { margin: 0; color: #a9a7a1; max-width: 80ch; }
+  section { padding: 14px 20px; border-top: 1px solid #33363d; }
+  h2 { font-size: 16px; margin: 0; }
+  .sum { color: #a9a7a1; margin: 2px 0 10px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  figure { margin: 0; width: 250px; }
+  canvas.cell { width: 250px; height: 210px; border-radius: 8px; display: block; background: #2a2d33; }
+  figcaption { font: 11px/1.35 ui-monospace, Consolas, monospace; color: #9b998f; margin-top: 4px; word-break: break-word; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Skeleton gallery</h1>
+  <p>Each row is one skeleton. The first cell uses default dials; the rest are random dial settings in different colour styles. No extra parts are added here, so this shows the bones only. The red capsule is a 1.75 m person.</p>
+</header>
+<main id="rows"></main>
+<script type="module" src="/src/gallery.ts"></script>
+</body>
+</html>

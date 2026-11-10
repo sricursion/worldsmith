@@ -9,11 +9,11 @@ import type { Blueprint, LandmarkSpec, WorldSpec } from '../world/spec';
 import { GeoBatch, MaterialCache } from './batch';
 import { addBlueprint } from './blueprint-mesh';
 import { MAX_BUILDING_HEIGHT, PROP_SIZES } from './kits';
-import { buildingAabb, distanceToRoad, roadRect } from './layout';
+import { TRACK_WIDTH, buildingAabb, distanceToRoad, roadRect } from './layout';
 import type { PlacedBuilding, Rect, TownLayout } from './layout';
 import { addProceduralBuilding } from './procedural';
 import type { ProcEnv } from './procedural';
-import { addProceduralProp, scatterBlueprintProps } from './props';
+import { addProceduralProp, isVisualOnlyProp, scatterBlueprintProps } from './props';
 import { createSign, disposeSign } from './sign';
 
 export { setSignLabel } from './sign';
@@ -176,6 +176,8 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   group.name = 'town';
   const mats = new MaterialCache();
   const batch = new GeoBatch();
+  // Small props render but are not in `statics`, so dense undergrowth does not carve the navmesh.
+  const visualBatch = new GeoBatch();
   const env: ProcEnv = { batch, mats, theme: spec.theme };
   const ownGeos: THREE.BufferGeometry[] = [];
   const ownMats: THREE.Material[] = [];
@@ -220,7 +222,14 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
     ownGeos.push(g);
     group.add(mesh);
   };
-  for (const r of layout.roads) {
+  const pathsMode = spec.site?.paths ?? 'road';
+  const trackMat = new THREE.MeshStandardMaterial({
+    color: (style ? new THREE.Color(hexOr(style.road, '#6b6258')) : roadColour(groundColour, spec.theme)).lerp(groundColour, 0.5),
+    roughness: 1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+  });
+  ownMats.push(trackMat);
+  for (const seg of pathsMode === 'none' ? [] : layout.roads) {
+    const r = pathsMode === 'track' && seg.width > TRACK_WIDTH ? { ...seg, width: TRACK_WIDTH } : seg;
     const q = roadRect(r);
     const w = q.maxX - q.minX;
     const d = q.maxZ - q.minZ;
@@ -230,7 +239,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       const wide = r.az === r.bz;
       flat(wide ? w : w + 3, wide ? d + 3 : d, cx, cz, 0.01, walkMat, 'pavement');
     }
-    flat(w, d, cx, cz, 0.02, roadMat, 'road');
+    flat(w, d, cx, cz, 0.02, pathsMode === 'track' ? trackMat : roadMat, 'road');
   }
   const plazaMat = new THREE.MeshStandardMaterial({
     color: groundColour.clone().lerp(new THREE.Color('#d6cfc2'), 0.45), roughness: 1, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3,
@@ -302,7 +311,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
 
   // Props
   if (style && bpMode && spec.props?.length) {
-    scatterBlueprintProps(layout.props, spec.props, style, { batch, mats, rng });
+    scatterBlueprintProps(layout.props, spec.props, style, { batch, mats, rng, visualBatch });
   } else for (const p of layout.props) {
     const obj = bpMode ? null : kit.prop(p.kind);
     const target = (PROP_SIZES[p.kind] ?? 1) * p.scale;
@@ -312,9 +321,13 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       fitted.holder.rotation.y = p.rotY;
       fitted.holder.updateMatrixWorld(true);
       group.add(fitted.holder);
-      enableShadows(fitted.holder, statics, ownGeos);
+      if (spec.site && isVisualOnlyProp(target)) {
+        fitted.holder.traverse((o) => { if (o instanceof THREE.Mesh) { o.castShadow = true; o.receiveShadow = true; } });
+      } else {
+        enableShadows(fitted.holder, statics, ownGeos);
+      }
     } else {
-      addProceduralProp(env, p);
+      addProceduralProp(isVisualOnlyProp(target) ? { ...env, batch: visualBatch } : env, p);
     }
   }
 
@@ -354,6 +367,8 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
     group.add(m);
     statics.push(m);
   }
+  const visual = visualBatch.build();
+  for (const m of visual) group.add(m);
   scene.add(group);
   group.updateMatrixWorld(true);
 
@@ -403,6 +418,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       disposed = true;
       scene.remove(group);
       for (const m of merged) m.geometry.dispose();
+      for (const m of visual) m.geometry.dispose();
       for (const s of signMeshes) disposeSign(s);
       for (const g of ownGeos) g.dispose();
       for (const m of ownMats) m.dispose();

@@ -185,5 +185,6 @@ export function addPropParts(
     new THREE.Vector3(1, 1, 1),
   );
   const fp = clamp(size, 0.3, 6) * placed.scale;
-  return emit(expandBlueprintParts(parts), pal, env.batch, base, fp, fp, placed.scale);
+  // Props are authored on a unit footprint with heights in the same unit, so height scales with size too.
+  return emit(expandBlueprintParts(parts), pal, env.batch, base, fp, fp, fp);
 }

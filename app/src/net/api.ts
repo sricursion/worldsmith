@@ -3,8 +3,14 @@ import type { RuleSpec, WorldSpec } from '../world/spec';
 import type { LandmarkStartRequest, LandmarkStartResponse, LandmarkStatusResponse, NpcSayRequest, PatchRequest, TickRequest } from './types';
 import { abortPromise, parseSse } from './sse';
 
+/** Early structured events of a compile stream: the town outline, then its look. */
+export interface CompileHooks {
+  onOutline?(outline: unknown): void;
+  onLook?(look: unknown): void;
+}
+
 export interface Api {
-  compile(prompt: string, seed: number, onPartial: (text: string) => void, signal?: AbortSignal): Promise<{ ok: true; spec: unknown } | { ok: false; error: string }>;
+  compile(prompt: string, seed: number, onPartial: (text: string) => void, signal?: AbortSignal, hooks?: CompileHooks): Promise<{ ok: true; spec: unknown } | { ok: false; error: string }>;
   npcSay(body: NpcSayRequest, onToken: (t: string) => void, signal?: AbortSignal): Promise<{ ok: true; text: string } | { ok: false; error: string; refusal?: boolean }>;
   tick(body: TickRequest): Promise<{ ok: true; probs: number[][] } | { ok: false; error: string }>;
   patchRules(body: PatchRequest): Promise<{ ok: true; rules: RuleSpec[] } | { ok: false; error: string }>;
@@ -15,7 +21,8 @@ export interface Api {
   landmarkStatus(jobId: string): Promise<({ ok: true } & LandmarkStatusResponse) | { ok: false; error: string }>;
 }
 
-export const COMPILE_IDLE_MS = 20_000;
+export const COMPILE_IDLE_MS = 45_000;
+export const COMPILE_TOTAL_MS = 150_000;
 export const NPC_IDLE_MS = 8_000;
 export const JSON_TIMEOUT_MS = 6_000;
 export const PATCH_TIMEOUT_MS = 25_000;
@@ -34,10 +41,17 @@ interface Guard {
 }
 
 /** An abort signal that fires after `ms` of silence (call reset() on activity) or when `external` aborts. */
-function createGuard(ms: number, external?: AbortSignal): Guard {
+function createGuard(ms: number, external?: AbortSignal, capMs?: number): Guard {
   const ctl = new AbortController();
   let timedOut = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  const cap =
+    capMs === undefined
+      ? undefined
+      : setTimeout(() => {
+          timedOut = true;
+          ctl.abort();
+        }, capMs);
   const arm = (): void => {
     if (timer !== undefined) clearTimeout(timer);
     timer = setTimeout(() => {
@@ -56,6 +70,7 @@ function createGuard(ms: number, external?: AbortSignal): Guard {
     reset: arm,
     clear: () => {
       if (timer !== undefined) clearTimeout(timer);
+      if (cap !== undefined) clearTimeout(cap);
       external?.removeEventListener('abort', onExternal);
     },
     timedOut: () => timedOut,
@@ -141,8 +156,8 @@ export function createApi(base = '/api'): Api {
   }
 
   return {
-    async compile(prompt, seed, onPartial, signal) {
-      const guard = createGuard(COMPILE_IDLE_MS, signal);
+    async compile(prompt, seed, onPartial, signal, hooks) {
+      const guard = createGuard(COMPILE_IDLE_MS, signal, COMPILE_TOTAL_MS);
       try {
         const res = await guardedFetch('/compile', postInit({ prompt, seed }, true), guard);
         if (!res.ok) return { ok: false, error: await httpError(res) };
@@ -157,6 +172,14 @@ export function createApi(base = '/api'): Api {
             if (isRecord(data) && typeof data['text'] === 'string') {
               acc += data['text'];
               onPartial(acc);
+            }
+          } else if (ev.event === 'outline' || ev.event === 'look') {
+            if (data === undefined || data === null) continue;
+            try {
+              if (ev.event === 'outline') hooks?.onOutline?.(data);
+              else hooks?.onLook?.(data);
+            } catch {
+              // a faulty hook must not abort the compile
             }
           } else if (ev.event === 'spec') {
             if (data === undefined || data === null) return { ok: false, error: 'bad_spec' };

@@ -102,3 +102,24 @@ export function makeBlueprintSpec(opts: { seed?: number; count?: number; props?:
     ],
   };
 }
+
+import type { LoadedKit } from '../../app/src/engine/assets';
+import { KITS } from '../../app/src/town/kits';
+import type { SitePattern, SiteSpec } from '../../app/src/world/spec';
+
+export const PATTERNS: SitePattern[] = ['street', 'ring', 'scatter', 'grid', 'terraces'];
+
+export function makeSiteSpec(
+  opts: { seed?: number; count?: number; pattern: SitePattern; wild?: number; paths?: SiteSpec['paths']; spacing?: number },
+): WorldSpec {
+  const base = makeSpec({ seed: opts.seed ?? 1234, count: opts.count ?? 9, theme: 'medieval', salt: `site-${opts.pattern}` });
+  return {
+    ...base,
+    site: { pattern: opts.pattern, wild: opts.wild ?? 0.3, paths: opts.paths ?? 'road', spacing: opts.spacing ?? 6 },
+  };
+}
+
+export function stubKit(theme: ThemeId = 'medieval'): LoadedKit {
+  const table = { small: { w: 6, d: 6 }, medium: { w: 9, d: 8 }, large: { w: 12, d: 10 } };
+  return { manifest: KITS[theme], building: () => null, prop: () => null, footprint: (_r, s) => table[s] };
+}

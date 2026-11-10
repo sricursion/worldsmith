@@ -40,7 +40,6 @@ const TICK_SECONDS = 20;
 const TALK_DISTANCE = 3.2;
 /** People are built from the world's own folk body plan; talking is driven on the figure itself. */
 type Person = CharacterRig & { setTalking?(amount: number): void };
-const NAV_MARGIN = 18; // metres of walkable ground around the town bounds
 
 interface NpcRuntime {
   spec: NpcSpec;
@@ -57,7 +56,6 @@ interface Town {
   layout: TownLayout;
   objects: TownObjects;
   nav: NavWorld;
-  navGround: THREE.Mesh;
   life: { update(dt: number, focus: THREE.Vector3, hour: number): void; dispose(): void } | null;
   creatures: ReturnType<typeof createCreatures> | null;
   skyFeatures: ReturnType<typeof createSkyFeatures> | null;
@@ -295,7 +293,7 @@ export class Game {
     const kit = await this.ensureKit(spec.theme);
 
     // Everything created below is registered here so a failure half-way cannot orphan it in the scene.
-    const created: { objects?: TownObjects; nav?: NavWorld; navGround?: THREE.Mesh; rigs: CharacterRig[]; agents: NavAgent[]; player?: Player } = { rigs: [], agents: [] };
+    const created: { objects?: TownObjects; nav?: NavWorld; rigs: CharacterRig[]; agents: NavAgent[]; player?: Player } = { rigs: [], agents: [] };
     try {
       const rng = makeRng(spec.seed, 'game');
       const layout = generateLayout(spec);
@@ -303,17 +301,8 @@ export class Game {
       const objects = buildTown(layout, spec, kit, viewport.scene, { quality: viewport.getQuality?.() ?? 2 });
       created.objects = objects;
 
-      // The navmesh covers the town plus a margin, not the 400 m visual ground: a fraction of the voxels.
-      const b = layout.bounds;
-      const navGround = new THREE.Mesh(
-        new THREE.PlaneGeometry(b.maxX - b.minX + 2 * NAV_MARGIN, b.maxZ - b.minZ + 2 * NAV_MARGIN).rotateX(-Math.PI / 2),
-        new THREE.MeshBasicMaterial({ visible: false }),
-      );
-      navGround.name = 'navground';
-      navGround.position.set((b.minX + b.maxX) / 2, 0, (b.minZ + b.maxZ) / 2);
-      navGround.updateMatrixWorld(true);
-      created.navGround = navGround;
-      const nav = await buildNav(objects.statics.filter((m) => m.name !== 'ground'), navGround);
+      // The navmesh is built over the walkable land: flat for a plain town, shaped where the world has terrain.
+      const nav = await buildNav(objects.statics.filter((m) => m.name !== 'ground'), objects.walkMesh);
       created.nav = nav;
 
       const quality = viewport.getQuality?.() ?? 2;
@@ -341,7 +330,7 @@ export class Game {
 
       const lightRemovers = (objects.lights ?? []).map((l) => addPracticalLight(l.pos, l.color, l.radius));
       const life = createLife(viewport.scene, { theme: spec.theme, mood: spec.mood, style: spec.style, bounds: layout.bounds, smoke: objects.smoke, rng: makeRng(spec.seed, 'life') });
-      const land = objects as typeof objects & { heightAt?(x: number, z: number): number; waterBodies?: { kind: string; x: number; z: number; r: number }[] };
+      const land = objects;
       const creatures = (spec.creatures?.length ?? 0) > 0
         ? createCreatures(viewport.scene, {
             creatures: spec.creatures ?? [], nav, heightAt: (x, z) => land.heightAt?.(x, z) ?? 0, bounds: layout.bounds,
@@ -354,7 +343,7 @@ export class Game {
         ? createSkyFeatures(viewport.scene, spec.skyFeatures, { sunDir: () => skyRig.sunDirection?.() ?? fallbackSun, daylight: () => skyRig.daylight?.() ?? 1, seed: spec.seed })
         : null;
       this.town = {
-        spec, state, layout, objects, nav, navGround, player, npcs, rng, life, lightRemovers, creatures, skyFeatures,
+        spec, state, layout, objects, nav, player, npcs, rng, life, lightRemovers, creatures, skyFeatures,
         elapsed: 0, nextTickAt: 2, tickInFlight: false, dialogue: null, dialogueNpc: null, handle: null, verified,
       };
     } catch (err) {
@@ -365,7 +354,6 @@ export class Game {
       }
       created.player?.dispose();
       created.nav?.dispose();
-      created.navGround?.geometry.dispose();
       created.objects?.dispose();
       throw err;
     }
@@ -861,8 +849,6 @@ export class Game {
     t.skyFeatures?.dispose();
     for (const r of t.lightRemovers) r();
     t.nav.dispose();
-    t.navGround.geometry.dispose();
-    (t.navGround.material as THREE.Material).dispose();
     t.objects.dispose();
     disposeBodyCache();
     this.town = null;

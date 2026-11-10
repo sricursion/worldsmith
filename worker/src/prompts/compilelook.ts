@@ -104,7 +104,7 @@ const PROPS = `Props: 3 to 6 kinds of scenery scattered over the open ground. In
 
 const LANDMARKS = `Landmarks: 0 to 2 set pieces. Each has id, prompt, place ("plaza" or a structure id) and height (2 to 14 metres). The prompt goes to a text-to-3D model: describe exactly one physical object, its form, material, age and one or two details, ending with "realistic proportions, weathered". No scene, no ground, no people, no text. Choose the object a traveller would remember: a wrecked rover, a totem, a statue, a beached hull, a well. A pure wilderness may have none.`;
 
-const BUDGET = `Budget. The whole reply must stay under about 2800 output tokens. Write numbers with at most two decimals. Summaries are under 80 characters and state the real height. Write one blueprint per distinct structure form, 7 at most, each with 3 to 8 extra part rows, and 3 to 6 props with 0 to 3 rows each. Prefer repeat over copying rows.`;
+const BUDGET = `Budget. The whole reply must stay under about 2300 output tokens (the player waits on it). Write numbers with at most two decimals. Summaries are under 60 characters and state the real height. Write one blueprint per distinct structure form, 6 at most, each with 3 to 6 extra part rows, and 3 to 5 props with 0 to 2 rows each. Keep the tall blueprints; drop detail rows first. Prefer repeat over copying rows.`;
 
 const SHAPE = `OUTPUT FORMAT
 {"style":{"name":str,"wall":"#rrggbb","wall2":"#rrggbb","roof":"#rrggbb","trim":"#rrggbb","accent":"#rrggbb","dark":"#rrggbb","glass":"#rrggbb","glow":"#rrggbb","ground":"#rrggbb","road":"#rrggbb","variety":0.2,"surfaces":{"wall":kind,"wall2":kind,"roof":kind,"trim":kind,"ground":kind,"road":kind,"wear":0.6,"wet":0.2}},
@@ -128,7 +128,7 @@ export function lookUserMessage(prompt: string, seed: number, outline: Outline):
   const structures = n === 0
     ? 'no blueprints (nothing is built here)'
     : settled
-      ? `a blueprint for every structure form (at least two taller than 12 m)`
+      ? `a blueprint for every structure form (at least two of them MUST stand 14 m or taller: use tower, spire, tiers or block with the height or module dial raised to match, even for sheds, cranes, stacks and masts; check this before you answer)`
       : `a blueprint for each of the ${n} point${n === 1 ? '' : 's'} of interest, natural where the form is natural`;
-  return `${outlineBrief(outline)}\n\nSeed: ${seed}\nPlayer prompt: ${prompt}\nDesign the look now, in grounded realism: a muted, material-true style with surfaces that fit this land and its weather, ${structures}, 3 to 6 props at real sizes that are this land's own cover, 0 to 2 landmarks.`;
+  return `${outlineBrief(outline)}\n\nSeed: ${seed}\nPlayer prompt: ${prompt}\nDesign the look now, in grounded realism: a muted, material-true style with surfaces that fit this land and its weather, ${structures}, 3 to 6 props at real sizes that are this land's own cover (at least one is a tree or plant family prop whenever the place has any greenery at all, such as a village, a coast, a yard or a garden), 0 to 2 landmarks.`;
 }

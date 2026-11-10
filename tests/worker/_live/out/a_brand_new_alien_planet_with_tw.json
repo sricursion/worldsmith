@@ -1,0 +1,587 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "a brand-new alien planet with two suns and floating rocks",
+  "title": "Twin Suns, Drifting Stone",
+  "tagline": "Two shadows fall, and the rocks are not still.",
+  "theme": "scifi",
+  "era": "far future frontier",
+  "palette": {
+    "ground": "#7c6f7e",
+    "accent": "#8a5a3e",
+    "sky": "day",
+    "fog": 0.2
+  },
+  "time": {
+    "startHour": 16.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "survey_hut",
+      "role": "house",
+      "label": "Ridge Survey Post",
+      "size": "small",
+      "keyBuilding": true,
+      "blueprint": "ridge_post"
+    },
+    {
+      "id": "beacon_mast",
+      "role": "command",
+      "label": "Signal Mast",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "signal_mast"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "scout_vey",
+      "name": "Vey",
+      "role": "survey scout",
+      "persona": "Dry, watchful, short on patience since the mast went quiet. Wants the beacon live before the next drift cuts the post off for good.",
+      "knowledge": [
+        "The mast went dead the day a float-rock sank to within a spear-throw of the top.",
+        "The reset panel sits under the lamp housing, near the summit.",
+        "Float-rocks rise and sink with the twin suns' heat, so the climb must be done before dusk."
+      ],
+      "secrets": [
+        "Vey logged the rock's descent two days early and said nothing, hoping it would pass."
+      ],
+      "home": "survey_hut",
+      "work": "beacon_mast",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "survey_hut",
+          "activity": "eat"
+        },
+        {
+          "hour": 8,
+          "place": "beacon_mast",
+          "activity": "work"
+        },
+        {
+          "hour": 18,
+          "place": "survey_hut",
+          "activity": "rest"
+        },
+        {
+          "hour": 22,
+          "place": "survey_hut",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [],
+      "appearance": {
+        "base": "ranger",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 0.8,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.2,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0.3,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 1,
+        "rate": 1
+      },
+      "mood": "tense"
+    }
+  ],
+  "items": [
+    {
+      "id": "reset_key",
+      "name": "Reset Key",
+      "description": "A worn hex key for the mast's reset panel. Scratched with survey marks.",
+      "holder": "scout_vey"
+    },
+    {
+      "id": "climb_harness",
+      "name": "Climb Harness",
+      "description": "Patched webbing and two carabiners. Smells of old lubricant.",
+      "holder": "survey_hut"
+    },
+    {
+      "id": "float_shard",
+      "name": "Float-Rock Shard",
+      "description": "A palm-sized shard that tugs gently upward in the hand. Useful as proof of how low the island hung.",
+      "holder": "beacon_mast"
+    }
+  ],
+  "quest": {
+    "id": "silent_mast",
+    "title": "The Silent Mast",
+    "hook": "The Signal Mast on the ridge has gone dark since a float-rock drifted too low and clipped its lattice. Vey can't make the climb with a bad shoulder, and the survey needs a beacon before the next drift closes the pass. She needs a stranger with a steady hand and a head for heights, and she needs them before the second sun sets.",
+    "giver": "scout_vey",
+    "steps": [
+      {
+        "id": "s1_talk",
+        "kind": "talk",
+        "target": "scout_vey",
+        "requires": [],
+        "objective": "Hear Vey out about the dead mast.",
+        "beat": "Vey points at the mast, silent against the violet haze, and explains what she needs done."
+      },
+      {
+        "id": "s2_harness",
+        "kind": "fetch",
+        "target": "climb_harness",
+        "requires": [
+          "s1_talk"
+        ],
+        "objective": "Take the climb harness from the Ridge Survey Post.",
+        "beat": "The harness hangs by the door, stiff with grit. Overhead, drifter hawks circle the low rock.",
+        "item": "climb_harness"
+      },
+      {
+        "id": "s3_key",
+        "kind": "talk",
+        "target": "scout_vey",
+        "requires": [
+          "s2_harness"
+        ],
+        "objective": "Get the reset key from Vey.",
+        "beat": "Vey hands over the key and admits she saw the rock sinking two days ago and kept quiet.",
+        "reveals": [
+          "scout_vey:0"
+        ]
+      },
+      {
+        "id": "s4_climb",
+        "kind": "visit",
+        "target": "beacon_mast",
+        "requires": [
+          "s3_key"
+        ],
+        "objective": "Climb the Signal Mast and reset the panel.",
+        "beat": "The lattice hums with static. Up top, the float-rock hangs close enough to touch. The panel clicks, and the beacon lamp wakes."
+      },
+      {
+        "id": "s5_shard",
+        "kind": "fetch",
+        "target": "float_shard",
+        "requires": [
+          "s4_climb"
+        ],
+        "objective": "Pick up the float-rock shard wedged in the lattice.",
+        "beat": "A sheared piece of the island, still pulling upward. Proof of how close it came.",
+        "item": "float_shard"
+      },
+      {
+        "id": "s6_return",
+        "kind": "deliver",
+        "target": "scout_vey",
+        "requires": [
+          "s5_shard"
+        ],
+        "objective": "Bring the shard back to Vey.",
+        "beat": "Vey turns the shard in her hands, then logs it. The beacon pulses overhead, and the pass is open again.",
+        "item": "float_shard"
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s6_return",
+        "label": "The beacon burns again and the survey post is saved.",
+        "tone": "good"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r_no_fire",
+      "text": "Nobody lights open flame near the mast; the lattice is coated in static-bleed paint.",
+      "effect": {
+        "type": "ban",
+        "what": "open flame",
+        "where": "beacon_mast"
+      },
+      "source": "world"
+    },
+    {
+      "id": "r_drift_custom",
+      "text": "Scouts leave the ridge before the second sun sets, when the float-rocks sink lowest.",
+      "effect": {
+        "type": "custom",
+        "summary": "Nobody stays on the ridge after the second sun sets; the drift is lowest then."
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "twin suns",
+    "float-rock",
+    "ridge",
+    "beacon",
+    "drift",
+    "shard"
+  ],
+  "style": {
+    "name": "Twin Suns Ridge",
+    "wall": "#8d8a82",
+    "wall2": "#6b6a66",
+    "roof": "#4a4b4d",
+    "trim": "#a3a39e",
+    "accent": "#8a5a3e",
+    "dark": "#2a2a2d",
+    "glass": "#3a4650",
+    "glow": "#ffd9a0",
+    "ground": "#7c6f7e",
+    "road": "#8a7f78",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "metal_panel",
+      "wall2": "corrugated",
+      "roof": "metal_panel",
+      "trim": "rusted",
+      "ground": "regolith",
+      "road": "gravel",
+      "wear": 0.6,
+      "wet": 0
+    }
+  },
+  "site": {
+    "pattern": "wild",
+    "wild": 0.25,
+    "paths": "track",
+    "spacing": 14
+  },
+  "mood": {
+    "weather": "clear",
+    "intensity": 0,
+    "grade": "bleached",
+    "haze": 0.5,
+    "ambience": [
+      "wind",
+      "desert"
+    ],
+    "music": "low synth drone"
+  },
+  "terrain": {
+    "relief": "craggy",
+    "ruggedness": 0.6,
+    "water": "none",
+    "waterAmount": 0,
+    "horizon": "violet plains under floating rock islands",
+    "settled": 0.05
+  },
+  "skyFeatures": [
+    {
+      "kind": "second_sun",
+      "size": 0.35,
+      "color": "#ffd9a0"
+    },
+    {
+      "kind": "floating_islands",
+      "size": 0.5,
+      "color": "#8c7f9a"
+    },
+    {
+      "kind": "ringed_planet",
+      "size": 0.15,
+      "color": "#c9b89a"
+    }
+  ],
+  "creatures": [
+    {
+      "id": "drifter_hawks",
+      "name": "sky drifters",
+      "family": "bird",
+      "dials": {
+        "wingspan": 2.5
+      },
+      "size": 1.2,
+      "count": 5,
+      "behaviour": "circle",
+      "haunt": "sky",
+      "body": "#7a6f86",
+      "accent": "#c9a14a",
+      "glow": "#000000",
+      "note": "Gliding on the updrafts beneath the rocks."
+    },
+    {
+      "id": "ground_crawlers",
+      "name": "sand crawlers",
+      "family": "crawler",
+      "dials": {
+        "pairs": 4
+      },
+      "size": 0.6,
+      "count": 3,
+      "behaviour": "roam",
+      "haunt": "wild",
+      "body": "#8a7050",
+      "accent": "#3d3a40",
+      "glow": "#000000",
+      "note": "Scuttling through the dust, ignoring you."
+    }
+  ],
+  "folk": {
+    "name": "survey scouts",
+    "height": 1.75,
+    "bulk": 0.4,
+    "head": 1,
+    "features": [
+      "visor",
+      "pack"
+    ],
+    "skin": [
+      "#c58b6a",
+      "#a06e52"
+    ],
+    "cloth": [
+      "#4a5560",
+      "#6b5d4a"
+    ],
+    "trim": [
+      "#d6a94a"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "ridge_post",
+      "summary": "prefab survey hut on stilts, 4 m overall",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.1,
+          "y": 1.6,
+          "w": 0.9,
+          "d": 0.7,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0,
+          "y": 3.4,
+          "w": 0.2,
+          "d": 0.2,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.2,
+          "z": 0.36,
+          "y": 2.5,
+          "w": 0.14,
+          "d": 0.02,
+          "h": 0.7,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 3,
+          "gap": 0.2
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.4,
+          "z": -0.3,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "wedge",
+          "x": 0.5,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.1,
+          "d": 0.3,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "stilts",
+      "dials": {
+        "legHeight": 1.6,
+        "legs": 4,
+        "hut": 0.8,
+        "access": "ladder"
+      }
+    },
+    {
+      "id": "signal_mast",
+      "summary": "lattice radio mast with guy wires, 18 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.9,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.3,
+          "y": 0.8,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 16,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.3,
+          "z": -0.3,
+          "y": 0.8,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 16,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 9,
+          "w": 0.9,
+          "d": 0.04,
+          "h": 0.08,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 3,
+          "gap": 0.5
+        },
+        {
+          "shape": "ring",
+          "x": 0,
+          "z": 0,
+          "y": 13,
+          "w": 0.7,
+          "d": 0.7,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 11,
+          "w": 0.5,
+          "d": 0.3,
+          "h": 0.6,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 18,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 18,
+        "section": "square",
+        "taper": 0.55,
+        "bands": 5,
+        "top": "needle",
+        "flare": 0.2
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "float_rock_boulder",
+      "size": 4,
+      "parts": [],
+      "weight": 5,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 4,
+        "height": 0.7,
+        "jagged": 0.7,
+        "flat": 0.4
+      }
+    },
+    {
+      "kind": "basalt_shard_cluster",
+      "size": 6,
+      "parts": [],
+      "weight": 3,
+      "family": "rock",
+      "dials": {
+        "form": "crystal",
+        "count": 5,
+        "height": 1,
+        "jagged": 0.9,
+        "flat": 0.2
+      }
+    },
+    {
+      "kind": "survey_marker",
+      "size": 2.5,
+      "parts": [],
+      "weight": 1,
+      "family": "pole",
+      "dials": {
+        "head": "antenna",
+        "height": 2,
+        "arms": 1
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "fallen_float_rock",
+      "prompt": "A cracked grey-violet basalt slab, once a floating rock island fragment, tilted and half buried, with fine fracture lines and pale mineral veins, realistic proportions, weathered",
+      "place": "plaza",
+      "height": 10
+    }
+  ]
+}

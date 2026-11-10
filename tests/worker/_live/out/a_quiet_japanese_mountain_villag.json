@@ -1,0 +1,1031 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "a quiet Japanese mountain village in autumn",
+  "title": "Kaede Hollow",
+  "tagline": "Leaves fall; the village keeps its secrets.",
+  "theme": "modern",
+  "era": "Modern rural Japan",
+  "palette": {
+    "ground": "#5b5a3a",
+    "accent": "#8a3f30",
+    "sky": "overcast",
+    "fog": 0.3
+  },
+  "time": {
+    "startHour": 16.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "farmhouse",
+      "role": "house",
+      "label": "Sato House",
+      "size": "medium",
+      "keyBuilding": true,
+      "blueprint": "farmhouse_bp"
+    },
+    {
+      "id": "shrine",
+      "role": "church",
+      "label": "Hachiman Shrine",
+      "size": "medium",
+      "keyBuilding": true,
+      "blueprint": "shrine_bp"
+    },
+    {
+      "id": "general_store",
+      "role": "general_store",
+      "label": "Yamada Shop",
+      "size": "small",
+      "blueprint": "store_bp"
+    },
+    {
+      "id": "persimmon_drying",
+      "role": "workshop",
+      "label": "Drying Racks",
+      "size": "small",
+      "blueprint": "racks_bp"
+    },
+    {
+      "id": "rice_barn",
+      "role": "warehouse",
+      "label": "Old Rice Barn",
+      "size": "medium",
+      "blueprint": "barn_bp"
+    },
+    {
+      "id": "stone_stairs",
+      "role": "plaza",
+      "label": "Stone Stair Path",
+      "size": "large",
+      "blueprint": "stairs_bp"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "mrs_sato",
+      "name": "Mrs. Sato",
+      "role": "elderly farmer",
+      "persona": "Eighty and stubborn, she has worked these terraces since she was a girl and trusts weather over people. She wants the bell rung again but will not say who silenced it.",
+      "knowledge": [
+        "The bell stopped the night of the autumn festival, after the lanterns went out.",
+        "Someone from the valley cannot carry the message; the ridge keeps what it is told by locals.",
+        "The old path to the ridge starts behind the Old Rice Barn, past the persimmon racks."
+      ],
+      "secrets": [
+        "Her son went up the ridge the night of the festival and has not come down."
+      ],
+      "home": "farmhouse",
+      "work": "stone_stairs",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "stone_stairs",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "farmhouse",
+          "activity": "eat"
+        },
+        {
+          "hour": 14,
+          "place": "stone_stairs",
+          "activity": "work"
+        },
+        {
+          "hour": 19,
+          "place": "farmhouse",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "priest",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "ranger",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 0.8,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": -0.2,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 1.4,
+        "rate": 0.8
+      },
+      "mood": "grieving"
+    },
+    {
+      "id": "yamada",
+      "name": "Yamada",
+      "role": "shopkeeper",
+      "persona": "Middle-aged and chatty, he talks to fill silences he is afraid of. He sells tea and batteries and hears everything, and repeats most of it.",
+      "knowledge": [
+        "The priest buys candles every evening and never says who they are for.",
+        "Mrs. Sato stopped buying festival sake this year and bought a rope instead.",
+        "Crows have gathered on the shrine roof since the bell went quiet."
+      ],
+      "secrets": [
+        "He saw a figure on the ridge trail after midnight on festival night and told no one."
+      ],
+      "home": "general_store",
+      "work": "general_store",
+      "schedule": [
+        {
+          "hour": 7,
+          "place": "general_store",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "general_store",
+          "activity": "eat"
+        },
+        {
+          "hour": 13,
+          "place": "general_store",
+          "activity": "trade"
+        },
+        {
+          "hour": 20,
+          "place": "general_store",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "mrs_sato",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "rogue",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.6,
+          "idle": 0.2,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1,
+        "rate": 1.2
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "priest",
+      "name": "Old Priest",
+      "role": "shrine keeper",
+      "persona": "Thin and exact, he speaks little and plainly. He needs a stranger because anyone from the valley would refuse the errand or ask why.",
+      "knowledge": [
+        "The bell rope was cut, not worn through.",
+        "A sealed letter on the shrine altar must reach the ridge shrine before the first frost.",
+        "Strangers are not bound by the valley's silence."
+      ],
+      "secrets": [
+        "He cut the rope himself, to stop the bell calling something down from the ridge."
+      ],
+      "home": "shrine",
+      "work": "shrine",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "shrine",
+          "activity": "pray"
+        },
+        {
+          "hour": 9,
+          "place": "shrine",
+          "activity": "work"
+        },
+        {
+          "hour": 15,
+          "place": "stone_stairs",
+          "activity": "wander"
+        },
+        {
+          "hour": 18,
+          "place": "shrine",
+          "activity": "pray"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "mrs_sato",
+          "stance": "debtor"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": -0.3,
+          "investigate": 0.2,
+          "follow_player": 0,
+          "work": 0.3
+        }
+      },
+      "voice": {
+        "pitch": 0.8,
+        "rate": 0.8
+      },
+      "mood": "calm"
+    }
+  ],
+  "items": [
+    {
+      "id": "sealed_letter",
+      "name": "Sealed Letter",
+      "description": "Paper folded in thirds, sealed with black wax and the shrine's mark.",
+      "holder": "shrine"
+    },
+    {
+      "id": "cut_rope",
+      "name": "Cut Bell Rope",
+      "description": "Frayed hemp, the end sliced clean with a blade.",
+      "holder": "shrine"
+    },
+    {
+      "id": "dried_persimmon",
+      "name": "Dried Persimmon",
+      "description": "A hard, sweet offering strung from a bamboo rack.",
+      "holder": "persimmon_drying"
+    }
+  ],
+  "quest": {
+    "id": "silent_bell",
+    "title": "The Silent Bell of Kaede Hollow",
+    "hook": "The bell at Hachiman Shrine has been silent since the autumn festival, and nobody in Kaede Hollow will say why. The old priest has a letter for the ridge and no one he can send. You are a stranger, and strangers are not bound by the valley's silence.",
+    "giver": "priest",
+    "steps": [
+      {
+        "id": "s1",
+        "kind": "talk",
+        "target": "priest",
+        "requires": [],
+        "objective": "Hear the priest's request at the shrine.",
+        "beat": "He hands you the errand without explaining the silence."
+      },
+      {
+        "id": "s2",
+        "kind": "fetch",
+        "target": "sealed_letter",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Take the sealed letter from the shrine altar.",
+        "beat": "The wax is cold, and crows watch from the roof.",
+        "item": "sealed_letter"
+      },
+      {
+        "id": "s3",
+        "kind": "talk",
+        "target": "yamada",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Ask Yamada what the village has noticed.",
+        "beat": "He talks too fast and lets slip a figure seen on the ridge trail.",
+        "reveals": [
+          "yamada:0"
+        ]
+      },
+      {
+        "id": "s4",
+        "kind": "visit",
+        "target": "persimmon_drying",
+        "requires": [
+          "s2"
+        ],
+        "objective": "Pass the drying racks and take the trail behind the barn.",
+        "beat": "Persimmons sway on the racks in the mist while two deer watch you from the terrace edge."
+      },
+      {
+        "id": "s5",
+        "kind": "choose",
+        "target": "mrs_sato",
+        "requires": [
+          "s3",
+          "s4"
+        ],
+        "objective": "Meet Mrs. Sato on the stone stairs and decide whom to trust.",
+        "beat": "She blocks the steps and asks whether you carry the priest's words or your own.",
+        "choices": [
+          {
+            "label": "Tell her what Yamada saw",
+            "unlocks": [
+              "s6a"
+            ]
+          },
+          {
+            "label": "Keep it to yourself and climb",
+            "unlocks": [
+              "s6b"
+            ]
+          }
+        ],
+        "reveals": [
+          "mrs_sato:0"
+        ]
+      },
+      {
+        "id": "s6a",
+        "kind": "deliver",
+        "target": "priest",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Return the letter unopened and confront the priest with what you know.",
+        "beat": "He admits the rope was cut by his own hand and the letter was meant to call the ridge shrine's keeper down.",
+        "item": "sealed_letter",
+        "reveals": [
+          "priest:0"
+        ]
+      },
+      {
+        "id": "s6b",
+        "kind": "visit",
+        "target": "rice_barn",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Climb past the Old Rice Barn toward the ridge with the letter.",
+        "beat": "At the top the trail ends at a bell-less frame and a man's lantern long burned out."
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s6a",
+        "label": "The truth is spoken and the bell is hung again, though not everyone forgives it.",
+        "tone": "good"
+      },
+      {
+        "stepId": "s6b",
+        "label": "You reach the ridge alone and learn too late what the letter asked of you.",
+        "tone": "bitter"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r_curfew",
+      "text": "Nobody walks the terrace paths after dark; the villagers shut their doors at nightfall.",
+      "effect": {
+        "type": "curfew",
+        "fromHour": 20,
+        "toHour": 5,
+        "exemptRoles": [
+          "shrine keeper"
+        ]
+      },
+      "source": "world"
+    },
+    {
+      "id": "r_bell",
+      "text": "Nobody mentions the bell aloud within sight of the shrine.",
+      "effect": {
+        "type": "custom",
+        "summary": "Villagers refuse to discuss the silent bell near Hachiman Shrine."
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "kaede",
+    "shrine",
+    "persimmon",
+    "noren",
+    "onsen",
+    "kami"
+  ],
+  "style": {
+    "name": "Kaede Hollow autumn mist",
+    "wall": "#6e5d4b",
+    "wall2": "#a39a88",
+    "roof": "#4a4a4d",
+    "trim": "#5a4a3a",
+    "accent": "#8a3f30",
+    "dark": "#2b2724",
+    "glass": "#3a4249",
+    "glow": "#ffd9a0",
+    "ground": "#5b5a3a",
+    "road": "#7a766b",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "timber",
+      "wall2": "plaster",
+      "roof": "tile",
+      "trim": "timber",
+      "ground": "moss",
+      "road": "gravel",
+      "wear": 0.65,
+      "wet": 0.3
+    }
+  },
+  "site": {
+    "pattern": "terraces",
+    "wild": 0.5,
+    "paths": "road",
+    "spacing": 6
+  },
+  "mood": {
+    "weather": "mist",
+    "intensity": 0.3,
+    "grade": "golden",
+    "haze": 0.5,
+    "ambience": [
+      "wind",
+      "leaves",
+      "water",
+      "birds"
+    ],
+    "music": "sparse shakuhachi"
+  },
+  "terrain": {
+    "relief": "terraced",
+    "ruggedness": 0.55,
+    "water": "river",
+    "waterAmount": 0.12,
+    "horizon": "forested mountain ridges in autumn haze",
+    "settled": 0.4
+  },
+  "skyFeatures": [],
+  "creatures": [
+    {
+      "id": "crows",
+      "name": "carrion crows",
+      "family": "bird",
+      "dials": {},
+      "size": 0.5,
+      "count": 6,
+      "behaviour": "perch",
+      "haunt": "sky",
+      "body": "#2a2a2a",
+      "accent": "#444444",
+      "glow": "#000000",
+      "note": "Cawing from the cedars at dusk."
+    },
+    {
+      "id": "deer",
+      "name": "sika deer",
+      "family": "quadruped",
+      "dials": {},
+      "size": 1.5,
+      "count": 2,
+      "behaviour": "graze",
+      "haunt": "wild",
+      "body": "#8a6a48",
+      "accent": "#d8c8a8",
+      "glow": "#000000",
+      "note": "Lifts its head, then returns to grazing."
+    }
+  ],
+  "folk": {
+    "name": "village residents",
+    "height": 1.62,
+    "bulk": 0.4,
+    "head": 1,
+    "features": [
+      "hat"
+    ],
+    "skin": [
+      "#d9b89c",
+      "#c49a7a"
+    ],
+    "cloth": [
+      "#4a4f45",
+      "#7a6a52",
+      "#8a4b3a"
+    ],
+    "trim": [
+      "#c9b38a"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "farmhouse_bp",
+      "summary": "two-storey timber farmhouse, tiled roof, ridge 9 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 1.02,
+          "d": 1.02,
+          "h": 0.6,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 2.2,
+          "w": 0.9,
+          "d": 0.06,
+          "h": 0.15,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 1.2,
+          "w": 0.12,
+          "d": 0.02,
+          "h": 1.1,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "box",
+          "x": -0.5,
+          "z": 0,
+          "y": 0,
+          "w": 0.3,
+          "d": 0.5,
+          "h": 3,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.2,
+          "z": -0.5,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.04,
+          "h": 1.5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 3,
+          "gap": 0.25
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "hip",
+        "overhang": 0.22,
+        "front": "porch",
+        "rhythm": 4,
+        "chimney": 1,
+        "taper": 0.05
+      }
+    },
+    {
+      "id": "shrine_bp",
+      "summary": "small wooden shrine hall 6 m with vermilion torii gate",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 1.1,
+          "d": 1.1,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "gable",
+          "x": 0,
+          "z": 0,
+          "y": 3.2,
+          "w": 1.25,
+          "d": 1.25,
+          "h": 2,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 3.2,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 2,
+          "gap": 0.4
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 3.2,
+          "w": 0.9,
+          "d": 0.06,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 1.6,
+          "w": 0.04,
+          "d": 0.04,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "gable",
+        "overhang": 0.3,
+        "front": "stoop",
+        "rhythm": 2,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "store_bp",
+      "summary": "single-storey shop with noren curtain, 4.5 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0.2,
+          "z": 0.5,
+          "y": 0.6,
+          "w": 0.35,
+          "d": 0.03,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.2,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.2,
+          "d": 0.08,
+          "h": 1.9,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.42,
+          "z": 0.45,
+          "y": 0,
+          "w": 0.15,
+          "d": 0.15,
+          "h": 1.8,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.5,
+          "y": 2.2,
+          "w": 0.3,
+          "d": 0.03,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": -0.15,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "shed",
+        "overhang": 0.15,
+        "front": "awning",
+        "rhythm": 3,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "racks_bp",
+      "summary": "bamboo drying racks hung with persimmons, 4 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 3.5,
+          "w": 0.95,
+          "d": 0.04,
+          "h": 0.1,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 2.2,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 0.25,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 10,
+          "gap": 0.09
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0.15,
+          "y": 2.2,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 0.25,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 10,
+          "gap": 0.09
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.3,
+          "y": 1.2,
+          "w": 0.9,
+          "d": 0.03,
+          "h": 0.08,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "canopy",
+      "dials": {
+        "posts": 6,
+        "roof": "shed",
+        "counter": 0
+      }
+    },
+    {
+      "id": "barn_bp",
+      "summary": "weathered rice barn with sloping roof, 8 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.04,
+          "h": 3.4,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 1.02,
+          "d": 1.02,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "wedge",
+          "x": 0.5,
+          "z": 0,
+          "y": 0,
+          "w": 0.1,
+          "d": 0.8,
+          "h": 2.5,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": -0.5,
+          "y": 1,
+          "w": 0.6,
+          "d": 0.03,
+          "h": 1.4,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "shed",
+        "overhang": 0.12,
+        "front": "plain",
+        "rhythm": 0,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "stairs_bp",
+      "summary": "moss-covered stone steps up terraces, 9 m rise",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.6,
+          "d": 0.15,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.45,
+          "z": 0,
+          "y": 0,
+          "w": 0.05,
+          "d": 0.9,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 2,
+          "gap": 0.9
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.7,
+          "d": 0.08,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tiers",
+      "dials": {
+        "levels": 6,
+        "shrink": 0.85,
+        "flare": 0,
+        "top": "none"
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "red_maple",
+      "size": 7,
+      "parts": [],
+      "weight": 5,
+      "family": "tree",
+      "dials": {
+        "trunk": 1,
+        "crown": "ball",
+        "crownSize": 0.8,
+        "lean": 0.2
+      }
+    },
+    {
+      "kind": "cedar",
+      "size": 5,
+      "parts": [],
+      "weight": 4,
+      "family": "tree",
+      "dials": {
+        "trunk": 1.8,
+        "crown": "cone",
+        "crownSize": 0.4,
+        "lean": 0
+      }
+    },
+    {
+      "kind": "pampas_grass",
+      "size": 1.5,
+      "parts": [],
+      "weight": 4,
+      "family": "tree",
+      "dials": {
+        "trunk": 0.3,
+        "crown": "reeds",
+        "crownSize": 0.5,
+        "lean": 0.3
+      }
+    },
+    {
+      "kind": "mossy_boulder",
+      "size": 3,
+      "parts": [],
+      "weight": 3,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 3,
+        "height": 0.5,
+        "jagged": 0.3,
+        "flat": 0.3
+      }
+    },
+    {
+      "kind": "pole_lamp",
+      "size": 2,
+      "parts": [],
+      "weight": 1,
+      "family": "pole",
+      "dials": {
+        "head": "lamp",
+        "height": 3,
+        "arms": 1
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "shrine_bell",
+      "prompt": "A bronze temple bell hung in a low open timber frame, green patina, rope striker, realistic proportions, weathered",
+      "place": "shrine",
+      "height": 3
+    }
+  ]
+}

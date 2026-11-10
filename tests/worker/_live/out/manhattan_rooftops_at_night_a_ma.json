@@ -1,0 +1,1250 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "Manhattan rooftops at night, a masked hero's city",
+  "title": "Gotham Night Roofs",
+  "tagline": "The city never sleeps. Neither do the rooftops.",
+  "theme": "modern",
+  "era": "Present day",
+  "palette": {
+    "ground": "#3b3c3e",
+    "accent": "#7a3b34",
+    "sky": "night",
+    "fog": 0.3
+  },
+  "time": {
+    "startHour": 22.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "hero_roof",
+      "role": "plaza",
+      "label": "Rooftop Perch",
+      "size": "medium",
+      "keyBuilding": true,
+      "blueprint": "concrete_deck"
+    },
+    {
+      "id": "tower_one",
+      "role": "office",
+      "label": "Hartwell Tower",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "glass_office_tower"
+    },
+    {
+      "id": "tower_two",
+      "role": "apartment",
+      "label": "Veldt Residences",
+      "size": "large",
+      "blueprint": "brick_apartment_block"
+    },
+    {
+      "id": "tower_three",
+      "role": "bank",
+      "label": "Meridian Bank",
+      "size": "large",
+      "blueprint": "limestone_bank_tower"
+    },
+    {
+      "id": "water_tank",
+      "role": "warehouse",
+      "label": "Rooftop Water Tank",
+      "size": "small",
+      "blueprint": "rooftop_water_tank"
+    },
+    {
+      "id": "signal_mast",
+      "role": "command",
+      "label": "Broadcast Mast",
+      "size": "large",
+      "blueprint": "lattice_mast"
+    },
+    {
+      "id": "neon_sign",
+      "role": "shop",
+      "label": "Diner Neon Sign",
+      "size": "medium",
+      "blueprint": "neon_diner_sign"
+    },
+    {
+      "id": "stairwell",
+      "role": "station",
+      "label": "Fire Escape Stair",
+      "size": "small",
+      "blueprint": "fire_escape_stair"
+    },
+    {
+      "id": "parking_deck",
+      "role": "garage",
+      "label": "Parking Deck",
+      "size": "medium",
+      "blueprint": "concrete_deck"
+    },
+    {
+      "id": "church_spire",
+      "role": "church",
+      "label": "St. Maren Spire",
+      "size": "large",
+      "blueprint": "glass_office_tower"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "mara",
+      "name": "Mara Quill",
+      "role": "night dispatcher",
+      "persona": "Dry and watchful, she talks in short clipped lines like a radio call. She keeps the sirens straight and trusts nobody who skips the stairs.",
+      "knowledge": [
+        "The Broadcast Mast went dark at 21:40, mid-transmission.",
+        "Hartwell Tower's upper floors still have power, so the cut was deliberate.",
+        "Luca Brand was the last to log a call from the Meridian before the lines died."
+      ],
+      "secrets": [
+        "She sold the mast's maintenance codes to a stranger for rent money."
+      ],
+      "home": "hero_roof",
+      "work": "tower_one",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "hero_roof",
+          "activity": "sleep"
+        },
+        {
+          "hour": 14,
+          "place": "hero_roof",
+          "activity": "eat"
+        },
+        {
+          "hour": 20,
+          "place": "tower_one",
+          "activity": "work"
+        },
+        {
+          "hour": 23,
+          "place": "tower_one",
+          "activity": "work"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "dex",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "rogue_hooded",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": -0.4,
+          "flee": 0,
+          "investigate": 0.3,
+          "follow_player": 0,
+          "work": 0.5
+        }
+      },
+      "voice": {
+        "pitch": 1.1,
+        "rate": 1.15
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "dex",
+      "name": "Dex Ortiz",
+      "role": "pigeon feeder",
+      "persona": "Rambling and kind, he addresses the pigeons more than people. He has watched these rooftops for thirty years and misses very little.",
+      "knowledge": [
+        "A figure in a gray jersey climbed the mast ladder just before the lights failed.",
+        "The pigeons shun the Meridian's ledge now; something there hums and hurts their ears.",
+        "The fire escape stair is the only way up that skips the lobby guards."
+      ],
+      "secrets": [
+        "He took a cut cable end from the mast base and kept it, afraid to hand it over."
+      ],
+      "home": "hero_roof",
+      "work": "hero_roof",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "hero_roof",
+          "activity": "sleep"
+        },
+        {
+          "hour": 12,
+          "place": "plaza",
+          "activity": "wander"
+        },
+        {
+          "hour": 18,
+          "place": "hero_roof",
+          "activity": "work"
+        },
+        {
+          "hour": 22,
+          "place": "hero_roof",
+          "activity": "rest"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "mara",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "ranger",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.4,
+          "idle": 0,
+          "flee": 0.1,
+          "investigate": 0,
+          "follow_player": 0.2,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.8,
+        "rate": 0.85
+      },
+      "mood": "calm"
+    },
+    {
+      "id": "luca",
+      "name": "Luca Brand",
+      "role": "bank guard",
+      "persona": "Stiff and defensive, he hides fear behind procedure. He guards the Meridian's vault floor and resents anyone who asks what is inside.",
+      "knowledge": [
+        "The Meridian's backup generators were switched to feed a sealed room on the roof level.",
+        "A buyer in a gray jersey paid him to leave the north door unlocked tonight.",
+        "The bank has been in the Hartwell family's debt for years."
+      ],
+      "secrets": [
+        "He took the bribe and the north door key is still in his pocket."
+      ],
+      "home": "tower_three",
+      "work": "tower_three",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "tower_three",
+          "activity": "sleep"
+        },
+        {
+          "hour": 13,
+          "place": "street",
+          "activity": "eat"
+        },
+        {
+          "hour": 19,
+          "place": "tower_three",
+          "activity": "guard"
+        },
+        {
+          "hour": 23,
+          "place": "tower_three",
+          "activity": "patrol"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "mara",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "knight",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": -0.3,
+          "idle": 0,
+          "flee": 0.2,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.6
+        }
+      },
+      "voice": {
+        "pitch": 0.7,
+        "rate": 0.95
+      },
+      "mood": "afraid"
+    }
+  ],
+  "items": [
+    {
+      "id": "cut_cable",
+      "name": "Cut Cable End",
+      "description": "A clean-sheared feed cable, still smelling of solder. Cut with a proper tool.",
+      "holder": "dex"
+    },
+    {
+      "id": "north_key",
+      "name": "North Door Key",
+      "description": "A brass key stamped with the Meridian crest, warm from a pocket.",
+      "holder": "luca"
+    },
+    {
+      "id": "gray_jersey",
+      "name": "Gray Jersey Scrap",
+      "description": "A torn strip of gray jersey fabric snagged on the mast's lattice.",
+      "holder": "signal_mast"
+    }
+  ],
+  "quest": {
+    "id": "dark_mast",
+    "title": "The Dark Mast",
+    "hook": "The Broadcast Mast went dark at 21:40 and the blackout is creeping down through the lower city, block by block. The sirens are silent and nobody downstairs knows why. Up here on the roofs, someone does, and the trail points north to Hartwell Tower.",
+    "giver": "mara",
+    "steps": [
+      {
+        "id": "s1",
+        "kind": "talk",
+        "target": "mara",
+        "requires": [],
+        "objective": "Hear Mara's account of the blackout.",
+        "beat": "Mara points north through the rain. The mast was cut, she says, not broken."
+      },
+      {
+        "id": "s2",
+        "kind": "visit",
+        "target": "signal_mast",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Climb the Broadcast Mast and look for signs of sabotage.",
+        "beat": "Rain streaks the lattice. Fresh tool marks gleam at the base."
+      },
+      {
+        "id": "s3",
+        "kind": "fetch",
+        "target": "gray_jersey",
+        "requires": [
+          "s2"
+        ],
+        "objective": "Take the torn gray jersey scrap from the lattice.",
+        "beat": "A strip of gray cloth, snagged high up, flutters in the wind.",
+        "item": "gray_jersey"
+      },
+      {
+        "id": "s4",
+        "kind": "talk",
+        "target": "dex",
+        "requires": [
+          "s3"
+        ],
+        "objective": "Ask Dex what he saw from the roof.",
+        "beat": "Dex mutters to his pigeons, then admits he saw someone climb the mast.",
+        "reveals": [
+          "dex:0"
+        ]
+      },
+      {
+        "id": "s5",
+        "kind": "choose",
+        "target": "luca",
+        "requires": [
+          "s4"
+        ],
+        "objective": "Decide how to deal with Luca at the Meridian.",
+        "beat": "Luca blocks the bank door, sweating. The north door key bulges in his pocket.",
+        "choices": [
+          {
+            "label": "Press Luca until he talks",
+            "unlocks": [
+              "s6a"
+            ]
+          },
+          {
+            "label": "Bargain quietly with Dex's cut cable",
+            "unlocks": [
+              "s6b"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s6a",
+        "kind": "confront",
+        "target": "luca",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Confront Luca about the bribe.",
+        "beat": "Luca cracks and hands over the north key, begging you to keep his name out of it.",
+        "reveals": [
+          "luca:0"
+        ]
+      },
+      {
+        "id": "s6b",
+        "kind": "talk",
+        "target": "mara",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Bring Mara the truth about her sold codes.",
+        "beat": "Mara goes quiet, then admits she sold the codes. She gives you the way up the north stair.",
+        "reveals": [
+          "mara:0"
+        ]
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s6a",
+        "label": "Luca's key opens the north door and the lights return, at a cost to his job.",
+        "tone": "bitter"
+      },
+      {
+        "stepId": "s6b",
+        "label": "Mara owns her mistake and restores the mast with Dex's cable.",
+        "tone": "good"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r1",
+      "text": "Nobody crosses between towers on the open ledges during the blackout.",
+      "effect": {
+        "type": "ban",
+        "what": "crossing ledges",
+        "where": "street"
+      },
+      "source": "world"
+    },
+    {
+      "id": "r2",
+      "text": "Meridian staff are tense after the lights failed.",
+      "effect": {
+        "type": "mood",
+        "who": "luca",
+        "mood": "afraid"
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "Hartwell",
+    "the Veldt",
+    "gargoyles",
+    "jersey",
+    "sirens",
+    "the Meridian"
+  ],
+  "style": {
+    "name": "Rain-slick night city, neon noir",
+    "wall": "#7a7873",
+    "wall2": "#5c5a57",
+    "roof": "#3d3f43",
+    "trim": "#8d8a83",
+    "accent": "#7a3b34",
+    "dark": "#16181b",
+    "glass": "#1f2a33",
+    "glow": "#ffb347",
+    "ground": "#3b3c3e",
+    "road": "#2f3033",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "concrete",
+      "wall2": "brick",
+      "roof": "gravel",
+      "trim": "concrete",
+      "ground": "gravel",
+      "road": "asphalt",
+      "wear": 0.7,
+      "wet": 0.8
+    }
+  },
+  "site": {
+    "pattern": "grid",
+    "wild": 0.05,
+    "paths": "none",
+    "spacing": 3
+  },
+  "mood": {
+    "weather": "rain",
+    "intensity": 0.4,
+    "grade": "neon_noir",
+    "haze": 0.5,
+    "ambience": [
+      "rain",
+      "neon",
+      "machinery",
+      "crowd"
+    ],
+    "music": "slow noir piano"
+  },
+  "terrain": {
+    "relief": "flat",
+    "ruggedness": 0.1,
+    "water": "none",
+    "waterAmount": 0,
+    "horizon": "glass towers 40 to 120 m, lit windows",
+    "settled": 1
+  },
+  "skyFeatures": [
+    {
+      "kind": "moon",
+      "size": 0.12,
+      "color": "#c9d6e8"
+    }
+  ],
+  "creatures": [
+    {
+      "id": "pigeons",
+      "name": "rock pigeons",
+      "family": "bird",
+      "dials": {
+        "wings": 0.5
+      },
+      "size": 0.3,
+      "count": 8,
+      "behaviour": "flock",
+      "haunt": "plaza",
+      "body": "#8a8f98",
+      "accent": "#5a5f68",
+      "glow": "#000000",
+      "note": "Startled, lifting off in a grey cloud."
+    },
+    {
+      "id": "cat",
+      "name": "alley cat",
+      "family": "quadruped",
+      "dials": {
+        "pattern": "patches",
+        "glow_eyes": 1
+      },
+      "size": 0.5,
+      "count": 1,
+      "behaviour": "stalk",
+      "haunt": "wild",
+      "body": "#3a3a3a",
+      "accent": "#c9a73c",
+      "glow": "#f2e04a",
+      "note": "Watching you from the vent, eyes glowing."
+    }
+  ],
+  "folk": {
+    "name": "city folk",
+    "height": 1.75,
+    "bulk": 0.5,
+    "head": 1,
+    "features": [
+      "hood",
+      "cloak"
+    ],
+    "skin": [
+      "#c68e6a",
+      "#8d5b3e",
+      "#e0b49a"
+    ],
+    "cloth": [
+      "#2b2f36",
+      "#4a4f5a",
+      "#6b5a48"
+    ],
+    "trim": [
+      "#b3893b",
+      "#7a2530"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "glass_office_tower",
+      "summary": "glass curtain-wall office tower, 110 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 24,
+          "w": 0.6,
+          "d": 0.6,
+          "h": 30,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 30,
+          "w": 0.4,
+          "d": 0.4,
+          "h": 30,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 30,
+          "w": 0.25,
+          "d": 0.25,
+          "h": 26,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 30,
+          "w": 0.04,
+          "d": 0.04,
+          "h": 22,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 6,
+          "w": 0.04,
+          "d": 0.02,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 6,
+          "gap": 0.1
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.3,
+          "y": 0,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 30,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 24,
+        "section": "square",
+        "taper": 0.25,
+        "bands": 5,
+        "top": "crown",
+        "flare": 0.05
+      }
+    },
+    {
+      "id": "brick_apartment_block",
+      "summary": "brick apartment tower with lit windows, 70 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 30,
+          "w": 0.8,
+          "d": 0.8,
+          "h": 30,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 10,
+          "w": 0.05,
+          "d": 0.02,
+          "h": 1.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 6,
+          "gap": 0.14
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 22,
+          "w": 0.05,
+          "d": 0.02,
+          "h": 1.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 5,
+          "gap": 0.16
+        },
+        {
+          "shape": "box",
+          "x": 0.2,
+          "z": -0.2,
+          "y": 30,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 3,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.2,
+          "z": -0.1,
+          "y": 30,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 1.5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "block",
+      "dials": {
+        "modules": 12,
+        "offset": 0.05,
+        "cantilever": 0.05
+      }
+    },
+    {
+      "id": "limestone_bank_tower",
+      "summary": "limestone bank tower with setbacks, 90 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 1,
+          "d": 1,
+          "h": 6,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 3,
+          "w": 0.04,
+          "d": 0.02,
+          "h": 2.4,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 6,
+          "gap": 0.15
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 30,
+          "w": 0.04,
+          "d": 0.02,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 4,
+          "gap": 0.2
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.3,
+          "y": 30,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 10,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tiers",
+      "dials": {
+        "levels": 7,
+        "shrink": 0.88,
+        "flare": 0.05,
+        "top": "flat"
+      }
+    },
+    {
+      "id": "rooftop_water_tank",
+      "summary": "wooden water tank on steel legs, 9 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.9,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.35,
+          "z": -0.35,
+          "y": 0,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.35,
+          "z": 0.35,
+          "y": 0,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cone",
+          "x": 0,
+          "z": 0,
+          "y": 8,
+          "w": 0.9,
+          "d": 0.9,
+          "h": 1.4,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 5,
+        "section": "round",
+        "taper": 0.05,
+        "bands": 3,
+        "top": "tank",
+        "flare": 0
+      }
+    },
+    {
+      "id": "lattice_mast",
+      "summary": "steel lattice broadcast mast, 60 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.5,
+          "h": 1,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 24,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 18,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 30,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 18,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 30,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "ring",
+          "x": 0,
+          "z": 0,
+          "y": 30,
+          "w": 0.4,
+          "d": 0.4,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 3,
+          "gap": 0.3
+        }
+      ],
+      "doorX": 0,
+      "family": "spire",
+      "dials": {
+        "count": 1,
+        "height": 24,
+        "lean": 0,
+        "sharpness": 0.9,
+        "variance": 0
+      }
+    },
+    {
+      "id": "neon_diner_sign",
+      "summary": "rooftop diner sign on steel frame, 14 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.1,
+          "y": 10,
+          "w": 1.2,
+          "d": 0.12,
+          "h": 3.5,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.17,
+          "y": 10.6,
+          "w": 1,
+          "d": 0.02,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.17,
+          "y": 12,
+          "w": 0.8,
+          "d": 0.02,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.3,
+          "z": 0,
+          "y": 0,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 10,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 2,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 10,
+        "section": "square",
+        "taper": 0,
+        "bands": 0,
+        "top": "platform",
+        "flare": 0
+      }
+    },
+    {
+      "id": "fire_escape_stair",
+      "summary": "steel fire escape, 8 floors, 26 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 1.2,
+          "d": 0.5,
+          "h": 24,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.3,
+          "y": 3,
+          "w": 0.9,
+          "d": 0.4,
+          "h": 0.15,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 8,
+          "gap": 0.1
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.3,
+          "y": 0,
+          "w": 0.05,
+          "d": 0.4,
+          "h": 26,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 2,
+          "gap": 0.9
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 12,
+          "w": 0.04,
+          "d": 0.02,
+          "h": 0.6,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 24,
+        "section": "square",
+        "taper": 0,
+        "bands": 0,
+        "top": "flat",
+        "flare": 0
+      }
+    },
+    {
+      "id": "concrete_deck",
+      "summary": "concrete rooftop parking deck, 40 m wide",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 6.2,
+          "w": 1,
+          "d": 1,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 6.5,
+          "w": 1,
+          "d": 0.03,
+          "h": 1,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.2,
+          "y": 6.5,
+          "w": 0.03,
+          "d": 0.03,
+          "h": 5,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 7,
+          "w": 0.04,
+          "d": 0.02,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "flat",
+        "overhang": 0,
+        "front": "plain",
+        "rhythm": 6,
+        "chimney": 0,
+        "taper": 0
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "roof_vent_stack",
+      "size": 1.6,
+      "parts": [
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 0.9,
+          "w": 0.4,
+          "d": 0.4,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 5,
+      "family": "container",
+      "dials": {
+        "form": "tank",
+        "count": 2,
+        "height": 0.9
+      }
+    },
+    {
+      "kind": "rooftop_antenna",
+      "size": 2.2,
+      "parts": [],
+      "weight": 4,
+      "family": "pole",
+      "dials": {
+        "head": "antenna",
+        "height": 3.2,
+        "arms": 2
+      }
+    },
+    {
+      "kind": "floodlight_post",
+      "size": 2.2,
+      "parts": [],
+      "weight": 3,
+      "family": "pole",
+      "dials": {
+        "head": "lamp",
+        "height": 2.6,
+        "arms": 1
+      }
+    },
+    {
+      "kind": "planter_shrub",
+      "size": 1.2,
+      "parts": [],
+      "weight": 2,
+      "family": "tree",
+      "dials": {
+        "trunk": 0.3,
+        "crown": "bush",
+        "crownSize": 0.7,
+        "lean": 0.1
+      }
+    },
+    {
+      "kind": "gravel_crate_stack",
+      "size": 1.4,
+      "parts": [],
+      "weight": 3,
+      "family": "container",
+      "dials": {
+        "form": "crate",
+        "count": 3,
+        "height": 0.6
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "stone_gargoyle",
+      "prompt": "A single gothic stone gargoyle crouched on a weathered plinth, hunched wings folded, rain-darkened limestone with moss in the creases, realistic proportions, weathered",
+      "place": "plaza",
+      "height": 3
+    }
+  ]
+}

@@ -70,6 +70,7 @@ describe('lenient parsing', () => {
     expect(parseLooseJson('Here you go: {"a":[1,2,],"b":2,} thanks')).toEqual({ a: [1, 2], b: 2 });
     expect(parseLooseJson('{"a":{"b":[1,2],"c":"tex')).toEqual({ a: { b: [1, 2], c: 'tex' } });
     expect(parseLooseJson('{"a":1,"b":')).toEqual({ a: 1, b: null });
+    expect(parseLooseJson('{"a":{"x":1},"q":{"t":"T","p":"two."}"lex":["a","b"]}')).toEqual({ a: { x: 1 }, q: { t: 'T' } });
     expect(parseLooseJson('no json here')).toBeNull();
     expect(closeTruncated('{"a":[{"b":1}')).toBe('{"a":[{"b":1}]}');
   });

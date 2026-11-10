@@ -156,21 +156,24 @@ describe('pole cap in the scatter', () => {
     expect(lights).toHaveLength(0);
   });
 
-  it('holds for the five generated worlds', () => {
+  it('holds for the generated worlds', () => {
+    // Towns have poles and wildernesses may have none: the cap holds for every world, and at least five have poles to cap.
     const specs = liveSpecs();
-    expect(specs).toHaveLength(5);
+    expect(specs.length).toBeGreaterThanOrEqual(5);
+    let withPoles = 0;
     for (const spec of specs) {
       const layout = generateLayout(spec);
       const kinds = spec.props ?? [];
       const poleKinds = kinds.filter((k) => isPole(propProfile(k)));
-      expect(poleKinds.length, spec.title).toBeGreaterThan(0);
       const { counts, lights } = scatter(spec, layout, kinds);
       const poles = poleKinds.reduce((n, k) => n + (counts.get(k.kind) ?? 0), 0);
       expect(poles, spec.title).toBeLessThanOrEqual(MAX_POLES);
-      expect(poles, spec.title).toBeGreaterThan(0);
-      expect(lights.length, spec.title).toBeGreaterThan(0);
       expect(lights.length, spec.title).toBeLessThanOrEqual(poles);
+      if (poleKinds.length === 0 || layout.props.length === 0) continue;
+      withPoles++;
+      expect(poles, spec.title).toBeGreaterThan(0);
     }
+    expect(withPoles).toBeGreaterThanOrEqual(5);
   });
 
   it('adds the lamp lights to the town next to the door lanterns', () => {

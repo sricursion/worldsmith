@@ -1,0 +1,812 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "a dragon's volcanic lair",
+  "title": "The Ashen Caldera",
+  "tagline": "The fire below has not gone quiet.",
+  "theme": "medieval",
+  "era": "Mythic age",
+  "palette": {
+    "ground": "#4b4743",
+    "accent": "#6e4a3a",
+    "sky": "night",
+    "fog": 0.3
+  },
+  "time": {
+    "startHour": 21,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "cave_mouth",
+      "role": "house",
+      "label": "Maw of the Deep",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "basalt_maw"
+    },
+    {
+      "id": "bone_nest",
+      "role": "house",
+      "label": "The Nest",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "slag_nest"
+    },
+    {
+      "id": "vent_spires",
+      "role": "church",
+      "label": "Vent Spires",
+      "size": "medium",
+      "blueprint": "vent_spires"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "gorrik",
+      "name": "Gorrik",
+      "role": "cinder hunter",
+      "persona": "Gruff and watchful, he counts every ember-coin and every missing lizard. He fears the nest's silence more than its fire.",
+      "knowledge": [
+        "The Wyrm has not flown to the Maw in nine nights; the hunting trails are cold.",
+        "Cinder lizards flee the nest ledges at dusk, which they never did before.",
+        "Sizzi tends the nest alone and will not let hunters near it."
+      ],
+      "secrets": [
+        "He saw the Wyrm limp back at the last eclipse, one wing scorched dark."
+      ],
+      "home": "vent_spires",
+      "work": "cave_mouth",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "cave_mouth",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "vent_spires",
+          "activity": "eat"
+        },
+        {
+          "hour": 17,
+          "place": "cave_mouth",
+          "activity": "patrol"
+        },
+        {
+          "hour": 22,
+          "place": "vent_spires",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "sizzi",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "ranger",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 0.8,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": -0.2,
+          "idle": 0,
+          "flee": -0.3,
+          "investigate": 0.4,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.8,
+        "rate": 0.9
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "sizzi",
+      "name": "Sizzi",
+      "role": "ember keeper",
+      "persona": "Quick and clipped, she speaks softly as if the nest could overhear. She is guarding something and hates being asked what.",
+      "knowledge": [
+        "The nest cooled because the Wyrm stopped feeding the slag-fire, not because it left.",
+        "Ember-coins heated in the nest keep the vents calm; she has run low.",
+        "The Wyrm sleeps deep in the nest and must not be woken by strangers."
+      ],
+      "secrets": [
+        "The Wyrm is sick, and its cold breath is what is stalling the vents; she has hidden a shed scale to keep hunters from learning it."
+      ],
+      "home": "bone_nest",
+      "work": "bone_nest",
+      "schedule": [
+        {
+          "hour": 4,
+          "place": "bone_nest",
+          "activity": "work"
+        },
+        {
+          "hour": 13,
+          "place": "vent_spires",
+          "activity": "pray"
+        },
+        {
+          "hour": 18,
+          "place": "bone_nest",
+          "activity": "guard"
+        },
+        {
+          "hour": 23,
+          "place": "bone_nest",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "gorrik",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": -0.1,
+          "idle": 0,
+          "flee": 0.3,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 1.4,
+        "rate": 1.2
+      },
+      "mood": "afraid"
+    }
+  ],
+  "items": [
+    {
+      "id": "shed_scale",
+      "name": "Ashen Scale",
+      "description": "A palm-wide scale, grey and cold instead of glowing. It should burn the hand.",
+      "holder": "bone_nest"
+    },
+    {
+      "id": "ember_coin",
+      "name": "Ember-Coin",
+      "description": "A slag coin still faintly warm, stamped with a wyrm's eye.",
+      "holder": "sizzi"
+    },
+    {
+      "id": "cinder_bone",
+      "name": "Charred Bone",
+      "description": "A hunter's tally bone, notched nine times for nine cold nights.",
+      "holder": "gorrik"
+    }
+  ],
+  "quest": {
+    "id": "cold_nest",
+    "title": "The Cold Nest of the Ashen Caldera",
+    "hook": "The Ember Wyrm's nest has gone cold, and the kobolds whisper that it is hunting beyond the rim. The vents tremble under an eclipse sky, and soon the caldera will erupt. A stranger who owes no clan is needed to learn the truth before the lava rises.",
+    "giver": "gorrik",
+    "steps": [
+      {
+        "id": "s1",
+        "kind": "talk",
+        "target": "gorrik",
+        "requires": [],
+        "objective": "Hear Gorrik's account of the cold hunting trails.",
+        "beat": "Gorrik hands you a notched bone and tells you the Wyrm has not left its nest, though everyone swears it is hunting.",
+        "reveals": [
+          "gorrik:0"
+        ]
+      },
+      {
+        "id": "s2",
+        "kind": "visit",
+        "target": "cave_mouth",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Check the Maw for any sign of the Wyrm's passing.",
+        "beat": "The Maw is silent and sooty; no claw marks, no fresh kills, only cinder lizards scattering from the dark."
+      },
+      {
+        "id": "s3",
+        "kind": "visit",
+        "target": "bone_nest",
+        "requires": [
+          "s2"
+        ],
+        "objective": "Climb to the nest while the Wyrm sleeps and look for what it left.",
+        "beat": "The Ember Wyrm lies curled and unmoving, breathing slow and cold; a grey scale lies at the nest's edge."
+      },
+      {
+        "id": "s4",
+        "kind": "fetch",
+        "target": "shed_scale",
+        "requires": [
+          "s3"
+        ],
+        "objective": "Take the ashen scale from the nest without waking the Wyrm.",
+        "beat": "The scale is cold as river stone; the Wyrm stirs once, and the vents answer with a low groan.",
+        "item": "shed_scale"
+      },
+      {
+        "id": "s5",
+        "kind": "talk",
+        "target": "sizzi",
+        "requires": [
+          "s4"
+        ],
+        "objective": "Confront Sizzi with the scale and learn why she hid the Wyrm's sickness.",
+        "beat": "Sizzi admits the Wyrm is ill and that she has fed the nest her own ember-coins to keep the vents from blowing.",
+        "reveals": [
+          "sizzi:0"
+        ]
+      },
+      {
+        "id": "s6",
+        "kind": "choose",
+        "target": "sizzi",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Decide what to do with the truth.",
+        "beat": "Gorrik's hunters want to cut the Wyrm down; Sizzi begs for time to heal it before the eclipse ends.",
+        "choices": [
+          {
+            "label": "Tell Gorrik and let the hunters decide",
+            "unlocks": [
+              "s7a"
+            ]
+          },
+          {
+            "label": "Give Sizzi your ember-coin and keep the secret",
+            "unlocks": [
+              "s7b"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s7a",
+        "kind": "deliver",
+        "target": "gorrik",
+        "requires": [
+          "s6"
+        ],
+        "objective": "Bring the ashen scale to Gorrik as proof.",
+        "beat": "Gorrik studies the grey scale in silence, then calls the hunters to the nest at dusk.",
+        "item": "shed_scale"
+      },
+      {
+        "id": "s7b",
+        "kind": "deliver",
+        "target": "sizzi",
+        "requires": [
+          "s6"
+        ],
+        "objective": "Hand Sizzi your ember-coin to rekindle the nest.",
+        "beat": "The coin flares in the slag; the vents steady and the Wyrm's breath begins to warm.",
+        "item": "ember_coin"
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s7a",
+        "label": "The hunters take the nest; the vents calm, but the Wyrm is gone.",
+        "tone": "bitter"
+      },
+      {
+        "stepId": "s7b",
+        "label": "The nest rekindles and the Wyrm wakes to hunt again.",
+        "tone": "good"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r_no_fire",
+      "text": "Nobody carries open flame near the nest.",
+      "effect": {
+        "type": "ban",
+        "what": "open flame",
+        "where": "bone_nest"
+      },
+      "source": "world"
+    },
+    {
+      "id": "r_curfew",
+      "text": "Kobolds keep to their homes during the deep eclipse hours.",
+      "effect": {
+        "type": "curfew",
+        "fromHour": 23,
+        "toHour": 4,
+        "exemptRoles": [
+          "ember keeper"
+        ]
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "cinder",
+    "maw",
+    "wyrm",
+    "slag",
+    "vent",
+    "ember-coin"
+  ],
+  "style": {
+    "name": "Ashen Caldera",
+    "wall": "#4a4744",
+    "wall2": "#37353a",
+    "roof": "#2b2a2d",
+    "trim": "#5f5a54",
+    "accent": "#6e4a3a",
+    "dark": "#121113",
+    "glass": "#2a2f36",
+    "glow": "#ff5a1e",
+    "ground": "#4b4743",
+    "road": "#5e5750",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "stone",
+      "wall2": "stone",
+      "roof": "stone",
+      "trim": "stone",
+      "ground": "ash",
+      "road": "gravel",
+      "wear": 0.7,
+      "wet": 0.1
+    }
+  },
+  "site": {
+    "pattern": "cliffside",
+    "wild": 0.2,
+    "paths": "track",
+    "spacing": 12
+  },
+  "mood": {
+    "weather": "embers",
+    "intensity": 0.6,
+    "grade": "crimson",
+    "haze": 0.7,
+    "ambience": [
+      "fire",
+      "wind",
+      "thunder"
+    ],
+    "music": "low brass drone"
+  },
+  "terrain": {
+    "relief": "crater",
+    "ruggedness": 0.9,
+    "water": "lava",
+    "waterAmount": 0.3,
+    "horizon": "smoking caldera rim",
+    "settled": 0.03
+  },
+  "skyFeatures": [
+    {
+      "kind": "eclipse",
+      "size": 0.3,
+      "color": "#ff5522"
+    }
+  ],
+  "creatures": [
+    {
+      "id": "dragon",
+      "name": "Ember Wyrm",
+      "family": "winged",
+      "dials": {
+        "wingspan": 0.9,
+        "feather": 0,
+        "crown": 1,
+        "frill": 0.4,
+        "plates": 0.7,
+        "spade": 0.6
+      },
+      "size": 16,
+      "count": 1,
+      "behaviour": "sleep",
+      "haunt": "bone_nest",
+      "body": "#3a2a24",
+      "accent": "#8b372a",
+      "glow": "#ff6a1a",
+      "note": "Breathes slow smoke; one eye half open."
+    },
+    {
+      "id": "cinder_lizards",
+      "name": "cinder lizards",
+      "family": "crawler",
+      "dials": {
+        "pairs": 3,
+        "legs": 0.5,
+        "stance": 0.3,
+        "bulk": 0.4,
+        "wide": 0.5,
+        "abdomen": 0.4,
+        "shell": 0.7,
+        "claws": 0.3,
+        "stinger": 0.1,
+        "tail": 0.4
+      },
+      "size": 0.8,
+      "count": 4,
+      "behaviour": "roam",
+      "haunt": "wild",
+      "body": "#2a2220",
+      "accent": "#ff904d",
+      "glow": "#ff5a10",
+      "note": "Skitter over warm rock, drawn to the glow."
+    }
+  ],
+  "folk": {
+    "name": "kobolds",
+    "height": 1.1,
+    "bulk": 0.3,
+    "head": 1.1,
+    "features": [
+      "tail",
+      "horns",
+      "snout"
+    ],
+    "skin": [
+      "#5a4030",
+      "#3e2c20"
+    ],
+    "cloth": [
+      "#4a3a2e",
+      "#6b4a30"
+    ],
+    "trim": [
+      "#b57236"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "basalt_maw",
+      "summary": "jagged basalt cave mouth, 12 m high",
+      "parts": [
+        {
+          "shape": "dome",
+          "x": -0.42,
+          "z": -0.1,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.55,
+          "h": 9,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "dome",
+          "x": 0.42,
+          "z": -0.05,
+          "y": 0,
+          "w": 0.45,
+          "d": 0.5,
+          "h": 11,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": -0.25,
+          "y": 0,
+          "w": 0.6,
+          "d": 0.45,
+          "h": 9,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "wedge",
+          "x": -0.3,
+          "z": 0.2,
+          "y": 0,
+          "w": 0.14,
+          "d": 0.12,
+          "h": 3,
+          "rot": 90,
+          "tone": "wall2",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "sphere",
+          "x": 0.2,
+          "z": 0.42,
+          "y": 0,
+          "w": 0.14,
+          "d": 0.14,
+          "h": 1.5,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 3,
+          "gap": 0.25
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": -0.1,
+          "y": 0,
+          "w": 0.22,
+          "d": 0.1,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "arch",
+      "dials": {
+        "span": 0.65,
+        "thickness": 0.3,
+        "lintel": "pointed",
+        "towers": 0
+      }
+    },
+    {
+      "id": "slag_nest",
+      "summary": "bone and slag nest bowl, 20 m across, 6 m high",
+      "parts": [
+        {
+          "shape": "ring",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 1.05,
+          "d": 1.05,
+          "h": 2.5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.35,
+          "z": 0.1,
+          "y": 2,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 7,
+          "rot": 10,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.3,
+          "z": -0.2,
+          "y": 2,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 6,
+          "rot": -14,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.1,
+          "z": 0.38,
+          "y": 2,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 5.5,
+          "rot": 20,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0,
+          "y": 1,
+          "w": 0.5,
+          "d": 0.5,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "wedge",
+          "x": -0.5,
+          "z": 0.2,
+          "y": 0,
+          "w": 0.1,
+          "d": 0.08,
+          "h": 2.5,
+          "rot": 90,
+          "tone": "wall",
+          "repeat": 4,
+          "gap": 0.25
+        }
+      ],
+      "doorX": 0,
+      "family": "dome",
+      "dials": {
+        "flatness": 1,
+        "drum": 1,
+        "oculus": 0,
+        "ribs": 0,
+        "pods": 3
+      }
+    },
+    {
+      "id": "vent_spires",
+      "summary": "three steaming basalt spires, 15 m",
+      "parts": [
+        {
+          "shape": "dome",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.9,
+          "h": 2.5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": -0.15,
+          "z": 0.1,
+          "y": 5,
+          "w": 0.18,
+          "d": 0.18,
+          "h": 1.5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 2,
+          "gap": 0.3
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.3,
+          "y": 0,
+          "w": 0.08,
+          "d": 0.05,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "wedge",
+          "x": -0.4,
+          "z": -0.2,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.1,
+          "h": 3.5,
+          "rot": 90,
+          "tone": "wall",
+          "repeat": 3,
+          "gap": 0.35
+        }
+      ],
+      "doorX": 0,
+      "family": "spire",
+      "dials": {
+        "count": 3,
+        "height": 15,
+        "lean": 0.2,
+        "sharpness": 0.5,
+        "variance": 0.5
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "basalt_boulders",
+      "size": 3.5,
+      "parts": [],
+      "weight": 5,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 4,
+        "height": 0.6,
+        "jagged": 0.8,
+        "flat": 0.2
+      }
+    },
+    {
+      "kind": "slag_stack",
+      "size": 7,
+      "parts": [
+        {
+          "shape": "dome",
+          "x": 0.3,
+          "z": 0.2,
+          "y": 0,
+          "w": 0.4,
+          "d": 0.4,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 3,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 5,
+        "height": 1,
+        "jagged": 0.9,
+        "flat": 0.5
+      }
+    },
+    {
+      "kind": "ash_shards",
+      "size": 2.5,
+      "parts": [],
+      "weight": 3,
+      "family": "rock",
+      "dials": {
+        "form": "crystal",
+        "count": 3,
+        "height": 0.8,
+        "jagged": 1,
+        "flat": 0.1
+      }
+    },
+    {
+      "kind": "charred_snag",
+      "size": 3,
+      "parts": [],
+      "weight": 1,
+      "family": "tree",
+      "dials": {
+        "trunk": 1.4,
+        "crown": "dead",
+        "crownSize": 0.4,
+        "lean": 0.5
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "wyrm_skull",
+      "prompt": "Enormous weathered dragon skull of pale bone half buried in black slag, cracked horns and blackened eye sockets, realistic proportions, weathered",
+      "place": "bone_nest",
+      "height": 7
+    }
+  ]
+}

@@ -2,18 +2,18 @@
   "version": 1,
   "seed": 1899,
   "prompt": "the Sahara desert at dusk",
-  "title": "Last Light at the Wells",
-  "tagline": "Heat leaves the dunes; the camp counts its camels.",
+  "title": "Last Light Over Ergs",
+  "tagline": "Heat leaves the sand; the wells are running dry.",
   "theme": "western",
-  "era": "present day",
+  "era": "Present day",
   "palette": {
-    "ground": "#b89f72",
-    "accent": "#6b4a3a",
+    "ground": "#b89a6c",
+    "accent": "#7a4a38",
     "sky": "dusk",
     "fog": 0.3
   },
   "time": {
-    "startHour": 17.5,
+    "startHour": 18,
     "minutesPerRealSecond": 4
   },
   "buildings": [
@@ -31,14 +31,14 @@
       "id": "idir",
       "name": "Idir",
       "role": "camel drover",
-      "persona": "Lean and sun-cured, he speaks little and trusts the herd over people. He wants the camels across before the cold nights thin them.",
+      "persona": "A lean, sun-cracked drover who trusts camels over men. He talks short and flat, and he is ashamed that his herd is thirsty.",
       "knowledge": [
-        "The camels drink one last time at the wells, then nothing for six days.",
-        "The next oasis lies past the dune sea, beyond the Sahel road.",
-        "A hawk has circled the camp every dusk since the water dropped."
+        "The wells have dropped a forearm's length since the last sirocco.",
+        "The camels refuse the third well; they smell something wrong in it.",
+        "Old drovers say the seven wells share one vein under the erg."
       ],
       "secrets": [
-        "He sold two water skins to a passing trader for dirhams and never told Tamast."
+        "Idir sold the camp's spare water skins for dirhams last month and has told no one."
       ],
       "home": "caravan_camp",
       "work": "caravan_camp",
@@ -66,23 +66,23 @@
       ],
       "relationships": [
         {
-          "npcId": "tamast",
-          "stance": "friend"
+          "npcId": "tinhinan",
+          "stance": "suspicious"
         }
       ],
       "appearance": {
-        "base": "ranger",
+        "base": "rogue_hooded",
         "palette": 1
       },
       "temperament": {
-        "tau": 0.7,
+        "tau": 0.8,
         "bias": {
           "continue": 0,
           "go_to": 0,
           "talk_to": -0.2,
           "idle": 0,
           "flee": 0,
-          "investigate": 0,
+          "investigate": 0.3,
           "follow_player": 0,
           "work": 0.4
         }
@@ -94,35 +94,35 @@
       "mood": "tense"
     },
     {
-      "id": "tamast",
-      "name": "Tamast",
+      "id": "tinhinan",
+      "name": "Tinhinan",
       "role": "water keeper",
-      "persona": "Sharp-eyed and precise, she measures every cup and forgives no waste. She guards the wells because she knows how fast they are failing.",
+      "persona": "A grey-eyed keeper who measures every cup and answers every question with a question. She guards the wells like kin and fears the blame is hers.",
       "knowledge": [
-        "The seven wells gave a full day's water last season; now they give half.",
-        "Each camel needs two skins a day to cross the dune sea.",
-        "The deepest well still seeps, but only if the sand is cleared by hand."
+        "Each well is marked on its stone; the seventh fell first, a month ago.",
+        "A cracked clay pipe once fed the wells from the old oasis cistern east in the dunes.",
+        "She lowers a knotted cord each dusk to read the water."
       ],
       "secrets": [
-        "She has been rationing the drovers' own water in secret to save more for the camels."
+        "Tinhinan heard a dull thudding under the sand at night and has told no one, fearing she'd be called mad."
       ],
       "home": "caravan_camp",
       "work": "caravan_camp",
       "schedule": [
         {
-          "hour": 6,
+          "hour": 4,
+          "place": "caravan_camp",
+          "activity": "pray"
+        },
+        {
+          "hour": 8,
           "place": "caravan_camp",
           "activity": "work"
         },
         {
-          "hour": 13,
+          "hour": 18,
           "place": "caravan_camp",
-          "activity": "eat"
-        },
-        {
-          "hour": 16,
-          "place": "caravan_camp",
-          "activity": "guard"
+          "activity": "work"
         },
         {
           "hour": 22,
@@ -133,11 +133,11 @@
       "relationships": [
         {
           "npcId": "idir",
-          "stance": "friend"
+          "stance": "neutral"
         }
       ],
       "appearance": {
-        "base": "rogue_hooded",
+        "base": "mage",
         "palette": 2
       },
       "temperament": {
@@ -147,7 +147,7 @@
           "go_to": 0,
           "talk_to": 0,
           "idle": 0,
-          "flee": 0,
+          "flee": -0.3,
           "investigate": 0.2,
           "follow_player": 0,
           "work": 0.5
@@ -157,98 +157,98 @@
         "pitch": 1.2,
         "rate": 1
       },
-      "mood": "calm"
+      "mood": "grieving"
     }
   ],
   "items": [
     {
-      "id": "water_skins",
-      "name": "Goat-hide water skins",
-      "description": "Four patched skins, stiff and dry. They must be filled before the crossing.",
-      "holder": "caravan_camp"
+      "id": "knotted_cord",
+      "name": "Knotted Cord",
+      "description": "Tinhinan's well-measuring cord, one knot per hand of depth.",
+      "holder": "tinhinan"
     },
     {
       "id": "hawk_feather",
-      "name": "Desert hawk feather",
-      "description": "A barred feather shed by the hawk. Drovers read the circling birds for water.",
+      "name": "Hawk Feather",
+      "description": "A barred feather shed by the desert hawk, dropped near the tents.",
       "holder": "caravan_camp"
     },
     {
-      "id": "dirham_pouch",
-      "name": "Pouch of dirhams",
-      "description": "Coins Idir got for the skins he sold. Heavy with guilt.",
-      "holder": "idir"
+      "id": "clay_pipe_shard",
+      "name": "Clay Pipe Shard",
+      "description": "A curved shard of old irrigation pipe, wet inside.",
+      "holder": "player"
     }
   ],
   "quest": {
-    "id": "last_light_wells",
-    "title": "Last Light at the Wells",
-    "hook": "The seven wells are giving half what they did, and the cold nights are coming. The caravan must cross the dune sea to the next oasis, and it cannot do it on what is left. Tamast and Idir will take any stranger's help they can get, if the stranger can bear the truth about the water.",
-    "giver": "tamast",
+    "id": "seven_wells",
+    "title": "The Sinking of Seven Wells",
+    "hook": "The wells of the camp drop a little more each dusk, and the caravan cannot cross the erg on dry skins. Idir blames the heat; Tinhinan blames herself. Someone who looks where the locals won't might find where the water is going.",
+    "giver": "tinhinan",
     "steps": [
       {
         "id": "s1",
         "kind": "talk",
-        "target": "tamast",
+        "target": "tinhinan",
         "requires": [],
-        "objective": "Speak to Tamast about the failing wells.",
-        "beat": "Tamast shows you the wells, one by one. The deepest still seeps, but the sand keeps filling it.",
-        "reveals": [
-          "tamast:0"
-        ]
+        "objective": "Hear Tinhinan's account of the failing wells.",
+        "beat": "She shows you the seventh well, nearly dry, and asks you to read the cord yourself."
       },
       {
         "id": "s2",
-        "kind": "visit",
-        "target": "caravan_camp",
-        "requires": [
-          "s1"
-        ],
-        "objective": "Check the seep in the deepest well at the Camp of Seven Wells.",
-        "beat": "The low goat-hair tent throws a long shadow over the well. The seep is real, but slow, and the dust is already closing it."
-      },
-      {
-        "id": "s3",
-        "kind": "fetch",
-        "target": "water_skins",
-        "requires": [
-          "s2"
-        ],
-        "objective": "Gather the water skins from the camp.",
-        "beat": "The skins are dry and cracked. Four will not carry a caravan, and Idir will not meet your eye when you count them.",
-        "item": "water_skins"
-      },
-      {
-        "id": "s4",
         "kind": "talk",
         "target": "idir",
         "requires": [
-          "s3"
+          "s1"
         ],
-        "objective": "Ask Idir why the skins are so few.",
-        "beat": "The camels graze nearby while the hawk circles overhead. Idir admits he traded two skins for dirhams and hands you the pouch.",
+        "objective": "Ask Idir why the camels shun the third well.",
+        "beat": "Idir mutters about the herd and the wrong smell, eyes on the dunes, as the hawk circles overhead.",
         "reveals": [
           "idir:0"
         ]
       },
       {
+        "id": "s3",
+        "kind": "fetch",
+        "target": "knotted_cord",
+        "requires": [
+          "s2"
+        ],
+        "objective": "Take Tinhinan's cord to measure the wells yourself.",
+        "beat": "The knots confirm it: the water falls fastest in the wells nearest the east dunes.",
+        "item": "knotted_cord"
+      },
+      {
+        "id": "s4",
+        "kind": "visit",
+        "target": "caravan_camp",
+        "requires": [
+          "s3"
+        ],
+        "objective": "Follow the camels as they graze the camp's east edge at dusk.",
+        "beat": "The dromedaries nose the sand toward the east and bawl; the hawk wheels over the same spot.",
+        "reveals": [
+          "tinhinan:0"
+        ]
+      },
+      {
         "id": "s5",
         "kind": "choose",
-        "target": "tamast",
+        "target": "tinhinan",
         "requires": [
           "s4"
         ],
-        "objective": "Decide what to do about Idir's trade.",
-        "beat": "Tamast waits for your answer with the pouch in view. The dune sea is turning gold and then grey.",
+        "objective": "Decide what to tell the camp about the underground thudding and the old pipe.",
+        "beat": "The sand east of camp has slumped over a broken pipe leaking the vein away. You can say it plainly or spare the keeper.",
         "choices": [
           {
-            "label": "Hand the dirhams to Tamast and tell her everything",
+            "label": "Tell the whole camp the truth and dig out the pipe together",
             "unlocks": [
               "s6a"
             ]
           },
           {
-            "label": "Keep it quiet and trade the dirhams for skins yourself",
+            "label": "Quietly seal the pipe yourself and say nothing",
             "unlocks": [
               "s6b"
             ]
@@ -257,36 +257,34 @@
       },
       {
         "id": "s6a",
-        "kind": "deliver",
-        "target": "tamast",
-        "requires": [
-          "s5"
-        ],
-        "objective": "Give Tamast the skins and the truth.",
-        "beat": "Tamast takes the skins and the coins without a word, then sets Idir to clearing the deepest well at first light.",
-        "item": "water_skins"
-      },
-      {
-        "id": "s6b",
-        "kind": "deliver",
+        "kind": "talk",
         "target": "idir",
         "requires": [
           "s5"
         ],
-        "objective": "Give Idir the skins and keep the secret.",
-        "beat": "Idir takes the skins and nods once. The caravan will leave short of water and long on silence.",
-        "item": "water_skins"
+        "objective": "Rally Idir and the drovers to dig out the broken pipe.",
+        "beat": "Idir confesses the sold skins, and the camp digs through the night. The wells begin to rise."
+      },
+      {
+        "id": "s6b",
+        "kind": "talk",
+        "target": "tinhinan",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Report the sealed pipe to Tinhinan alone.",
+        "beat": "The wells hold, but the camp never learns why, and Idir's secret rots unspoken."
       }
     ],
     "endings": [
       {
         "stepId": "s6a",
-        "label": "The caravan crosses with the wells cleared and the truth told.",
+        "label": "The camp digs together and the wells recover.",
         "tone": "good"
       },
       {
         "stepId": "s6b",
-        "label": "The caravan crosses thirsty, held together by a lie.",
+        "label": "The water returns, but trust in the camp stays thin.",
         "tone": "bitter"
       }
     ]
@@ -294,46 +292,50 @@
   "rules": [
     {
       "id": "r1",
-      "text": "Water is rationed by the keeper; nobody draws from the wells without her word.",
+      "text": "Water is rationed: no one draws more than one skin per day from the wells.",
       "effect": {
         "type": "ban",
-        "what": "drawing water",
+        "what": "drawing extra water",
         "where": "caravan_camp",
-        "enforcer": "tamast"
+        "enforcer": "tinhinan"
       },
       "source": "world"
     },
     {
       "id": "r2",
-      "text": "By custom, no fire is lit once the moon is up, to save the last brush.",
+      "text": "Nobody walks the erg after dark; the dunes hide drops and the cold kills.",
       "effect": {
-        "type": "custom",
-        "summary": "No fires after moonrise; brush is saved for the crossing."
+        "type": "curfew",
+        "fromHour": 21,
+        "toHour": 5,
+        "exemptRoles": [
+          "water keeper"
+        ]
       },
       "source": "world"
     }
   ],
   "lexicon": [
+    "erg",
+    "well",
+    "caravan",
     "dirham",
-    "dune",
     "oasis",
-    "camel",
-    "tent",
-    "Sahel"
+    "sirocco"
   ],
   "style": {
-    "name": "Sahel Dusk Muted Realism",
-    "wall": "#a8997e",
-    "wall2": "#8a7a62",
-    "roof": "#5c4a38",
-    "trim": "#7a6a55",
-    "accent": "#6b4a3a",
-    "dark": "#2a2420",
-    "glass": "#2c3238",
+    "name": "Last Light Over Ergs",
+    "wall": "#8a6f52",
+    "wall2": "#a99274",
+    "roof": "#3a312a",
+    "trim": "#6b5a46",
+    "accent": "#7a4a38",
+    "dark": "#1f1a17",
+    "glass": "#2a2f33",
     "glow": "#ffb36b",
-    "ground": "#b89f72",
-    "road": "#a38c66",
-    "variety": 0.15,
+    "ground": "#b89a6c",
+    "road": "#a98c60",
+    "variety": 0.2,
     "surfaces": {
       "wall": "canvas",
       "wall2": "timber",
@@ -382,7 +384,11 @@
       "id": "camels",
       "name": "dromedary camels",
       "family": "quadruped",
-      "dials": {},
+      "dials": {
+        "legs": 0.8,
+        "hump": 0.8,
+        "neck": 0.7
+      },
       "size": 2.2,
       "count": 4,
       "behaviour": "graze",
@@ -401,10 +407,10 @@
       "count": 1,
       "behaviour": "circle",
       "haunt": "sky",
-      "body": "#7a6a55",
-      "accent": "#d8cbb0",
+      "body": "#7a6248",
+      "accent": "#d9c9a8",
       "glow": "#000000",
-      "note": "Riding the warm air over the dunes."
+      "note": "Riding the thermals above the dunes."
     }
   ],
   "folk": {
@@ -417,95 +423,69 @@
       "cloak"
     ],
     "skin": [
-      "#8d6a4f",
-      "#6b4c36"
+      "#8a5a3c",
+      "#6b4330"
     ],
     "cloth": [
-      "#2f3d5c",
-      "#d8cbb0"
+      "#2c3a5c",
+      "#c9b899"
     ],
     "trim": [
-      "#a85a32"
+      "#a88732"
     ]
   },
   "blueprints": [
     {
       "id": "goat_hair_tent",
-      "summary": "low black goat-hair tent, 2.6 m ridge, open flap to the east",
+      "summary": "low black goat-hair tent, ridge 2.6 m, open on the lee side",
       "parts": [
         {
           "shape": "box",
           "x": 0,
-          "z": 0,
+          "z": -0.05,
           "y": 0,
           "w": 0.9,
           "d": 0.7,
           "h": 0.12,
           "rot": 0,
-          "tone": "dark",
+          "tone": "trim",
           "repeat": 1,
           "gap": 0
         },
         {
           "shape": "cylinder",
-          "x": -0.4,
-          "z": 0.2,
+          "x": -0.42,
+          "z": 0.38,
           "y": 0,
-          "w": 0.03,
-          "d": 0.03,
-          "h": 2.2,
+          "w": 0.04,
+          "d": 0.04,
+          "h": 1.8,
           "rot": 0,
           "tone": "trim",
-          "repeat": 3,
-          "gap": 0.4
-        },
-        {
-          "shape": "cone",
-          "x": 0.45,
-          "z": 0.35,
-          "y": 0,
-          "w": 0.03,
-          "d": 0.03,
-          "h": 0.4,
-          "rot": 0,
-          "tone": "trim",
-          "repeat": 4,
-          "gap": 0.2
+          "repeat": 2,
+          "gap": 0.84
         },
         {
           "shape": "box",
-          "x": 0.1,
-          "z": 0.5,
+          "x": 0.2,
+          "z": 0.46,
           "y": 0,
-          "w": 0.5,
-          "d": 0.25,
-          "h": 0.5,
+          "w": 0.28,
+          "d": 0.12,
+          "h": 0.9,
           "rot": 0,
           "tone": "wall2",
           "repeat": 1,
           "gap": 0
         },
         {
-          "shape": "sphere",
-          "x": 0.5,
-          "z": 0.1,
-          "y": 0,
-          "w": 0.1,
-          "d": 0.1,
-          "h": 0.35,
-          "rot": 0,
-          "tone": "wall2",
-          "repeat": 2,
-          "gap": 0.6
-        },
-        {
           "shape": "cylinder",
-          "x": 0.5,
-          "z": -0.38,
+          "x": 0.46,
+          "z": 0.1,
           "y": 0,
           "w": 0.14,
           "d": 0.14,
-          "h": 0.45,
+          "h": 0.55,
           "rot": 0,
           "tone": "wall2",
           "repeat": 1,
@@ -513,36 +493,36 @@
         },
         {
           "shape": "box",
-          "x": 0.5,
-          "z": 0.45,
-          "y": 0.12,
+          "x": -0.45,
+          "z": -0.3,
+          "y": 0,
           "w": 0.14,
+          "d": 0.2,
+          "h": 0.4,
+          "rot": 25,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0.5,
+          "y": 0.1,
+          "w": 0.1,
           "d": 0.1,
-          "h": 0.18,
+          "h": 0.15,
           "rot": 0,
           "tone": "glow",
           "repeat": 1,
           "gap": 0
-        },
-        {
-          "shape": "box",
-          "x": -0.5,
-          "z": -0.3,
-          "y": 0,
-          "w": 0.3,
-          "d": 0.12,
-          "h": 0.25,
-          "rot": 0,
-          "tone": "trim",
-          "repeat": 1,
-          "gap": 0
         }
       ],
-      "doorX": 0.1,
+      "doorX": 0,
       "family": "tent",
       "dials": {
         "form": "ridge",
-        "poles": 2,
+        "poles": 3,
         "sag": 0.55,
         "flaps": 1
       }
@@ -553,20 +533,34 @@
       "kind": "dune_scrub",
       "size": 1.2,
       "parts": [],
-      "weight": 5,
+      "weight": 4,
       "family": "tree",
       "dials": {
-        "trunk": 0.4,
+        "trunk": 0.3,
         "crown": "bush",
         "crownSize": 0.6,
         "lean": 0.3
       }
     },
     {
+      "kind": "wind_cut_rock",
+      "size": 3,
+      "parts": [],
+      "weight": 3,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 3,
+        "height": 0.7,
+        "jagged": 0.6,
+        "flat": 0.3
+      }
+    },
+    {
       "kind": "dead_acacia",
       "size": 5,
       "parts": [],
-      "weight": 2,
+      "weight": 1,
       "family": "tree",
       "dials": {
         "trunk": 1.6,
@@ -576,24 +570,10 @@
       }
     },
     {
-      "kind": "wind_scoured_rock",
-      "size": 3,
+      "kind": "water_skin_pile",
+      "size": 1,
       "parts": [],
-      "weight": 3,
-      "family": "rock",
-      "dials": {
-        "form": "boulder",
-        "count": 3,
-        "height": 0.5,
-        "jagged": 0.6,
-        "flat": 0.4
-      }
-    },
-    {
-      "kind": "camel_saddle_packs",
-      "size": 1.4,
-      "parts": [],
-      "weight": 2,
+      "weight": 1,
       "family": "container",
       "dials": {
         "form": "sacks",
@@ -602,49 +582,22 @@
       }
     },
     {
-      "kind": "drover_fire_brazier",
-      "size": 2.2,
-      "parts": [
-        {
-          "shape": "cylinder",
-          "x": 0,
-          "z": 0,
-          "y": 0,
-          "w": 0.5,
-          "d": 0.5,
-          "h": 0.15,
-          "rot": 0,
-          "tone": "dark",
-          "repeat": 1,
-          "gap": 0
-        },
-        {
-          "shape": "sphere",
-          "x": 0,
-          "z": 0,
-          "y": 0.15,
-          "w": 0.35,
-          "d": 0.35,
-          "h": 0.2,
-          "rot": 0,
-          "tone": "glow",
-          "repeat": 1,
-          "gap": 0
-        }
-      ],
+      "kind": "camp_lantern_post",
+      "size": 1.6,
+      "parts": [],
       "weight": 1,
       "family": "pole",
       "dials": {
         "head": "lamp",
-        "height": 1.6,
+        "height": 2,
         "arms": 1
       }
     }
   ],
   "landmarks": [
     {
-      "id": "seven_wells_curb",
-      "prompt": "Ancient desert well head, circular rim of rough-hewn sandstone blocks with a worn rope groove, a weathered acacia-wood crossbeam and a frayed goat-hair rope, a leather bucket resting on the lip, realistic proportions, weathered",
+      "id": "seventh_well",
+      "prompt": "ancient hand-dug desert well with a low ring of stacked sandstone blocks, worn rope grooves on the rim, a weathered palm-timber windlass frame over it, realistic proportions, weathered",
       "place": "caravan_camp",
       "height": 3
     }

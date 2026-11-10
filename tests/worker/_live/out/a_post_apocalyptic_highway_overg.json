@@ -1,0 +1,913 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "a post-apocalyptic highway overgrown with vines",
+  "title": "The Green Interstate",
+  "tagline": "Nature reclaimed the road, one vine at a time",
+  "theme": "modern",
+  "era": "Decades after the collapse",
+  "palette": {
+    "ground": "#3e4630",
+    "accent": "#7d5546",
+    "sky": "overcast",
+    "fog": 0.4
+  },
+  "time": {
+    "startHour": 17.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "overpass_shelter",
+      "role": "house",
+      "label": "Overpass Camp",
+      "size": "medium",
+      "keyBuilding": true,
+      "blueprint": "overpass_camp"
+    },
+    {
+      "id": "fuel_stop",
+      "role": "general_store",
+      "label": "Gas Station Ruin",
+      "size": "medium",
+      "blueprint": "gas_station_ruin"
+    },
+    {
+      "id": "rest_stop",
+      "role": "inn",
+      "label": "Rest Stop 9",
+      "size": "small",
+      "blueprint": "rest_stop_shelter"
+    },
+    {
+      "id": "bridge_arch",
+      "role": "church",
+      "label": "Span Arch",
+      "size": "large",
+      "blueprint": "span_arch"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "mara",
+      "name": "Mara",
+      "role": "scavenger",
+      "persona": "Dry and tired, counts everything twice. She wants the supply run open before the rains rot what's left of her stock.",
+      "knowledge": [
+        "The eastbound lanes have been choked shut by vines since last winter.",
+        "Rest Stop 9 still holds sealed stores nobody has touched.",
+        "A vine-cutter is stashed in the fuel stop's pump house."
+      ],
+      "secrets": [
+        "Mara sold the last of the camp's good rope for scrip and never told Teo."
+      ],
+      "home": "overpass_shelter",
+      "work": "fuel_stop",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "overpass_shelter",
+          "activity": "eat"
+        },
+        {
+          "hour": 8,
+          "place": "fuel_stop",
+          "activity": "work"
+        },
+        {
+          "hour": 17,
+          "place": "overpass_shelter",
+          "activity": "rest"
+        },
+        {
+          "hour": 22,
+          "place": "overpass_shelter",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "teo",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "rogue_hooded",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 0.8,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.2,
+          "idle": -0.2,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 0.9,
+        "rate": 0.95
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "teo",
+      "name": "Teo",
+      "role": "trail scout",
+      "persona": "Quick and restless, reads the green lanes like a map. He trusts his feet over any plan Mara draws up.",
+      "knowledge": [
+        "Deer cross the old interstate at dusk, and the crows follow whatever is dying.",
+        "Two feral dogs have claimed Rest Stop 9 and don't like company.",
+        "The arch is the only dry way east if the overpass floods."
+      ],
+      "secrets": [
+        "Teo went to Rest Stop 9 alone in autumn and ran when the dogs came."
+      ],
+      "home": "overpass_shelter",
+      "work": "street",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "street",
+          "activity": "patrol"
+        },
+        {
+          "hour": 12,
+          "place": "overpass_shelter",
+          "activity": "eat"
+        },
+        {
+          "hour": 14,
+          "place": "street",
+          "activity": "wander"
+        },
+        {
+          "hour": 20,
+          "place": "overpass_shelter",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "mara",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "ranger",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0.3,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": 0.2,
+          "investigate": 0.4,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.2,
+        "rate": 1.15
+      },
+      "mood": "cheerful"
+    }
+  ],
+  "items": [
+    {
+      "id": "vine_cutter",
+      "name": "Vine-Cutter",
+      "description": "A long hooked blade on a pipe handle, edge freshly ground.",
+      "holder": "fuel_stop"
+    },
+    {
+      "id": "dog_collar",
+      "name": "Chewed Collar",
+      "description": "A cracked leather collar, tag worn blank. The dogs' den is near.",
+      "holder": "rest_stop"
+    },
+    {
+      "id": "scrip_pouch",
+      "name": "Scrip Pouch",
+      "description": "A greasy pouch of scrip, Mara's pay for the supply run.",
+      "holder": "mara"
+    }
+  ],
+  "quest": {
+    "id": "cut_the_green_lanes",
+    "title": "The Green Lanes Are Shut",
+    "hook": "Last winter the vines swallowed the eastbound lanes and the supply run died with them. Mara's stock is thinning, and the rains will be back soon. She needs someone with a vine-cutter and a strong back to open a path to Rest Stop 9.",
+    "giver": "mara",
+    "steps": [
+      {
+        "id": "s1_talk_mara",
+        "kind": "talk",
+        "target": "mara",
+        "requires": [],
+        "objective": "Hear Mara out at the Overpass Camp.",
+        "beat": "Mara lays out the problem: shut lanes, thin stock, rain coming. She points you to the fuel stop for a blade."
+      },
+      {
+        "id": "s2_fetch_cutter",
+        "kind": "fetch",
+        "target": "vine_cutter",
+        "requires": [
+          "s1_talk_mara"
+        ],
+        "objective": "Take the vine-cutter from the Gas Station Ruin.",
+        "beat": "Under the collapsed canopy, past rusted pumps and roof vines, the blade hangs where Mara said. Crows watch from the beams.",
+        "item": "vine_cutter"
+      },
+      {
+        "id": "s3_talk_teo",
+        "kind": "talk",
+        "target": "teo",
+        "requires": [
+          "s2_fetch_cutter"
+        ],
+        "objective": "Ask Teo about the road east.",
+        "beat": "Teo tells you the deer cross at dusk and the dogs hold Rest Stop 9. He studies the ground and says little else.",
+        "reveals": [
+          "teo:0"
+        ]
+      },
+      {
+        "id": "s4_visit_arch",
+        "kind": "visit",
+        "target": "bridge_arch",
+        "requires": [
+          "s3_talk_teo"
+        ],
+        "objective": "Cut through the vine curtains at Span Arch.",
+        "beat": "The vines hang thick as curtains across the concrete arch. Each cut drops wet green ropes and opens a little more road."
+      },
+      {
+        "id": "s5_visit_rest",
+        "kind": "visit",
+        "target": "rest_stop",
+        "requires": [
+          "s4_visit_arch"
+        ],
+        "objective": "Reach Rest Stop 9 past the feral dogs.",
+        "beat": "The block shelter sits half-buried in ivy. Two feral dogs prowl the lot, watching you, and the path behind you is open."
+      },
+      {
+        "id": "s6_fetch_collar",
+        "kind": "fetch",
+        "target": "dog_collar",
+        "requires": [
+          "s5_visit_rest"
+        ],
+        "objective": "Pick up the chewed collar the dogs left behind.",
+        "beat": "In the dirt by the door lies a cracked collar, proof someone kept these dogs once. You pocket it while they circle.",
+        "item": "dog_collar"
+      },
+      {
+        "id": "s7_choose",
+        "kind": "choose",
+        "target": "mara",
+        "requires": [
+          "s6_fetch_collar"
+        ],
+        "objective": "Decide what to tell Mara about Rest Stop 9.",
+        "beat": "The stores are sealed and the dogs guard them. You can report the road open and the stock safe, or admit the dogs make the place dangerous.",
+        "choices": [
+          {
+            "label": "Report the road open and keep the dogs quiet",
+            "unlocks": [
+              "s8_good"
+            ]
+          },
+          {
+            "label": "Tell her the dogs hold the stop and no one is safe",
+            "unlocks": [
+              "s8_bitter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s8_good",
+        "kind": "talk",
+        "target": "mara",
+        "requires": [
+          "s7_choose"
+        ],
+        "objective": "Give Mara the news that the road is open.",
+        "beat": "Mara counts the scrip twice, then slides it over. The supply run can start before the rains come.",
+        "reveals": [
+          "mara:0"
+        ]
+      },
+      {
+        "id": "s8_bitter",
+        "kind": "talk",
+        "target": "mara",
+        "requires": [
+          "s7_choose"
+        ],
+        "objective": "Warn Mara about the dogs and the stop.",
+        "beat": "Mara goes quiet, then mutters about rope she shouldn't have sold. The path is cut, but nobody wants to walk it.",
+        "reveals": [
+          "mara:0"
+        ]
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s8_good",
+        "label": "The supply run reopens and the camp eats through the rains.",
+        "tone": "good"
+      },
+      {
+        "stepId": "s8_bitter",
+        "label": "The lane is cut but the dogs keep Rest Stop 9, and the camp starves slowly.",
+        "tone": "bitter"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "no_fire_overpass",
+      "text": "No open fire under the overpass; smoke draws the wrong eyes.",
+      "effect": {
+        "type": "ban",
+        "what": "open fire",
+        "where": "overpass_shelter",
+        "enforcer": "mara"
+      },
+      "source": "world"
+    },
+    {
+      "id": "scrip_only",
+      "text": "Rust-grade salvage trades in scrip only; barter is for fools.",
+      "effect": {
+        "type": "custom",
+        "summary": "All salvage at the fuel stop is traded for scrip, not barter."
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "the green lanes",
+    "overpass",
+    "scrip",
+    "rust",
+    "vine-cutter",
+    "the old interstate"
+  ],
+  "style": {
+    "name": "Overgrown Interstate",
+    "wall": "#86857f",
+    "wall2": "#6b4a38",
+    "roof": "#45484d",
+    "trim": "#7b7a72",
+    "accent": "#7d5546",
+    "dark": "#26292a",
+    "glass": "#2c3436",
+    "glow": "#ffd9a0",
+    "ground": "#3e4630",
+    "road": "#3b3c3e",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "concrete",
+      "wall2": "rusted",
+      "roof": "corrugated",
+      "trim": "concrete",
+      "ground": "moss",
+      "road": "asphalt",
+      "wear": 0.8,
+      "wet": 0.3
+    }
+  },
+  "site": {
+    "pattern": "path",
+    "wild": 0.85,
+    "paths": "road",
+    "spacing": 12
+  },
+  "mood": {
+    "weather": "mist",
+    "intensity": 0.4,
+    "grade": "verdant",
+    "haze": 0.6,
+    "ambience": [
+      "wind",
+      "leaves",
+      "birds"
+    ],
+    "music": "sparse lonely guitar"
+  },
+  "terrain": {
+    "relief": "rolling",
+    "ruggedness": 0.25,
+    "water": "pond",
+    "waterAmount": 0.08,
+    "horizon": "tangled green hills under overcast sky",
+    "settled": 0.08
+  },
+  "skyFeatures": [],
+  "creatures": [
+    {
+      "id": "deer",
+      "name": "white-tailed deer",
+      "family": "quadruped",
+      "dials": {
+        "legs": 0.6,
+        "horns": "antlers"
+      },
+      "size": 1.9,
+      "count": 3,
+      "behaviour": "graze",
+      "haunt": "wild",
+      "body": "#8a6e52",
+      "accent": "#d8cbb2",
+      "glow": "#000000",
+      "note": "Grazing on the shoulder, ears flicking at you."
+    },
+    {
+      "id": "crows",
+      "name": "carrion crows",
+      "family": "bird",
+      "dials": {},
+      "size": 0.45,
+      "count": 6,
+      "behaviour": "perch",
+      "haunt": "wild",
+      "body": "#222222",
+      "accent": "#333333",
+      "glow": "#000000",
+      "note": "Perched on the overpass rail, watching."
+    },
+    {
+      "id": "stray_dogs",
+      "name": "feral dogs",
+      "family": "quadruped",
+      "dials": {
+        "legs": 0.5
+      },
+      "size": 0.8,
+      "count": 2,
+      "behaviour": "roam",
+      "haunt": "rest_stop",
+      "body": "#7a6248",
+      "accent": "#4a3a2a",
+      "glow": "#000000",
+      "note": "Thin and wary, keeping their distance."
+    }
+  ],
+  "folk": {
+    "name": "road scavengers",
+    "height": 1.75,
+    "bulk": 0.45,
+    "head": 1,
+    "features": [
+      "hood",
+      "pack"
+    ],
+    "skin": [
+      "#c49a78",
+      "#8d6748"
+    ],
+    "cloth": [
+      "#4a5140",
+      "#6b5b45"
+    ],
+    "trim": [
+      "#a8553a"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "overpass_camp",
+      "summary": "sheet-metal lean-to under a 9 m concrete span",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": -0.1,
+          "y": 0,
+          "w": 1.3,
+          "d": 0.5,
+          "h": 9,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": -0.1,
+          "y": 8.4,
+          "w": 1.4,
+          "d": 0.55,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.42,
+          "z": -0.15,
+          "y": 0,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 8.4,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 2,
+          "gap": 0.84
+        },
+        {
+          "shape": "wedge",
+          "x": 0.05,
+          "z": 0.3,
+          "y": 0,
+          "w": 0.7,
+          "d": 0.5,
+          "h": 2.4,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.35,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.14,
+          "d": 0.14,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.2,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.18,
+          "d": 0.06,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0.2,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "shed",
+        "overhang": 0.12,
+        "front": "awning",
+        "rhythm": 0,
+        "chimney": 1,
+        "taper": 0
+      }
+    },
+    {
+      "id": "gas_station_ruin",
+      "summary": "collapsed pump canopy 5 m high with vine-choked kiosk",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": -0.3,
+          "y": 0,
+          "w": 0.4,
+          "d": 0.35,
+          "h": 3.2,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": -0.3,
+          "y": 3.2,
+          "w": 0.45,
+          "d": 0.4,
+          "h": 0.25,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.2,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 3,
+          "gap": 1.4
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.1,
+          "z": 0.4,
+          "y": 0,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 4.6,
+          "rot": 12,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "dome",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.7,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0.3,
+      "family": "canopy",
+      "dials": {
+        "posts": 4,
+        "roof": "shed",
+        "counter": 0.5
+      }
+    },
+    {
+      "id": "rest_stop_shelter",
+      "summary": "low block shelter 3.4 m, roof half-buried in ivy",
+      "parts": [
+        {
+          "shape": "dome",
+          "x": -0.1,
+          "z": -0.1,
+          "y": 3.2,
+          "w": 0.9,
+          "d": 0.8,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.4,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 2.4,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 1.4,
+          "w": 0.7,
+          "d": 0.03,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.45,
+          "z": 0,
+          "y": 0,
+          "w": 0.05,
+          "d": 0.6,
+          "h": 1.8,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0.2,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "flat",
+        "overhang": 0.06,
+        "front": "stoop",
+        "rhythm": 3,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "span_arch",
+      "summary": "concrete overpass arch 14 m high with hanging vines",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 11,
+          "w": 1.1,
+          "d": 0.9,
+          "h": 3,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.46,
+          "y": 11,
+          "w": 1.1,
+          "d": 0.04,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.48,
+          "z": 0.2,
+          "y": 0,
+          "w": 0.06,
+          "d": 0.18,
+          "h": 12,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "wedge",
+          "x": -0.38,
+          "z": 0,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.5,
+          "h": 5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.44,
+          "y": 3,
+          "w": 0.05,
+          "d": 0.04,
+          "h": 8,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 8,
+          "gap": 0.11
+        },
+        {
+          "shape": "dome",
+          "x": 0.3,
+          "z": 0,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.5,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "arch",
+      "dials": {
+        "span": 0.7,
+        "thickness": 0.14,
+        "lintel": "flat",
+        "towers": 0
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "kudzu_mound",
+      "size": 5,
+      "parts": [],
+      "weight": 5,
+      "family": "tree",
+      "dials": {
+        "trunk": 0.4,
+        "crown": "bush",
+        "crownSize": 0.85,
+        "lean": 0.1
+      }
+    },
+    {
+      "kind": "roadside_oak",
+      "size": 8,
+      "parts": [],
+      "weight": 3,
+      "family": "tree",
+      "dials": {
+        "trunk": 1.2,
+        "crown": "ball",
+        "crownSize": 0.75,
+        "lean": 0.2
+      }
+    },
+    {
+      "kind": "dead_pine",
+      "size": 6,
+      "parts": [],
+      "weight": 2,
+      "family": "tree",
+      "dials": {
+        "trunk": 1.6,
+        "crown": "dead",
+        "crownSize": 0.4,
+        "lean": 0.3
+      }
+    },
+    {
+      "kind": "concrete_rubble",
+      "size": 3,
+      "parts": [],
+      "weight": 3,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 4,
+        "height": 0.5,
+        "jagged": 0.6,
+        "flat": 0.6
+      }
+    },
+    {
+      "kind": "rusted_car",
+      "size": 4.5,
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.4,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 2,
+      "family": "container",
+      "dials": {
+        "form": "tank",
+        "count": 1,
+        "height": 0.5
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "vine_wrapped_gantry",
+      "prompt": "Collapsed steel highway sign gantry leaning at an angle, rusted lattice frame, thick vines wrapping the legs, a faded green sign panel half torn, realistic proportions, weathered",
+      "place": "plaza",
+      "height": 9
+    }
+  ]
+}

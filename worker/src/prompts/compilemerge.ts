@@ -58,6 +58,16 @@ export function parseLooseJson(text: string): unknown {
       }
     }
   }
+  // A stray token mid-reply (a misplaced quote or brace) breaks the whole parse: keep the longest prefix that reads.
+  const body = text.slice(first);
+  for (let at = body.lastIndexOf(','); at > 0; at = body.lastIndexOf(',', at - 1)) {
+    try {
+      const v: unknown = JSON.parse(closeTruncated(body.slice(0, at)));
+      if (isRecord(v)) return v;
+    } catch {
+      /* cut earlier */
+    }
+  }
   return null;
 }
 

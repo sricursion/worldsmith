@@ -1,0 +1,1277 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "a sunny beach city like Vice City",
+  "title": "Palm Bay Strip",
+  "tagline": "Neon, surf and sunset on the boardwalk",
+  "theme": "modern",
+  "era": "1980s coastal boom",
+  "palette": {
+    "ground": "#c2a97c",
+    "accent": "#b5707a",
+    "sky": "dusk",
+    "fog": 0.1
+  },
+  "time": {
+    "startHour": 18.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "sunset_hotel",
+      "role": "hotel",
+      "label": "Sunset Palms",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "hotel_tower"
+    },
+    {
+      "id": "marina_pier",
+      "role": "warehouse",
+      "label": "Marina Pier",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "pier_house"
+    },
+    {
+      "id": "beach_cafe",
+      "role": "cafe",
+      "label": "Sandbar Cafe",
+      "size": "small",
+      "blueprint": "cafe_stall"
+    },
+    {
+      "id": "neon_motel",
+      "role": "hotel",
+      "label": "Neon Motel",
+      "size": "medium",
+      "blueprint": "motel_row"
+    },
+    {
+      "id": "boardwalk_shop",
+      "role": "shop",
+      "label": "Boardwalk Surf Shop",
+      "size": "small",
+      "blueprint": "surf_shop"
+    },
+    {
+      "id": "lifeguard_tower",
+      "role": "station",
+      "label": "Lifeguard Tower",
+      "size": "small",
+      "blueprint": "guard_tower"
+    },
+    {
+      "id": "beach_bar",
+      "role": "cantina",
+      "label": "Tiki Bar",
+      "size": "medium",
+      "blueprint": "tiki_hut"
+    },
+    {
+      "id": "condo_block",
+      "role": "apartment",
+      "label": "Bayview Condos",
+      "size": "large",
+      "blueprint": "condo_tower"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "tanya",
+      "name": "Tanya",
+      "role": "surf instructor",
+      "persona": "Sunburnt, fast-talking, broke but proud of her students. She wants the pier lit again because night surf lessons pay her rent.",
+      "knowledge": [
+        "The pier's main breaker box sits under the boardwalk shop, and the rival promoter changed the lock.",
+        "Vic sleeps on the pier and sees who comes and goes after dark.",
+        "Marco's Tiki Bar has been dry on crowds since the pier lights died."
+      ],
+      "secrets": [
+        "She sold the promoter's man a copy of the shop's back key for rent money."
+      ],
+      "home": "beach_cafe",
+      "work": "boardwalk_shop",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "beach_cafe",
+          "activity": "eat"
+        },
+        {
+          "hour": 9,
+          "place": "boardwalk_shop",
+          "activity": "work"
+        },
+        {
+          "hour": 17,
+          "place": "beach_bar",
+          "activity": "drink"
+        },
+        {
+          "hour": 22,
+          "place": "beach_cafe",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "marco",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "ranger",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 1.1,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.4,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.2
+        }
+      },
+      "voice": {
+        "pitch": 1.25,
+        "rate": 1.15
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "marco",
+      "name": "Marco",
+      "role": "bartender",
+      "persona": "Slick, unhurried, polishes glasses while he reads people. He hears everything and shares it for a price or a favor.",
+      "knowledge": [
+        "The rival promoter's crew drinks here and brags about a padlocked fuse crate on the pier.",
+        "The Tiki Bar's takings are down by half since the neon went dark.",
+        "Vic used to run the pier lights before the sale and still has the spare fuses."
+      ],
+      "secrets": [
+        "He has been paid to keep quiet about who bought the pier."
+      ],
+      "home": "beach_bar",
+      "work": "beach_bar",
+      "schedule": [
+        {
+          "hour": 2,
+          "place": "beach_bar",
+          "activity": "sleep"
+        },
+        {
+          "hour": 10,
+          "place": "beach_bar",
+          "activity": "work"
+        },
+        {
+          "hour": 15,
+          "place": "beach_cafe",
+          "activity": "eat"
+        },
+        {
+          "hour": 17,
+          "place": "beach_bar",
+          "activity": "work"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "tanya",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "rogue",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.2,
+          "idle": 0.3,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.8,
+        "rate": 0.9
+      },
+      "mood": "calm"
+    },
+    {
+      "id": "vic",
+      "name": "Vic",
+      "role": "pier fisherman",
+      "persona": "Weathered and stubborn, he talks to his lines more than to people. He refuses to leave the pier even though it is no longer his.",
+      "knowledge": [
+        "The pier's lights run off a fuse crate at the far end, chained shut by the new owners.",
+        "He kept a box of spare fuses and a bolt cutter hidden in his bait locker.",
+        "The pelicans roost on the pier roof and spook anyone who approaches after dark."
+      ],
+      "secrets": [
+        "He signed the pier over for a fishing-boat debt and is ashamed of it."
+      ],
+      "home": "marina_pier",
+      "work": "marina_pier",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "marina_pier",
+          "activity": "work"
+        },
+        {
+          "hour": 13,
+          "place": "beach_cafe",
+          "activity": "eat"
+        },
+        {
+          "hour": 15,
+          "place": "marina_pier",
+          "activity": "work"
+        },
+        {
+          "hour": 21,
+          "place": "marina_pier",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "marco",
+          "stance": "debtor"
+        }
+      ],
+      "appearance": {
+        "base": "barbarian",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": 0.1,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.5
+        }
+      },
+      "voice": {
+        "pitch": 0.65,
+        "rate": 0.75
+      },
+      "mood": "grieving"
+    }
+  ],
+  "items": [
+    {
+      "id": "spare_fuses",
+      "name": "Spare Fuses",
+      "description": "A tin of heavy pier fuses, wrapped in an oily rag.",
+      "holder": "marina_pier"
+    },
+    {
+      "id": "bolt_cutter",
+      "name": "Bolt Cutter",
+      "description": "Rusty red-handled cutters, good for chain.",
+      "holder": "marina_pier"
+    },
+    {
+      "id": "shop_key",
+      "name": "Shop Back Key",
+      "description": "A brass key on a surf-wax keychain.",
+      "holder": "tanya"
+    }
+  ],
+  "quest": {
+    "id": "lights_back_on",
+    "title": "Lights Out on the Strip",
+    "hook": "A rival promoter bought the Marina Pier and killed its lights. The bay is going quiet, the crowds are drifting, and summer ends soon. Somebody has to get the neon burning again before the town empties.",
+    "giver": "tanya",
+    "steps": [
+      {
+        "id": "s1",
+        "kind": "talk",
+        "target": "tanya",
+        "requires": [],
+        "objective": "Hear Tanya out at the Surf Shop.",
+        "beat": "Tanya says the pier's power is locked behind a crate at the far end and she knows who has spares."
+      },
+      {
+        "id": "s2",
+        "kind": "talk",
+        "target": "marco",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Ask Marco what the promoter's crew has been saying.",
+        "beat": "Marco mentions the padlocked fuse crate and that Vic kept the spares.",
+        "reveals": [
+          "marco:0"
+        ]
+      },
+      {
+        "id": "s3",
+        "kind": "visit",
+        "target": "marina_pier",
+        "requires": [
+          "s2"
+        ],
+        "objective": "Walk out to the Marina Pier past the pelicans.",
+        "beat": "The pelicans shift on the roof as you pass. The far-end crate is chained shut and the pier is dark."
+      },
+      {
+        "id": "s4",
+        "kind": "fetch",
+        "target": "spare_fuses",
+        "requires": [
+          "s3"
+        ],
+        "objective": "Get the spare fuses from Vic's bait locker.",
+        "beat": "Vic hands over the tin without meeting your eye.",
+        "item": "spare_fuses",
+        "reveals": [
+          "vic:0"
+        ]
+      },
+      {
+        "id": "s5",
+        "kind": "choose",
+        "target": "vic",
+        "requires": [
+          "s4"
+        ],
+        "objective": "Decide how to open the fuse crate.",
+        "beat": "The chain is thick. You can cut it openly or use the shop key Tanya sold the promoter's man.",
+        "choices": [
+          {
+            "label": "Cut the chain in daylight",
+            "unlocks": [
+              "s6a"
+            ]
+          },
+          {
+            "label": "Use the copied key quietly",
+            "unlocks": [
+              "s6b"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s6a",
+        "kind": "deliver",
+        "target": "vic",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Cut the chain and have Vic fit the fuses.",
+        "beat": "Vic fits the fuses with shaking hands. The pier lights flare pink and the crowd on the sand cheers.",
+        "item": "spare_fuses"
+      },
+      {
+        "id": "s6b",
+        "kind": "confront",
+        "target": "marco",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Face Marco about who really bought the pier.",
+        "beat": "Marco admits he was paid to stay quiet. The lights come on quietly, and the promoter will know who did it.",
+        "reveals": [
+          "marco:0"
+        ]
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s6a",
+        "label": "The Strip Glows Again",
+        "tone": "good"
+      },
+      {
+        "stepId": "s6b",
+        "label": "Lights On, Bridges Burned",
+        "tone": "bitter"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r_pier_ban",
+      "text": "No one is allowed on the far end of the pier after dark.",
+      "effect": {
+        "type": "ban",
+        "what": "entering",
+        "where": "marina_pier"
+      },
+      "source": "world"
+    },
+    {
+      "id": "r_custom_cafe",
+      "text": "Hats off at the Sandbar Cafe tables; locals keep their sun hats on the rail.",
+      "effect": {
+        "type": "custom",
+        "summary": "Locals leave their hats on the cafe rail before sitting."
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [],
+  "style": {
+    "name": "Palm Bay Golden Dusk",
+    "wall": "#c9b8a8",
+    "wall2": "#a89a88",
+    "roof": "#6a5f58",
+    "trim": "#d9d0c2",
+    "accent": "#b5707a",
+    "dark": "#2f2c2e",
+    "glass": "#3c4a56",
+    "glow": "#ffb347",
+    "ground": "#c2a97c",
+    "road": "#3b3c3e",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "plaster",
+      "wall2": "concrete",
+      "roof": "metal_panel",
+      "trim": "concrete",
+      "ground": "sand",
+      "road": "asphalt",
+      "wear": 0.55,
+      "wet": 0.15
+    }
+  },
+  "site": {
+    "pattern": "shoreline",
+    "wild": 0.05,
+    "paths": "road",
+    "spacing": 6
+  },
+  "mood": {
+    "weather": "clear",
+    "intensity": 0,
+    "grade": "golden",
+    "haze": 0.4,
+    "ambience": [
+      "water",
+      "harbor",
+      "wind",
+      "crowd"
+    ],
+    "music": "warm synth bounce"
+  },
+  "terrain": {
+    "relief": "flat",
+    "ruggedness": 0.05,
+    "water": "shore",
+    "waterAmount": 0.35,
+    "horizon": "ocean and hotel towers",
+    "settled": 0.7
+  },
+  "skyFeatures": [
+    {
+      "kind": "second_sun",
+      "size": 0.05,
+      "color": "#ffb36b"
+    }
+  ],
+  "creatures": [
+    {
+      "id": "gulls",
+      "name": "seagulls",
+      "family": "bird",
+      "dials": {
+        "wingspan": 0.9,
+        "neck": 0.4,
+        "legs": 0.5,
+        "beak": 0.5,
+        "tail": 0.4,
+        "bulk": 0.4,
+        "head": 0.5,
+        "crest": 0
+      },
+      "size": 0.45,
+      "count": 8,
+      "behaviour": "circle",
+      "haunt": "sky",
+      "body": "#f4f4f0",
+      "accent": "#e0a143",
+      "glow": "#000000",
+      "note": "Screaming over the chips you dropped."
+    },
+    {
+      "id": "pelicans",
+      "name": "brown pelicans",
+      "family": "bird",
+      "dials": {
+        "wingspan": 1.6,
+        "neck": 0.6,
+        "legs": 0.4,
+        "beak": 0.9,
+        "tail": 0.3,
+        "bulk": 0.6,
+        "head": 0.5,
+        "crest": 0
+      },
+      "size": 1.2,
+      "count": 3,
+      "behaviour": "perch",
+      "haunt": "marina_pier",
+      "body": "#8a7a66",
+      "accent": "#e8e0d0",
+      "glow": "#000000",
+      "note": "Dive-bombing the bait buckets."
+    },
+    {
+      "id": "crabs",
+      "name": "beach crabs",
+      "family": "crawler",
+      "dials": {
+        "pairs": 4,
+        "legs": 0.5,
+        "stance": 0.2,
+        "bulk": 0.3,
+        "wide": 0.7,
+        "abdomen": 0.4,
+        "shell": 0.6,
+        "claws": 0.5,
+        "stinger": 0,
+        "tail": 0
+      },
+      "size": 0.2,
+      "count": 6,
+      "behaviour": "roam",
+      "haunt": "wild",
+      "body": "#c9704a",
+      "accent": "#f2d0a0",
+      "glow": "#000000",
+      "note": "Scuttling sideways along the wet sand."
+    }
+  ],
+  "folk": {
+    "name": "beach city locals",
+    "height": 1.75,
+    "bulk": 0.45,
+    "head": 1,
+    "features": [
+      "hat"
+    ],
+    "skin": [
+      "#c68a5e",
+      "#a9714a",
+      "#e0b08a"
+    ],
+    "cloth": [
+      "#e85d75",
+      "#45a7c4",
+      "#f2c355",
+      "#ffffff"
+    ],
+    "trim": [
+      "#1d2b3a",
+      "#f7d6a0"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "hotel_tower",
+      "summary": "weathered pink hotel tower, 24 storeys, 80 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 24,
+          "w": 0.7,
+          "d": 0.7,
+          "h": 26,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 30,
+          "w": 0.55,
+          "d": 0.55,
+          "h": 26,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.05,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.4,
+          "h": 10,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.36,
+          "y": 3,
+          "w": 0.5,
+          "d": 0.05,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.36,
+          "y": 2,
+          "w": 0.7,
+          "d": 0.02,
+          "h": 1.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.36,
+          "y": 30,
+          "w": 0.5,
+          "d": 0.02,
+          "h": 22,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 30,
+          "w": 0.35,
+          "d": 0.35,
+          "h": 4,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.2,
+          "z": 0.2,
+          "y": 30,
+          "w": 0.04,
+          "d": 0.04,
+          "h": 6,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 24,
+        "section": "square",
+        "taper": 0.15,
+        "bands": 5,
+        "top": "flat",
+        "flare": 0.1
+      }
+    },
+    {
+      "id": "condo_tower",
+      "summary": "glass condo tower, 45 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.36,
+          "y": 0,
+          "w": 0.8,
+          "d": 0.03,
+          "h": 4,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.1,
+          "y": 30,
+          "w": 0.7,
+          "d": 0.7,
+          "h": 9,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.2,
+          "z": 0,
+          "y": 30,
+          "w": 0.2,
+          "d": 0.2,
+          "h": 3,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.2,
+          "z": 0,
+          "y": 30,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.36,
+          "y": 3,
+          "w": 0.6,
+          "d": 0.02,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "block",
+      "dials": {
+        "modules": 12,
+        "offset": 0.1,
+        "cantilever": 0.15
+      }
+    },
+    {
+      "id": "pier_house",
+      "summary": "timber pier on stilts over water, 7 m legs",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 7,
+          "w": 1,
+          "d": 1,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.1,
+          "y": 7.4,
+          "w": 0.3,
+          "d": 0.3,
+          "h": 3,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.26,
+          "y": 10.4,
+          "w": 0.34,
+          "d": 0.02,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.35,
+          "z": 0.4,
+          "y": 7.4,
+          "w": 0.03,
+          "d": 0.03,
+          "h": 3.5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 3,
+          "gap": 0.35
+        },
+        {
+          "shape": "box",
+          "x": -0.2,
+          "z": -0.3,
+          "y": 7.4,
+          "w": 0.15,
+          "d": 0.15,
+          "h": 1,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 2,
+          "gap": 0.5
+        }
+      ],
+      "doorX": 0.2,
+      "family": "stilts",
+      "dials": {
+        "legHeight": 7,
+        "legs": 8,
+        "hut": 0.45,
+        "access": "ramp"
+      }
+    },
+    {
+      "id": "cafe_stall",
+      "summary": "open-air cafe under striped awnings, 4 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.4,
+          "y": 3,
+          "w": 1,
+          "d": 0.15,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": -0.3,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.1,
+          "h": 3,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.15,
+          "d": 0.15,
+          "h": 1.1,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 4,
+          "gap": 0.28
+        },
+        {
+          "shape": "box",
+          "x": -0.3,
+          "z": 0,
+          "y": 3.4,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        }
+      ],
+      "doorX": 0,
+      "family": "canopy",
+      "dials": {
+        "posts": 6,
+        "roof": "shed",
+        "counter": 0.6
+      }
+    },
+    {
+      "id": "motel_row",
+      "summary": "two-storey motel with neon sign, 12 m sign mast",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0.4,
+          "z": 0.4,
+          "y": 0,
+          "w": 0.06,
+          "d": 0.04,
+          "h": 10,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.4,
+          "z": 0.4,
+          "y": 10,
+          "w": 0.3,
+          "d": 0.03,
+          "h": 2,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.4,
+          "z": 0.41,
+          "y": 10.3,
+          "w": 0.26,
+          "d": 0.02,
+          "h": 1.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 3.2,
+          "w": 0.9,
+          "d": 0.05,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0.5,
+          "w": 0.06,
+          "d": 0.02,
+          "h": 1,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 4,
+          "gap": 0.2
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "flat",
+        "overhang": 0.2,
+        "front": "awning",
+        "rhythm": 6,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "surf_shop",
+      "summary": "low timber shop with surfboard racks, 5 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0.35,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.4,
+          "d": 0.05,
+          "h": 2.2,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.5,
+          "y": 0.2,
+          "w": 0.04,
+          "d": 0.02,
+          "h": 2,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 3,
+          "gap": 0.1
+        },
+        {
+          "shape": "box",
+          "x": -0.2,
+          "z": 0.5,
+          "y": 2.6,
+          "w": 0.2,
+          "d": 0.02,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 2.2,
+          "w": 0.8,
+          "d": 0.05,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "shed",
+        "overhang": 0.15,
+        "front": "awning",
+        "rhythm": 3,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "guard_tower",
+      "summary": "white timber lifeguard tower, 6 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 6,
+          "w": 0.8,
+          "d": 0.8,
+          "h": 0.15,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.1,
+          "y": 6.2,
+          "w": 0.6,
+          "d": 0.5,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.3,
+          "y": 3,
+          "w": 0.06,
+          "d": 0.02,
+          "h": 2.5,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 2,
+          "gap": 0.4
+        }
+      ],
+      "doorX": 0,
+      "family": "stilts",
+      "dials": {
+        "legHeight": 3,
+        "legs": 4,
+        "hut": 0.6,
+        "access": "ladder"
+      }
+    },
+    {
+      "id": "tiki_hut",
+      "summary": "thatched palm-roof bar on posts, 5 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.35,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.1,
+          "h": 1.1,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cone",
+          "x": 0,
+          "z": 0,
+          "y": 3.5,
+          "w": 1.1,
+          "d": 1.1,
+          "h": 2,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0.4,
+          "y": 0,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 3.4,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 4,
+          "gap": 0.3
+        },
+        {
+          "shape": "sphere",
+          "x": 0.3,
+          "z": 0.4,
+          "y": 3,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        }
+      ],
+      "doorX": 0,
+      "family": "canopy",
+      "dials": {
+        "posts": 8,
+        "roof": "pyramid",
+        "counter": 1
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "coconut_palm",
+      "size": 5,
+      "parts": [],
+      "weight": 5,
+      "family": "tree",
+      "dials": {
+        "trunk": 2,
+        "crown": "palm",
+        "crownSize": 0.7,
+        "lean": 0.3
+      }
+    },
+    {
+      "kind": "dune_grass",
+      "size": 1.2,
+      "parts": [],
+      "weight": 4,
+      "family": "tree",
+      "dials": {
+        "trunk": 0.3,
+        "crown": "reeds",
+        "crownSize": 0.6,
+        "lean": 0.2
+      }
+    },
+    {
+      "kind": "street_lamp",
+      "size": 2,
+      "parts": [],
+      "weight": 3,
+      "family": "pole",
+      "dials": {
+        "head": "lamp",
+        "height": 3,
+        "arms": 1
+      }
+    },
+    {
+      "kind": "beach_bench",
+      "size": 1.8,
+      "parts": [],
+      "weight": 2,
+      "family": "furniture",
+      "dials": {
+        "form": "bench",
+        "length": 0.8,
+        "height": 0.5,
+        "extras": 0.2
+      }
+    },
+    {
+      "kind": "tide_rocks",
+      "size": 3,
+      "parts": [],
+      "weight": 2,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 4,
+        "height": 0.5,
+        "jagged": 0.4,
+        "flat": 0.3
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "pier_neon_sign",
+      "prompt": "A tall steel-framed vintage neon sign post with a large arrow-shaped cabinet, peeling pink paint, salt-corroded brackets and a dark unlit tube lettering frame, realistic proportions, weathered",
+      "place": "marina_pier",
+      "height": 9
+    }
+  ]
+}

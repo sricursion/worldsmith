@@ -276,6 +276,10 @@ export interface ScatterInput {
   seed: number;
   /** True when the roads are worn tracks: tufts then grow in the strip between the ruts. */
   tracks: boolean;
+  /** Height of the land, when it has relief: every instance stands on it. */
+  heightAt?: (x: number, z: number) => number;
+  /** Depth of standing water: nothing is scattered where it is more than ankle deep. */
+  waterDepthAt?: (x: number, z: number) => number;
 }
 
 export interface ScatterSet {
@@ -422,8 +426,9 @@ export function buildScatter(inp: ScatterInput): ScatterSet {
   const sclV = new THREE.Vector3();
   const colour = new THREE.Color();
   const add = (d: Draft, x: number, z: number, yaw: number, tilt: number, sx: number, sy: number, sz: number, c: THREE.Color): void => {
+    if (inp.waterDepthAt && inp.waterDepthAt(x, z) > 0.08) return;
     euler.set(tilt, yaw, tilt * 0.6, 'YXZ');
-    mat4.compose(posV.set(x, 0, z), quat.setFromEuler(euler), sclV.set(sx, sy, sz));
+    mat4.compose(posV.set(x, inp.heightAt ? inp.heightAt(x, z) : 0, z), quat.setFromEuler(euler), sclV.set(sx, sy, sz));
     mat4.toArray(d.m, d.n * 16);
     d.c[d.n * 3] = c.r; d.c[d.n * 3 + 1] = c.g; d.c[d.n * 3 + 2] = c.b;
     d.key[d.n] = chunkKey(x, z);

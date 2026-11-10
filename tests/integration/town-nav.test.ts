@@ -6,7 +6,7 @@ import { buildTown } from '../../app/src/town/build';
 import { KITS } from '../../app/src/town/kits';
 import type { LoadedKit } from '../../app/src/engine/assets';
 import { buildNav } from '../../app/src/engine/nav';
-import type { ThemeId } from '../../app/src/world/spec';
+import type { ReliefKind, SitePattern, ThemeId, WaterKind, WorldSpec } from '../../app/src/world/spec';
 import { makeBlueprintSpec } from '../town/helpers';
 
 function stubKit(theme: ThemeId): LoadedKit {
@@ -77,5 +77,50 @@ describe('blueprint towns feed the navmesh', () => {
       nav.dispose();
       town.dispose();
     }, 60000);
+  }
+});
+
+describe('shaped land feeds the navmesh', () => {
+  const cases: [ReliefKind, SitePattern, WaterKind, number][] = [
+    ['flat', 'street', 'pond', 6], ['rolling', 'wild', 'river', 4], ['dunes', 'path', 'none', 3], ['craggy', 'scatter', 'lava', 5],
+    ['terraced', 'terraces', 'none', 6], ['crater', 'ring', 'none', 5], ['canyon', 'path', 'river', 4], ['icefield', 'wild', 'ice_sheet', 3],
+    ['swamp', 'wild', 'none', 3], ['islands', 'shoreline', 'shore', 4], ['rolling', 'cliffside', 'none', 5], ['rolling', 'wild', 'lake', 0],
+  ];
+  for (const [relief, pattern, water, count] of cases) {
+    it(`${relief} / ${pattern} / ${water} / ${count} buildings: the navmesh builds on the walk mesh and reaches spawn and doors`, async () => {
+      const base = makeBlueprintSpec({ seed: 404, count: Math.max(1, count), landmarks: false });
+      const spec: WorldSpec = {
+        ...base,
+        buildings: count === 0 ? [] : base.buildings,
+        site: { pattern, wild: 0.5, paths: 'track', spacing: 6 },
+        terrain: { relief, ruggedness: 0.8, water, waterAmount: 0.4, horizon: 'mountain range', settled: 0.4 },
+      };
+      const layout = generateLayout(spec);
+      const t0 = performance.now();
+      const town = buildTown(layout, spec, stubKit('medieval'), new THREE.Scene(), { quality: 1 });
+      const built = performance.now() - t0;
+      expect(town.shaped).toBe(true);
+      expect(town.statics.filter((m) => !finite(m)).map((m) => m.name)).toEqual([]);
+      // As the game does it: everything solid except the ground, on the walk mesh.
+      const nav = await buildNav(town.statics.filter((m) => m.name !== 'ground'), town.walkMesh);
+      const at = (x: number, z: number): THREE.Vector3 => new THREE.Vector3(x, town.heightAt(x, z), z);
+      const spawn = nav.nearest(at(layout.spawn.x, layout.spawn.z));
+      expect(Math.hypot(spawn.x - layout.spawn.x, spawn.z - layout.spawn.z)).toBeLessThan(2);
+      expect(Math.abs(spawn.y)).toBeLessThan(0.8);
+      for (const d of town.doors.values()) {
+        const n = nav.nearest(d);
+        expect(Math.hypot(n.x - d.x, n.z - d.z), `${relief} door`).toBeLessThan(2.5);
+        expect(Math.abs(n.y - d.y), `${relief} door height`).toBeLessThan(1);
+      }
+      for (const t of layout.trails ?? []) {
+        for (const p of t.pts) {
+          const n = nav.nearest(at(p.x, p.z));
+          expect(Math.hypot(n.x - p.x, n.z - p.z), `${relief} trail`).toBeLessThan(3);
+        }
+      }
+      expect(built, 'town build time, ms').toBeLessThan(20000);
+      nav.dispose();
+      town.dispose();
+    }, 90000);
   }
 });

@@ -5,9 +5,10 @@ import * as THREE from 'three';
 import { makeRng } from '../world/rng';
 import type { Rng } from '../world/rng';
 import type { Blueprint, PropBlueprint, StyleSpec, SurfaceKind, SurfaceSet, ThemeId, WorldSpec } from '../world/spec';
-import type { GeoBatch, MaterialCache } from './batch';
-import { addPropParts, expandBlueprintParts } from './blueprint-mesh';
-import { buildingAabb, distanceToRoad } from './layout';
+import { GeoBatch } from './batch';
+import type { MaterialCache } from './batch';
+import { addBlueprint, addPropParts, expandBlueprintParts } from './blueprint-mesh';
+import { GROWN_FOOTPRINTS, buildingAabb, distanceToRoad } from './layout';
 import type { PlacedBuilding, PlacedProp, TownLayout } from './layout';
 import { Part } from './procedural';
 import type { ProcEnv } from './procedural';
@@ -236,6 +237,10 @@ export function scatterBlueprintProps(
   env: {
     batch: GeoBatch; mats: MaterialCache; rng: Rng; visualBatch?: GeoBatch;
     layout?: Pick<TownLayout, 'roads' | 'buildings'>; lights?: TownLight[];
+    /** Called with a slot's position before its prop is added, and with nulls after: lets the caller seat it on the land. */
+    seat?: (x: number | null, z: number | null) => void;
+    /** How many poles are kept and how far apart (defaults MAX_POLES, POLE_SPACING): a wilderness of snags and cacti keeps more. */
+    maxPoles?: number; poleSpacing?: number;
   },
 ): Map<string, number> {
   const counts = new Map<string, number>();
@@ -252,7 +257,8 @@ export function scatterBlueprintProps(
     if (kind && poles.has(kind)) poleSlots.push(i);
   });
   const keptPoles = new Set(
-    pickPoleSpots(poleSlots.map((i) => slots[i] as PlacedProp), env.layout ?? { roads: [], buildings: [] }).map((k) => poleSlots[k] as number),
+    pickPoleSpots(poleSlots.map((i) => slots[i] as PlacedProp), env.layout ?? { roads: [], buildings: [] }, env.maxPoles ?? MAX_POLES, env.poleSpacing ?? POLE_SPACING)
+      .map((k) => poleSlots[k] as number),
   );
   const sturdy = usable.filter((k) => !poles.has(k));
   const sturdyWeights = sturdy.map(weight);
@@ -264,7 +270,9 @@ export function scatterBlueprintProps(
     if (!kind) return;
     const small = isVisualOnlyProp(kind.size * slot.scale);
     const target = small && env.visualBatch ? env.visualBatch : env.batch;
+    env.seat?.(slot.x, slot.z);
     addPropParts(kind.parts, kind.size, style, slot, { batch: target, mats: env.mats, rng: env.rng });
+    env.seat?.(null, null);
     counts.set(kind.kind, (counts.get(kind.kind) ?? 0) + 1);
     const glowY = pole ? propProfile(kind, slot.scale).glowY : null;
     // A beacon on a mast too tall for its light to reach the ground is left as a glow.
@@ -632,4 +640,183 @@ export function dressTown(inp: DressInput): DressResult {
   });
 
   return { lights, smoke: chimneyTops(layout, inp.blueprints, inp.heights), counts, lineKind };
+}
+
+// ---- The middle distance -----------------------------------------------------------------------------------
+// Beyond the last building the land should not be empty. A world that carries terrain gets a ring, out to
+// BACKDROP_REACH metres past its bounds, of the world's own things at larger than life: its tall natural
+// props (trees, spires, snags, kelp) thickening with SiteSpec.wild, and silhouettes of its own blueprints at
+// 1.5 to 3 times their size thickening with TerrainSpec.settled. Each kind is built once and drawn instanced;
+// nothing here collides or feeds the navmesh, and the fog takes the far end of it.
+
+export const BACKDROP_REACH = 120;
+/** A prop stands in the middle distance when it is at least this tall and this wide and carries no light. */
+export const BACKDROP_MIN_HEIGHT = 2.5;
+export const BACKDROP_MIN_WIDTH = 0.45;
+
+export interface BackdropInput {
+  layout: Pick<TownLayout, 'bounds'>;
+  seed: number;
+  style: StyleSpec;
+  /** SiteSpec.wild and TerrainSpec.settled, 0..1. */
+  wild: number; settled: number;
+  props: readonly PropBlueprint[];
+  blueprints: readonly Blueprint[];
+  heightAt(x: number, z: number): number;
+  waterDepthAt(x: number, z: number): number;
+  mats: MaterialCache;
+  quality: 0 | 1 | 2;
+  /** Where the ring starts, metres past the bounds: outside what can be walked. */
+  inner: number;
+}
+
+export interface Backdrop {
+  group: THREE.Group;
+  /** Instances placed. */
+  plants: number; structures: number;
+  triangles: number;
+  dispose(): void;
+}
+
+/** Which prop kinds stand in the middle distance: tall, not thin, unlit. Judged from their shape alone. */
+export function backdropKinds(props: readonly PropBlueprint[]): PropBlueprint[] {
+  return props.filter((k) => {
+    if (k.parts.length === 0) return false;
+    const pr = propProfile(k);
+    return pr.height >= BACKDROP_MIN_HEIGHT && pr.width >= BACKDROP_MIN_WIDTH && pr.glowY === null;
+  });
+}
+
+/** How many plants and structures the ring holds at a quality, before the land's own dials thin them. */
+export function backdropBudget(quality: 0 | 1 | 2, wild: number, settled: number): { plants: number; structures: number; triangles: number } {
+  const unit = (v: number, d: number): number => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : d);
+  const w = unit(wild, 0.3);
+  const st = unit(settled, 0.7);
+  const cap = quality === 2 ? 2000 : quality === 1 ? 1100 : 450;
+  return {
+    plants: Math.round(cap * w ** 0.8 * (1 - 0.8 * st)),
+    structures: Math.round((quality === 0 ? 20 : 46) * Math.max(0, (st - 0.25) / 0.75)),
+    triangles: quality === 2 ? 900000 : quality === 1 ? 450000 : 150000,
+  };
+}
+
+export function buildBackdrop(inp: BackdropInput): Backdrop {
+  const group = new THREE.Group();
+  group.name = 'backdrop';
+  const b = inp.layout.bounds;
+  const budget = backdropBudget(inp.quality, inp.wild, inp.settled);
+  const rng = makeRng(inp.seed, 'backdrop');
+  const geos: THREE.BufferGeometry[] = [];
+  const instanced: THREE.InstancedMesh[] = [];
+  let triangles = 0;
+  const r0 = inp.inner;
+  const r1 = Math.max(r0 + 20, BACKDROP_REACH);
+  const outside = (x: number, z: number): number => Math.hypot(Math.max(b.minX - x, 0, x - b.maxX), Math.max(b.minZ - z, 0, z - b.maxZ));
+  /** A dry point in the ring, biased toward its near edge; `t` is how far out it lies, 0..1. Null when none is found. */
+  const spot = (): { x: number; z: number; t: number } | null => {
+    for (let k = 0; k < 12; k++) {
+      const x = rng.range(b.minX - r1, b.maxX + r1);
+      const z = rng.range(b.minZ - r1, b.maxZ + r1);
+      const d = outside(x, z);
+      if (d < r0 || d > r1) continue;
+      const t = (d - r0) / (r1 - r0);
+      if (rng.next() < 0.45 * t) continue;
+      if (inp.waterDepthAt(x, z) > 0.1) continue;
+      return { x, z, t };
+    }
+    return null;
+  };
+  const m4 = new THREE.Matrix4();
+  const quat = new THREE.Quaternion();
+  const pos = new THREE.Vector3();
+  const scl = new THREE.Vector3();
+  const up = new THREE.Vector3(0, 1, 0);
+  /** One model, many places: every mesh of the model becomes an instanced mesh. */
+  const place = (meshes: THREE.Mesh[], at: { x: number; y: number; z: number; yaw: number; s: number }[], name: string): void => {
+    for (const mesh of meshes) {
+      geos.push(mesh.geometry);
+      if (at.length === 0) continue;
+      const im = new THREE.InstancedMesh(mesh.geometry, mesh.material, at.length);
+      at.forEach((a, i) => {
+        m4.compose(pos.set(a.x, a.y, a.z), quat.setFromAxisAngle(up, a.yaw), scl.set(a.s, a.s, a.s));
+        im.setMatrixAt(i, m4);
+      });
+      im.instanceMatrix.needsUpdate = true;
+      im.computeBoundingSphere();
+      im.name = name;
+      im.castShadow = false;
+      im.receiveShadow = false;
+      im.matrixAutoUpdate = false;
+      instanced.push(im);
+      group.add(im);
+      triangles += (mesh.geometry.getAttribute('position').count / 3) * at.length;
+    }
+  };
+  const trianglesOf = (meshes: THREE.Mesh[]): number => meshes.reduce((n, m) => n + m.geometry.getAttribute('position').count / 3, 0);
+
+  // Structures first: they are few, and the plants then fill around them.
+  let structures = 0;
+  const taken: { x: number; z: number; r: number }[] = [];
+  if (budget.structures > 0 && inp.blueprints.length > 0) {
+    const fp = GROWN_FOOTPRINTS.medium;
+    const per = new Map<number, { x: number; y: number; z: number; yaw: number; s: number }[]>();
+    for (let k = 0; k < budget.structures; k++) {
+      const p = spot();
+      if (!p) continue;
+      const s = 1.5 + 1.5 * Math.min(1, p.t * 0.8 + rng.range(0, 0.4));
+      const r = Math.hypot(fp.w, fp.d) * 0.5 * s + 2;
+      if (taken.some((q) => Math.hypot(q.x - p.x, q.z - p.z) < q.r + r)) continue;
+      taken.push({ x: p.x, z: p.z, r });
+      const which = rng.int(0, inp.blueprints.length - 1);
+      const list = per.get(which) ?? [];
+      // Sunk a little, so no base floats where the land falls away under a wide footprint.
+      list.push({ x: p.x, y: inp.heightAt(p.x, p.z) - 0.6 * s, z: p.z, yaw: rng.int(0, 3) * (Math.PI / 2) + rng.range(-0.15, 0.15), s });
+      per.set(which, list);
+      structures++;
+    }
+    for (const [which, list] of per) {
+      const bp = inp.blueprints[which] as Blueprint;
+      const model = new GeoBatch();
+      addBlueprint(bp, inp.style, { x: 0, z: 0, rotY: 0, w: fp.w, d: fp.d }, { batch: model, mats: inp.mats, rng }, { dress: false });
+      place(model.build(), list, `backdrop:${bp.id}`);
+    }
+  }
+
+  let plants = 0;
+  const kinds = backdropKinds(inp.props);
+  if (budget.plants > 0 && kinds.length > 0) {
+    const models = kinds.map((k) => {
+      const model = new GeoBatch();
+      addPropParts(k.parts, k.size, inp.style, { x: 0, z: 0, rotY: 0, scale: 1 }, { batch: model, mats: inp.mats, rng });
+      return model.build();
+    });
+    const weights = kinds.map((k) => Math.min(5, Math.max(1, Number.isFinite(k.weight) ? k.weight : 1)));
+    const mean = models.reduce((n, m, i) => n + trianglesOf(m) * (weights[i] as number), 0) / weights.reduce((a, c) => a + c, 0);
+    const want = Math.min(budget.plants, Math.floor(Math.max(0, budget.triangles - triangles) / Math.max(1, mean)));
+    const lists = kinds.map((): { x: number; y: number; z: number; yaw: number; s: number }[] => []);
+    const index = kinds.map((_, i) => i);
+    for (let k = 0; k < want; k++) {
+      const p = spot();
+      if (!p) continue;
+      if (taken.some((q) => Math.hypot(q.x - p.x, q.z - p.z) < q.r * 0.7)) continue;
+      const i = pickWeighted(index, weights, rng) ?? 0;
+      // Giants behind the giants: what stands further off stands taller.
+      const s = (1 + 1.3 * p.t) * rng.range(0.8, 1.3);
+      (lists[i] as { x: number; y: number; z: number; yaw: number; s: number }[]).push({ x: p.x, y: inp.heightAt(p.x, p.z) - 0.15 * s, z: p.z, yaw: rng.range(0, Math.PI * 2), s });
+      plants++;
+    }
+    models.forEach((meshes, i) => place(meshes, lists[i] as { x: number; y: number; z: number; yaw: number; s: number }[], `backdrop:${(kinds[i] as PropBlueprint).kind}`));
+  }
+
+  let disposed = false;
+  return {
+    group, plants, structures, triangles,
+    dispose(): void {
+      if (disposed) return;
+      disposed = true;
+      for (const im of instanced) im.dispose();
+      for (const g of geos) g.dispose();
+      group.clear();
+    },
+  };
 }

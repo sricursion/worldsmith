@@ -1,0 +1,1375 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "a gothic cathedral city under a blood moon, Souls-like",
+  "title": "Vesperhold, The Crimson Choir",
+  "tagline": "The bells rang for the last time at dusk.",
+  "theme": "medieval",
+  "era": "Late gothic, plague years",
+  "palette": {
+    "ground": "#4b4743",
+    "accent": "#6b2a2a",
+    "sky": "night",
+    "fog": 0.7
+  },
+  "time": {
+    "startHour": 23,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "cathedral",
+      "role": "church",
+      "label": "Cathedral of the Vigil",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "gothic_cathedral"
+    },
+    {
+      "id": "clock_tower",
+      "role": "command",
+      "label": "Bell Tower of Hours",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "bell_tower"
+    },
+    {
+      "id": "tenements",
+      "role": "apartment",
+      "label": "Ash Row tenements",
+      "size": "medium",
+      "blueprint": "leaning_tenement"
+    },
+    {
+      "id": "lamplighter_inn",
+      "role": "inn",
+      "label": "The Gilded Lantern",
+      "size": "medium",
+      "blueprint": "timber_inn"
+    },
+    {
+      "id": "apothecary",
+      "role": "shop",
+      "label": "Bitter Herb apothecary",
+      "size": "small",
+      "blueprint": "narrow_shop"
+    },
+    {
+      "id": "blood_market",
+      "role": "market",
+      "label": "Vein Market",
+      "size": "medium",
+      "blueprint": "tarp_market"
+    },
+    {
+      "id": "ossuary",
+      "role": "warehouse",
+      "label": "Ossuary Vaults",
+      "size": "medium",
+      "blueprint": "ossuary_cellar"
+    },
+    {
+      "id": "iron_gate",
+      "role": "jail",
+      "label": "Iron Gate Watch",
+      "size": "medium",
+      "blueprint": "gatehouse_watch"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "brother_ansel",
+      "name": "Brother Ansel",
+      "role": "bell-keeper",
+      "persona": "A gaunt monk who stopped sleeping when the bell started. He speaks softly and flinches at every toll.",
+      "knowledge": [
+        "The bell rings at the hour of the dead, though no rope is pulled.",
+        "The tower stair has a locked iron door; Rook keeps the key at the gate.",
+        "The bell's tongue is bound by a clapper-pin; pull it and the bell goes mute."
+      ],
+      "secrets": [
+        "Ansel cast a plague victim's ashes into the bell's bronze to hush the dead, and the bell has rung ever since."
+      ],
+      "home": "cathedral",
+      "work": "clock_tower",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "cathedral",
+          "activity": "pray"
+        },
+        {
+          "hour": 10,
+          "place": "clock_tower",
+          "activity": "work"
+        },
+        {
+          "hour": 19,
+          "place": "cathedral",
+          "activity": "pray"
+        },
+        {
+          "hour": 23,
+          "place": "clock_tower",
+          "activity": "guard"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "maud",
+          "stance": "debtor"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 1.2,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.2,
+          "idle": 0,
+          "flee": 0.3,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.2
+        }
+      },
+      "voice": {
+        "pitch": 0.9,
+        "rate": 0.8
+      },
+      "mood": "afraid"
+    },
+    {
+      "id": "maud",
+      "name": "Maud Crane",
+      "role": "apothecary",
+      "persona": "A sharp, practical woman who sells cures she knows do not work. She trusts coin and the dried herbs on her shelves.",
+      "knowledge": [
+        "Each toll the plague wakes in a new street; the dead cough before dawn.",
+        "Ansel buys bitter salt and black wax from me, far more than any bell needs.",
+        "Silent Widow walks the market nightly and counts the bells."
+      ],
+      "secrets": [
+        "Maud mixed the ash-tincture Ansel poured into the bronze, and sold it knowing what it was."
+      ],
+      "home": "apothecary",
+      "work": "apothecary",
+      "schedule": [
+        {
+          "hour": 7,
+          "place": "apothecary",
+          "activity": "work"
+        },
+        {
+          "hour": 13,
+          "place": "blood_market",
+          "activity": "trade"
+        },
+        {
+          "hour": 18,
+          "place": "apothecary",
+          "activity": "work"
+        },
+        {
+          "hour": 22,
+          "place": "apothecary",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "brother_ansel",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "rogue_hooded",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 0.8,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.1,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 1.2,
+        "rate": 1.1
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "oswin",
+      "name": "Oswin Vell",
+      "role": "tavern keeper",
+      "persona": "A heavy, tired man who pours until the lanterns gutter. He jokes about the dead because the living are bad company.",
+      "knowledge": [
+        "Rook drinks here after the third toll and never pays.",
+        "Silent Widow came to the city a year ago and stands still when the bell rings.",
+        "The ossuary grille was forced open last week from the inside."
+      ],
+      "secrets": [
+        "Oswin hides a plague-sick cook in the cellar and tells no one."
+      ],
+      "home": "lamplighter_inn",
+      "work": "lamplighter_inn",
+      "schedule": [
+        {
+          "hour": 8,
+          "place": "lamplighter_inn",
+          "activity": "work"
+        },
+        {
+          "hour": 14,
+          "place": "blood_market",
+          "activity": "trade"
+        },
+        {
+          "hour": 17,
+          "place": "lamplighter_inn",
+          "activity": "work"
+        },
+        {
+          "hour": 23,
+          "place": "lamplighter_inn",
+          "activity": "drink"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "rook_guard",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "barbarian",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 1,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.3,
+          "idle": 0.3,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.7,
+        "rate": 0.9
+      },
+      "mood": "drunk"
+    },
+    {
+      "id": "rook_guard",
+      "name": "Rook",
+      "role": "gate warden",
+      "persona": "A stiff, suspicious guard who trusts nobody who walks in at night. He keeps the keys and the curfew and neither bends.",
+      "knowledge": [
+        "The tower key hangs on my belt and leaves only for a reason I believe.",
+        "Nobody passes the Iron Gate after the second toll without my word.",
+        "The widow was seen leaving the ossuary at dusk, carrying something wrapped in cloth."
+      ],
+      "secrets": [
+        "Rook once let a plague cart through the gate for coin, and the first toll followed."
+      ],
+      "home": "iron_gate",
+      "work": "iron_gate",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "iron_gate",
+          "activity": "guard"
+        },
+        {
+          "hour": 12,
+          "place": "street",
+          "activity": "patrol"
+        },
+        {
+          "hour": 18,
+          "place": "iron_gate",
+          "activity": "guard"
+        },
+        {
+          "hour": 23,
+          "place": "lamplighter_inn",
+          "activity": "drink"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "oswin",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "knight",
+        "palette": 3
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0.4,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": -0.5,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 0.8,
+        "rate": 1
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "silent_widow",
+      "name": "Silent Widow",
+      "role": "wanderer",
+      "persona": "A veiled woman who has not spoken in a year, answering with nods and a hand on the arm. She watches the bell the way others watch a grave.",
+      "knowledge": [
+        "She gestures to the ossuary and mimes a hand holding a small bell.",
+        "She points to the tower and shakes her head at the number four.",
+        "She taps her wrist and then the sky, counting toward the moon."
+      ],
+      "secrets": [
+        "Her husband's bones lie in the ossuary beneath a bell-shaped reliquary, and the reliquary tolls with the great bell."
+      ],
+      "home": "ossuary",
+      "work": "blood_market",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "ossuary",
+          "activity": "rest"
+        },
+        {
+          "hour": 12,
+          "place": "blood_market",
+          "activity": "wander"
+        },
+        {
+          "hour": 19,
+          "place": "street",
+          "activity": "wander"
+        },
+        {
+          "hour": 23,
+          "place": "clock_tower",
+          "activity": "wander"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "brother_ansel",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "rogue_hooded",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0.3,
+          "flee": 0,
+          "investigate": 0.4,
+          "follow_player": 0.2,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.4,
+        "rate": 0.7
+      },
+      "mood": "grieving"
+    }
+  ],
+  "items": [
+    {
+      "id": "tower_key",
+      "name": "Iron Tower Key",
+      "description": "A black key to the belfry stair door.",
+      "holder": "rook_guard"
+    },
+    {
+      "id": "bell_reliquary",
+      "name": "Bell Reliquary",
+      "description": "A small bronze bell that tolls with the great one, holding a dead man's ash.",
+      "holder": "ossuary"
+    },
+    {
+      "id": "bitter_salt",
+      "name": "Bitter Salt",
+      "description": "A pouch of bitter salt that quiets bronze for a night.",
+      "holder": "apothecary"
+    },
+    {
+      "id": "crow_feather",
+      "name": "Black Crow Feather",
+      "description": "A feather left on the belfry sill, stiff with soot.",
+      "holder": "clock_tower"
+    }
+  ],
+  "quest": {
+    "id": "silence_the_bell",
+    "title": "The Bell That Tolls Itself",
+    "hook": "The Cathedral bell rings every night with no hand on the rope, and each toll wakes the plague in another street. Brother Ansel needs a stranger with nothing to lose to climb the tower and silence it before the moon fully turns.",
+    "giver": "brother_ansel",
+    "steps": [
+      {
+        "id": "s1",
+        "kind": "talk",
+        "target": "brother_ansel",
+        "requires": [],
+        "objective": "Hear Brother Ansel's plea at the Bell Tower.",
+        "beat": "Ansel begs you to still the bell and says the tower door is locked; the key is with Rook."
+      },
+      {
+        "id": "s2",
+        "kind": "talk",
+        "target": "rook_guard",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Ask Rook at the Iron Gate for the tower key.",
+        "beat": "Rook sizes you up and wants proof you mean no harm to the city.",
+        "reveals": [
+          "rook_guard:0"
+        ]
+      },
+      {
+        "id": "s3",
+        "kind": "fetch",
+        "target": "bitter_salt",
+        "requires": [
+          "s2"
+        ],
+        "objective": "Collect the bitter salt from Maud's apothecary.",
+        "beat": "Maud hands it over, eyeing you, and lets slip that Ansel has bought far too much of it.",
+        "item": "bitter_salt",
+        "reveals": [
+          "maud:0"
+        ]
+      },
+      {
+        "id": "s4",
+        "kind": "visit",
+        "target": "clock_tower",
+        "requires": [
+          "s3"
+        ],
+        "objective": "Climb the tower while the crows watch from the sill.",
+        "beat": "Crows shift on the belfry rail as the bell rocks above you, ringing with no hand on it."
+      },
+      {
+        "id": "s5",
+        "kind": "choose",
+        "target": "brother_ansel",
+        "requires": [
+          "s4"
+        ],
+        "objective": "Decide how to end the bell.",
+        "beat": "The clapper is packed with ash and wax. You can pin it silent or break it for good.",
+        "choices": [
+          {
+            "label": "Pin the clapper with bitter salt and spare the bell",
+            "unlocks": [
+              "s6a"
+            ]
+          },
+          {
+            "label": "Smash the bell and let the ash fall",
+            "unlocks": [
+              "s6b"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s6a",
+        "kind": "talk",
+        "target": "brother_ansel",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Tell Ansel the bell is hushed, not broken.",
+        "beat": "The bell holds its tongue, but Ansel knows the ash still sleeps in the bronze."
+      },
+      {
+        "id": "s6b",
+        "kind": "confront",
+        "target": "brother_ansel",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Confront Ansel with the ash he cast into the bell.",
+        "beat": "Ansel confesses and weeps as the broken bronze falls quiet at last.",
+        "reveals": [
+          "brother_ansel:0"
+        ]
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s6a",
+        "label": "The bell is silenced, the sickness only sleeps.",
+        "tone": "bitter"
+      },
+      {
+        "stepId": "s6b",
+        "label": "The bell is broken and the dead finally rest.",
+        "tone": "good"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r1",
+      "text": "No one walks the streets between the second toll and dawn except the watch and the clergy.",
+      "effect": {
+        "type": "curfew",
+        "fromHour": 0,
+        "toHour": 5,
+        "exemptRoles": [
+          "gate warden",
+          "bell-keeper"
+        ]
+      },
+      "source": "world"
+    },
+    {
+      "id": "r2",
+      "text": "Nobody carries a torch inside the cathedral, for the old vows forbid flame near the bell.",
+      "effect": {
+        "type": "ban",
+        "what": "torch",
+        "where": "cathedral",
+        "enforcer": "brother_ansel"
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [],
+  "style": {
+    "name": "Crimson Choir Plague Gothic",
+    "wall": "#4d4a47",
+    "wall2": "#6e5a4c",
+    "roof": "#3a3d42",
+    "trim": "#6b6760",
+    "accent": "#6b2a2a",
+    "dark": "#1b1819",
+    "glass": "#25282d",
+    "glow": "#ffb36a",
+    "ground": "#4b4743",
+    "road": "#5a5650",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "stone",
+      "wall2": "timber",
+      "roof": "slate",
+      "trim": "stone",
+      "ground": "cobble",
+      "road": "cobble",
+      "wear": 0.78,
+      "wet": 0.35
+    }
+  },
+  "site": {
+    "pattern": "terraces",
+    "wild": 0.05,
+    "paths": "road",
+    "spacing": 3
+  },
+  "mood": {
+    "weather": "fog",
+    "intensity": 0.6,
+    "grade": "crimson",
+    "haze": 0.8,
+    "ambience": [
+      "wind",
+      "bells",
+      "crowd"
+    ],
+    "music": "low choir, distant organ"
+  },
+  "terrain": {
+    "relief": "terraced",
+    "ruggedness": 0.5,
+    "water": "river",
+    "waterAmount": 0.08,
+    "horizon": "spires and chimney smoke against red sky",
+    "settled": 0.95
+  },
+  "skyFeatures": [
+    {
+      "kind": "moon",
+      "size": 0.42,
+      "color": "#8a1a1a"
+    },
+    {
+      "kind": "aurora",
+      "size": 0.3,
+      "color": "#5a0f1e"
+    }
+  ],
+  "creatures": [
+    {
+      "id": "crows",
+      "name": "carrion crows",
+      "family": "bird",
+      "dials": {
+        "neck": 0.5,
+        "legs": 0.5,
+        "beak": 0.6,
+        "tail": 0.5,
+        "bulk": 0.4,
+        "head": 0.5,
+        "crest": 0
+      },
+      "size": 0.45,
+      "count": 8,
+      "behaviour": "perch",
+      "haunt": "clock_tower",
+      "body": "#1c1c22",
+      "accent": "#2a2a33",
+      "glow": "#000000",
+      "note": "They watch you from the belfry ledges."
+    },
+    {
+      "id": "bats",
+      "name": "blood bats",
+      "family": "swarm",
+      "dials": {
+        "units": 20,
+        "wings": 0.7,
+        "long": 0.6,
+        "glow": 0.2,
+        "hover": 25
+      },
+      "size": 0.3,
+      "count": 20,
+      "behaviour": "circle",
+      "haunt": "sky",
+      "body": "#2a1a22",
+      "accent": "#7a2529",
+      "glow": "#8a1a1a",
+      "note": "They ripple across the moon in dense clouds."
+    },
+    {
+      "id": "hounds",
+      "name": "gaunt hounds",
+      "family": "quadruped",
+      "dials": {
+        "legs": 0.6,
+        "body": 0.7,
+        "neck": 0.5,
+        "head": 0.5,
+        "snout": 0.6,
+        "ears": 0.6,
+        "tail": 0.4,
+        "tailw": 0.3,
+        "bulk": 0.4,
+        "slope": 0.6,
+        "sprawl": 0.2,
+        "horns": "none"
+      },
+      "size": 1.2,
+      "count": 3,
+      "behaviour": "stalk",
+      "haunt": "wild",
+      "body": "#4a4048",
+      "accent": "#2a2328",
+      "glow": "#b02020",
+      "note": "Thin, eyes glowing, they follow at a distance."
+    }
+  ],
+  "folk": {
+    "name": "hollowed townsfolk",
+    "height": 1.7,
+    "bulk": 0.4,
+    "head": 1,
+    "features": [
+      "hat",
+      "cloak",
+      "mask"
+    ],
+    "skin": [
+      "#c9a58a",
+      "#a88468"
+    ],
+    "cloth": [
+      "#2e2a33",
+      "#4a3b3f"
+    ],
+    "trim": [
+      "#7a2529"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "gothic_cathedral",
+      "summary": "soot-black cathedral, 18 m nave, 34 m spires",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.4,
+          "y": 0,
+          "w": 0.3,
+          "d": 0.28,
+          "h": 26,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "pyramid",
+          "x": 0,
+          "z": 0.4,
+          "y": 26,
+          "w": 0.3,
+          "d": 0.28,
+          "h": 8,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "wedge",
+          "x": -0.5,
+          "z": 0.05,
+          "y": 0,
+          "w": 0.1,
+          "d": 0.07,
+          "h": 10,
+          "rot": 90,
+          "tone": "wall2",
+          "repeat": 5,
+          "gap": 0.2
+        },
+        {
+          "shape": "ring",
+          "x": 0,
+          "z": 0.5,
+          "y": 13,
+          "w": 0.18,
+          "d": 0.02,
+          "h": 3.2,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 5,
+          "w": 0.03,
+          "d": 0.02,
+          "h": 2.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.12
+        },
+        {
+          "shape": "cone",
+          "x": -0.44,
+          "z": 0.4,
+          "y": 18,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 12,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 2,
+          "gap": 0.88
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 6,
+        "roof": "gable",
+        "overhang": 0.05,
+        "front": "plain",
+        "rhythm": 6,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "bell_tower",
+      "summary": "stone belfry 26 m with iron clock and open louvres",
+      "parts": [
+        {
+          "shape": "ring",
+          "x": 0,
+          "z": 0.5,
+          "y": 15,
+          "w": 0.5,
+          "d": 0.03,
+          "h": 2.6,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 16.5,
+          "w": 0.04,
+          "d": 0.03,
+          "h": 3,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 3,
+          "gap": 0.18
+        },
+        {
+          "shape": "cone",
+          "x": 0,
+          "z": 0,
+          "y": 22,
+          "w": 0.55,
+          "d": 0.55,
+          "h": 5,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 6,
+          "w": 0.04,
+          "d": 0.03,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.7,
+          "d": 0.08,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 22,
+        "section": "square",
+        "taper": 0.15,
+        "bands": 3,
+        "top": "cone",
+        "flare": 0.12
+      }
+    },
+    {
+      "id": "leaning_tenement",
+      "summary": "leaning timber-and-stone tenement, 4 storeys, 13 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 3.2,
+          "w": 0.9,
+          "d": 0.08,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 4,
+          "w": 0.06,
+          "d": 0.03,
+          "h": 1.3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.25
+        },
+        {
+          "shape": "box",
+          "x": -0.3,
+          "z": 0.5,
+          "y": 1.5,
+          "w": 0.06,
+          "d": 0.03,
+          "h": 1.3,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.3,
+          "z": -0.1,
+          "y": 12,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 3,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 2,
+          "gap": 0.2
+        },
+        {
+          "shape": "wedge",
+          "x": 0.5,
+          "z": 0,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.1,
+          "h": 5,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 4,
+        "roof": "gable",
+        "overhang": 0.22,
+        "front": "stoop",
+        "rhythm": 4,
+        "chimney": 2,
+        "taper": 0.12
+      }
+    },
+    {
+      "id": "timber_inn",
+      "summary": "timber coaching inn, 9 m ridge, lantern over door",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.06,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.2,
+          "z": 0.5,
+          "y": 2.4,
+          "w": 0.06,
+          "d": 0.06,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 3.5,
+          "w": 0.05,
+          "d": 0.03,
+          "h": 1.1,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.2
+        },
+        {
+          "shape": "box",
+          "x": -0.3,
+          "z": 0.5,
+          "y": 2.8,
+          "w": 0.2,
+          "d": 0.02,
+          "h": 0.7,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0.1,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "hip",
+        "overhang": 0.2,
+        "front": "porch",
+        "rhythm": 5,
+        "chimney": 1,
+        "taper": 0
+      }
+    },
+    {
+      "id": "narrow_shop",
+      "summary": "narrow stone shop with bottled glass front, 7 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": -0.15,
+          "z": 0.5,
+          "y": 1,
+          "w": 0.1,
+          "d": 0.02,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "glass",
+          "repeat": 3,
+          "gap": 0.2
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.5,
+          "y": 2.8,
+          "w": 0.05,
+          "d": 0.03,
+          "h": 1,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.1,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "shed",
+        "overhang": 0.1,
+        "front": "awning",
+        "rhythm": 3,
+        "chimney": 1,
+        "taper": 0
+      }
+    },
+    {
+      "id": "tarp_market",
+      "summary": "covered stalls under patched tarp, 5 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 1,
+          "d": 0.8,
+          "h": 0.15,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.3,
+          "y": 2.2,
+          "w": 0.08,
+          "d": 0.05,
+          "h": 1,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "sphere",
+          "x": -0.3,
+          "z": 0.3,
+          "y": 3,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 2,
+          "gap": 0.5
+        }
+      ],
+      "doorX": 0,
+      "family": "canopy",
+      "dials": {
+        "posts": 6,
+        "roof": "shed",
+        "counter": 0.8
+      }
+    },
+    {
+      "id": "ossuary_cellar",
+      "summary": "low vaulted cellar mouth with iron grille, 4 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.3,
+          "h": 2.2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.45,
+          "y": 0.2,
+          "w": 0.03,
+          "d": 0.02,
+          "h": 2.2,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 5,
+          "gap": 0.1
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.2,
+          "y": 3.5,
+          "w": 0.9,
+          "d": 0.5,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "arch",
+      "dials": {
+        "span": 0.55,
+        "thickness": 0.22,
+        "lintel": "round",
+        "towers": 0
+      }
+    },
+    {
+      "id": "gatehouse_watch",
+      "summary": "stone gatehouse with portcullis and 16 m flanking towers",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.45,
+          "y": 0,
+          "w": 0.35,
+          "d": 0.03,
+          "h": 4,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 5,
+          "gap": 0.1
+        },
+        {
+          "shape": "box",
+          "x": -0.35,
+          "z": 0,
+          "y": 12,
+          "w": 0.3,
+          "d": 0.4,
+          "h": 3,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.35,
+          "z": 0,
+          "y": 12,
+          "w": 0.3,
+          "d": 0.4,
+          "h": 3,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0.2,
+          "z": 0.5,
+          "y": 4.5,
+          "w": 0.05,
+          "d": 0.05,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 2,
+          "gap": 0.2
+        }
+      ],
+      "doorX": 0,
+      "family": "arch",
+      "dials": {
+        "span": 0.4,
+        "thickness": 0.25,
+        "lintel": "pointed",
+        "towers": 2
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "dead_elm",
+      "size": 7,
+      "parts": [],
+      "weight": 2,
+      "family": "tree",
+      "dials": {
+        "trunk": 1.4,
+        "crown": "dead",
+        "crownSize": 0.7,
+        "lean": 0.3
+      }
+    },
+    {
+      "kind": "river_reeds",
+      "size": 1.4,
+      "parts": [],
+      "weight": 3,
+      "family": "tree",
+      "dials": {
+        "trunk": 0.4,
+        "crown": "reeds",
+        "crownSize": 0.5,
+        "lean": 0.4
+      }
+    },
+    {
+      "kind": "iron_lamp_post",
+      "size": 2,
+      "parts": [],
+      "weight": 4,
+      "family": "pole",
+      "dials": {
+        "head": "lamp",
+        "height": 3,
+        "arms": 1
+      }
+    },
+    {
+      "kind": "plague_cart",
+      "size": 2.4,
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0.4,
+          "w": 0.8,
+          "d": 0.5,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "weight": 2,
+      "family": "furniture",
+      "dials": {
+        "form": "cart",
+        "length": 0.9,
+        "height": 0.6,
+        "extras": 0.8
+      }
+    },
+    {
+      "kind": "burial_barrels",
+      "size": 1.2,
+      "parts": [],
+      "weight": 3,
+      "family": "container",
+      "dials": {
+        "form": "barrel",
+        "count": 3,
+        "height": 0.8
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "vigil_well",
+      "prompt": "A circular medieval stone well with a rusted iron crank and a crumbling slate hood, moss in the mortar, realistic proportions, weathered",
+      "place": "plaza",
+      "height": 4
+    }
+  ]
+}

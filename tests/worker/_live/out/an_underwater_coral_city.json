@@ -1,0 +1,1021 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "an underwater coral city",
+  "title": "Reef of Lantern Spires",
+  "tagline": "A city grown from coral, breathing the tide.",
+  "theme": "medieval",
+  "era": "Drowned age",
+  "palette": {
+    "ground": "#a69a7a",
+    "accent": "#6f8f84",
+    "sky": "day",
+    "fog": 0.2
+  },
+  "time": {
+    "startHour": 9,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "coral_spire",
+      "role": "church",
+      "label": "Spire of the Tide-Mother",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "tide_spire"
+    },
+    {
+      "id": "lantern_tower",
+      "role": "command",
+      "label": "Lantern Tower",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "lantern_stack"
+    },
+    {
+      "id": "kelp_market",
+      "role": "market",
+      "label": "Kelp Market",
+      "size": "medium",
+      "blueprint": "kelp_terraces"
+    },
+    {
+      "id": "bell_grotto",
+      "role": "house",
+      "label": "Bell Grotto",
+      "size": "small",
+      "blueprint": "chime_grotto"
+    },
+    {
+      "id": "sunken_dock",
+      "role": "warehouse",
+      "label": "Sunken Dock",
+      "size": "medium",
+      "blueprint": "wreck_dock"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "pell",
+      "name": "Pell",
+      "role": "tide-warden",
+      "persona": "Pell counts the tide in reefmarks and trusts nothing she cannot measure. She is tired, blunt, and ashamed the Lantern has dimmed on her watch.",
+      "knowledge": [
+        "The Lantern Tower's vents are fed by glow-jelly oil, and the oil has thinned for a season.",
+        "A shellward chime hung at the dock rings when the tide turns hard.",
+        "The old lamp-wicks were pearls, set in the tower's crown by climbers."
+      ],
+      "secrets": [
+        "Pell sold two crown pearls to Mira last winter to pay the warden crew."
+      ],
+      "home": "coral_spire",
+      "work": "lantern_tower",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "coral_spire",
+          "activity": "pray"
+        },
+        {
+          "hour": 8,
+          "place": "lantern_tower",
+          "activity": "work"
+        },
+        {
+          "hour": 14,
+          "place": "street",
+          "activity": "patrol"
+        },
+        {
+          "hour": 21,
+          "place": "coral_spire",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "mira",
+          "stance": "debtor"
+        }
+      ],
+      "appearance": {
+        "base": "knight",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": -0.3,
+          "flee": 0,
+          "investigate": 0.3,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 0.9,
+        "rate": 0.9
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "mira",
+      "name": "Mira",
+      "role": "kelp trader",
+      "persona": "Mira haggles over everything and gossips freely. She keeps the market busy because a quiet market means a drowning city.",
+      "knowledge": [
+        "Kelp-woven lines are the only safe way up the coral spires.",
+        "The crown pearls trade for ten times their worth, if anyone dares ask.",
+        "Oru's chimes can be heard from the market when the tide is wrong."
+      ],
+      "secrets": [
+        "Mira holds two crown pearls she bought from Pell and has told no one."
+      ],
+      "home": "kelp_market",
+      "work": "kelp_market",
+      "schedule": [
+        {
+          "hour": 7,
+          "place": "kelp_market",
+          "activity": "trade"
+        },
+        {
+          "hour": 13,
+          "place": "kelp_market",
+          "activity": "eat"
+        },
+        {
+          "hour": 15,
+          "place": "plaza",
+          "activity": "wander"
+        },
+        {
+          "hour": 20,
+          "place": "kelp_market",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "pell",
+          "stance": "neutral"
+        }
+      ],
+      "appearance": {
+        "base": "rogue",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0.2,
+          "talk_to": 0.5,
+          "idle": 0,
+          "flee": 0.1,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.3,
+        "rate": 1.2
+      },
+      "mood": "cheerful"
+    },
+    {
+      "id": "oru",
+      "name": "Oru",
+      "role": "shell-chime keeper",
+      "persona": "Oru speaks slowly and listens more than he talks. He tunes the shells by ear and says the reef itself warns those who listen.",
+      "knowledge": [
+        "The grotto chimes change pitch an hour before the tide turns.",
+        "A bell shell cracked in the grotto the night the Lantern dimmed.",
+        "Lantern jellies drift near the tower when the light is weak."
+      ],
+      "secrets": [
+        "Oru has heard the dimming is not the oil but a blocked vent in the spire's crown."
+      ],
+      "home": "bell_grotto",
+      "work": "bell_grotto",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "bell_grotto",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "sunken_dock",
+          "activity": "eat"
+        },
+        {
+          "hour": 16,
+          "place": "bell_grotto",
+          "activity": "work"
+        },
+        {
+          "hour": 22,
+          "place": "bell_grotto",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [],
+      "appearance": {
+        "base": "mage",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 1,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": -0.2,
+          "idle": 0,
+          "flee": 0,
+          "investigate": 0.4,
+          "follow_player": 0,
+          "work": 0.3
+        }
+      },
+      "voice": {
+        "pitch": 0.7,
+        "rate": 0.8
+      },
+      "mood": "calm"
+    }
+  ],
+  "items": [
+    {
+      "id": "crown_pearl",
+      "name": "Crown Pearl",
+      "description": "A pale pearl that holds a faint glow. It once fed the Lantern's wicks.",
+      "holder": "kelp_market"
+    },
+    {
+      "id": "jelly_oil",
+      "name": "Lantern Jelly Oil",
+      "description": "A flask of glowing oil drawn from the jellies at the dock.",
+      "holder": "sunken_dock"
+    },
+    {
+      "id": "kelp_line",
+      "name": "Kelp Climbing Line",
+      "description": "A braided kelp rope, salt-stiff and strong enough for the spires.",
+      "holder": "bell_grotto"
+    }
+  ],
+  "quest": {
+    "id": "relight_the_lantern",
+    "title": "The Dimming Lantern",
+    "hook": "The Lantern Tower burns low, and the reef folk count the hours until the tide takes the terraces. Pell needs someone who can climb coral and carry light back to the crown. You are a stranger with no stake and steady hands.",
+    "giver": "pell",
+    "steps": [
+      {
+        "id": "s1",
+        "kind": "talk",
+        "target": "pell",
+        "requires": [],
+        "objective": "Speak with Pell at the Lantern Tower.",
+        "beat": "Pell explains the dimming and asks you to find what the Lantern needs."
+      },
+      {
+        "id": "s2",
+        "kind": "talk",
+        "target": "oru",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Ask Oru about the chimes in Bell Grotto.",
+        "beat": "Oru says the fault lies in the spire's crown and gives you a way up.",
+        "reveals": [
+          "oru:0"
+        ]
+      },
+      {
+        "id": "s3",
+        "kind": "fetch",
+        "target": "kelp_line",
+        "requires": [
+          "s2"
+        ],
+        "objective": "Take the kelp climbing line from Bell Grotto.",
+        "beat": "The line is stiff with salt but sound. Jellies drift past the entrance.",
+        "item": "kelp_line"
+      },
+      {
+        "id": "s4",
+        "kind": "fetch",
+        "target": "crown_pearl",
+        "requires": [
+          "s3"
+        ],
+        "objective": "Get a crown pearl from the Kelp Market.",
+        "beat": "Mira's stall holds the pearl. She names her price and hints where it came from.",
+        "item": "crown_pearl",
+        "reveals": [
+          "mira:0"
+        ]
+      },
+      {
+        "id": "s5",
+        "kind": "visit",
+        "target": "coral_spire",
+        "requires": [
+          "s4"
+        ],
+        "objective": "Climb the Spire of the Tide-Mother with the line.",
+        "beat": "You haul up the coral with a light in the dark water and clear the blocked vent."
+      },
+      {
+        "id": "s6",
+        "kind": "choose",
+        "target": "pell",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Decide what to do with the crown pearl.",
+        "beat": "The vent runs clear, but the pearl can seat the wick or go back to Mira.",
+        "choices": [
+          {
+            "label": "Set the pearl in the Lantern's crown",
+            "unlocks": [
+              "s7a"
+            ]
+          },
+          {
+            "label": "Return the pearl to Mira and expose the sale",
+            "unlocks": [
+              "s7b"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s7a",
+        "kind": "deliver",
+        "target": "pell",
+        "requires": [
+          "s6"
+        ],
+        "objective": "Bring the pearl to Pell for the Lantern.",
+        "beat": "Pell seats the pearl and the Lantern blazes teal across the reef.",
+        "item": "crown_pearl"
+      },
+      {
+        "id": "s7b",
+        "kind": "confront",
+        "target": "pell",
+        "requires": [
+          "s6"
+        ],
+        "objective": "Confront Pell about the pearls she sold.",
+        "beat": "Pell admits the sale. The Lantern burns, but the wardens are shamed.",
+        "reveals": [
+          "pell:0"
+        ]
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s7a",
+        "label": "The Lantern is relit and the reef is safe.",
+        "tone": "good"
+      },
+      {
+        "stepId": "s7b",
+        "label": "The light returns but trust in the wardens does not.",
+        "tone": "bitter"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r1",
+      "text": "No loud noise near Bell Grotto after dusk; the chimes must be heard.",
+      "effect": {
+        "type": "ban",
+        "what": "loud noise",
+        "where": "bell_grotto"
+      },
+      "source": "world"
+    },
+    {
+      "id": "r2",
+      "text": "Crown pearls fetch ten times their worth while the Lantern is dim.",
+      "effect": {
+        "type": "price",
+        "item": "crown_pearl",
+        "multiplier": 10
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "coral",
+    "tide",
+    "kelp",
+    "pearls",
+    "reefmarks",
+    "shellward"
+  ],
+  "style": {
+    "name": "Drowned Reef Teal",
+    "wall": "#a89f8c",
+    "wall2": "#7c7a6c",
+    "roof": "#4f5a56",
+    "trim": "#b8b09c",
+    "accent": "#6f8f84",
+    "dark": "#1f2a2c",
+    "glass": "#2c3d42",
+    "glow": "#ffd9a0",
+    "ground": "#a69a7a",
+    "road": "#8f8468",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "coral",
+      "wall2": "stone",
+      "roof": "slate",
+      "trim": "coral",
+      "ground": "sand",
+      "road": "gravel",
+      "wear": 0.6,
+      "wet": 0.9
+    }
+  },
+  "site": {
+    "pattern": "terraces",
+    "wild": 0.2,
+    "paths": "track",
+    "spacing": 5
+  },
+  "mood": {
+    "weather": "clear",
+    "intensity": 0,
+    "grade": "teal_orange",
+    "haze": 0.7,
+    "ambience": [
+      "water",
+      "machinery"
+    ],
+    "music": "slow harp and bell"
+  },
+  "terrain": {
+    "relief": "terraced",
+    "ruggedness": 0.5,
+    "water": "shore",
+    "waterAmount": 0.9,
+    "horizon": "open blue water fading to dark",
+    "settled": 0.8
+  },
+  "skyFeatures": [
+    {
+      "kind": "aurora",
+      "size": 0.5,
+      "color": "#4fd1c5"
+    }
+  ],
+  "creatures": [
+    {
+      "id": "reef_fish",
+      "name": "silver reef fish",
+      "family": "swimmer",
+      "dials": {
+        "bulk": 0.3,
+        "depth": 0.5,
+        "flat": 0,
+        "fluke": 0,
+        "dorsal": 0.4,
+        "pectoral": 0.4,
+        "tail": 0.5
+      },
+      "size": 0.4,
+      "count": 12,
+      "behaviour": "flock",
+      "haunt": "water",
+      "body": "#7fb3c9",
+      "accent": "#e9c46a",
+      "glow": "#000000",
+      "note": "Darts together, turning as one."
+    },
+    {
+      "id": "manta_ray",
+      "name": "reef manta",
+      "family": "swimmer",
+      "dials": {
+        "bulk": 0.6,
+        "depth": 0.1,
+        "flat": 0.9,
+        "fluke": 0,
+        "dorsal": 0,
+        "pectoral": 0.6,
+        "tail": 0.4
+      },
+      "size": 3.5,
+      "count": 2,
+      "behaviour": "circle",
+      "haunt": "water",
+      "body": "#2f4858",
+      "accent": "#dfe7ea",
+      "glow": "#000000",
+      "note": "Glides overhead, wings rippling slowly."
+    },
+    {
+      "id": "glow_jelly",
+      "name": "lantern jellyfish",
+      "family": "floater",
+      "dials": {
+        "shape": "bell",
+        "tentacles": 6,
+        "length": 1.2,
+        "eye": 0,
+        "fins": 0,
+        "hover": 2
+      },
+      "size": 0.6,
+      "count": 6,
+      "behaviour": "circle",
+      "haunt": "water",
+      "body": "#a8dadc",
+      "accent": "#e76f51",
+      "glow": "#f4f1de",
+      "note": "Pulses soft light, drifting with the current."
+    }
+  ],
+  "folk": {
+    "name": "reef folk",
+    "height": 1.6,
+    "bulk": 0.4,
+    "head": 1.05,
+    "features": [
+      "hood",
+      "pack",
+      "glow_eyes"
+    ],
+    "skin": [
+      "#379d91",
+      "#3d7f73"
+    ],
+    "cloth": [
+      "#204f5c",
+      "#2f5d62"
+    ],
+    "trim": [
+      "#e9c46a",
+      "#8ab17d"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "tide_spire",
+      "summary": "twisted coral spire cluster 28 m, lit from within",
+      "parts": [
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.5,
+          "h": 3,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.3,
+          "y": 0,
+          "w": 0.4,
+          "d": 0.1,
+          "h": 2.6,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cone",
+          "x": 0.05,
+          "z": -0.05,
+          "y": 24,
+          "w": 0.1,
+          "d": 0.1,
+          "h": 4,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.22,
+          "y": 6,
+          "w": 0.04,
+          "d": 0.03,
+          "h": 2.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.14
+        },
+        {
+          "shape": "wedge",
+          "x": -0.45,
+          "z": 0,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.1,
+          "h": 7,
+          "rot": 90,
+          "tone": "wall2",
+          "repeat": 4,
+          "gap": 0.3
+        }
+      ],
+      "doorX": 0,
+      "family": "spire",
+      "dials": {
+        "count": 5,
+        "height": 24,
+        "lean": 0.3,
+        "sharpness": 0.55,
+        "variance": 0.5
+      }
+    },
+    {
+      "id": "lantern_stack",
+      "summary": "stacked coral tower 22 m with glowing vents",
+      "parts": [
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.9,
+          "h": 2,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.34,
+          "y": 4,
+          "w": 0.05,
+          "d": 0.04,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.12
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.34,
+          "y": 10,
+          "w": 0.05,
+          "d": 0.04,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.12
+        },
+        {
+          "shape": "ring",
+          "x": 0,
+          "z": 0,
+          "y": 16,
+          "w": 0.55,
+          "d": 0.55,
+          "h": 0.6,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 20,
+          "w": 0.18,
+          "d": 0.18,
+          "h": 3,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "wedge",
+          "x": -0.5,
+          "z": 0,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.1,
+          "h": 6,
+          "rot": 90,
+          "tone": "wall",
+          "repeat": 3,
+          "gap": 0.4
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 20,
+        "section": "round",
+        "taper": 0.45,
+        "bands": 4,
+        "top": "lantern",
+        "flare": 0.3
+      }
+    },
+    {
+      "id": "kelp_terraces",
+      "summary": "open kelp-stall terraces, tiers 14 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.45,
+          "y": 0,
+          "w": 0.8,
+          "d": 0.05,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.42,
+          "y": 3,
+          "w": 0.05,
+          "d": 0.04,
+          "h": 2,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 8,
+          "gap": 0.11
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.4,
+          "y": 6,
+          "w": 0.2,
+          "d": 0.1,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.4,
+          "z": 0.3,
+          "y": 0,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 2.5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 3,
+          "gap": 0.4
+        }
+      ],
+      "doorX": 0,
+      "family": "tiers",
+      "dials": {
+        "levels": 5,
+        "shrink": 0.82,
+        "flare": 0.2,
+        "top": "flat"
+      }
+    },
+    {
+      "id": "chime_grotto",
+      "summary": "hollow coral cave with shell chimes, 5 m",
+      "parts": [
+        {
+          "shape": "dome",
+          "x": -0.4,
+          "z": -0.1,
+          "y": 0,
+          "w": 0.45,
+          "d": 0.5,
+          "h": 4.5,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "dome",
+          "x": 0.4,
+          "z": -0.05,
+          "y": 0,
+          "w": 0.4,
+          "d": 0.5,
+          "h": 4,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": -0.2,
+          "y": 0,
+          "w": 0.6,
+          "d": 0.5,
+          "h": 3.5,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "sphere",
+          "x": 0,
+          "z": 0.38,
+          "y": 3.4,
+          "w": 0.07,
+          "d": 0.07,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 5,
+          "gap": 1.2
+        }
+      ],
+      "doorX": 0,
+      "family": "arch",
+      "dials": {
+        "span": 0.55,
+        "thickness": 0.28,
+        "lintel": "round",
+        "towers": 0
+      }
+    },
+    {
+      "id": "wreck_dock",
+      "summary": "wrecked hull lashed to the reef shelf, 9 m long",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.2,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.3,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.04,
+          "d": 0.04,
+          "h": 5,
+          "rot": 15,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.2,
+          "z": 0.45,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.04,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 4,
+          "gap": 0.2
+        },
+        {
+          "shape": "cone",
+          "x": 0.45,
+          "z": 0,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 1,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hull",
+      "dials": {
+        "ratio": 3,
+        "sheer": 0.7,
+        "masts": 1,
+        "cabin": "aft"
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "branching_coral",
+      "size": 3,
+      "parts": [],
+      "weight": 5,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 5,
+        "height": 0.8,
+        "jagged": 0.7,
+        "flat": 0.2
+      }
+    },
+    {
+      "kind": "kelp_stalks",
+      "size": 2,
+      "parts": [],
+      "weight": 5,
+      "family": "tree",
+      "dials": {
+        "trunk": 1.6,
+        "crown": "reeds",
+        "crownSize": 0.5,
+        "lean": 0.5
+      }
+    },
+    {
+      "kind": "fan_coral",
+      "size": 1.5,
+      "parts": [],
+      "weight": 4,
+      "family": "tree",
+      "dials": {
+        "trunk": 0.4,
+        "crown": "fern",
+        "crownSize": 0.75,
+        "lean": 0.1
+      }
+    },
+    {
+      "kind": "reef_lantern_post",
+      "size": 2,
+      "parts": [],
+      "weight": 2,
+      "family": "pole",
+      "dials": {
+        "head": "lamp",
+        "height": 3,
+        "arms": 1
+      }
+    },
+    {
+      "kind": "salvage_urn",
+      "size": 1,
+      "parts": [],
+      "weight": 2,
+      "family": "container",
+      "dials": {
+        "form": "urn",
+        "count": 2,
+        "height": 0.6
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "tide_mother_idol",
+      "prompt": "A weathered coral and stone statue of a robed tide-mother with raised arms on a stepped plinth, barnacles on the stone, realistic proportions, weathered",
+      "place": "plaza",
+      "height": 8
+    }
+  ]
+}

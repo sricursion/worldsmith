@@ -417,7 +417,8 @@ export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, g
     // Land that is not ringed by water climbs with distance, so the far ground stands above eye level.
     if (!sunk) h += 9 * (Math.max(0, e - 30) / 160) ** 1.4;
     if (sheetBody && c > 0) h = mix(h, Math.max(h, sheetLevel + 0.5), c);
-    return h + benchAt(x, z);
+    // Benches belong to the place: beyond it they sink back into the land instead of running on as ruled lines.
+    return h + benchAt(x, z) * (1 - 0.85 * smoothstep(14, 80, e));
   };
 
   // Water levels, then the carve.
@@ -482,7 +483,7 @@ export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, g
       const gap = q.rect && rect
         ? Math.hypot(Math.max(0, rect.minX - q.rect.maxX, q.rect.minX - rect.maxX), Math.max(0, rect.minZ - q.rect.maxZ, q.rect.minZ - rect.maxZ))
         : Math.max(0, padDist(q, x, z) - (rect ? Math.hypot(rect.maxX - rect.minX, rect.maxZ - rect.minZ) / 2 : r));
-      const lim = 0.15 + 0.4 * gap;
+      const lim = 0.05 + 0.4 * gap;
       h = clamp(h, q.h - lim, q.h + lim);
     }
     p.h = h;
@@ -506,8 +507,9 @@ export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, g
       const d = Math.max(0, near - PAD_FULL);
       if (d >= PAD_BLEND) continue;
       const w = 1 - smoothstep(0, PAD_BLEND, d);
-      // Weighted by the true distance, so the ground inside a footprint is that pad's height and nothing else's.
-      const u = w / (near * near + 1e-9);
+      // Weighted steeply by the true distance, so the ground inside a footprint is that pad's height and
+      // nothing else's, and stays close to it right up to the walls even where the next pad is an alley away.
+      const u = w / (near * near * near * near + 1e-9);
       sum += u * p.h;
       norm += u;
       if (w > wMax) wMax = w;
@@ -549,10 +551,12 @@ export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, g
   let y0 = 0;
   const analytic = (x: number, z: number): number => {
     let h = base(x, z);
-    routesAt(x, z);
-    if (routeW > 0) h = mix(h, routeH, routeW);
     padsAt(x, z);
     if (padW > 0) h = mix(h, padH, padW);
+    // A route was graded over land that already had its pads, so it goes on top of them; only the ground
+    // right under a footprint keeps the pad's height whatever passes by.
+    routesAt(x, z);
+    if (routeW > 0) h = mix(h, routeH, routeW * (1 - smoothstep(0.9, 1, padW)));
     return h - y0;
   };
   const addRoute = (line: readonly { x: number; z: number }[], width: number, raised: boolean): void => {
@@ -575,7 +579,8 @@ export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, g
       const z = zs[i] as number;
       if (i > 0) st[i] = (st[i - 1] as number) + Math.hypot(x - (xs[i - 1] as number), z - (zs[i - 1] as number));
       h[i] = analytic(x, z);
-      if (padW > 0.999 || routeW > 0.999) pinned[i] = 1;
+      // Where a pad or an earlier route already decides the ground, this route takes that height as given.
+      if (padW > 0.9 || routeW > 0.999) pinned[i] = 1;
       // Through water a trail fords just under the surface and a road runs on a low causeway just above it.
       const level = levelOver(x, z);
       const floor = level + (raised ? 0.3 : -FORD_DEPTH);
@@ -803,7 +808,24 @@ function axisLines(min: number, max: number, lo: number, hi: number, fine: numbe
   return out;
 }
 
-export interface GroundOptions { quality: Quality; doors: readonly { x: number; z: number }[]; half: number }
+export interface GroundOptions {
+  quality: Quality; doors: readonly { x: number; z: number }[]; half: number;
+  /** Shaped land: the ground takes its heights, on the same grid lines and triangles as the walk mesh. */
+  land?: Land;
+}
+
+/** The baked grid's lines along one axis (every `stride`-th), then stretching geometrically out to `lo`/`hi`. */
+function gridLines(o: number, cell: number, n: number, stride: number, lo: number, hi: number, coarse: number): number[] {
+  const out: number[] = [];
+  for (let i = 0; i < n; i += stride) out.push(o + i * cell);
+  const last = o + (n - 1) * cell;
+  if ((out[out.length - 1] as number) < last) out.push(last);
+  let s = cell * stride;
+  for (let v = last; v < hi;) { s = Math.min(coarse, s * 1.22); v = Math.min(hi, v + s); out.push(v); }
+  s = cell * stride;
+  for (let v = o; v > lo;) { s = Math.min(coarse, s * 1.22); v = Math.max(lo, v - s); out.unshift(v); }
+  return out;
+}
 
 /** Half the side of the ground square: far enough to carry the horizon ring. */
 export function groundHalfExtent(bounds: Rect): number {
@@ -821,8 +843,12 @@ export function buildGroundGeometry(layout: TownLayout, field: TerrainField, opt
   const cz = (b.minZ + b.maxZ) / 2;
   const fine = opts.quality === 2 ? 1 : opts.quality === 1 ? 1.6 : 2.6;
   const coarse = opts.quality === 2 ? 10 : 14;
-  const xs = axisLines(b.minX - 6, b.maxX + 6, cx - opts.half, cx + opts.half, fine, coarse);
-  const zs = axisLines(b.minZ - 6, b.maxZ + 6, cz - opts.half, cz + opts.half, fine, coarse);
+  const land = opts.land?.shaped ? opts.land : undefined;
+  const lg = land?.grid;
+  const stride = opts.quality === 0 ? 2 : 1;
+  const xs = lg ? gridLines(lg.x0, lg.cell, lg.nx, stride, cx - opts.half, cx + opts.half, coarse) : axisLines(b.minX - 6, b.maxX + 6, cx - opts.half, cx + opts.half, fine, coarse);
+  const zs = lg ? gridLines(lg.z0, lg.cell, lg.nz, stride, cz - opts.half, cz + opts.half, coarse) : axisLines(b.minZ - 6, b.maxZ + 6, cz - opts.half, cz + opts.half, fine, coarse);
+  const trails = land ? layout.trails ?? [] : [];
   const nx = xs.length;
   const nz = zs.length;
   const pos = new Float32Array(nx * nz * 3);
@@ -835,7 +861,7 @@ export function buildGroundGeometry(layout: TownLayout, field: TerrainField, opt
     const z = zs[j] as number;
     for (let i = 0; i < nx; i++, v++) {
       const x = xs[i] as number;
-      const y = terrainHeight(field, x, z);
+      const y = land ? land.heightAt(x, z) : terrainHeight(field, x, z);
       pos[v * 3] = x; pos[v * 3 + 1] = y; pos[v * 3 + 2] = z;
       uv[v * 2] = x; uv[v * 2 + 1] = z;
       let k = 0.83 + 0.2 * fbm(x / 31, z / 31, seed + 41, 3) + 0.14 * fbm(x / 6.5, z / 6.5, seed + 43, 2);
@@ -853,7 +879,10 @@ export function buildGroundGeometry(layout: TownLayout, field: TerrainField, opt
         const worn = Math.max(1 - smoothstep(0.2, ragged, roadD), 1 - smoothstep(0.9, 3.4, doorD));
         const verge = smoothstep(ragged, ragged + 1.2, roadD) * (1 - smoothstep(4.2, 6.5, roadD));
         k *= mix(1, 0.76, worn) * (1 + 0.08 * verge) * mix(0.7, 1, smoothstep(0, 1.2, wallD));
-      } else if (y > 0) {
+        // Trails are worn into the land, and ground that water stands on is dark and wet.
+        for (const t of trails) k *= mix(t.kind === 'path' ? 0.72 : 0.84, 1, smoothstep(t.width * 0.3, t.width * 0.5 + ragged * 0.5, distanceToPolyline(t.pts, x, z)));
+        if (land && land.water.length > 0) k *= mix(1, 0.62, smoothstep(-0.05, 0.25, land.waterDepthAt(x, z)));
+      } else if (!land && y > 0) {
         // Out in the landscape: crests catch a little more light than the hollows between them.
         k *= 0.9 + 0.2 * smoothstep(0, 1, fbm(x / 70, z / 70, seed + 59, 2));
       }
@@ -888,7 +917,17 @@ export type HorizonKind = 'mesas' | 'mountains' | 'trees' | 'mushrooms' | 'tower
 export interface HorizonForm { kind: HorizonKind; x: number; z: number; y: number; radius: number; height: number; yaw: number; stretch: number; seed: number }
 
 /** What stands on the horizon, from the words of the world first, then its ground, then its theme. */
-export function horizonKindFor(words: string, ground: SurfaceKind, theme: ThemeId): HorizonKind {
+export function horizonKindFor(words: string, ground: SurfaceKind, theme: ThemeId, first = ''): HorizonKind {
+  // `first` is what the terrain says the far distance is made of: it decides when it names a kind at all.
+  if (first.trim()) {
+    const f = first.toLowerCase();
+    if (/mushroom|fung|spore/.test(f)) return 'mushrooms';
+    if (/canopy|forest|jungle|tree|wood|mangrove/.test(f)) return 'trees';
+    if (/skyline|city|tower|megastructure|crane|stack|refiner|industr/.test(f)) return 'towers';
+    if (/spire|crater rim|pinnacle|crystal|needle/.test(f)) return 'spires';
+    if (/mountain|glacier|ice wall|peak|volcan|alp|ridge|cliff|range/.test(f)) return 'mountains';
+    if (/mesa|dune|butte|canyon|badland|plateau/.test(f)) return 'mesas';
+  }
   const w = words.toLowerCase();
   if (/mushroom|fung|spore|mycel|toadstool/.test(w)) return 'mushrooms';
   if (/forest|grove|jungle|woodland|swamp|bayou|treetop|redwood|elven|sylvan/.test(w)) return 'trees';
@@ -1306,7 +1345,7 @@ export function buildRoadGeometry(inp: RoadInput): RoadGeometry {
       plaza.vert(b[0], y, b[1], b[2]); plaza.vert(d[0], y, d[1], d[2]); plaza.vert(c[0], y, c[1], c[2]);
     }
   }
-  if (cls === 'paved') {
+  if (cls === 'paved' && pl.r > 0) {
     const stones = Math.max(8, Math.round((Math.PI * 2 * pl.r) / 0.95));
     for (let s = 0; s < stones; s++) {
       const a = ((s + 0.5) / stones) * Math.PI * 2;
@@ -1352,7 +1391,7 @@ export function buildRoadGeometry(inp: RoadInput): RoadGeometry {
         if (low < threshold) pool(x, z, l.ux, l.uz, mix(0.3, 0.95, smoothstep(threshold, threshold - 0.2, low)) * (cls === 'paved' ? 1 : 0.7));
       }
     }
-    for (let k = 0; k < 10; k++) {
+    for (let k = 0; k < 10 && pl.r > 0; k++) {
       const a = rng.range(0, Math.PI * 2);
       const x = pl.x + Math.cos(a) * pl.r * rng.range(0.35, 0.85);
       const z = pl.z + Math.sin(a) * pl.r * rng.range(0.35, 0.85);

@@ -2,64 +2,72 @@
   "version": 1,
   "seed": 1899,
   "prompt": "an Arctic research outpost in a blizzard",
-  "title": "Whiteout at Station Nine",
-  "tagline": "Nothing moves out here but the wind.",
+  "title": "Whiteout at Station Kestrel",
+  "tagline": "Visibility nil. Generator fuel low. Something is out there.",
   "theme": "scifi",
-  "era": "Present day",
+  "era": "Present-day polar science",
   "palette": {
     "ground": "#dfe4e6",
-    "accent": "#8a4a3a",
-    "sky": "overcast",
-    "fog": 0.5
+    "accent": "#9a5a3c",
+    "sky": "night",
+    "fog": 0.6
   },
   "time": {
-    "startHour": 18.5,
+    "startHour": 21,
     "minutesPerRealSecond": 4
   },
   "buildings": [
     {
-      "id": "station_module",
+      "id": "main_module",
       "role": "office",
-      "label": "Module Nine",
-      "size": "large",
+      "label": "Module Alpha",
+      "size": "medium",
       "keyBuilding": true,
-      "blueprint": "module_nine"
+      "blueprint": "alpha_module"
     },
     {
       "id": "dome_lab",
       "role": "lab",
-      "label": "the Dome",
-      "size": "medium",
-      "blueprint": "geodesic_dome"
+      "label": "Dome Lab",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "geo_dome"
     },
     {
       "id": "radio_mast",
       "role": "command",
-      "label": "Mast",
+      "label": "Comms Mast",
       "size": "large",
       "blueprint": "lattice_mast"
+    },
+    {
+      "id": "fuel_store",
+      "role": "warehouse",
+      "label": "Fuel Cache",
+      "size": "small",
+      "blueprint": "drum_cache"
     }
   ],
   "npcs": [
     {
       "id": "mara",
-      "name": "Mara Lind",
-      "role": "glaciologist",
-      "persona": "Dry and exact, counts everything twice. She sent the field team up the ridge and has not forgiven herself.",
+      "name": "Mara Lindqvist",
+      "role": "station lead",
+      "persona": "Dry and exhausted, she rations words like fuel. She will not lose another season's data to a bad call.",
       "knowledge": [
-        "The field team took the ridge route to pull an ice-core at the upper site.",
-        "The relay beacon runs off a battery cell that Oskar swapped last week.",
-        "In a whiteout the team shelters in the old survey hut under the glacier wall."
+        "The beacon sits on a pole beyond the fuel cache and runs off a generator feed.",
+        "The supply plane carries enough fuel for one approach, no second pass.",
+        "The cache holds about four days of heating fuel at current burn."
       ],
       "secrets": [
-        "She ordered the team out against Tomas's warning that the front was early."
+        "She ordered the beacon feed rerouted to keep the ice-core freezers alive."
       ],
-      "home": "station_module",
+      "home": "main_module",
       "work": "dome_lab",
       "schedule": [
         {
           "hour": 6,
-          "place": "station_module",
+          "place": "main_module",
           "activity": "eat"
         },
         {
@@ -68,32 +76,32 @@
           "activity": "work"
         },
         {
-          "hour": 19,
-          "place": "station_module",
-          "activity": "eat"
+          "hour": 14,
+          "place": "radio_mast",
+          "activity": "patrol"
         },
         {
-          "hour": 23,
-          "place": "station_module",
-          "activity": "sleep"
+          "hour": 21,
+          "place": "main_module",
+          "activity": "rest"
         }
       ],
       "relationships": [
         {
-          "npcId": "tomas",
-          "stance": "suspicious"
+          "npcId": "teo",
+          "stance": "neutral"
         }
       ],
       "appearance": {
-        "base": "mage",
-        "palette": 1
+        "base": "ranger",
+        "palette": 0
       },
       "temperament": {
-        "tau": 0.8,
+        "tau": 0.7,
         "bias": {
           "continue": 0,
           "go_to": 0,
-          "talk_to": 0.1,
+          "talk_to": -0.2,
           "idle": 0,
           "flee": 0,
           "investigate": 0,
@@ -102,45 +110,177 @@
         }
       },
       "voice": {
-        "pitch": 1.1,
-        "rate": 0.95
+        "pitch": 0.9,
+        "rate": 0.9
       },
       "mood": "tense"
     },
     {
-      "id": "oskar",
-      "name": "Oskar Ruud",
-      "role": "station engineer",
-      "persona": "Gruff and practical, trusts hardware over people. He keeps the mast alive and hates being asked why it fails.",
+      "id": "teo",
+      "name": "Teo Vance",
+      "role": "ice-core tech",
+      "persona": "Rambling and sleep-starved, he talks to the cores more than to people. He hates being the reason anything goes wrong.",
       "knowledge": [
-        "The relay on the ridge needs a fresh cell and a handheld set to test it.",
-        "The spare cell is in the Dome's cold store, where Tomas keeps the field gear.",
-        "The mast cable ices over; whoever climbs it needs a rope and ten minutes."
+        "The core freezers drew extra power since the last storm began.",
+        "Rime builds on the dome vents faster than he can chip it off.",
+        "He saw a hooded figure near the cache two nights ago."
       ],
       "secrets": [
-        "He skipped the full relay check to finish the mast repair first."
+        "He tapped the beacon feed himself to save the freezers, without telling Mara."
       ],
-      "home": "station_module",
+      "home": "dome_lab",
+      "work": "dome_lab",
+      "schedule": [
+        {
+          "hour": 7,
+          "place": "dome_lab",
+          "activity": "work"
+        },
+        {
+          "hour": 13,
+          "place": "main_module",
+          "activity": "eat"
+        },
+        {
+          "hour": 15,
+          "place": "dome_lab",
+          "activity": "work"
+        },
+        {
+          "hour": 23,
+          "place": "dome_lab",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "mara",
+          "stance": "debtor"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0,
+          "flee": 0.2,
+          "investigate": 0.3,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 1.3,
+        "rate": 1.2
+      },
+      "mood": "afraid"
+    },
+    {
+      "id": "ines",
+      "name": "Ines Okafor",
+      "role": "radio operator",
+      "persona": "Precise and wry, she lives in headphones and static. She trusts signals over people.",
+      "knowledge": [
+        "The beacon's last ping came at 03:10, then a clean cut, not a fade.",
+        "The plane window opens in about thirty hours.",
+        "A handheld locator can wake the beacon from within fifty metres."
+      ],
+      "secrets": [
+        "She heard the beacon die and stayed quiet, since the cut matched the order Mara gave."
+      ],
+      "home": "radio_mast",
       "work": "radio_mast",
       "schedule": [
         {
           "hour": 6,
-          "place": "station_module",
-          "activity": "eat"
-        },
-        {
-          "hour": 7,
           "place": "radio_mast",
           "activity": "work"
         },
         {
-          "hour": 19,
-          "place": "station_module",
+          "hour": 12,
+          "place": "main_module",
           "activity": "eat"
         },
         {
+          "hour": 14,
+          "place": "radio_mast",
+          "activity": "work"
+        },
+        {
           "hour": 22,
-          "place": "station_module",
+          "place": "radio_mast",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "sven",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "rogue_hooded",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 1,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0,
+          "idle": 0.1,
+          "flee": 0,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.5
+        }
+      },
+      "voice": {
+        "pitch": 1.1,
+        "rate": 1
+      },
+      "mood": "calm"
+    },
+    {
+      "id": "sven",
+      "name": "Sven Holt",
+      "role": "generator mechanic",
+      "persona": "Blunt and grease-stained, he fixes what breaks and distrusts anyone who plans. He guards the cache like it owes him money.",
+      "knowledge": [
+        "The beacon pole is two hundred paces past the drums, along the marker flags.",
+        "The generator feed was swapped to a spare line last week.",
+        "He keeps a spare beacon battery in the fuel store."
+      ],
+      "secrets": [
+        "He lent the beacon's relay board to patch the main generator and never put it back."
+      ],
+      "home": "fuel_store",
+      "work": "fuel_store",
+      "schedule": [
+        {
+          "hour": 5,
+          "place": "fuel_store",
+          "activity": "work"
+        },
+        {
+          "hour": 11,
+          "place": "main_module",
+          "activity": "eat"
+        },
+        {
+          "hour": 13,
+          "place": "fuel_store",
+          "activity": "guard"
+        },
+        {
+          "hour": 21,
+          "place": "fuel_store",
           "activity": "sleep"
         }
       ],
@@ -152,293 +292,176 @@
       ],
       "appearance": {
         "base": "barbarian",
-        "palette": 2
+        "palette": 3
       },
       "temperament": {
-        "tau": 0.7,
+        "tau": 0.8,
         "bias": {
           "continue": 0,
           "go_to": 0,
-          "talk_to": 0,
+          "talk_to": -0.3,
           "idle": 0,
           "flee": 0,
-          "investigate": 0.2,
+          "investigate": 0,
           "follow_player": 0,
-          "work": 0.6
+          "work": 0.4
         }
       },
       "voice": {
         "pitch": 0.7,
-        "rate": 0.9
-      },
-      "mood": "angry"
-    },
-    {
-      "id": "ines",
-      "name": "Ines Doyle",
-      "role": "radio operator",
-      "persona": "Quiet and watchful, listens more than she speaks. She has been calling the field team for six hours and will not stop.",
-      "knowledge": [
-        "Last contact with the field team was a garbled burst at 14:10, then static.",
-        "The station set is too weak for the ridge; a handheld on the relay could reach them.",
-        "The handheld set is locked in her desk and she holds the only key."
-      ],
-      "secrets": [
-        "She heard a faint voice in the static an hour ago and told no one, afraid it was wishful hearing."
-      ],
-      "home": "station_module",
-      "work": "station_module",
-      "schedule": [
-        {
-          "hour": 6,
-          "place": "station_module",
-          "activity": "work"
-        },
-        {
-          "hour": 13,
-          "place": "station_module",
-          "activity": "eat"
-        },
-        {
-          "hour": 14,
-          "place": "station_module",
-          "activity": "work"
-        },
-        {
-          "hour": 23,
-          "place": "station_module",
-          "activity": "sleep"
-        }
-      ],
-      "relationships": [
-        {
-          "npcId": "oskar",
-          "stance": "friend"
-        }
-      ],
-      "appearance": {
-        "base": "rogue_hooded",
-        "palette": 0
-      },
-      "temperament": {
-        "tau": 1,
-        "bias": {
-          "continue": 0,
-          "go_to": 0,
-          "talk_to": 0,
-          "idle": 0,
-          "flee": -0.2,
-          "investigate": 0,
-          "follow_player": 0,
-          "work": 0.5
-        }
-      },
-      "voice": {
-        "pitch": 1.3,
-        "rate": 1.1
-      },
-      "mood": "afraid"
-    },
-    {
-      "id": "tomas",
-      "name": "Tomas Varga",
-      "role": "field tech",
-      "persona": "Blunt, sleepless, half-frozen and half-furious. He was left behind with a bad ankle and knows the ridge better than anyone.",
-      "knowledge": [
-        "The survey hut sits a short climb below the ridge, just past the dead relay.",
-        "The old rope line from the Dome to the ridge is still staked if you follow the flags.",
-        "He kept spare cells and a tracking beacon in the Dome's cold store."
-      ],
-      "secrets": [
-        "He lost the team's second radio in a crevasse and never reported it."
-      ],
-      "home": "dome_lab",
-      "work": "dome_lab",
-      "schedule": [
-        {
-          "hour": 6,
-          "place": "dome_lab",
-          "activity": "rest"
-        },
-        {
-          "hour": 9,
-          "place": "dome_lab",
-          "activity": "work"
-        },
-        {
-          "hour": 17,
-          "place": "radio_mast",
-          "activity": "wander"
-        },
-        {
-          "hour": 20,
-          "place": "dome_lab",
-          "activity": "rest"
-        }
-      ],
-      "relationships": [
-        {
-          "npcId": "mara",
-          "stance": "rival"
-        }
-      ],
-      "appearance": {
-        "base": "ranger",
-        "palette": 3
-      },
-      "temperament": {
-        "tau": 1.3,
-        "bias": {
-          "continue": 0,
-          "go_to": 0,
-          "talk_to": 0,
-          "idle": -0.2,
-          "flee": 0,
-          "investigate": 0.3,
-          "follow_player": 0.2,
-          "work": 0
-        }
-      },
-      "voice": {
-        "pitch": 0.9,
-        "rate": 1.2
+        "rate": 0.8
       },
       "mood": "angry"
     }
   ],
   "items": [
     {
-      "id": "relay_cell",
-      "name": "Relay Cell",
-      "description": "A heavy battery cell wrapped in foam, rated for deep cold.",
-      "holder": "dome_lab"
+      "id": "relay_board",
+      "name": "Relay Board",
+      "description": "A cracked circuit board pulled from the generator, still stamped BEACON.",
+      "holder": "main_module"
     },
     {
-      "id": "handheld_set",
-      "name": "Handheld Set",
-      "description": "A battered field radio with a cracked dial and a wrist strap.",
-      "holder": "ines"
+      "id": "beacon_battery",
+      "name": "Beacon Battery",
+      "description": "A sealed spare cell, heavy and cold to the touch.",
+      "holder": "fuel_store"
     },
     {
-      "id": "fox_collar",
-      "name": "Chewed Tracking Collar",
-      "description": "A tag collar gnawed through, dropped near the ice where the fox hunts.",
-      "holder": "dome_lab"
+      "id": "locator",
+      "name": "Handheld Locator",
+      "description": "A yellow unit that pings the beacon within fifty metres.",
+      "holder": "radio_mast"
+    },
+    {
+      "id": "fox_tracks_cast",
+      "name": "Fox Track Cast",
+      "description": "A plaster cast of arctic fox prints circling the cache, left by someone who counted them.",
+      "holder": "fuel_store"
     }
   ],
   "quest": {
-    "id": "silent_relay",
-    "title": "Whiteout at Station Nine",
-    "hook": "The relay beacon on the ridge went dead in the storm, and Station Nine cannot raise its field team. The crew is shouting at each other over a failing radio while the snow thickens. A stranger with a working set could settle whether anyone is still alive out there, if the stranger will walk into the whiteout.",
-    "giver": "ines",
+    "id": "silent_beacon",
+    "title": "Whiteout at Station Kestrel",
+    "hook": "The fuel beacon has gone silent in the storm. Without it the supply plane cannot find Kestrel before the cache runs dry. Someone at this station knows why the signal died, and nobody is saying. You have a hood, a pack and a day of visibility that is getting shorter.",
+    "giver": "mara",
     "steps": [
       {
         "id": "s1",
         "kind": "talk",
-        "target": "ines",
+        "target": "mara",
         "requires": [],
-        "objective": "Ask Ines Doyle what the radio has picked up.",
-        "beat": "Ines keeps calling the field team over the hiss, one hand on the dial, and tells you the station set cannot reach the ridge.",
+        "objective": "Hear Mara's account of the dead beacon.",
+        "beat": "Mara says the beacon cut out at night and the plane window is closing. She wants it fixed without a fuss."
+      },
+      {
+        "id": "s2",
+        "kind": "talk",
+        "target": "ines",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Ask Ines about the last ping.",
+        "beat": "Ines says the signal was cut clean, not lost to weather. She hands you a way to find the pole.",
         "reveals": [
           "ines:0"
         ]
       },
       {
-        "id": "s2",
-        "kind": "fetch",
-        "target": "relay_cell",
-        "requires": [
-          "s1"
-        ],
-        "objective": "Take a fresh relay cell from the cold store in the Dome.",
-        "beat": "The Dome hums in the dark, frost on every panel. Tomas's gear is stacked by the door, the spare cell on top.",
-        "item": "relay_cell"
-      },
-      {
         "id": "s3",
-        "kind": "talk",
-        "target": "tomas",
+        "kind": "fetch",
+        "target": "locator",
         "requires": [
           "s2"
         ],
-        "objective": "Ask Tomas Varga how to find the ridge in a whiteout.",
-        "beat": "Tomas tells you to follow the staked flags and keep the glacier wall on your right, then goes quiet about why he stayed behind.",
-        "reveals": [
-          "tomas:0"
-        ]
+        "objective": "Take the handheld locator from the comms mast.",
+        "beat": "The locator is cold and the screen flickers in the rime, but it holds a faint bearing.",
+        "item": "locator"
       },
       {
         "id": "s4",
         "kind": "visit",
-        "target": "radio_mast",
+        "target": "fuel_store",
         "requires": [
           "s3"
         ],
-        "objective": "Climb to the Mast and get Oskar's word on the dead relay.",
-        "beat": "Wind screams through the lattice. Oskar hauls on the cable and admits the relay was never fully checked before the storm hit.",
+        "objective": "Go to the Fuel Cache and press Sven on the generator feed.",
+        "beat": "Sven stands among the drums. An arctic fox slips between the sledges, stalking scraps in the tarp's lee.",
         "reveals": [
-          "oskar:0"
+          "sven:0"
         ]
       },
       {
         "id": "s5",
-        "kind": "choose",
-        "target": "mara",
+        "kind": "fetch",
+        "target": "beacon_battery",
         "requires": [
           "s4"
         ],
-        "objective": "Decide whom to trust with the ridge search.",
-        "beat": "Mara wants the whole crew held at the station; Ines wants you out on the ridge now. A fox watches the ice from the edge of the lamplight.",
+        "objective": "Take the spare beacon battery from Sven's store.",
+        "beat": "Sven hands it over grudgingly and says the relay board is somewhere in Module Alpha.",
+        "item": "beacon_battery"
+      },
+      {
+        "id": "s6",
+        "kind": "choose",
+        "target": "mara",
+        "requires": [
+          "s5"
+        ],
+        "objective": "Decide how to restore the beacon.",
+        "beat": "Teo admits he tapped the feed to save the freezers. Restoring the beacon costs the ice-core samples or the flight.",
         "choices": [
           {
-            "label": "Go up the ridge alone and test the relay",
+            "label": "Cut power to the freezers and restore the beacon",
             "unlocks": [
-              "s6a"
+              "s7a"
             ]
           },
           {
-            "label": "Wait for Mara's team to move as a group",
+            "label": "Rig a battery beacon and keep the freezers running",
             "unlocks": [
-              "s6b"
+              "s7b"
             ]
           }
         ],
         "reveals": [
+          "teo:0",
           "mara:0"
         ]
       },
       {
-        "id": "s6a",
-        "kind": "fetch",
-        "target": "handheld_set",
+        "id": "s7a",
+        "kind": "deliver",
+        "target": "ines",
         "requires": [
-          "s5"
+          "s6"
         ],
-        "objective": "Get the handheld set from Ines, then climb to the relay.",
-        "beat": "Ines unlocks her desk and presses the handheld into your glove. You step out into the white with only the flags to follow.",
-        "item": "handheld_set"
+        "objective": "Bring the battery to Ines to relight the beacon at full power.",
+        "beat": "The beacon sings back to life, strong and steady. Down in the dome, the freezers go dark.",
+        "item": "beacon_battery"
       },
       {
-        "id": "s6b",
+        "id": "s7b",
         "kind": "deliver",
-        "target": "mara",
+        "target": "ines",
         "requires": [
-          "s5"
+          "s6"
         ],
-        "objective": "Hand the relay cell to Mara and let her run the search.",
-        "beat": "Mara checks the cell twice, then sends a slow team up the rope line. By the time they reach the ridge the beacon has been dark for hours.",
-        "item": "relay_cell"
+        "objective": "Bring the battery to Ines to run a weak beacon beside the freezers.",
+        "beat": "The beacon pulses thin and unsteady through the blizzard. The cores stay frozen, the flight a gamble.",
+        "item": "beacon_battery"
       }
     ],
     "endings": [
       {
-        "stepId": "s6a",
-        "label": "You raise the field team through the static: two alive, one lost to the cold.",
+        "stepId": "s7a",
+        "label": "The plane finds Kestrel; the cores thaw and a season's work is lost.",
         "tone": "bitter"
       },
       {
-        "stepId": "s6b",
-        "label": "The relay comes back by dawn and the whole field team is found sheltering in the hut.",
+        "stepId": "s7b",
+        "label": "A weak signal and a lucky pilot bring the plane in, cores intact.",
         "tone": "good"
       }
     ]
@@ -446,50 +469,45 @@
   "rules": [
     {
       "id": "r1",
-      "text": "No one crosses the ice alone after dark; the whiteout swallows trails.",
+      "text": "Nobody goes beyond the marker flags alone once the whiteout closes in.",
       "effect": {
-        "type": "curfew",
-        "fromHour": 19,
-        "toHour": 6,
-        "exemptRoles": [
-          "radio operator",
-          "field tech"
-        ]
+        "type": "custom",
+        "summary": "Leaving the flagged paths in the blizzard is forbidden without a partner."
       },
       "source": "world"
     },
     {
       "id": "r2",
-      "text": "No open flame near the fuel and the Dome; frost and fumes do not mix.",
+      "text": "No open flame within the fuel cache.",
       "effect": {
         "type": "ban",
         "what": "open flame",
-        "where": "dome_lab",
-        "enforcer": "oskar"
+        "where": "fuel_store",
+        "enforcer": "sven"
       },
       "source": "world"
     }
   ],
   "lexicon": [
     "whiteout",
-    "relay",
+    "rime",
     "ice-core",
-    "Station Nine",
-    "krone",
-    "the Dome"
+    "katabatic",
+    "cache",
+    "krill-free"
   ],
   "style": {
-    "name": "Station Nine Whiteout",
-    "wall": "#a7adb0",
-    "wall2": "#868c8f",
-    "roof": "#5c6266",
-    "trim": "#9a9a96",
-    "accent": "#8a4a3a",
-    "dark": "#2a2e33",
-    "glass": "#2c3a46",
+    "name": "Kestrel cold steel",
+    "wall": "#8b8f90",
+    "wall2": "#b7bcbd",
+    "roof": "#d4d9db",
+    "trim": "#5f6468",
+    "accent": "#9a5a3c",
+    "dark": "#2b2e32",
+    "glass": "#2a3844",
     "glow": "#ffd9a0",
     "ground": "#dfe4e6",
-    "road": "#b9c9d1",
+    "road": "#b4bfc4",
     "variety": 0.15,
     "surfaces": {
       "wall": "metal_panel",
@@ -498,7 +516,7 @@
       "trim": "metal_panel",
       "ground": "snow",
       "road": "ice",
-      "wear": 0.65,
+      "wear": 0.6,
       "wet": 0.15
     }
   },
@@ -515,23 +533,24 @@
     "haze": 0.8,
     "ambience": [
       "wind",
-      "snow"
+      "snow",
+      "machinery"
     ],
     "music": "low synth drone"
   },
   "terrain": {
     "relief": "icefield",
-    "ruggedness": 0.08,
+    "ruggedness": 0.1,
     "water": "ice_sheet",
     "waterAmount": 0.4,
-    "horizon": "glacier wall in blowing snow",
-    "settled": 0.12
+    "horizon": "grey blizzard wall, glacier ridge",
+    "settled": 0.1
   },
   "skyFeatures": [
     {
       "kind": "aurora",
       "size": 0.7,
-      "color": "#3fdc9a"
+      "color": "#4fd6a0"
     }
   ],
   "creatures": [
@@ -541,39 +560,40 @@
       "family": "swimmer",
       "dials": {
         "bulk": 0.6,
-        "depth": 0.4
+        "fluke": 0,
+        "pectoral": 0.3
       },
-      "size": 1.6,
+      "size": 1.4,
       "count": 3,
       "behaviour": "sleep",
       "haunt": "water",
-      "body": "#7d7f80",
-      "accent": "#4a4d50",
+      "body": "#6e7b86",
+      "accent": "#c7cfd6",
       "glow": "#000000",
-      "note": "Breathing holes, asleep on the ice."
+      "note": "Asleep on a breathing hole, unbothered by the storm."
     },
     {
       "id": "arctic_fox",
       "name": "arctic fox",
       "family": "quadruped",
       "dials": {
-        "legs": 0.3,
-        "tailw": 0.6,
-        "pattern": "plain"
+        "legs": 0.4,
+        "tailw": 0.7,
+        "ears": 0.6
       },
       "size": 0.7,
       "count": 1,
       "behaviour": "stalk",
       "haunt": "wild",
-      "body": "#e8e6e0",
-      "accent": "#c9c6bd",
+      "body": "#ece8df",
+      "accent": "#b9b3a8",
       "glow": "#000000",
-      "note": "Pale shape, tracking the wind."
+      "note": "Tracks you at a distance, pale against the snow."
     }
   ],
   "folk": {
     "name": "station crew",
-    "height": 1.78,
+    "height": 1.76,
     "bulk": 0.5,
     "head": 1,
     "features": [
@@ -581,12 +601,12 @@
       "pack"
     ],
     "skin": [
-      "#c49a7a",
-      "#8d6048"
+      "#c69c7c",
+      "#8d5e44"
     ],
     "cloth": [
-      "#b3453f",
-      "#24344f"
+      "#7a302b",
+      "#2c3e5a"
     ],
     "trim": [
       "#d8d2c4"
@@ -594,17 +614,17 @@
   },
   "blueprints": [
     {
-      "id": "module_nine",
-      "summary": "raised steel module on stilts, 2 storeys, about 9 m to roofline",
+      "id": "alpha_module",
+      "summary": "raised steel living module on stilts, 2 storeys, about 9 m",
       "parts": [
         {
           "shape": "box",
           "x": 0,
           "z": 0,
-          "y": 5,
+          "y": 4,
           "w": 0.9,
           "d": 0.8,
-          "h": 6.4,
+          "h": 3.2,
           "rot": 0,
           "tone": "wall",
           "repeat": 1,
@@ -614,10 +634,10 @@
           "shape": "box",
           "x": 0,
           "z": 0,
-          "y": 11.4,
+          "y": 7.2,
           "w": 0.94,
           "d": 0.84,
-          "h": 0.4,
+          "h": 0.3,
           "rot": 0,
           "tone": "roof",
           "repeat": 1,
@@ -625,104 +645,104 @@
         },
         {
           "shape": "box",
-          "x": -0.2,
+          "x": -0.25,
           "z": 0.41,
-          "y": 6.4,
+          "y": 5.2,
           "w": 0.14,
           "d": 0.02,
-          "h": 1.2,
+          "h": 0.9,
           "rot": 0,
           "tone": "glow",
           "repeat": 3,
-          "gap": 0.2
-        },
-        {
-          "shape": "box",
-          "x": -0.2,
-          "z": 0.41,
-          "y": 9.2,
-          "w": 0.14,
-          "d": 0.02,
-          "h": 1.2,
-          "rot": 0,
-          "tone": "glass",
-          "repeat": 3,
-          "gap": 0.2
+          "gap": 0.25
         },
         {
           "shape": "box",
           "x": 0.3,
           "z": -0.2,
-          "y": 11.8,
-          "w": 0.12,
-          "d": 0.12,
-          "h": 3,
+          "y": 7.5,
+          "w": 0.14,
+          "d": 0.14,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.48,
+          "z": 0,
+          "y": 4.6,
+          "w": 0.04,
+          "d": 0.5,
+          "h": 1.2,
           "rot": 0,
           "tone": "wall2",
           "repeat": 1,
           "gap": 0
         },
         {
-          "shape": "cylinder",
-          "x": 0.3,
-          "z": -0.2,
-          "y": 14.8,
-          "w": 0.03,
-          "d": 0.03,
-          "h": 5,
-          "rot": 0,
-          "tone": "dark",
-          "repeat": 1,
-          "gap": 0
-        },
-        {
           "shape": "box",
           "x": 0,
-          "z": 0.2,
-          "y": 5.2,
-          "w": 0.1,
-          "d": 0.4,
-          "h": 0.2,
+          "z": 0.3,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.3,
+          "h": 0.5,
           "rot": 0,
           "tone": "accent",
           "repeat": 1,
           "gap": 0
         }
       ],
-      "doorX": 0.3,
+      "doorX": 0,
       "family": "stilts",
       "dials": {
-        "legHeight": 5,
+        "legHeight": 4,
         "legs": 6,
         "hut": 1,
         "access": "ramp"
       }
     },
     {
-      "id": "geodesic_dome",
-      "summary": "frosted white geodesic dome lab, 7 m high, drift-banked base",
+      "id": "geo_dome",
+      "summary": "white geodesic dome lab, 14 m across, about 7 m high",
       "parts": [
         {
           "shape": "box",
           "x": 0,
           "z": 0.5,
           "y": 0,
-          "w": 0.2,
-          "d": 0.18,
-          "h": 2.2,
+          "w": 0.18,
+          "d": 0.12,
+          "h": 2.6,
           "rot": 0,
-          "tone": "wall2",
+          "tone": "wall",
           "repeat": 1,
           "gap": 0
         },
         {
-          "shape": "arch",
+          "shape": "box",
           "x": 0,
           "z": 0.5,
+          "y": 2.6,
+          "w": 0.16,
+          "d": 0.03,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cylinder",
+          "x": 0.5,
+          "z": 0.3,
           "y": 0,
-          "w": 0.14,
-          "d": 0.04,
-          "h": 2.1,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 2.2,
           "rot": 0,
           "tone": "dark",
           "repeat": 1,
@@ -730,36 +750,10 @@
         },
         {
           "shape": "box",
-          "x": 0.15,
-          "z": 0.5,
-          "y": 2.4,
-          "w": 0.05,
-          "d": 0.02,
-          "h": 0.6,
-          "rot": 0,
-          "tone": "glow",
-          "repeat": 1,
-          "gap": 0
-        },
-        {
-          "shape": "dome",
-          "x": 0,
-          "z": 0.1,
+          "x": -0.4,
+          "z": 0.45,
           "y": 0,
-          "w": 1.2,
-          "d": 1.1,
-          "h": 0.8,
-          "rot": 0,
-          "tone": "roof",
-          "repeat": 1,
-          "gap": 0
-        },
-        {
-          "shape": "cylinder",
-          "x": 0.35,
-          "z": -0.4,
-          "y": 0,
-          "w": 0.14,
+          "w": 0.2,
           "d": 0.14,
           "h": 1.4,
           "rot": 0,
@@ -771,103 +765,90 @@
       "doorX": 0,
       "family": "dome",
       "dials": {
-        "flatness": 0.3,
-        "drum": 1.5,
-        "oculus": 0.2,
-        "ribs": 4,
+        "flatness": 0.35,
+        "drum": 0,
+        "oculus": 0,
+        "ribs": 5,
         "pods": 2
       }
     },
     {
       "id": "lattice_mast",
-      "summary": "steel lattice radio mast 18 m tall, guyed, beacon on top",
+      "summary": "lattice radio mast, 18 m tall, guyed",
       "parts": [
         {
-          "shape": "cylinder",
-          "x": -0.45,
-          "z": -0.45,
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
           "y": 0,
-          "w": 0.06,
-          "d": 0.06,
-          "h": 2.2,
+          "w": 0.5,
+          "d": 0.4,
+          "h": 2,
           "rot": 0,
-          "tone": "dark",
-          "repeat": 1,
-          "gap": 0
-        },
-        {
-          "shape": "cylinder",
-          "x": 0.45,
-          "z": -0.45,
-          "y": 0,
-          "w": 0.06,
-          "d": 0.06,
-          "h": 2.2,
-          "rot": 0,
-          "tone": "dark",
-          "repeat": 1,
-          "gap": 0
-        },
-        {
-          "shape": "cylinder",
-          "x": 0.45,
-          "z": 0.45,
-          "y": 0,
-          "w": 0.06,
-          "d": 0.06,
-          "h": 2.2,
-          "rot": 0,
-          "tone": "dark",
-          "repeat": 1,
-          "gap": 0
-        },
-        {
-          "shape": "cylinder",
-          "x": -0.45,
-          "z": 0.45,
-          "y": 0,
-          "w": 0.06,
-          "d": 0.06,
-          "h": 2.2,
-          "rot": 0,
-          "tone": "dark",
+          "tone": "wall",
           "repeat": 1,
           "gap": 0
         },
         {
           "shape": "box",
           "x": 0,
-          "z": 0,
-          "y": 12,
-          "w": 0.5,
-          "d": 0.06,
-          "h": 0.15,
-          "rot": 0,
-          "tone": "trim",
-          "repeat": 2,
-          "gap": 0.6
-        },
-        {
-          "shape": "box",
-          "x": 0.2,
-          "z": 0.28,
-          "y": 0,
-          "w": 0.2,
-          "d": 0.2,
-          "h": 2.2,
+          "z": 0.5,
+          "y": 2,
+          "w": 0.4,
+          "d": 0.3,
+          "h": 2.4,
           "rot": 0,
           "tone": "wall2",
           "repeat": 1,
           "gap": 0
         },
         {
-          "shape": "sphere",
+          "shape": "ring",
           "x": 0,
           "z": 0,
-          "y": 18,
-          "w": 0.12,
-          "d": 0.12,
-          "h": 0.5,
+          "y": 13,
+          "w": 0.35,
+          "d": 0.35,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 17.8,
+          "w": 0.08,
+          "d": 0.08,
+          "h": 0.4,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.4,
+          "z": 0.4,
+          "y": 0,
+          "w": 0.03,
+          "d": 0.03,
+          "h": 12,
+          "rot": 35,
+          "tone": "dark",
+          "repeat": 4,
+          "gap": 0.5
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 1,
+          "w": 0.3,
+          "d": 0.02,
+          "h": 0.9,
           "rot": 0,
           "tone": "glow",
           "repeat": 1,
@@ -879,31 +860,96 @@
       "dials": {
         "height": 18,
         "section": "square",
-        "taper": 0.7,
+        "taper": 0.5,
         "bands": 5,
         "top": "needle",
-        "flare": 0.15
+        "flare": 0.2
+      }
+    },
+    {
+      "id": "drum_cache",
+      "summary": "sledge-stacked fuel drums under tarp, about 2.5 m high",
+      "parts": [
+        {
+          "shape": "cylinder",
+          "x": -0.3,
+          "z": 0,
+          "y": 0,
+          "w": 0.22,
+          "d": 0.22,
+          "h": 1.1,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 3,
+          "gap": 1.2
+        },
+        {
+          "shape": "cylinder",
+          "x": -0.2,
+          "z": 0.15,
+          "y": 1.1,
+          "w": 0.22,
+          "d": 0.22,
+          "h": 1.1,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 2,
+          "gap": 1.2
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.5,
+          "h": 0.15,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 2.3,
+          "w": 0.9,
+          "d": 0.7,
+          "h": 0.12,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "canopy",
+      "dials": {
+        "posts": 4,
+        "roof": "shed",
+        "counter": 0
       }
     }
   ],
   "props": [
     {
       "kind": "sastrugi_drift",
-      "size": 6,
+      "size": 5,
       "parts": [],
       "weight": 5,
       "family": "rock",
       "dials": {
         "form": "boulder",
         "count": 4,
-        "height": 0.25,
+        "height": 0.3,
         "jagged": 0.2,
-        "flat": 0.9
+        "flat": 0.8
       }
     },
     {
-      "kind": "ice_shard_cluster",
-      "size": 7,
+      "kind": "rime_ice_shard",
+      "size": 6,
       "parts": [],
       "weight": 3,
       "family": "rock",
@@ -912,28 +958,14 @@
         "count": 5,
         "height": 0.9,
         "jagged": 0.8,
-        "flat": 0.4
-      }
-    },
-    {
-      "kind": "wind_scoured_boulder",
-      "size": 3.5,
-      "parts": [],
-      "weight": 2,
-      "family": "rock",
-      "dials": {
-        "form": "boulder",
-        "count": 2,
-        "height": 0.6,
-        "jagged": 0.5,
         "flat": 0.3
       }
     },
     {
-      "kind": "flagged_route_stake",
-      "size": 1.6,
+      "kind": "flag_marker_pole",
+      "size": 2,
       "parts": [],
-      "weight": 3,
+      "weight": 2,
       "family": "pole",
       "dials": {
         "head": "banner",
@@ -942,48 +974,48 @@
       }
     },
     {
-      "kind": "floodlight_mast",
-      "size": 3,
+      "kind": "fuel_drum_stack",
+      "size": 1.5,
       "parts": [],
-      "weight": 2,
-      "family": "pole",
+      "weight": 1,
+      "family": "container",
       "dials": {
-        "head": "lamp",
-        "height": 3.5,
-        "arms": 2
+        "form": "barrel",
+        "count": 3,
+        "height": 0.7
       }
     },
     {
-      "kind": "sled_cargo_crates",
-      "size": 1.4,
+      "kind": "floodlight_post",
+      "size": 2,
       "parts": [
         {
           "shape": "box",
           "x": 0,
           "z": 0,
-          "y": 0,
-          "w": 1.1,
-          "d": 0.3,
-          "h": 0.1,
+          "y": 0.95,
+          "w": 0.3,
+          "d": 0.1,
+          "h": 0.15,
           "rot": 0,
-          "tone": "dark",
+          "tone": "glow",
           "repeat": 1,
           "gap": 0
         }
       ],
       "weight": 2,
-      "family": "container",
+      "family": "pole",
       "dials": {
-        "form": "crate",
-        "count": 3,
-        "height": 0.7
+        "head": "lamp",
+        "height": 3.2,
+        "arms": 2
       }
     }
   ],
   "landmarks": [
     {
       "id": "buried_snowcat",
-      "prompt": "half-buried tracked snowcat with a crushed cab, faded red steel body, hanging rubber tracks, drifted snow on one flank, realistic proportions, weathered",
+      "prompt": "half-buried tracked snowcat with orange-faded cab, frost-caked steel tracks, sagging canvas cover, realistic proportions, weathered",
       "place": "plaza",
       "height": 4
     }

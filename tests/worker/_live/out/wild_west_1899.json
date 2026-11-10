@@ -1,0 +1,1165 @@
+{
+  "version": 1,
+  "seed": 1899,
+  "prompt": "Wild West 1899",
+  "title": "Dry Creek, 1899",
+  "tagline": "Gunsmoke, dust, and a town that owes too much",
+  "theme": "western",
+  "era": "American West, 1899",
+  "palette": {
+    "ground": "#b39a74",
+    "accent": "#7a3b2e",
+    "sky": "dusk",
+    "fog": 0.3
+  },
+  "time": {
+    "startHour": 17.5,
+    "minutesPerRealSecond": 4
+  },
+  "buildings": [
+    {
+      "id": "saloon_main",
+      "role": "saloon",
+      "label": "The Iron Spur",
+      "size": "large",
+      "keyBuilding": true,
+      "blueprint": "saloon_falsefront"
+    },
+    {
+      "id": "sheriff_office",
+      "role": "sheriff",
+      "label": "Marshal's Office",
+      "size": "medium",
+      "keyBuilding": true,
+      "blueprint": "adobe_marshal"
+    },
+    {
+      "id": "general_store",
+      "role": "general_store",
+      "label": "Pruitt's Mercantile",
+      "size": "medium",
+      "blueprint": "mercantile_awning"
+    },
+    {
+      "id": "bank",
+      "role": "bank",
+      "label": "Territorial Bank",
+      "size": "medium",
+      "blueprint": "bank_brick"
+    },
+    {
+      "id": "church",
+      "role": "church",
+      "label": "Mount Hope Chapel",
+      "size": "medium",
+      "blueprint": "chapel_bell"
+    },
+    {
+      "id": "stable",
+      "role": "stable",
+      "label": "Dunn Livery",
+      "size": "medium",
+      "blueprint": "livery_barn"
+    },
+    {
+      "id": "water_tower",
+      "role": "townhall",
+      "label": "Water Tower",
+      "size": "large",
+      "blueprint": "water_tower_tank"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "jack",
+      "name": "Jack Holloway",
+      "role": "sheriff",
+      "persona": "Tired lawman who has buried more men than he arrested. He wants the payroll found before a posse turns into a mob.",
+      "knowledge": [
+        "The stagecoach reached Dry Creek empty; the strongbox lid was pried, not shot open.",
+        "The driver swears he never stopped between the mesa and town.",
+        "Mabel Pruitt sold a new lock and a crowbar to a stranger two days back."
+      ],
+      "secrets": [
+        "Jack lent the bank his own savings last spring and will be ruined if the payroll stays lost."
+      ],
+      "home": "sheriff_office",
+      "work": "street",
+      "schedule": [
+        {
+          "hour": 6,
+          "place": "sheriff_office",
+          "activity": "work"
+        },
+        {
+          "hour": 9,
+          "place": "street",
+          "activity": "patrol"
+        },
+        {
+          "hour": 18,
+          "place": "saloon_main",
+          "activity": "drink"
+        },
+        {
+          "hour": 22,
+          "place": "sheriff_office",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "silas",
+          "stance": "suspicious"
+        }
+      ],
+      "appearance": {
+        "base": "ranger",
+        "palette": 0
+      },
+      "temperament": {
+        "tau": 0.7,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.2,
+          "idle": -0.3,
+          "flee": 0,
+          "investigate": 0.5,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.8,
+        "rate": 0.9
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "mabel",
+      "name": "Mabel Pruitt",
+      "role": "shopkeeper",
+      "persona": "Sharp-eyed widow who counts every greenback twice. She talks fast when nervous and gives nothing away for free.",
+      "knowledge": [
+        "A man in a gray duster bought rope, a crowbar and lamp oil two days ago.",
+        "Silas Crane has been buying flour on credit he cannot repay.",
+        "Dust storms have kept the Territory road quiet; any rider would stand out."
+      ],
+      "secrets": [
+        "Mabel saw the gray-duster man hide a canvas sack in Dunn Livery's loft and kept quiet to keep her store out of it."
+      ],
+      "home": "general_store",
+      "work": "general_store",
+      "schedule": [
+        {
+          "hour": 7,
+          "place": "general_store",
+          "activity": "work"
+        },
+        {
+          "hour": 12,
+          "place": "general_store",
+          "activity": "eat"
+        },
+        {
+          "hour": 13,
+          "place": "general_store",
+          "activity": "trade"
+        },
+        {
+          "hour": 20,
+          "place": "general_store",
+          "activity": "sleep"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "jack",
+          "stance": "friend"
+        }
+      ],
+      "appearance": {
+        "base": "mage",
+        "palette": 1
+      },
+      "temperament": {
+        "tau": 1.3,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.4,
+          "idle": 0,
+          "flee": 0.2,
+          "investigate": 0,
+          "follow_player": 0,
+          "work": 0.4
+        }
+      },
+      "voice": {
+        "pitch": 1.3,
+        "rate": 1.2
+      },
+      "mood": "tense"
+    },
+    {
+      "id": "silas",
+      "name": "Silas Crane",
+      "role": "barkeep",
+      "persona": "Smooth-talking barkeep who hears everything and sells most of it. He is loyal to whoever tips best.",
+      "knowledge": [
+        "Three drovers drank on the bank's tab the night before the coach arrived.",
+        "A stranger paid for whiskey with a fresh payroll greenback and left a spur on the bar.",
+        "Jack Holloway drinks harder since the bank started asking questions."
+      ],
+      "secrets": [
+        "Silas took a payroll greenback as payment and has hidden it under the bar, afraid it will hang him."
+      ],
+      "home": "saloon_main",
+      "work": "saloon_main",
+      "schedule": [
+        {
+          "hour": 3,
+          "place": "saloon_main",
+          "activity": "sleep"
+        },
+        {
+          "hour": 10,
+          "place": "saloon_main",
+          "activity": "work"
+        },
+        {
+          "hour": 16,
+          "place": "saloon_main",
+          "activity": "trade"
+        },
+        {
+          "hour": 23,
+          "place": "saloon_main",
+          "activity": "work"
+        }
+      ],
+      "relationships": [
+        {
+          "npcId": "jack",
+          "stance": "neutral"
+        }
+      ],
+      "appearance": {
+        "base": "rogue",
+        "palette": 2
+      },
+      "temperament": {
+        "tau": 1,
+        "bias": {
+          "continue": 0,
+          "go_to": 0,
+          "talk_to": 0.5,
+          "idle": 0.2,
+          "flee": 0,
+          "investigate": -0.2,
+          "follow_player": 0,
+          "work": 0
+        }
+      },
+      "voice": {
+        "pitch": 0.9,
+        "rate": 1
+      },
+      "mood": "calm"
+    }
+  ],
+  "items": [
+    {
+      "id": "silver_spur",
+      "name": "Silver Spur",
+      "description": "A fine silver spur with a star rowel, left on the bar of The Iron Spur.",
+      "holder": "saloon_main"
+    },
+    {
+      "id": "payroll_sack",
+      "name": "Payroll Sack",
+      "description": "A canvas sack stamped Territorial Bank, heavy with greenbacks.",
+      "holder": "stable"
+    },
+    {
+      "id": "marked_greenback",
+      "name": "Marked Greenback",
+      "description": "A single payroll greenback with the bank's ink stamp on the corner.",
+      "holder": "silas"
+    }
+  ],
+  "quest": {
+    "id": "dry_creek_payroll",
+    "title": "The Dry Creek Payroll",
+    "hook": "The territorial payroll vanished from the stagecoach last night, and the Territorial Bank is shaking. Marshal Holloway has no leads and a town ready to hang the first stranger it can find. You ride in at dusk with a steady hand and a day to prove the payroll is still in Dry Creek.",
+    "giver": "jack",
+    "steps": [
+      {
+        "id": "s1",
+        "kind": "talk",
+        "target": "jack",
+        "requires": [],
+        "objective": "Hear the marshal's account of the missing payroll.",
+        "beat": "Jack tells you the strongbox was pried open and the coach came in empty. He wants it found quietly."
+      },
+      {
+        "id": "s2",
+        "kind": "talk",
+        "target": "mabel",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Ask Mabel Pruitt about a stranger buying a crowbar.",
+        "beat": "Mabel admits a gray-duster man bought tools, then lets slip he went toward the livery.",
+        "reveals": [
+          "mabel:0"
+        ]
+      },
+      {
+        "id": "s3",
+        "kind": "fetch",
+        "target": "silver_spur",
+        "requires": [
+          "s1"
+        ],
+        "objective": "Pick up the silver spur left on the bar at The Iron Spur.",
+        "beat": "The spur is fine work, too fine for a drover. Silas watches you pocket it.",
+        "item": "silver_spur"
+      },
+      {
+        "id": "s4",
+        "kind": "visit",
+        "target": "stable",
+        "requires": [
+          "s2"
+        ],
+        "objective": "Climb to the loft at Dunn Livery while the horses stamp below.",
+        "beat": "Hitched horses shift in the dusk as you climb. A canvas sack lies behind the hay, stamped Territorial Bank."
+      },
+      {
+        "id": "s5",
+        "kind": "fetch",
+        "target": "payroll_sack",
+        "requires": [
+          "s4"
+        ],
+        "objective": "Take the payroll sack from the loft.",
+        "beat": "The sack is heavy and mostly full. Whoever hid it meant to come back.",
+        "item": "payroll_sack"
+      },
+      {
+        "id": "s6",
+        "kind": "choose",
+        "target": "jack",
+        "requires": [
+          "s3",
+          "s5"
+        ],
+        "objective": "Decide what to do with the payroll and the man behind it.",
+        "beat": "You hold the sack and the spur. Jack waits, and the bank watches.",
+        "choices": [
+          {
+            "label": "Hand it all to the marshal",
+            "unlocks": [
+              "s7a"
+            ]
+          },
+          {
+            "label": "Return it to the bank and keep the thief quiet",
+            "unlocks": [
+              "s7b"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s7a",
+        "kind": "deliver",
+        "target": "jack",
+        "requires": [
+          "s6"
+        ],
+        "objective": "Deliver the payroll sack to Marshal Holloway.",
+        "beat": "Jack counts it twice and locks it in the office. The town sleeps easier, and he starts a proper hunt for the stranger.",
+        "item": "payroll_sack"
+      },
+      {
+        "id": "s7b",
+        "kind": "deliver",
+        "target": "jack",
+        "requires": [
+          "s6"
+        ],
+        "objective": "Give Jack the sack and let him settle it with the bank.",
+        "beat": "Jack takes it with a hard look. The bank gets its money, but the stranger rides out unpunished.",
+        "item": "payroll_sack"
+      }
+    ],
+    "endings": [
+      {
+        "stepId": "s7a",
+        "label": "The payroll is recovered and the law holds.",
+        "tone": "good"
+      },
+      {
+        "stepId": "s7b",
+        "label": "The money returns, but the thief walks.",
+        "tone": "bitter"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "id": "r1",
+      "text": "No firearms are carried in the saloon.",
+      "effect": {
+        "type": "ban",
+        "what": "firearms",
+        "where": "saloon_main",
+        "enforcer": "jack"
+      },
+      "source": "world"
+    },
+    {
+      "id": "r2",
+      "text": "After midnight the streets are for lawmen only.",
+      "effect": {
+        "type": "curfew",
+        "fromHour": 0,
+        "toHour": 5,
+        "exemptRoles": [
+          "sheriff",
+          "barkeep"
+        ]
+      },
+      "source": "world"
+    }
+  ],
+  "lexicon": [
+    "greenback",
+    "dollar",
+    "spur",
+    "posse",
+    "hitching rail",
+    "Territory"
+  ],
+  "style": {
+    "name": "Dry Creek Dusk",
+    "wall": "#8a7358",
+    "wall2": "#a89678",
+    "roof": "#4f4339",
+    "trim": "#b5a88f",
+    "accent": "#7a3b2e",
+    "dark": "#2a2420",
+    "glass": "#2f363b",
+    "glow": "#ffb457",
+    "ground": "#b39a74",
+    "road": "#9a8461",
+    "variety": 0.2,
+    "surfaces": {
+      "wall": "planks",
+      "wall2": "adobe",
+      "roof": "shingle",
+      "trim": "timber",
+      "ground": "dirt",
+      "road": "dirt",
+      "wear": 0.7,
+      "wet": 0
+    }
+  },
+  "site": {
+    "pattern": "street",
+    "wild": 0.15,
+    "paths": "road",
+    "spacing": 6
+  },
+  "mood": {
+    "weather": "dust",
+    "intensity": 0.3,
+    "grade": "golden",
+    "haze": 0.5,
+    "ambience": [
+      "wind",
+      "crowd",
+      "birds"
+    ],
+    "music": "lonely harmonica"
+  },
+  "terrain": {
+    "relief": "flat",
+    "ruggedness": 0.1,
+    "water": "pond",
+    "waterAmount": 0.05,
+    "horizon": "mesas and dry scrub under open sky",
+    "settled": 0.7
+  },
+  "skyFeatures": [
+    {
+      "kind": "moon",
+      "size": 0.12,
+      "color": "#e8e0c8"
+    }
+  ],
+  "creatures": [
+    {
+      "id": "horses",
+      "name": "hitched horses",
+      "family": "quadruped",
+      "dials": {},
+      "size": 2.4,
+      "count": 4,
+      "behaviour": "graze",
+      "haunt": "stable",
+      "body": "#7a5a3c",
+      "accent": "#3a2a1c",
+      "glow": "#000000",
+      "note": "Tails swishing flies, stamping at the rail."
+    },
+    {
+      "id": "hawks",
+      "name": "red-tailed hawks",
+      "family": "bird",
+      "dials": {},
+      "size": 0.5,
+      "count": 2,
+      "behaviour": "circle",
+      "haunt": "sky",
+      "body": "#8a6a48",
+      "accent": "#d8c8a8",
+      "glow": "#000000",
+      "note": "Circling the town for a careless mouse."
+    }
+  ],
+  "folk": {
+    "name": "frontier townsfolk",
+    "height": 1.75,
+    "bulk": 0.5,
+    "head": 1,
+    "features": [
+      "hat",
+      "cloak"
+    ],
+    "skin": [
+      "#c69c78",
+      "#a9785a"
+    ],
+    "cloth": [
+      "#6b5a44",
+      "#4a4a3c"
+    ],
+    "trim": [
+      "#8a6a3c"
+    ]
+  },
+  "blueprints": [
+    {
+      "id": "saloon_falsefront",
+      "summary": "two-storey plank saloon, false front 11 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 6.4,
+          "w": 0.96,
+          "d": 0.03,
+          "h": 4.6,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 7.4,
+          "w": 0.5,
+          "d": 0.02,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "accent",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.9,
+          "d": 0.18,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.3,
+          "z": 0.5,
+          "y": 3.4,
+          "w": 0.1,
+          "d": 0.02,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 4,
+          "gap": 0.2
+        },
+        {
+          "shape": "box",
+          "x": 0.43,
+          "z": 0,
+          "y": 3.2,
+          "w": 0.12,
+          "d": 0.2,
+          "h": 1,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "gable",
+        "overhang": 0.1,
+        "front": "falsefront",
+        "rhythm": 5,
+        "chimney": 1,
+        "taper": 0
+      }
+    },
+    {
+      "id": "adobe_marshal",
+      "summary": "low adobe block with barred windows, 4 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 3,
+          "w": 1.02,
+          "d": 1.02,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.3,
+          "z": 0.5,
+          "y": 1.2,
+          "w": 0.06,
+          "d": 0.02,
+          "h": 1.2,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.5,
+          "y": 1.9,
+          "w": 0.12,
+          "d": 0.02,
+          "h": 0.2,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.4,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.2,
+          "d": 0.1,
+          "h": 0.35,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0.2,
+      "family": "hall",
+      "dials": {
+        "storeys": 1,
+        "roof": "flat",
+        "overhang": 0.05,
+        "front": "stoop",
+        "rhythm": 2,
+        "chimney": 1,
+        "taper": 0
+      }
+    },
+    {
+      "id": "mercantile_awning",
+      "summary": "wooden store with plank false parapet, 7 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 6,
+          "w": 0.96,
+          "d": 0.03,
+          "h": 1.4,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.2,
+          "d": 0.1,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 2,
+          "gap": 0.2
+        },
+        {
+          "shape": "box",
+          "x": -0.2,
+          "z": 0.5,
+          "y": 1.2,
+          "w": 0.14,
+          "d": 0.02,
+          "h": 1,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 2,
+          "gap": 0.35
+        },
+        {
+          "shape": "box",
+          "x": -0.4,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "shed",
+        "overhang": 0.12,
+        "front": "awning",
+        "rhythm": 4,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "bank_brick",
+      "summary": "brick bank on stone steps, parapet 9 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 6.4,
+          "w": 1.04,
+          "d": 0.04,
+          "h": 0.8,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 0,
+          "w": 0.5,
+          "d": 0.14,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.3,
+          "z": 0.5,
+          "y": 1.4,
+          "w": 0.08,
+          "d": 0.02,
+          "h": 1.1,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 3,
+          "gap": 0.3
+        },
+        {
+          "shape": "box",
+          "x": 0.33,
+          "z": 0.5,
+          "y": 4.4,
+          "w": 0.1,
+          "d": 0.02,
+          "h": 1,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 2,
+          "gap": 0.2
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 7.2,
+          "w": 0.5,
+          "d": 0.03,
+          "h": 0.6,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "flat",
+        "overhang": 0.05,
+        "front": "stoop",
+        "rhythm": 4,
+        "chimney": 1,
+        "taper": 0
+      }
+    },
+    {
+      "id": "chapel_bell",
+      "summary": "white clapboard chapel, steeple 14 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.28,
+          "y": 6,
+          "w": 0.26,
+          "d": 0.26,
+          "h": 6,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "pyramid",
+          "x": 0,
+          "z": 0.28,
+          "y": 12,
+          "w": 0.3,
+          "d": 0.3,
+          "h": 3,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.28,
+          "y": 10.5,
+          "w": 0.12,
+          "d": 0.12,
+          "h": 1.4,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.3,
+          "z": 0.5,
+          "y": 1.4,
+          "w": 0.06,
+          "d": 0.02,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "glow",
+          "repeat": 3,
+          "gap": 0.3
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "gable",
+        "overhang": 0.08,
+        "front": "porch",
+        "rhythm": 3,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "livery_barn",
+      "summary": "timber barn with loft doors, 9 m",
+      "parts": [
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.5,
+          "y": 4.2,
+          "w": 0.3,
+          "d": 0.02,
+          "h": 1.6,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.45,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.1,
+          "d": 0.8,
+          "h": 0.3,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0.32,
+          "y": 6.2,
+          "w": 0.04,
+          "d": 0.2,
+          "h": 0.5,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": -0.5,
+          "z": 0.2,
+          "y": 0,
+          "w": 0.08,
+          "d": 0.5,
+          "h": 2.2,
+          "rot": 0,
+          "tone": "wall2",
+          "repeat": 1,
+          "gap": 0
+        }
+      ],
+      "doorX": 0,
+      "family": "hall",
+      "dials": {
+        "storeys": 2,
+        "roof": "gable",
+        "overhang": 0.15,
+        "front": "plain",
+        "rhythm": 2,
+        "chimney": 0,
+        "taper": 0
+      }
+    },
+    {
+      "id": "water_tower_tank",
+      "summary": "plank tank on four trestle legs, 14 m",
+      "parts": [
+        {
+          "shape": "cylinder",
+          "x": 0,
+          "z": 0,
+          "y": 10,
+          "w": 0.7,
+          "d": 0.7,
+          "h": 3.4,
+          "rot": 0,
+          "tone": "wall",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "cone",
+          "x": 0,
+          "z": 0,
+          "y": 13.4,
+          "w": 0.78,
+          "d": 0.78,
+          "h": 0.9,
+          "rot": 0,
+          "tone": "roof",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0,
+          "z": 0,
+          "y": 2,
+          "w": 0.9,
+          "d": 0.04,
+          "h": 0.3,
+          "rot": 45,
+          "tone": "trim",
+          "repeat": 2,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.3,
+          "z": 0.3,
+          "y": 1,
+          "w": 0.04,
+          "d": 0.04,
+          "h": 9,
+          "rot": 0,
+          "tone": "dark",
+          "repeat": 1,
+          "gap": 0
+        },
+        {
+          "shape": "box",
+          "x": 0.5,
+          "z": 0.1,
+          "y": 0,
+          "w": 0.08,
+          "d": 0.04,
+          "h": 7,
+          "rot": 0,
+          "tone": "trim",
+          "repeat": 3,
+          "gap": 0.5
+        }
+      ],
+      "doorX": 0,
+      "family": "tower",
+      "dials": {
+        "height": 10,
+        "section": "square",
+        "taper": 0.15,
+        "bands": 3,
+        "top": "tank",
+        "flare": 0.2
+      }
+    }
+  ],
+  "props": [
+    {
+      "kind": "dry_scrub",
+      "size": 1.4,
+      "parts": [],
+      "weight": 5,
+      "family": "tree",
+      "dials": {
+        "trunk": 0.3,
+        "crown": "bush",
+        "crownSize": 0.7,
+        "lean": 0.2
+      }
+    },
+    {
+      "kind": "mesquite",
+      "size": 5,
+      "parts": [],
+      "weight": 3,
+      "family": "tree",
+      "dials": {
+        "trunk": 1,
+        "crown": "umbrella",
+        "crownSize": 0.75,
+        "lean": 0.3
+      }
+    },
+    {
+      "kind": "sandstone_boulders",
+      "size": 3,
+      "parts": [],
+      "weight": 3,
+      "family": "rock",
+      "dials": {
+        "form": "boulder",
+        "count": 4,
+        "height": 0.6,
+        "jagged": 0.5,
+        "flat": 0.4
+      }
+    },
+    {
+      "kind": "hitching_rail",
+      "size": 2.5,
+      "parts": [],
+      "weight": 2,
+      "family": "furniture",
+      "dials": {
+        "form": "rack",
+        "length": 0.9,
+        "height": 0.5,
+        "extras": 0.1
+      }
+    },
+    {
+      "kind": "oil_lamp_post",
+      "size": 2,
+      "parts": [],
+      "weight": 2,
+      "family": "pole",
+      "dials": {
+        "head": "lamp",
+        "height": 3,
+        "arms": 1
+      }
+    },
+    {
+      "kind": "water_barrels",
+      "size": 1.2,
+      "parts": [],
+      "weight": 2,
+      "family": "container",
+      "dials": {
+        "form": "barrel",
+        "count": 3,
+        "height": 0.8
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "town_well",
+      "prompt": "Old stone-lined frontier well with a weathered timber crossbeam, rope winch and wooden bucket, sun-bleached planks, realistic proportions, weathered",
+      "place": "plaza",
+      "height": 3
+    }
+  ]
+}

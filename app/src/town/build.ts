@@ -3,9 +3,15 @@
 // with world transforms baked in; kit clones keep their own matrices (updated before return). Kit geometry
 // and materials belong to the kit cache and are never disposed here.
 //
-// `statics` is what the navmesh and the camera collide with: a flat invisible plane named "ground" first,
-// then buildings and solid props. The visible terrain, roads, puddles, decals, scatter and the horizon ring
+// `statics` is what the navmesh and the camera collide with: an invisible mesh named "ground" first, then
+// buildings and solid props. The visible terrain, roads, puddles, decals, scatter, water and the horizon ring
 // are drawn only.
+//
+// A spec that carries WorldSpec.terrain has relief (see makeLand). Then "ground" is the walk mesh: the land
+// inside the bounds plus a margin, without deep water. Nothing else changes shape for it: the land is level
+// under every footprint, so a building is built as it always was and lifted whole onto its pad, each prop is
+// lifted to the ground under its own middle, and flat things (roads, decals, puddles) are draped over the
+// land vertex by vertex. Without terrain every height is zero and the town is built exactly as before.
 import * as THREE from 'three';
 import type { LoadedKit } from '../engine/assets';
 import { makeRng } from '../world/rng';
@@ -17,16 +23,18 @@ import { buildingAabb, distanceToRoad, roadRect } from './layout';
 import type { PlacedBuilding, Rect, TownLayout } from './layout';
 import { addProceduralBuilding } from './procedural';
 import type { ProcEnv } from './procedural';
-import { addProceduralProp, dressTown, isVisualOnlyProp, scatterBlueprintProps } from './props';
+import { MAX_POLES, POLE_SPACING, addProceduralProp, buildBackdrop, dressTown, isVisualOnlyProp, scatterBlueprintProps } from './props';
 import type { TownLight } from './props';
 import { buildScatter } from './scatter';
 import { createSign, disposeSign } from './sign';
 import { groundMaterial, inferSurfaces, roadMaterial } from './surfaces';
 import {
-  buildGroundGeometry, buildHorizonGeometry, buildRoadGeometry, groundHalfExtent, horizonForms, horizonKindFor, horizonPalette,
-  makeTerrainField,
+  buildGroundGeometry, buildHorizonGeometry, buildRoadGeometry, buildWalkGeometry, groundHalfExtent, horizonForms, horizonKindFor,
+  horizonPalette, makeLand, makeTerrainField,
 } from './terrain';
 import type { Quality } from './terrain';
+import { buildWater } from './water';
+import type { WaterKind } from './water';
 
 export { setSignLabel } from './sign';
 export type { TownLight } from './props';
@@ -53,10 +61,30 @@ export interface TownObjects {
   lights?: TownLight[];
   /** Chimney tops and vents: where smoke or steam should rise. */
   smoke?: THREE.Vector3[];
+  /**
+   * Height of the land at a point, metres. The spawn point is at 0. Zero over a town without terrain.
+   * Everything the town places stands on this; so must whatever the game places (people, creatures, markers).
+   */
+  heightAt(x: number, z: number): number;
+  /**
+   * The walkable land as a triangle mesh in world space (plain float positions, identity matrix): what the
+   * navmesh is built on. With terrain it is the land inside the bounds plus WALK_MARGIN, without water deeper
+   * than a person wades, and it is the same mesh as statics[0]. Without terrain it is a level rectangle over
+   * the bounds plus WALK_MARGIN. Disposed with the town.
+   */
+  walkMesh: THREE.Mesh;
+  /** True when the spec carried terrain: the land has relief and may hold water. */
+  shaped: boolean;
+  /** Bodies of water (or lava, ice, mist), each as a disc that stands for it, with the height of its surface. */
+  waterBodies: { kind: WaterKind; x: number; z: number; r: number; level: number }[];
+  /** Depth of water standing at a point, metres; 0 on dry land. */
+  waterDepthAt(x: number, z: number): number;
   dispose(): void;
 }
 
 const GROUND_SIZE = 400;
+/** Metres of walkable land kept around the bounds. */
+export const WALK_MARGIN = 18;
 const FIT_MIN = 0.4;
 const FIT_MAX = 4;
 
@@ -64,6 +92,33 @@ const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.m
 const hexOr = (c: string | undefined, fallback: string): string => (c && /^#[0-9a-f]{6}$/i.test(c) ? c : fallback);
 
 const COLLIDER_MATERIAL = new THREE.MeshBasicMaterial({ visible: false });
+
+/**
+ * A batch for shaped land: everything added is lifted onto the ground. While `seat.y` is set (one building,
+ * one prop) that height is used for every piece, so the thing stays whole; otherwise each piece is lifted
+ * to the land under its own middle, which is right for dressing that leans on a building or lies about.
+ */
+class LandBatch extends GeoBatch {
+  private readonly box = new THREE.Box3();
+  private readonly mid = new THREE.Vector3();
+
+  constructor(private readonly heightAt: (x: number, z: number) => number, private readonly seat: { y: number | null }) {
+    super();
+  }
+
+  override add(geo: THREE.BufferGeometry, material: THREE.Material, matrix?: THREE.Matrix4): void {
+    let y = this.seat.y;
+    if (y === null) {
+      this.box.setFromBufferAttribute(geo.getAttribute('position') as THREE.BufferAttribute);
+      this.box.getCenter(this.mid);
+      if (matrix) this.mid.applyMatrix4(matrix);
+      y = this.heightAt(this.mid.x, this.mid.z);
+    }
+    const lifted = new THREE.Matrix4().makeTranslation(0, y, 0);
+    if (matrix) lifted.multiply(matrix);
+    super.add(geo, material, lifted);
+  }
+}
 
 /**
  * Kit meshes decoded by meshopt keep quantised, interleaved attributes (Int16 positions with a
@@ -241,16 +296,64 @@ function disposeObject(root: THREE.Object3D): void {
   });
 }
 
+/**
+ * Trails as a ribbon over the land: strongest along the middle, fading to nothing at ragged edges and at
+ * both ends. Alpha is the fourth colour component.
+ */
+function trailGeometry(trails: NonNullable<TownLayout['trails']>, heightAt: (x: number, z: number) => number): THREE.BufferGeometry | null {
+  const pos: number[] = [];
+  const col: number[] = [];
+  const uv: number[] = [];
+  const idx: number[] = [];
+  const across = [-1, -0.45, 0, 0.45, 1];
+  for (const t of trails) {
+    const n = t.pts.length;
+    if (n < 2) continue;
+    const strong = t.kind === 'path' ? 0.85 : 0.5;
+    const start = pos.length / 3;
+    for (let i = 0; i < n; i++) {
+      const p = t.pts[i] as { x: number; z: number };
+      const a = t.pts[Math.max(0, i - 1)] as { x: number; z: number };
+      const c = t.pts[Math.min(n - 1, i + 1)] as { x: number; z: number };
+      const len = Math.hypot(c.x - a.x, c.z - a.z) || 1;
+      const px = -(c.z - a.z) / len;
+      const pz = (c.x - a.x) / len;
+      const end = Math.min(1, i / 2, (n - 1 - i) / 2);
+      for (const s of across) {
+        const off = s * (t.width / 2 + 0.25) * (1 + 0.25 * Math.sin(i * 1.7 + s * 3));
+        const x = p.x + px * off;
+        const z = p.z + pz * off;
+        pos.push(x, heightAt(x, z) + 0.035, z);
+        uv.push(x, z);
+        const k = 0.86 + 0.1 * Math.abs(s);
+        col.push(k, k, k, Math.abs(s) === 1 ? 0 : strong * end * (s === 0 ? 1 : 0.8));
+      }
+    }
+    const w = across.length;
+    for (let i = 0; i + 1 < n; i++) {
+      for (let c = 0; c + 1 < w; c++) {
+        const o = start + i * w + c;
+        idx.push(o, o + w, o + 1, o + 1, o + w, o + w + 1);
+      }
+    }
+  }
+  if (idx.length === 0) return null;
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 4));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  g.computeBoundingSphere();
+  return g;
+}
+
 export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, scene: THREE.Scene, opts: BuildOptions = {}): TownObjects {
   const quality: Quality = opts.quality ?? 2;
   const rng = makeRng(spec.seed, 'build');
   const group = new THREE.Group();
   group.name = 'town';
   const mats = new MaterialCache();
-  const batch = new GeoBatch();
-  // Small props render but are not in `statics`, so dense undergrowth does not carve the navmesh.
-  const visualBatch = new GeoBatch();
-  const env: ProcEnv = { batch, mats, theme: spec.theme };
   const ownGeos: THREE.BufferGeometry[] = [];
   const ownMats: THREE.Material[] = [];
   const signMeshes: THREE.Mesh[] = [];
@@ -274,13 +377,48 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   const pathsMode = spec.site?.paths ?? 'road';
   const surfaceOpts = { quality, seed: spec.seed };
   const field = makeTerrainField(layout.bounds, surfaces.ground, spec.seed);
-  const colliderGeo = new THREE.PlaneGeometry(GROUND_SIZE, GROUND_SIZE).rotateX(-Math.PI / 2);
+  const land = makeLand(layout, spec.terrain, surfaces.ground, spec.seed);
+  const shaped = land.shaped;
+  const hAt = shaped ? land.heightAt : (): number => 0;
+  const seat: { y: number | null } = { y: null };
+  /** Runs `fn` with everything it adds to the batches standing at the land's height at (x, z). */
+  const seated = <T>(x: number, z: number, fn: () => T): T => {
+    seat.y = hAt(x, z);
+    try { return fn(); } finally { seat.y = null; }
+  };
+  const batch = shaped ? new LandBatch(hAt, seat) : new GeoBatch();
+  // Small props render but are not in `statics`, so dense undergrowth does not carve the navmesh.
+  const visualBatch = shaped ? new LandBatch(hAt, seat) : new GeoBatch();
+  const env: ProcEnv = { batch, mats, theme: spec.theme };
+  const colliderGeo = buildWalkGeometry(land, WALK_MARGIN, GROUND_SIZE);
   const ground = new THREE.Mesh(colliderGeo, COLLIDER_MATERIAL);
   ground.name = 'ground';
   ground.visible = false;
   ground.matrixAutoUpdate = false;
   ownGeos.push(colliderGeo);
   statics.push(ground);
+  let walkMesh = ground;
+  if (!shaped) {
+    const lb = layout.bounds;
+    const walkGeo = new THREE.PlaneGeometry(lb.maxX - lb.minX + 2 * WALK_MARGIN, lb.maxZ - lb.minZ + 2 * WALK_MARGIN).rotateX(-Math.PI / 2);
+    walkGeo.translate((lb.minX + lb.maxX) / 2, 0, (lb.minZ + lb.maxZ) / 2);
+    walkMesh = new THREE.Mesh(walkGeo, COLLIDER_MATERIAL);
+    walkMesh.name = 'walk';
+    walkMesh.visible = false;
+    walkMesh.matrixAutoUpdate = false;
+    ownGeos.push(walkGeo);
+  }
+  /** Lays flat geometry built at y = 0 over the land: each vertex rises by the ground under it. */
+  const drape = <G extends THREE.BufferGeometry | null>(g: G): G => {
+    if (!shaped || !g) return g;
+    const pos = g.getAttribute('position');
+    for (let i = 0; i < pos.count; i++) pos.setY(i, pos.getY(i) + hAt(pos.getX(i), pos.getZ(i)));
+    pos.needsUpdate = true;
+    g.computeVertexNormals();
+    g.computeBoundingBox();
+    g.computeBoundingSphere();
+    return g;
+  };
 
   const drawn = (geo: THREE.BufferGeometry, mat: THREE.Material, name: string, order = 0): THREE.Mesh => {
     const mesh = new THREE.Mesh(geo, mat);
@@ -295,11 +433,22 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   const groundMat = surfaceMaterial(() => groundMaterial(surfaces, look, surfaceOpts), look.ground);
   ownMats.push(groundMat);
   const doorPoints = layout.buildings.map((b) => b.door);
-  drawn(buildGroundGeometry(layout, field, { quality, doors: doorPoints, half: groundHalfExtent(layout.bounds) }), groundMat, 'terrain');
+  const half = groundHalfExtent(layout.bounds);
+  drawn(buildGroundGeometry(layout, field, { quality, doors: doorPoints, half, land }), groundMat, 'terrain');
+
+  // Water the land holds, drawn over the carved ground.
+  const water = shaped && land.water.length > 0
+    ? buildWater({ land, quality, reach: half, tint: (kind, wl) => { if (kind === 'lava') wl.glowColour = `#${new THREE.Color(wl.glowColour).lerp(new THREE.Color(look.glow), 0.25).getHexString()}`; } })
+    : null;
+  if (water) group.add(water.group);
 
   // Horizon ring: mesas, mountains, giant trees or megastructures, far enough out for the fog to take them.
-  const horizonKind = horizonKindFor(`${spec.prompt} ${spec.title} ${spec.era} ${look.name}`, surfaces.ground, spec.theme);
-  const horizon = buildHorizonGeometry(horizonForms(field, horizonKind, quality), horizonPalette(look, horizonKind, surfaces.ground), quality);
+  // What the terrain says the distance is made of comes first; the rest of the world's words fill in.
+  const horizonWords = spec.terrain?.horizon ? `${spec.terrain.horizon} ` : '';
+  const horizonKind = horizonKindFor(`${horizonWords}${spec.prompt} ${spec.title} ${spec.era} ${look.name}`, surfaces.ground, spec.theme, horizonWords);
+  const forms = horizonForms(field, horizonKind, quality);
+  if (shaped) for (const f of forms) f.y = Math.min(land.heightAt(f.x, f.z), f.y + 30) - 4;
+  const horizon = buildHorizonGeometry(forms, horizonPalette(look, horizonKind, surfaces.ground), quality);
   if (horizon.solid) {
     const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true });
     ownMats.push(m);
@@ -335,11 +484,25 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       const wide = r.az === r.bz;
       const g = new THREE.PlaneGeometry(q.maxX - q.minX + (wide ? 0 : 3), q.maxZ - q.minZ + (wide ? 3 : 0)).rotateX(-Math.PI / 2);
       g.translate((q.minX + q.maxX) / 2, 0.01, (q.minZ + q.maxZ) / 2);
-      drawn(g, walkMat, 'pavement');
+      drawn(drape(g), walkMat, 'pavement');
     }
   }
-  for (const g of roadGeo.roads) drawn(g, roadMat, 'road');
-  drawn(roadGeo.plaza, plazaMat, 'plaza');
+  for (const g of roadGeo.roads) drawn(drape(g), roadMat, 'road');
+  const plazaMesh = drawn(drape(roadGeo.plaza), plazaMat, 'plaza');
+  plazaMesh.visible = layout.plaza.r > 0;
+  drape(roadGeo.trim);
+  drape(roadGeo.decals);
+  drape(roadGeo.puddles);
+  // Trails: a worn line through the land, soft at the edges, drawn in the road surface.
+  if (layout.trails?.length) {
+    const g = trailGeometry(layout.trails, hAt);
+    if (g) {
+      const m = new THREE.MeshStandardMaterial({ color: new THREE.Color(look.road).lerp(new THREE.Color(look.ground), 0.35).multiplyScalar(0.8), vertexColors: true, transparent: true, depthWrite: false, roughness: 0.95 });
+      offset(m, -2);
+      ownMats.push(m);
+      drawn(g, m, 'trails', 1);
+    }
+  }
   if (roadGeo.trim) {
     const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92 });
     ownMats.push(m);
@@ -362,7 +525,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   if (centre) {
     const f = fit(centre, manifest.facingOffset ?? 0, manifest.unitScale ?? 1, (s) => 3.2 / Math.max(s.x, s.z));
     if (f) {
-      f.holder.position.set(layout.plaza.x, 0.03, layout.plaza.z);
+      f.holder.position.set(layout.plaza.x, 0.03 + hAt(layout.plaza.x, layout.plaza.z), layout.plaza.z);
       f.holder.updateMatrixWorld(true);
       group.add(f.holder);
       enableShadows(f.holder, statics, ownGeos);
@@ -374,7 +537,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
     const width = clamp(b.w * 0.55, 2.4, 4.4);
     const sign = createSign(labels.get(b.id) ?? b.id, spec.palette.accent, width);
     const local = new THREE.Vector3(0, y, zFront - 0.08).applyAxisAngle(new THREE.Vector3(0, 1, 0), b.rotY);
-    sign.position.set(b.x + local.x, local.y, b.z + local.z);
+    sign.position.set(b.x + local.x, local.y + hAt(b.x, b.z), b.z + local.z);
     sign.rotation.y = b.rotY;
     group.add(sign);
     signMeshes.push(sign);
@@ -384,12 +547,15 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   const heights = new Map<string, number>();
   const builtFrom = new Map<string, Blueprint>();
   layout.buildings.forEach((b, index) => {
-    doors.set(b.id, new THREE.Vector3(b.door.x, 0, b.door.z));
+    const padY = hAt(b.x, b.z);
+    doors.set(b.id, new THREE.Vector3(b.door.x, hAt(b.door.x, b.door.z), b.door.z));
     if (style && bpMode) {
       // A building whose blueprint id is missing takes one of the town's archetypes by position, so the style stays whole.
       const bp = bpById.get(specBuildings.get(b.id)?.blueprint ?? '') ?? blueprints[index % blueprints.length];
       if (bp) {
-        const res = addBlueprint(bp, style, b, { batch, mats, rng });
+        // On shaped land a foundation runs down into the ground, so no wall base shows daylight where the land dips beside it.
+        const res = seated(b.x, b.z, () => addBlueprint(bp, style, b, { batch, mats, rng }, shaped ? { skirt: 0.6 } : undefined));
+        res.door.y += hAt(res.door.x, res.door.z);
         doors.set(b.id, res.door);
         heights.set(b.id, res.height);
         builtFrom.set(b.id, bp);
@@ -405,7 +571,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
         })
       : null;
     if (fitted) {
-      fitted.holder.position.set(b.x, 0, b.z);
+      fitted.holder.position.set(b.x, padY, b.z);
       fitted.holder.rotation.y = b.rotY;
       fitted.holder.updateMatrixWorld(true);
       group.add(fitted.holder);
@@ -413,7 +579,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       heights.set(b.id, fitted.size.y);
       placeSign(b, clamp(fitted.size.y * 0.6, 2.8, 4.2), -fitted.size.z / 2);
     } else {
-      const res = addProceduralBuilding(env, b, spec.palette.accent, rng);
+      const res = seated(b.x, b.z, () => addProceduralBuilding(env, b, spec.palette.accent, rng));
       heights.set(b.id, res.height);
       placeSign(b, res.signY, -b.d / 2);
     }
@@ -421,14 +587,25 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
 
   // Props
   const propLights: TownLight[] = [];
+  const wildness = unit(spec.site?.wild ?? 0.3);
+  const settledness = unit(spec.terrain?.settled ?? 0.7);
+  // Nothing is planted in standing water.
+  const propSlots = shaped && land.water.length > 0 ? layout.props.filter((p) => land.waterDepthAt(p.x, p.z) < 0.12) : layout.props;
   if (style && bpMode && spec.props?.length) {
-    scatterBlueprintProps(layout.props, spec.props, style, { batch, mats, rng, visualBatch, layout, lights: propLights });
-  } else for (const p of layout.props) {
+    scatterBlueprintProps(propSlots, spec.props, style, {
+      batch, mats, rng, visualBatch, layout, lights: propLights,
+      seat: shaped ? (x, z) => { seat.y = x === null || z === null ? null : hAt(x, z) - 0.06; } : undefined,
+      // Out in the wild the thin tall things are snags, cacti and reeds, not street furniture: more of them stay.
+      maxPoles: shaped ? Math.round(MAX_POLES * (1 + 8 * wildness * (1 - settledness))) : undefined,
+      poleSpacing: shaped ? POLE_SPACING * (1 - 0.7 * wildness * (1 - settledness)) : undefined,
+    });
+    for (const l of propLights) l.pos.y += hAt(l.pos.x, l.pos.z);
+  } else for (const p of propSlots) {
     const obj = bpMode ? null : kit.prop(p.kind);
     const target = (PROP_SIZES[p.kind] ?? 1) * p.scale;
     const fitted = obj ? fit(obj, 0, 1, (s) => target / Math.max(s.x, s.y, s.z)) : null;
     if (fitted) {
-      fitted.holder.position.set(p.x, 0, p.z);
+      fitted.holder.position.set(p.x, hAt(p.x, p.z), p.z);
       fitted.holder.rotation.y = p.rotY;
       fitted.holder.updateMatrixWorld(true);
       group.add(fitted.holder);
@@ -438,7 +615,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
         enableShadows(fitted.holder, statics, ownGeos);
       }
     } else {
-      addProceduralProp(isVisualOnlyProp(target) ? { ...env, batch: visualBatch } : env, p);
+      seated(p.x, p.z, () => addProceduralProp(isVisualOnlyProp(target) ? { ...env, batch: visualBatch } : env, p));
     }
   }
 
@@ -473,7 +650,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       inlay.position.y = PLINTH.height + 0.004;
       base.castShadow = true;
       for (const m of [base, inlay]) { m.receiveShadow = true; plinth.add(m); }
-      plinth.position.set(a.x, 0, a.z);
+      plinth.position.set(a.x, hAt(a.x, a.z), a.z);
       plinth.rotation.y = a.rotY;
       group.add(plinth);
       plinths.set(lm.id, plinth);
@@ -485,13 +662,26 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
     layout, spec, style: look, surfaces, heights, blueprints: builtFrom,
     keepClear: [...anchors.values()].map((a) => ({ x: a.x, z: a.z, r: 2.6 })), batch, visualBatch, mats, quality,
   });
+  if (shaped) {
+    for (const l of dressed.lights) l.pos.y += hAt(l.pos.x, l.pos.z);
+    for (const p of dressed.smoke) p.y += hAt(p.x, p.z);
+  }
   // The street lamps that kept their place light the ground too, alongside the door lanterns.
   dressed.lights.push(...propLights);
   const scatter = buildScatter({
     layout, ground: surfaces.ground, groundHex: look.ground, accents: [look.accent, look.glow, look.trim],
     wild: spec.site?.wild ?? 0.3, wet: surfaces.wet, quality, seed: spec.seed, tracks: roadGeo.cls === 'track' && pathsMode !== 'none',
+    heightAt: shaped ? hAt : undefined, waterDepthAt: shaped && land.water.length > 0 ? land.waterDepthAt : undefined,
   });
   group.add(scatter.group);
+  // The middle distance: the world's own trees and structures, larger than life, past where anyone can walk.
+  const backdrop = shaped && style
+    ? buildBackdrop({
+        layout, seed: spec.seed, style: look, wild: wildness, settled: settledness, props: spec.props ?? [], blueprints,
+        heightAt: land.heightAt, waterDepthAt: land.waterDepthAt, mats, quality, inner: WALK_MARGIN + 3,
+      })
+    : null;
+  if (backdrop) group.add(backdrop.group);
 
   const merged = batch.build();
   for (const m of merged) {
@@ -506,6 +696,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   let disposed = false;
   return {
     group, statics, signs, doors, lights: dressed.lights, smoke: dressed.smoke,
+    heightAt: land.heightAt, walkMesh, shaped, waterBodies: water ? water.bodies : [], waterDepthAt: land.waterDepthAt,
     placeLandmark(id: string, object: THREE.Object3D, heightMetres: number): void {
       const a = anchors.get(id);
       if (!a || disposed) return;
@@ -535,7 +726,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
         object.position.z -= c.z;
         object.position.y -= box.min.y;
       }
-      holder.position.set(a.x, 0, a.z);
+      holder.position.set(a.x, hAt(a.x, a.z), a.z);
       holder.rotation.y = a.rotY;
       holder.traverse((o) => {
         if (o instanceof THREE.Mesh) { o.castShadow = true; o.receiveShadow = true; }
@@ -560,6 +751,8 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       placedModels.clear();
       plinths.clear();
       scatter.dispose();
+      water?.dispose();
+      backdrop?.dispose();
       dressed.lights.length = 0;
       dressed.smoke.length = 0;
       mats.dispose();

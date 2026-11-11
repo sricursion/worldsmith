@@ -291,7 +291,7 @@ interface ToneLook {
  * Beyond the spec's tones: `accentSmall` is the fresher paint a small accent may carry (a sign board, a
  * shutter), `glowBig` the dimmer emission of a glowing part too large to be a lamp, `base` the foundation.
  */
-type Palette = Record<PartTone | 'accentSmall' | 'glowBig' | 'base', ToneLook>;
+type Palette = Record<PartTone | 'accentSmall' | 'glowBig' | 'glassBig' | 'base', ToneLook>;
 
 /** A style after groundedPalette, which also remembers the accent as the model gave it. */
 interface GroundedStyle extends StyleSpec { accentRaw?: string }
@@ -300,6 +300,8 @@ interface Look { surfaces: SurfaceSet; quality: Quality; seed: number; style: Gr
 /** A part's biggest face, m2, above which an accent is a painted wall, and above which a glow is a lit panel and not a lamp. */
 const SMALL_FACE = 2;
 const LAMP_FACE = 6;
+/** A glass part's biggest face, m2, above which it is a sheet of glass and not a window. */
+const SHEET_FACE = 9;
 
 /** Lightness shift (HSL) expressed as the linear multiplier that produces it on this colour. */
 function driftFactor(hex: string, shift: number): number {
@@ -419,9 +421,18 @@ function palette(mats: MaterialCache, look: Look, shifts: { wall: number; wall2:
     accentSmall: surf('accentSmall', 1),
     dark: surf('dark', 1),
     base: surf('base', 1),
-    glass: { material: glassMaterial(safeHex(look.style.glass, '#6f9bb8'), glow), tile: GLASS_SCALE, tint: 1, grime: false, vary: false },
+    // On a building glass is a window with a room behind it. On a crystal, a rock or a plant it is the
+    // clear mineral itself, in the world's pigment.
+    glass: look.nature
+      ? {
+          material: getSurface('crystal', blend(safeHex(look.style.accentRaw ?? look.style.accent, '#8a4034'), safeHex(look.style.glass, '#6f9bb8'), 0.35), surfaceOpts(look, false)),
+          tile: surfaceScale('crystal'), tint: 1, grime: false, vary: true,
+        }
+      : { material: glassMaterial(safeHex(look.style.glass, '#6f9bb8'), glow), tile: GLASS_SCALE, tint: 1, grime: false, vary: false },
     glow: lamp(1.05),
     glowBig: lamp(0.28),
+    // Glass too large to be a window pane is a sheet of it: dark and glossy, with no lit rooms drawn across it.
+    glassBig: { material: mats.get(`#${new THREE.Color(safeHex(look.style.glass, '#6f9bb8')).multiplyScalar(0.5).getHexString()}`, { roughness: 0.08, metalness: 0.85 }), tile: 1, tint: 1, grime: false, vary: false },
   };
 }
 
@@ -904,7 +915,7 @@ function emit(
     local.multiplyMatrices(tmpA.makeTranslation(px, py, pz), tmpB.makeRotationY(p.rot * DEG));
     // Paint is only fresh, and light only a lamp, on something small.
     const face = Math.max(pw * ph, pd * ph, pw * pd);
-    const tone = p.tone === 'accent' && face <= SMALL_FACE ? pal.accentSmall : p.tone === 'glow' && face > LAMP_FACE ? pal.glowBig : pal[p.tone] ?? pal.wall;
+    const tone = p.tone === 'accent' && face <= SMALL_FACE ? pal.accentSmall : p.tone === 'glow' && face > LAMP_FACE ? pal.glowBig : p.tone === 'glass' && face > SHEET_FACE && !look.nature ? pal.glassBig : pal[p.tone] ?? pal.wall;
     const thin = Math.min(pw, ph, pd);
     const box: BoxDetail = {
       chamfer: look.quality === 2 && thin > 0.3 ? Math.min(0.035, thin * 0.1) : 0,

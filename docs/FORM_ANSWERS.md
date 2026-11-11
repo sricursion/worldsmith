@@ -8,27 +8,33 @@ Worldsmith
 
 ## 4. Project description
 
-Worldsmith turns one sentence into a world you can walk through, talk to and re-rule, in a browser tab, in about half a minute.
+Type a sentence. Thirty seconds later you are standing inside it.
 
-The problem: an interactive 3D scene still takes a modeller, a level designer and a programmer, and days of work. That shuts out most of the people who have a world in their head: writers, teachers, game masters, designers testing an idea, anyone building for a virtual world without a studio behind them. Tools that generate a single 3D object do not solve it, because an object is not a place and has no behaviour.
+Worldsmith turns plain language into a complete, living 3D world in a browser tab: land and water, sky and weather, buildings, plants, people, animals, and a quest. You walk it in first person, talk to the people who live there, and then rewrite how the world works by typing a rule in plain English.
 
-What it does: type a place ("a research base on Mars", "an Edo village in autumn", "an underwater coral city") and you are standing in it in first person. The world has shaped land and water, its own sky and weather, buildings, plants, people and animals, and a short quest that code has checked can be finished. You talk to the people and they answer in character. Then you change how the world works in plain language ("everyone must be home after dark"): the sentence becomes a typed rule, the simulation obeys it, and a "why" overlay shows which rule caused which behaviour. Any world can be shared as a link.
+The problem. An interactive 3D scene still costs a modeller, a level designer, a programmer and days of work. That shuts out almost everyone who has a world in their head: writers, teachers, game masters, designers testing an idea, creators building for virtual worlds without a studio behind them. Text-to-3D tools that return one object do not fix this. An object is not a place, and it has no behaviour.
 
-Scene and logic both come from plain language, with nothing to install and nothing to learn.
+What it does.
+- Scene from language: "a research base on Mars", "an Edo village in autumn", "an underwater coral city" each become a different, fully walkable world, not a reskin of one template.
+- People from language: every character has a role, a daily schedule and a voice, and answers in character.
+- Logic from language: type "everyone must be home after dark" and it becomes a typed rule the simulation enforces. A "why" overlay shows which rule caused which behaviour.
+- A quest that code has proven can be finished, and a share link that rebuilds the same world for anyone.
+
+Nothing to install, nothing to learn, no asset library to run out of.
 
 ## 5. What makes your project unique?
 
-Most text-to-3D tools give you one of three things: a single static mesh, a scene assembled from a fixed asset library (so every prompt looks like the library), or generated code that breaks. Worldsmith does none of these.
+Existing text-to-3D gives you one of three things: a single static mesh, a scene assembled from a fixed asset library (so every prompt looks like the library), or generated code that breaks. Worldsmith does none of these.
 
-1. It generates the grammar, not the assets. Every building, plant and object is grown from one of 60 skeleton families (hall, keep, arena, pier, coral, vehicle and so on). A family fixes only the bones; the prompt supplies dials, colours, materials and extra parts. One family is a saloon in one world and a mushroom clinic in the next, and no two buildings in a world are identical. Terrain, surfaces, sky, water, creatures and sound are generated in the browser too. The only pre-made art in a generated world is the rigged human models.
+1. It generates the grammar, not the assets. Every building, plant and object is grown from one of 60 skeleton families (hall, keep, arena, pier, coral, vehicle and more). A family fixes only the bones. The prompt supplies the dials, colours, materials and extra parts. The same family is a saloon in one world and a mushroom clinic in the next, any structure can stand as its own ruin, and no two buildings in a world are identical. Terrain, surfaces, sky, water, creatures and sound are generated in the browser as well. The only pre-made art in a generated world is the rigged human models.
 
-2. It is general by construction, and measured. In one run of 16 unrelated prompts (Mars base, midtown Manhattan, Edo village, coral city, Mayan temple city, Moroccan bazaar, candy kingdom and others) all 16 produced a complete walkable world with people, creatures and a quest, in 26 to 46 seconds each, with no fallback content.
+2. It is general, and we measured it. In one run of 16 unrelated prompts (Mars base, midtown Manhattan, Edo village, coral city, Mayan temple city, Moroccan bazaar, candy kingdom and others) all 16 produced a complete walkable world with people, creatures and a quest, in 26 to 46 seconds each, with zero fallback content.
 
-3. The logic is real, not narrated. A rule typed in plain language compiles to a typed rule that the simulation enforces and can explain, and can be removed again. The quest is proven completable by code before the player starts. The model never gets to pretend something happened.
+3. The logic is real, not narrated. A plain-language rule compiles to a typed rule that the simulation enforces, explains and can undo. The quest is proven completable by code before the player starts. The model never gets to pretend something happened.
 
-4. It cannot crash on a bad generation. The model returns a spec, never code; a validator repairs and clamps whatever comes back, so the world always builds.
+4. A bad generation cannot break it. The model returns a typed description, never code. A validator repairs and clamps whatever comes back, so a world always builds. About 1,800 automated tests hold that line.
 
-The result is a full loop from sentence to place to behaviour, with no install, in a browser tab.
+5. It is one loop, not a pipeline of tools: sentence to place to people to behaviour, streamed live so you watch the world take shape, in a browser tab with no install.
 
 ## 6. Public source code repository URL
 
@@ -44,37 +50,75 @@ https://worldsmith-vvr.vercel.app/demo
 
 ## 9. Demo access instructions
 
-1. Open https://worldsmith-vvr.vercel.app in a current desktop Chrome, Edge or Firefox (WebGL 2 needed; a laptop with a dedicated or recent integrated GPU is recommended).
-2. The browser asks for a user name and password. This is a shared demo credential, not a personal one. User name: anything (for example "judge"). Password: PASTE_DEMO_PASSWORD_HERE
-3. Type any place in the box, or click one of the examples, and press Enter. A world takes roughly 25 to 45 seconds; the panel shows each stage as it arrives.
-4. Controls: WASD to move, mouse to look, Shift to run, E to talk to the person you face, R to open the rules panel, ? for the "why" overlay. "New world" returns to the prompt.
-5. Things to try: talk to a character and follow the objective; open Rules and type a rule in plain language such as "everyone must be home after dark"; build two very different prompts to compare.
+The demo is behind a shared demo password so the public cannot spend the model budget. This is a test credential made for judging, not a personal password.
+
+1. Open https://worldsmith-vvr.vercel.app in a current desktop Chrome, Edge or Firefox (WebGL 2; a laptop with a dedicated or recent integrated GPU is recommended).
+2. When the browser asks, enter any user name (for example "judge") and the password: PASTE_DEMO_PASSWORD_HERE
+3. Type any place, or click an example, and press Enter. A world takes about 25 to 45 seconds. The panel shows each stage as it arrives and you can start walking as soon as the buildings stand.
+
+The 90-second tour:
+- Walk: WASD to move, mouse to look, Shift to run.
+- Talk: face a person and press E. Ask them about the objective shown bottom left.
+- Change the rules: press R and type a rule in plain language, for example "everyone must be home after dark". Press ? to see why people now behave as they do.
+- Prove it generalises: click "New world" and type something completely different, real or invented.
+
+If a build fails or a saved world is shown instead, a banner says so and offers "Try again".
 
 ## 10. Technologies and frameworks used
 
-- Rendering and engine: three.js 0.186 (WebGL 2), TypeScript, Vite; three-mesh-bvh for collision; custom procedural geometry, generated PBR surface maps, sky, weather, water and post-processing shaders.
-- Navigation: recast-navigation (WebAssembly navmesh and crowd).
-- AI model: Anthropic Claude Sonnet 5.5 through the Messages API, used at runtime for the staged world compile (outline, look, story, spec), for turning plain-language rules into typed rules, and for character dialogue. Responses stream over server-sent events.
-- Validation: zod schema for the world spec, with a normaliser that repairs and clamps whatever the model returns.
-- Backend: one fetch-handler API, deployed as a Vercel Edge Function (also runs as a Cloudflare Worker for local development with wrangler).
-- Audio: Web Audio API, synthesised in the browser.
-- Other: fflate (share links), poisson-disk-sampling (placement), vitest (about 1,800 automated tests).
+AI
+- Anthropic Claude Sonnet 5.5 (Messages API): staged world compile (outline, look, story, spec), plain-language rule compilation, and in-character dialogue. Streaming over server-sent events, prompt caching on the system prompts.
+- Optional providers wired in the code and enabled by key: Groq (dialogue fallback), Cloudflare Workers AI and the Typesafe API (character decision ticks), Tripo and Meshy text-to-3D (hero landmark models). The hosted demo runs on Claude Sonnet 5.5 alone.
+
+3D engine (all in the browser)
+- three.js 0.186 on WebGL 2, TypeScript, custom GLSL shaders for water, weather, sky bodies, aerial haze and colour grading.
+- Post-processing: EffectComposer, GTAO ambient occlusion, bloom; lighting driven by the generated sky.
+- Procedural generation written for this project: 60 parametric skeleton families, per-instance shaped geometry, generated PBR surface maps, terrain and water carving, street plans, endless streamed land, body plans for people and creatures.
+- three-mesh-bvh (collision and camera), recast-navigation in WebAssembly (navmesh and crowd), poisson-disk-sampling (placement), merged and instanced geometry, meshopt-compressed glTF via GLTFLoader for the human models.
+
+Simulation and logic
+- Typed WorldSpec with a zod 4 schema and a repairing normaliser; typed rule engine with an explanation trace; quest solvability verifier; seeded deterministic generation.
+
+Audio and voice
+- Web Audio API (synthesised ambience and music), Web Speech API (character voices).
+
+Platform
+- Vite 8 build, Vercel Edge Functions and Routing Middleware for hosting; the same API also runs as a Cloudflare Worker (wrangler, KV, R2, rate limiting).
+- Browser APIs: Pointer Lock, WebAssembly, fetch streaming, fflate-compressed share links.
+
+Quality and tooling
+- vitest (about 1,800 tests), TypeScript strict mode, glTF-Transform for asset optimisation, Git and GitHub.
 
 ## 11. How does your project transform natural language into interactive 3D experiences?
 
-The model never writes code or meshes. It writes a typed description of a world, and deterministic code builds and runs it.
+The model never writes code or meshes. It writes a typed description of a world, and deterministic code builds and runs it. That is why it is fast, why it cannot crash, and why the logic is real.
 
-1. Prompt to spec. A staged compile streams back in parts: an outline (name, setting, site, terrain), then the look (palette, materials, sky, and building and prop blueprints chosen from 60 skeleton families with their dials) and the story (people, items, a quest, starting rules), merged into one WorldSpec. The browser shows each stage as it lands, so the wait reads as the world taking shape.
-2. Spec to scene. The client validates and repairs the spec, expands every family and its dials into parts, and builds the world procedurally: carved terrain and water, a street plan chosen by the kind of site (grid, ring, single street, terraces, shoreline, scatter and others), buildings with real openings and roofs, plants and rocks shaped per instance, generated surfaces, sky and weather, people and animals from body plans, and a navmesh so everyone can walk. Land keeps streaming in past the edge of the settlement.
-3. Generated logic. Code checks the quest can be completed. Characters follow daily schedules and answer in character through the model, held to the world's facts. A rule typed in plain language is compiled to a typed rule (who, when, where, what), validated, and enforced by the simulation on its next tick; the "why" overlay shows which rule drove which behaviour, and rules can be removed.
+1. Sentence to spec (about 30 seconds, streamed). A staged compile returns in parts: an outline (name, setting, site, terrain), then the look (palette, materials, sky, and building and prop blueprints picked from 60 skeleton families with their dials) and the story (people, items, a quest, starting rules). The first text arrives in about two seconds and the browser shows each stage as it lands.
+
+2. Spec to scene (in the browser). The client validates and repairs the spec, expands every family and its dials into parts, and builds the world: carved terrain and water, a street plan chosen by the kind of site (grid, ring, single street, terraces, shoreline, scatter and more), buildings with real openings and roofs, plants and rocks shaped per instance, generated surfaces, sky and weather, people and animals grown from body plans, and a navmesh so everyone can walk. Land keeps streaming in past the edge of the settlement.
+
+3. Language to logic. Code proves the quest can be completed. Characters follow daily schedules and answer in character, held to the world's facts. A rule typed in plain language is compiled to a typed rule (who, when, where, what), validated, and enforced by the simulation on its next tick. The "why" overlay traces each behaviour back to the rule that caused it, and any rule can be removed.
+
 4. Interaction. The player walks in first person, talks to people, picks up and gives items, follows or ignores the quest, rewrites the rules, and shares the world as a link that rebuilds the same world for anyone.
+
+Scene, characters and behaviour all come from plain language, and the same path handles a real city, a historical village and a place that has never existed.
 
 ## 12. Third-party materials and licenses
 
-Full attribution file: https://github.com/sricursion/worldsmith/blob/main/docs/THIRD_PARTY.md
+Complete attribution file: https://github.com/sricursion/worldsmith/blob/main/docs/THIRD_PARTY.md
 
-- Libraries (npm): three (MIT), three-mesh-bvh (MIT), recast-navigation and @recast-navigation/three (MIT), zod (MIT), fflate (MIT), poisson-disk-sampling (MIT); development only: TypeScript (Apache-2.0), Vite (MIT), vitest (MIT), wrangler.
-- 3D assets, all CC0 1.0: Quaternius animated humans (people in every world); Kenney and KayKit kits (used only as a fallback for specs without generated blueprints). Buildings, plants, props, terrain, surfaces, sky and sound in compiled worlds are generated by the project's own code.
-- API: Anthropic Messages API (Claude Sonnet 5.5), used under Anthropic's commercial terms.
-- Hosting: Vercel.
-- No datasets and no pre-trained model weights are shipped. The project's own code is MIT licensed.
+Libraries (npm)
+- three, three-mesh-bvh, recast-navigation, @recast-navigation/three, zod, fflate, poisson-disk-sampling: MIT.
+- Development only: TypeScript (Apache-2.0), Vite (MIT), vitest (MIT), wrangler (MIT or Apache-2.0), glTF-Transform (MIT).
+
+3D assets (all CC0 1.0, public domain)
+- Quaternius animated humans: the people in generated worlds.
+- Kenney and KayKit kits: shipped only as a fallback for specs that carry no generated blueprints.
+- Everything else in a generated world (buildings, plants, props, terrain, surfaces, sky, creatures, sound) is produced by the project's own code.
+
+APIs and services
+- Anthropic Messages API (Claude Sonnet 5.5), under Anthropic's commercial terms.
+- Vercel (hosting).
+- Optional and off in the hosted demo: Groq, Cloudflare Workers AI, Typesafe, Tripo, Meshy, each under its provider's terms.
+
+No datasets and no model weights are shipped. The project's own code is MIT licensed.

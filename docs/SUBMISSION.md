@@ -1,5 +1,14 @@
 # Submission
 
+## Links
+
+- Live demo: https://worldsmith-vvr.vercel.app
+- Demo password: (the value of `SITE_PASSWORD` set on the host; any user name)
+- Source: https://github.com/sricursion/worldsmith
+- Video: VIDEO_URL
+- Third-party credits: https://github.com/sricursion/worldsmith/blob/main/docs/THIRD_PARTY.md
+- Architecture: https://github.com/sricursion/worldsmith/blob/main/docs/architecture.md
+
 ## Written description (about 170 words)
 
 Worldsmith turns a sentence into a world you can walk through. Type any prompt, from a rain-soaked

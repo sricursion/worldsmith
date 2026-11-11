@@ -9,7 +9,7 @@ Made for the Victoria VR AI Builder Hackathon 2026.
 
 ## Try it
 
-Demo: DEMO_URL
+Demo: https://worldsmith-vvr.vercel.app
 
 Type a prompt and press Enter, or pick one of the example chips. Prompts that work well range from
 a western town in 1874 to a dragon's lair, a seabed city or a colony on Mars.

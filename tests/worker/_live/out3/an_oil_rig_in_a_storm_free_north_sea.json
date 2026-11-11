@@ -1,0 +1,2694 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "an oil rig in a storm-free North Sea",
+ "title": "Brent Echo Platform",
+ "tagline": "Steel island on a quiet grey sea",
+ "theme": "modern",
+ "era": "Present day",
+ "palette": {
+  "ground": "#6b6f70",
+  "accent": "#b0683e",
+  "sky": "dawn",
+  "fog": 0.3
+ },
+ "time": {
+  "startHour": 6.5,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "derrick",
+   "role": "workshop",
+   "label": "Drilling Derrick",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "drill_derrick"
+  },
+  {
+   "id": "flare_boom",
+   "role": "command",
+   "label": "Flare Boom",
+   "size": "medium",
+   "blueprint": "flare_stack"
+  },
+  {
+   "id": "crane",
+   "role": "workshop",
+   "label": "Pedestal Crane",
+   "size": "medium",
+   "blueprint": "pedestal_crane"
+  },
+  {
+   "id": "accommodation",
+   "role": "hotel",
+   "label": "Living Quarters",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "living_quarters"
+  },
+  {
+   "id": "helideck",
+   "role": "hangar",
+   "label": "Helideck",
+   "size": "medium",
+   "blueprint": "helideck_pad"
+  },
+  {
+   "id": "process_deck",
+   "role": "warehouse",
+   "label": "Process Module",
+   "size": "large",
+   "blueprint": "process_module"
+  },
+  {
+   "id": "control_room",
+   "role": "command",
+   "label": "Control Room",
+   "size": "small",
+   "keyBuilding": true,
+   "blueprint": "control_cabin"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "mcallister",
+   "name": "Mac McAllister",
+   "role": "offshore installation manager",
+   "persona": "Dry, tired, and proud of a clean safety record. He wants the drift explained before the beach asks questions.",
+   "knowledge": [
+    "The export line pressure has crept down about two percent a week for a month.",
+    "Not one alarm has tripped, which is what bothers him.",
+    "Chopper day is the only time he sees a new face with fresh eyes."
+   ],
+   "secrets": [
+    "He signed off the last sensor calibration without checking it."
+   ],
+   "home": "accommodation",
+   "work": "control_room",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "accommodation",
+     "activity": "eat"
+    },
+    {
+     "hour": 7,
+     "place": "control_room",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "helideck",
+     "activity": "patrol"
+    },
+    {
+     "hour": 21,
+     "place": "accommodation",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "ines",
+     "stance": "neutral"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.2,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "ines",
+   "name": "Ines Vik",
+   "role": "roughneck",
+   "persona": "Blunt and quick, with no patience for paperwork. She trusts her hands and her nose over any gauge.",
+   "knowledge": [
+    "There is a cold patch of pipe by the manifold where frost should not form.",
+    "The gauge on that line reads steady, but the pipe shudders like it is working.",
+    "The inspection crew never checks behind the process module walkway."
+   ],
+   "secrets": [
+    "She has been drawing off a little condensate to sell to a supply boat."
+   ],
+   "home": "process_deck",
+   "work": "derrick",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "process_deck",
+     "activity": "eat"
+    },
+    {
+     "hour": 7,
+     "place": "derrick",
+     "activity": "work"
+    },
+    {
+     "hour": 18,
+     "place": "process_deck",
+     "activity": "rest"
+    },
+    {
+     "hour": 22,
+     "place": "process_deck",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tomas",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.2,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": -0.2,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 1.1,
+    "rate": 1.2
+   },
+   "mood": "angry"
+  },
+  {
+   "id": "tomas",
+   "name": "Tomas",
+   "role": "crane operator",
+   "persona": "Quiet and watchful, he sees the whole platform from his cab. He speaks little and remembers everything.",
+   "knowledge": [
+    "From the cab he saw a small sheen on the water below the process module.",
+    "Ines walks to the lower rail at odd hours with a canister.",
+    "A supply boat has been hanging off the platform after dark."
+   ],
+   "secrets": [
+    "He logged the sheen once and was told to forget it."
+   ],
+   "home": "crane",
+   "work": "crane",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "crane",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "accommodation",
+     "activity": "eat"
+    },
+    {
+     "hour": 13,
+     "place": "crane",
+     "activity": "work"
+    },
+    {
+     "hour": 20,
+     "place": "crane",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "ines",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.3,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "fiona",
+   "name": "Fiona",
+   "role": "platform medic",
+   "persona": "Warm on the surface and sharp underneath. She notices who is lying and who is only tired.",
+   "knowledge": [
+    "Two men on the process deck report headaches and a sweet smell by the manifold.",
+    "She keeps a gas badge from the last audit in her locker.",
+    "Mac has not slept properly in a week."
+   ],
+   "secrets": [
+    "She believes there is a slow leak and has told no one."
+   ],
+   "home": "accommodation",
+   "work": "accommodation",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "accommodation",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "accommodation",
+     "activity": "eat"
+    },
+    {
+     "hour": 14,
+     "place": "process_deck",
+     "activity": "wander"
+    },
+    {
+     "hour": 21,
+     "place": "accommodation",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "mcallister",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.4,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.2,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.3,
+    "rate": 1
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "dougal",
+   "name": "Dougal",
+   "role": "helideck attendant",
+   "persona": "Cheerful gossip who knows every passenger by name. He loves chopper day and hates being kept out of the loop.",
+   "knowledge": [
+    "The next helicopter carries a stranger with a survey case.",
+    "The pilot said the visitor asked about the export line by name.",
+    "Mac wants the stranger kept away from the process deck."
+   ],
+   "secrets": [
+    "He took cash to say nothing about the supply boat."
+   ],
+   "home": "helideck",
+   "work": "helideck",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "helideck",
+     "activity": "work"
+    },
+    {
+     "hour": 10,
+     "place": "accommodation",
+     "activity": "eat"
+    },
+    {
+     "hour": 12,
+     "place": "helideck",
+     "activity": "guard"
+    },
+    {
+     "hour": 20,
+     "place": "accommodation",
+     "activity": "drink"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "mcallister",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0.2,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1.3
+   },
+   "mood": "cheerful"
+  }
+ ],
+ "items": [
+  {
+   "id": "gas_badge",
+   "name": "Gas Badge",
+   "description": "A clip-on detector that chirps when it finds hydrocarbons.",
+   "holder": "accommodation"
+  },
+  {
+   "id": "pressure_log",
+   "name": "Pressure Log",
+   "description": "A tattered log of export line readings, with gaps in the dates.",
+   "holder": "control_room"
+  },
+  {
+   "id": "feather",
+   "name": "Oil-Stained Feather",
+   "description": "A fulmar feather slick with dark residue.",
+   "holder": "process_deck"
+  }
+ ],
+ "quest": {
+  "id": "quiet_drift",
+  "title": "The Quiet Drift",
+  "hook": "The export line is losing pressure and nothing has sounded. You arrive on chopper day as the stranger with fresh eyes, and the crew would sooner you looked anywhere but the process deck.",
+  "giver": "mcallister",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "mcallister",
+    "requires": [],
+    "objective": "Hear Mac out in the control room.",
+    "beat": "Mac lays out the drift, the silence of the alarms, and why he wants an outsider's view.",
+    "reveals": [
+     "mcallister:0"
+    ]
+   },
+   {
+    "id": "s2",
+    "kind": "fetch",
+    "target": "gas_badge",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Collect the gas badge from the living quarters.",
+    "beat": "Fiona hands it over and mentions the sweet smell on the process deck.",
+    "item": "gas_badge"
+   },
+   {
+    "id": "s3",
+    "kind": "visit",
+    "target": "process_deck",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Walk the process module with the badge clipped on.",
+    "beat": "The badge chirps by the manifold. The fulmars perched above are stained dark and watching you."
+   },
+   {
+    "id": "s4",
+    "kind": "fetch",
+    "target": "feather",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Pick up the stained feather by the walkway.",
+    "beat": "Oil on a bird means oil on the water. The leak is outside the gauges.",
+    "item": "feather"
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "mcallister",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Decide how to report what you found.",
+    "beat": "You can tell Mac plainly, or follow Ines to learn who has been bleeding the line.",
+    "choices": [
+     {
+      "label": "Report to Mac",
+      "unlocks": [
+       "s6a"
+      ]
+     },
+     {
+      "label": "Confront Ines",
+      "unlocks": [
+       "s6b"
+      ]
+     }
+    ],
+    "reveals": [
+     "tomas:0"
+    ]
+   },
+   {
+    "id": "s6a",
+    "kind": "deliver",
+    "target": "mcallister",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Give Mac the feather and the badge reading.",
+    "beat": "Mac shuts the line down and orders a proper inspection, and the sign-off he skipped comes out.",
+    "item": "feather"
+   },
+   {
+    "id": "s6b",
+    "kind": "confront",
+    "target": "ines",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Face Ines at the lower rail.",
+    "beat": "She admits the canisters and the supply boat, and says the real leak was already there.",
+    "reveals": [
+     "ines:0"
+    ]
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6a",
+    "label": "The line is isolated and the leak is fixed, at the cost of Mac's record.",
+    "tone": "good"
+   },
+   {
+    "stepId": "s6b",
+    "label": "Ines takes the blame and the leak stays quiet a while longer.",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "No open flame or lighters on the process deck.",
+   "effect": {
+    "type": "ban",
+    "what": "open flame",
+    "where": "process_deck",
+    "enforcer": "mcallister"
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Nobody leaves the living quarters for the decks between 22:00 and 05:00 except crew on shift.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 22,
+    "toHour": 5,
+    "exemptRoles": [
+     "roughneck",
+     "offshore installation manager",
+     "platform medic"
+    ]
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "roughneck",
+  "tool-pusher",
+  "the jacket",
+  "bbl",
+  "chopper day",
+  "the beach"
+ ],
+ "style": {
+  "name": "North Sea Platform, Cold Steel Dawn",
+  "wall": "#a9adad",
+  "wall2": "#7c8082",
+  "roof": "#4a4e52",
+  "trim": "#8b8f90",
+  "accent": "#b0683e",
+  "dark": "#2a2d31",
+  "glass": "#2f3a44",
+  "glow": "#ffd9a0",
+  "ground": "#6b6f70",
+  "road": "#5a5d5f",
+  "variety": 0.15,
+  "surfaces": {
+   "wall": "metal_panel",
+   "wall2": "rusted",
+   "roof": "corrugated",
+   "trim": "metal_panel",
+   "ground": "metal_panel",
+   "road": "gravel",
+   "wear": 0.7,
+   "wet": 0.35
+  },
+  "foliage": "#6b6f4a",
+  "bark": "#5a5043"
+ },
+ "site": {
+  "pattern": "grid",
+  "wild": 0,
+  "paths": "none",
+  "spacing": 4
+ },
+ "mood": {
+  "weather": "mist",
+  "intensity": 0.2,
+  "grade": "cold_steel",
+  "haze": 0.5,
+  "ambience": [
+   "wind",
+   "machinery",
+   "water",
+   "birds"
+  ],
+  "music": "low synth drone"
+ },
+ "terrain": {
+  "relief": "flat",
+  "ruggedness": 0.05,
+  "water": "shore",
+  "waterAmount": 0.7,
+  "horizon": "flat grey sea, distant rig lights",
+  "settled": 0.55
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "gulls",
+   "name": "herring gulls",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.7
+   },
+   "size": 0.6,
+   "count": 8,
+   "behaviour": "circle",
+   "haunt": "sky",
+   "body": "#d9dde0",
+   "accent": "#7a8088",
+   "glow": "#000000",
+   "note": "Wheeling over the deck, hoping for scraps."
+  },
+  {
+   "id": "fulmars",
+   "name": "northern fulmars",
+   "family": "bird",
+   "dials": {},
+   "size": 0.45,
+   "count": 4,
+   "behaviour": "perch",
+   "haunt": "process_deck",
+   "body": "#c9ced2",
+   "accent": "#8d939a",
+   "glow": "#000000",
+   "note": "Perched on pipework, watching the crew."
+  },
+  {
+   "id": "seals",
+   "name": "grey seals",
+   "family": "swimmer",
+   "dials": {
+    "bulk": 0.8
+   },
+   "size": 2,
+   "count": 3,
+   "behaviour": "roam",
+   "haunt": "water",
+   "body": "#7b7f83",
+   "accent": "#a2a6aa",
+   "glow": "#000000",
+   "note": "Hauling out beneath the legs, curious."
+  }
+ ],
+ "folk": {
+  "name": "rig crew",
+  "height": 1.74,
+  "bulk": 0.5,
+  "head": 1,
+  "features": [
+   "pack"
+  ],
+  "skin": [
+   "#d8b49a",
+   "#b98a68",
+   "#8a5e44"
+  ],
+  "cloth": [
+   "#e0894e",
+   "#2f3d52",
+   "#6b7078"
+  ],
+  "trim": [
+   "#f2c849",
+   "#3a3a3a"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "drill_derrick",
+   "summary": "lattice steel derrick, 45 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.08,
+     "y": 0,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 14.850000000000001,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.16
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.08,
+     "y": 0,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 14.850000000000001,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.16
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 14.750000000000002,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.035,
+     "y": 14.850000000000001,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 12.149999999999999,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.07
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.035,
+     "y": 14.850000000000001,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 12.149999999999999,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.07
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 7.425000000000001,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 20.925,
+     "w": 0.09000000000000001,
+     "d": 0.09000000000000001,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 26.9,
+     "w": 0.09000000000000001,
+     "d": 0.09000000000000001,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 24.84,
+     "w": 0.3,
+     "d": 0.09000000000000001,
+     "h": 0.14,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 24.14,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.276
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 19.98,
+     "w": 0.264,
+     "d": 0.09000000000000001,
+     "h": 0.14,
+     "rot": 90,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 19.28,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 90,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.24288
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 27,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.13775,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.025,
+     "h": 5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.13775,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.025,
+     "h": 5,
+     "rot": 180,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0.13775,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.025,
+     "h": 5,
+     "rot": 90,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": -0.13775,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.025,
+     "h": 5,
+     "rot": -90,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.12,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 2.3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.12,
+     "y": 2.3,
+     "w": 0.34,
+     "d": 0.34,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.276,
+     "y": 0,
+     "w": 0.09,
+     "d": 0.02,
+     "h": 2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 18,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 12,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 27,
+     "w": 0.14,
+     "d": 0.14,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 30,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "flare_stack",
+   "summary": "angled flare boom with pilot flame, 38 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": -0.45,
+     "z": 0,
+     "y": 0,
+     "w": 0.28200000000000003,
+     "d": 0.28200000000000003,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.45,
+     "z": 0,
+     "y": 0,
+     "w": 0.12200000000000001,
+     "d": 0.12200000000000001,
+     "h": 30,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.0305,
+     "z": 0,
+     "y": 24,
+     "w": 0.9610000000000001,
+     "d": 0.1,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0,
+     "y": 25.2,
+     "w": 0.9,
+     "d": 0.02,
+     "h": 5.32,
+     "rot": 180,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.066,
+     "z": 0,
+     "y": 23.65,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 6,
+     "gap": 0.1376
+    },
+    {
+     "shape": "box",
+     "x": -0.2,
+     "z": 0,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.1,
+     "z": 0,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 14,
+     "rot": 60,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.3,
+     "z": 0,
+     "y": 30,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.32,
+     "z": 0,
+     "y": 30,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.2,
+     "z": 0.1,
+     "y": 5,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 3,
+     "gap": 0.06
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "pedestal_crane",
+   "summary": "orange pedestal crane, 30 m boom",
+   "parts": [
+    {
+     "shape": "box",
+     "x": -0.4,
+     "z": 0,
+     "y": 0,
+     "w": 0.27,
+     "d": 0.27,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.4,
+     "z": 0,
+     "y": 0,
+     "w": 0.11,
+     "d": 0.11,
+     "h": 26.1,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.027499999999999997,
+     "z": 0,
+     "y": 20,
+     "w": 0.855,
+     "d": 0.08,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.027499999999999997,
+     "z": 0,
+     "y": 20.25,
+     "w": 0.02,
+     "d": 0.06,
+     "h": 1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 9,
+     "gap": 0.101875
+    },
+    {
+     "shape": "box",
+     "x": -0.027499999999999997,
+     "z": 0,
+     "y": 21.25,
+     "w": 0.855,
+     "d": 0.08,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0,
+     "y": 21.5,
+     "w": 0.8,
+     "d": 0.02,
+     "h": 4.6,
+     "rot": 180,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.12,
+     "z": 0,
+     "y": 19.7,
+     "w": 0.07,
+     "d": 0.14,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.12,
+     "z": 0,
+     "y": 10.35,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 9.35,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.12,
+     "z": 0,
+     "y": 9.85,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.28500000000000003,
+     "z": 0.06,
+     "y": 21.5,
+     "w": 0.1,
+     "d": 0.16,
+     "h": 1.7,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.28500000000000003,
+     "z": 0.146,
+     "y": 22.2,
+     "w": 0.08,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.3,
+     "z": 0,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0,
+     "y": 6,
+     "w": 0.34,
+     "d": 0.34,
+     "h": 3,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.2,
+     "z": 0.2,
+     "y": 9,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 4,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 12,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.35,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.15,
+     "h": 1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "living_quarters",
+   "summary": "five-storey white accommodation block, 18 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.45,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.23,
+     "y": 1,
+     "w": 0.375,
+     "d": 0.03,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.018958784984943702,
+     "z": -0.001221341975033284,
+     "y": 2.8,
+     "w": 0.447939249247185,
+     "d": 0.42461941512068735,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.018958784984943702,
+     "z": 0.2160883655853104,
+     "y": 3.8,
+     "w": 0.33595443693538873,
+     "d": 0.03,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.020063508279425178,
+     "z": 0.018656363775953644,
+     "y": 2.8,
+     "w": 0.5031754139712586,
+     "d": 0.48357594722416253,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.020063508279425178,
+     "z": 0.2654443373880349,
+     "y": 3.8,
+     "w": 0.37738156047844396,
+     "d": 0.03,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.019398789886704935,
+     "z": -0.03910155851393938,
+     "y": 2.8,
+     "w": 0.4699394943352466,
+     "d": 0.4918260020110756,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.019398789886704935,
+     "z": 0.21181144249159845,
+     "y": 3.8,
+     "w": 0.35245462075143497,
+     "d": 0.03,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.00022634059729404257,
+     "z": -0.07963831689208745,
+     "y": 5.6,
+     "w": 0.4886829701352978,
+     "d": 0.4495413290129738,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.00022634059729404257,
+     "z": 0.15013234761439945,
+     "y": 6.6,
+     "w": 0.3665122276014734,
+     "d": 0.03,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.05,
+     "h": 1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 1,
+     "w": 0.8,
+     "d": 0.03,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 5,
+     "gap": 0.16
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": -0.3,
+     "y": 8.399999999999999,
+     "w": 0.3,
+     "d": 0.25,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.3,
+     "z": -0.35,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.2
+    },
+    {
+     "shape": "box",
+     "x": -0.4,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 3,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "helideck_pad",
+   "summary": "octagonal helipad on stilts, 6 m up",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.32,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 6.1,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.4
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.32,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 6.1,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.4
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.92,
+     "d": 0.8,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.04,
+     "y": 6.25,
+     "w": 0.44999999999999996,
+     "d": 0.385,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": -0.04,
+     "y": 8.65,
+     "w": 0.5499999999999999,
+     "d": 0.485,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.11249999999999999,
+     "z": 0.1575,
+     "y": 7,
+     "w": 0.1,
+     "d": 0.03,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.32,
+     "z": 0.42,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.04,
+     "h": 6.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.95,
+     "d": 0.95,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 6.3,
+     "w": 0.6,
+     "d": 0.6,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.4,
+     "z": 0,
+     "y": 6.3,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 3,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.45,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.4
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "process_module",
+   "summary": "pipe-choked processing hall, 10 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 0.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 4,
+     "gap": 0.17
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 3.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 4,
+     "gap": 0.17
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 6.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 4,
+     "gap": 0.17
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 8.75,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 9,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.1,
+     "y": 9,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.56
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.2,
+     "z": 0,
+     "y": 10,
+     "w": 0.15,
+     "d": 0.15,
+     "h": 5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.05,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 4,
+     "gap": 0.05
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.4,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.12
+    },
+    {
+     "shape": "box",
+     "x": -0.2,
+     "z": 0.5,
+     "y": 0.3,
+     "w": 0.4,
+     "d": 0.03,
+     "h": 1,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "control_cabin",
+   "summary": "blast-proof windowed control cabin, 5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 0.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 4,
+     "gap": 0.17
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2.75,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.8500000000000001,
+     "d": 0.7100000000000001,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.4,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.14,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0.8,
+     "w": 0.8,
+     "d": 0.03,
+     "h": 1,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.35,
+     "z": 0,
+     "y": 3.3,
+     "w": 0.15,
+     "d": 0.15,
+     "h": 2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.05,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  }
+ ],
+ "props": [
+  {
+   "kind": "floodlight_mast",
+   "size": 4,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2.9,
+     "w": 0.7,
+     "d": 0.04,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 2.7199999999999998,
+     "w": 0.15,
+     "d": 0.15,
+     "h": 0.18,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.28
+    }
+   ],
+   "weight": 3
+  },
+  {
+   "kind": "pipe_stack",
+   "size": 2.5,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.96,
+     "d": 0.7,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.044000000000000004,
+     "d": 0.044000000000000004,
+     "h": 0.16000000000000003,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.264
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.16999999999999998,
+     "w": 0.44,
+     "d": 0.44,
+     "h": 0.5599999999999999,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.7300000000000001,
+     "w": 0.44,
+     "d": 0.44,
+     "h": 0.11200000000000002,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.118,
+     "z": 0,
+     "y": 0.7300000000000001,
+     "w": 0.0528,
+     "d": 0.0528,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.044000000000000004,
+     "d": 0.044000000000000004,
+     "h": 0.16000000000000003,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.264
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.16999999999999998,
+     "w": 0.44,
+     "d": 0.44,
+     "h": 0.5599999999999999,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.7300000000000001,
+     "w": 0.44,
+     "d": 0.44,
+     "h": 0.11200000000000002,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.382,
+     "z": 0,
+     "y": 0.7300000000000001,
+     "w": 0.0528,
+     "d": 0.0528,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.6000000000000001,
+     "w": 0.042,
+     "d": 0.042,
+     "h": 0.16000000000000003,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.252
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.7200000000000001,
+     "w": 0.42,
+     "d": 0.42,
+     "h": 0.5599999999999999,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0,
+     "z": 0,
+     "y": 1.2800000000000002,
+     "w": 0.42,
+     "d": 0.42,
+     "h": 0.11200000000000002,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.126,
+     "z": 0,
+     "y": 1.2800000000000002,
+     "w": 0.05039999999999999,
+     "d": 0.05039999999999999,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 4
+  },
+  {
+   "kind": "drum_pallet",
+   "size": 1.5,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.96,
+     "d": 0.7,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.32,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.32,
+     "z": 0,
+     "y": 0.62,
+     "w": 0.27,
+     "d": 0.27,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.32,
+     "z": 0,
+     "y": 0.16999999999999998,
+     "w": 0.306,
+     "d": 0.306,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.32,
+     "z": 0,
+     "y": 0.47,
+     "w": 0.306,
+     "d": 0.306,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.62,
+     "w": 0.27,
+     "d": 0.27,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 0.16999999999999998,
+     "w": 0.306,
+     "d": 0.306,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 0.47,
+     "w": 0.306,
+     "d": 0.306,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.32,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.32,
+     "z": 0,
+     "y": 0.62,
+     "w": 0.27,
+     "d": 0.27,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.32,
+     "z": 0,
+     "y": 0.16999999999999998,
+     "w": 0.306,
+     "d": 0.306,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.32,
+     "z": 0,
+     "y": 0.47,
+     "w": 0.306,
+     "d": 0.306,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.16,
+     "z": 0,
+     "y": 0.44999999999999996,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.16,
+     "z": 0,
+     "y": 1.0199999999999998,
+     "w": 0.27,
+     "d": 0.27,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.16,
+     "z": 0,
+     "y": 0.57,
+     "w": 0.306,
+     "d": 0.306,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.16,
+     "z": 0,
+     "y": 0.8699999999999999,
+     "w": 0.306,
+     "d": 0.306,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 4
+  },
+  {
+   "kind": "life_raft_pod",
+   "size": 3,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.96,
+     "d": 0.7,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.25,
+     "d": 0.25,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 0.2,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 0.55,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.65,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 0.28,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.89,
+     "w": 0.275,
+     "d": 0.275,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 0.9,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2
+  },
+  {
+   "kind": "grating_bench",
+   "size": 2,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.25,
+     "w": 0.8,
+     "d": 0.3,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.26,
+     "h": 0.26,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.6400000000000001
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.1,
+     "w": 0.6400000000000001,
+     "d": 0.04,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.12,
+     "y": 0.3,
+     "w": 0.8,
+     "d": 0.05,
+     "h": 0.275,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "wellhead_christmas_tree",
+   "prompt": "A subsea-style wellhead Christmas tree assembly of stacked valves and flanged pipework, painted steel with flaking oxblood paint, salt-crusted bolts and hydraulic lines, realistic proportions, weathered",
+   "place": "derrick",
+   "height": 4
+  }
+ ]
+}

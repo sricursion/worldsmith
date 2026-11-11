@@ -1,0 +1,2942 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a Roman forum",
+ "title": "The Forum Romanum",
+ "tagline": "Marble, markets and murmuring senators",
+ "theme": "medieval",
+ "era": "Imperial Rome",
+ "palette": {
+  "ground": "#9a8d74",
+  "accent": "#7a2f2b",
+  "sky": "dusk",
+  "fog": 0.15
+ },
+ "time": {
+  "startHour": 17.5,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "temple_saturn",
+   "role": "church",
+   "label": "Temple of Saturn",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "temple_front"
+  },
+  {
+   "id": "rostra",
+   "role": "plaza",
+   "label": "The Rostra",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "rostra_platform"
+  },
+  {
+   "id": "basilica",
+   "role": "townhall",
+   "label": "Basilica Julia",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "basilica_hall"
+  },
+  {
+   "id": "curia",
+   "role": "townhall",
+   "label": "Senate Curia",
+   "size": "large",
+   "blueprint": "brick_curia"
+  },
+  {
+   "id": "column",
+   "role": "plaza",
+   "label": "Column of Phocas",
+   "size": "small",
+   "blueprint": "fluted_column"
+  },
+  {
+   "id": "arch",
+   "role": "plaza",
+   "label": "Arch of Septimius",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "triumphal_arch"
+  },
+  {
+   "id": "vesta",
+   "role": "church",
+   "label": "Temple of Vesta",
+   "size": "medium",
+   "blueprint": "round_vesta"
+  },
+  {
+   "id": "tabernae",
+   "role": "market",
+   "label": "Tabernae Row",
+   "size": "medium",
+   "blueprint": "stalls_row"
+  },
+  {
+   "id": "bank",
+   "role": "bank",
+   "label": "Moneychangers",
+   "size": "small",
+   "blueprint": "temple_front"
+  },
+  {
+   "id": "fountain",
+   "role": "plaza",
+   "label": "Lacus Curtius",
+   "size": "small",
+   "blueprint": "rostra_platform"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "marcus",
+   "name": "Marcus",
+   "role": "senator",
+   "persona": "Proud, sleepless, lives for the vote tonight. Pretends the lost edict is a clerk's error while sweating through his toga.",
+   "knowledge": [
+    "The edict was sealed with three senators' rings and kept in the Curia chest.",
+    "The vote is called at nightfall and cannot be put off.",
+    "The bronze doors were locked at noon; no one forced them."
+   ],
+   "secrets": [
+    "He left the Curia door unbarred for an hour to meet a creditor."
+   ],
+   "home": "curia",
+   "work": "rostra",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "curia",
+     "activity": "rest"
+    },
+    {
+     "hour": 9,
+     "place": "rostra",
+     "activity": "work"
+    },
+    {
+     "hour": 14,
+     "place": "curia",
+     "activity": "work"
+    },
+    {
+     "hour": 18,
+     "place": "rostra",
+     "activity": "wander"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "cassius",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.2,
+     "idle": 0,
+     "flee": 0,
+     "investigate": -0.3,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "livia",
+   "name": "Livia",
+   "role": "matron",
+   "persona": "Sharp-eyed, thrifty, hears everything over the market stalls. Trades gossip like coin and wants her son's name kept clear.",
+   "knowledge": [
+    "A hooded man crossed from the Curia to the tabernae at midday.",
+    "Gaius has been hoarding wax tablets and drafts at the Rostra.",
+    "Tullia was paid in silver for wine nobody saw delivered."
+   ],
+   "secrets": [
+    "Her son, a clerk, was bribed to copy the edict's seal."
+   ],
+   "home": "tabernae",
+   "work": "plaza",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "tabernae",
+     "activity": "eat"
+    },
+    {
+     "hour": 10,
+     "place": "plaza",
+     "activity": "wander"
+    },
+    {
+     "hour": 16,
+     "place": "tabernae",
+     "activity": "trade"
+    },
+    {
+     "hour": 20,
+     "place": "tabernae",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tullia",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.3,
+    "rate": 1.1
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "gaius",
+   "name": "Gaius",
+   "role": "orator",
+   "persona": "Theatrical and vain, speaks in periods even to a dog. Wants the edict gone because it names him for exile.",
+   "knowledge": [
+    "The edict concerns land grants and a charge against a speaker of the Rostra.",
+    "Marcus has been pale all week and avoids the moneychangers.",
+    "A lictor passed the Rostra at dusk carrying a scroll case."
+   ],
+   "secrets": [
+    "He paid a pickpocket to lift the edict and hid it behind the ship prows."
+   ],
+   "home": "rostra",
+   "work": "rostra",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "rostra",
+     "activity": "rest"
+    },
+    {
+     "hour": 9,
+     "place": "rostra",
+     "activity": "work"
+    },
+    {
+     "hour": 15,
+     "place": "plaza",
+     "activity": "wander"
+    },
+    {
+     "hour": 19,
+     "place": "rostra",
+     "activity": "work"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "marcus",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.6,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "tullia",
+   "name": "Tullia",
+   "role": "wine seller",
+   "persona": "Blunt, loud, pours generously and forgets nothing owed. Dislikes senators and lictors equally.",
+   "knowledge": [
+    "Cassius counts denarii late, with the shutters closed.",
+    "A cloaked stranger bought a jug and asked the way to the Curia.",
+    "Decimus drinks here on his watch and never pays."
+   ],
+   "secrets": [
+    "She sold a forged seal-wax stamp to a man who paid double."
+   ],
+   "home": "tabernae",
+   "work": "tabernae",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "tabernae",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "tabernae",
+     "activity": "trade"
+    },
+    {
+     "hour": 17,
+     "place": "tabernae",
+     "activity": "drink"
+    },
+    {
+     "hour": 21,
+     "place": "tabernae",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "decimus",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 1.1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.4,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 1
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "cassius",
+   "name": "Cassius",
+   "role": "moneychanger",
+   "persona": "Dry, precise, speaks in sums and never lowers his voice. Keeps every debt in a ledger and expects it paid.",
+   "knowledge": [
+    "Marcus owes him four thousand denarii, due this week.",
+    "A sealed scroll was offered as surety against that debt.",
+    "His iron-banded chests are counted twice daily."
+   ],
+   "secrets": [
+    "He holds the edict as surety and plans to sell it to the highest bidder."
+   ],
+   "home": "bank",
+   "work": "bank",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "bank",
+     "activity": "rest"
+    },
+    {
+     "hour": 8,
+     "place": "bank",
+     "activity": "work"
+    },
+    {
+     "hour": 15,
+     "place": "tabernae",
+     "activity": "eat"
+    },
+    {
+     "hour": 17,
+     "place": "bank",
+     "activity": "guard"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "marcus",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": -0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "vestal",
+   "name": "Aemilia",
+   "role": "vestal virgin",
+   "persona": "Composed and austere, answers in few words. Guards the flame and an uncomfortable truth.",
+   "knowledge": [
+    "No one enters the Curia without passing the Temple of Vesta's steps.",
+    "Decimus stood watch near the Curia at noon.",
+    "A scroll was carried past her, wrapped in a wine merchant's cloth."
+   ],
+   "secrets": [
+    "She saw Gaius hide something behind the Rostra prows and kept silent."
+   ],
+   "home": "vesta",
+   "work": "vesta",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "vesta",
+     "activity": "pray"
+    },
+    {
+     "hour": 10,
+     "place": "vesta",
+     "activity": "work"
+    },
+    {
+     "hour": 16,
+     "place": "vesta",
+     "activity": "pray"
+    },
+    {
+     "hour": 20,
+     "place": "vesta",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [],
+   "appearance": {
+    "base": "mage",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.4,
+     "flee": 0.1,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "decimus",
+   "name": "Decimus",
+   "role": "legionary",
+   "persona": "Gruff veteran, bored on watch, loyal to his coin. Talks of Dacia when asked, deflects when pressed about noon.",
+   "knowledge": [
+    "He was posted near the Curia at noon and left for wine.",
+    "Tullia keeps a tab on him that he cannot pay.",
+    "The Arch of Septimius shades the best spot to watch the Rostra."
+   ],
+   "secrets": [
+    "He abandoned his post for an hour and let someone slip into the Curia."
+   ],
+   "home": "arch",
+   "work": "plaza",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "arch",
+     "activity": "rest"
+    },
+    {
+     "hour": 9,
+     "place": "plaza",
+     "activity": "patrol"
+    },
+    {
+     "hour": 14,
+     "place": "tabernae",
+     "activity": "drink"
+    },
+    {
+     "hour": 18,
+     "place": "arch",
+     "activity": "guard"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tullia",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0.2,
+     "talk_to": 0,
+     "idle": 0.3,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  }
+ ],
+ "items": [
+  {
+   "id": "edict",
+   "name": "Sealed Edict",
+   "description": "A scroll case with three broken wax seals.",
+   "holder": "rostra"
+  },
+  {
+   "id": "ring",
+   "name": "Senator's Ring",
+   "description": "A gold seal ring dropped near the tabernae.",
+   "holder": "tabernae"
+  },
+  {
+   "id": "ledger",
+   "name": "Moneychanger's Ledger",
+   "description": "Wax tablets listing Marcus's debt and a surety.",
+   "holder": "cassius"
+  },
+  {
+   "id": "feather",
+   "name": "Grey Feather",
+   "description": "A dove feather caught on the scroll case.",
+   "holder": "rostra"
+  }
+ ],
+ "quest": {
+  "id": "lost_edict",
+  "title": "The Lost Edict",
+  "hook": "A sealed edict vanished from the Curia hours before tonight's vote. Every faction blames another, and you owe none of them anything. As a stranger, you can ask what they cannot.",
+  "giver": "marcus",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "marcus",
+    "requires": [],
+    "objective": "Hear Marcus out at the Curia.",
+    "beat": "Marcus claims a clerk misplaced it. His hands say otherwise.",
+    "reveals": [
+     "marcus:0"
+    ]
+   },
+   {
+    "id": "s2",
+    "kind": "talk",
+    "target": "livia",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Ask Livia what the market saw at midday.",
+    "beat": "Livia saw a hooded man hurry from the Curia to the tabernae.",
+    "reveals": [
+     "livia:0"
+    ]
+   },
+   {
+    "id": "s3",
+    "kind": "visit",
+    "target": "rostra",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Search the Rostra while pigeons settle for dusk.",
+    "beat": "Pigeons roost on the ship prows. Something is wedged behind them."
+   },
+   {
+    "id": "s4",
+    "kind": "fetch",
+    "target": "edict",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Take the edict from behind the prows.",
+    "beat": "The seals are broken and a grey feather clings to the case.",
+    "item": "edict"
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "gaius",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Decide what to do with Gaius and the edict.",
+    "beat": "Gaius stands pale beside the prows, the edict between you.",
+    "choices": [
+     {
+      "label": "Return it to Marcus",
+      "unlocks": [
+       "s6a"
+      ]
+     },
+     {
+      "label": "Give it to Cassius",
+      "unlocks": [
+       "s6b"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s6a",
+    "kind": "deliver",
+    "target": "marcus",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Deliver the edict to Marcus at the Curia.",
+    "beat": "The vote proceeds. Gaius is named and Marcus's debt stays hidden.",
+    "item": "edict"
+   },
+   {
+    "id": "s6b",
+    "kind": "deliver",
+    "target": "cassius",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Deliver the edict to Cassius at the bank.",
+    "beat": "Cassius pays you in denarii. By Jupiter, the vote goes to whoever bids highest.",
+    "item": "edict"
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6a",
+    "label": "The Senate votes on schedule and the truth stays buried.",
+    "tone": "bitter"
+   },
+   {
+    "stepId": "s6b",
+    "label": "Cassius holds the Forum's secrets and the Forum's purse.",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "No weapons are carried on the Rostra; lictors enforce it.",
+   "effect": {
+    "type": "ban",
+    "what": "weapons",
+    "where": "rostra",
+    "enforcer": "decimus"
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "denarii",
+  "Quirites",
+  "Rostra",
+  "by Jupiter",
+  "lictor",
+  "Via Sacra"
+ ],
+ "style": {
+  "name": "Imperial Forum at Dusk",
+  "wall": "#b8ad98",
+  "wall2": "#8f6a52",
+  "roof": "#8a5745",
+  "trim": "#cfc6b4",
+  "accent": "#7a2f2b",
+  "dark": "#2e2926",
+  "glass": "#2b3036",
+  "glow": "#ffb56a",
+  "ground": "#9a8d74",
+  "road": "#8c8576",
+  "variety": 0.2,
+  "surfaces": {
+   "wall": "stone",
+   "wall2": "brick",
+   "roof": "tile",
+   "trim": "stone",
+   "ground": "gravel",
+   "road": "cobble",
+   "wear": 0.65,
+   "wet": 0
+  },
+  "foliage": "#5f6a3a",
+  "bark": "#5a4a3a"
+ },
+ "site": {
+  "pattern": "ring",
+  "wild": 0.05,
+  "paths": "road",
+  "spacing": 6
+ },
+ "mood": {
+  "weather": "clear",
+  "intensity": 0,
+  "grade": "golden",
+  "haze": 0.45,
+  "ambience": [
+   "crowd",
+   "birds",
+   "wind"
+  ],
+  "music": "warm lyre"
+ },
+ "terrain": {
+  "relief": "flat",
+  "ruggedness": 0.08,
+  "water": "none",
+  "waterAmount": 0,
+  "horizon": "seven hills with terracotta rooftops",
+  "settled": 0.85
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "pigeons",
+   "name": "rock doves",
+   "family": "bird",
+   "dials": {},
+   "size": 0.3,
+   "count": 10,
+   "behaviour": "flock",
+   "haunt": "plaza",
+   "body": "#8a8a90",
+   "accent": "#b8b0a0",
+   "glow": "#000000",
+   "note": "They strut between sandals like small senators."
+  },
+  {
+   "id": "swallows",
+   "name": "swallows",
+   "family": "bird",
+   "dials": {},
+   "size": 0.2,
+   "count": 8,
+   "behaviour": "circle",
+   "haunt": "sky",
+   "body": "#2a3a58",
+   "accent": "#c8a888",
+   "glow": "#000000",
+   "note": "Darting above the columns, hunting dusk insects."
+  },
+  {
+   "id": "dogs",
+   "name": "stray dogs",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.5,
+    "tail": 0.6
+   },
+   "size": 0.6,
+   "count": 2,
+   "behaviour": "roam",
+   "haunt": "tabernae",
+   "body": "#a8845a",
+   "accent": "#6a4a30",
+   "glow": "#000000",
+   "note": "Scavenging scraps beneath the market awnings."
+  }
+ ],
+ "folk": {
+  "name": "Roman citizens",
+  "height": 1.68,
+  "bulk": 0.45,
+  "head": 1,
+  "features": [
+   "cloak"
+  ],
+  "skin": [
+   "#c99a74",
+   "#a87656",
+   "#e0b890"
+  ],
+  "cloth": [
+   "#e8dfc8",
+   "#b8a888",
+   "#8c3d31"
+  ],
+  "trim": [
+   "#7a2c25",
+   "#c9a24a"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "temple_front",
+   "summary": "marble Ionic temple, 8 columns, pediment, 16 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 1,
+     "d": 0.72,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.95,
+     "d": 0.6699999999999999,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.56,
+     "w": 0.9,
+     "d": 0.62,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.25,
+     "y": 0.81,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 12,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 8,
+     "gap": 0.1285714285714286
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.25,
+     "y": 12.56,
+     "w": 0.10500000000000001,
+     "d": 0.10500000000000001,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 8,
+     "gap": 0.1285714285714286
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.25,
+     "y": 12.81,
+     "w": 1.04,
+     "d": 0.11200000000000002,
+     "h": 1.02,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.25,
+     "y": 0.81,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 12,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 8,
+     "gap": 0.1285714285714286
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.25,
+     "y": 12.56,
+     "w": 0.10500000000000001,
+     "d": 0.10500000000000001,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 8,
+     "gap": 0.1285714285714286
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.25,
+     "y": 12.81,
+     "w": 1.04,
+     "d": 0.11200000000000002,
+     "h": 1.02,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0,
+     "y": 13.83,
+     "w": 0.652,
+     "d": 1.08,
+     "h": 2.2880000000000003,
+     "rot": 90,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.2,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.5,
+     "h": 10,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.95,
+     "d": 0.12,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0,
+     "y": 12,
+     "w": 0.95,
+     "d": 0.6,
+     "h": 3.5,
+     "rot": 90,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": -0.02,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.06,
+     "h": 5.5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.4,
+     "z": 0.35,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 12,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.8
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "rostra_platform",
+   "summary": "raised stone speaker platform with ship prows, 3 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.96,
+     "d": 0.96,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.07,
+     "d": 0.76,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 2,
+     "gap": 0.69
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.345,
+     "y": 0.31,
+     "w": 0.62,
+     "d": 0.07,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.345,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.07,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 2,
+     "gap": 0.42000000000000004
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.07,
+     "d": 0.9,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.8300000000000001
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.41500000000000004,
+     "y": 0.31,
+     "w": 0.76,
+     "d": 0.07,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.41500000000000004,
+     "y": 0.31,
+     "w": 0.27,
+     "d": 0.07,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.49
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.62,
+     "d": 0.62,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.41500000000000004,
+     "y": 3.21,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.8300000000000001
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 3.21,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.8300000000000001
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.41500000000000004,
+     "y": 3.21,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.8300000000000001
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.46,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.06,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.35,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.05,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 4,
+     "gap": 0.23
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.35,
+     "y": 3,
+     "w": 0.5,
+     "d": 0.1,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "basilica_hall",
+   "summary": "two-storey arcaded marble hall, 100 m long, 18 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 0.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 8,
+     "gap": 0.085
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 3.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 8,
+     "gap": 0.085
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 6.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 8,
+     "gap": 0.085
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 9,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 9.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 8,
+     "gap": 0.085
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 11.75,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0,
+     "y": 12,
+     "w": 0.9,
+     "d": 0.76,
+     "h": 1.9,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.48,
+     "y": 2.7,
+     "w": 0.84,
+     "d": 0.3,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.035,
+     "d": 0.035,
+     "h": 2.75,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 4,
+     "gap": 0.22
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 1,
+     "d": 0.03,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.49,
+     "y": 6.4,
+     "w": 1,
+     "d": 0.03,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": -0.4,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 4.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 8,
+     "gap": 0.11
+    },
+    {
+     "shape": "arch",
+     "x": -0.4,
+     "z": 0.5,
+     "y": 4.2,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 3.6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 8,
+     "gap": 0.11
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.2,
+     "y": 12,
+     "w": 1.02,
+     "d": 0.6,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "brick_curia",
+   "summary": "plain brick senate hall, bronze doors, 21 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 0.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.34
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.784,
+     "d": 0.6468,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3284,
+     "y": 3.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.3332
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.768,
+     "d": 0.6336,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.32180000000000003,
+     "y": 6.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.3264
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 8.75,
+     "w": 0.7987200000000001,
+     "d": 0.6589440000000001,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 9,
+     "w": 0.788,
+     "d": 0.6536000000000001,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.38,
+     "d": 0.04,
+     "h": 5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.22,
+     "d": 0.03,
+     "h": 5.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 6.6000000000000005,
+     "w": 0.98,
+     "d": 0.1,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 5.4,
+     "w": 0.9,
+     "d": 0.02,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 4,
+     "gap": 0.18
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "fluted_column",
+   "summary": "lone fluted column on a plinth, 13.6 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.35459999999999997,
+     "d": 0.35459999999999997,
+     "h": 3.4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 3.4,
+     "w": 0.3438,
+     "d": 0.3438,
+     "h": 3.4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 6.8,
+     "w": 0.333,
+     "d": 0.333,
+     "h": 3.4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 10.2,
+     "w": 0.3222,
+     "d": 0.3222,
+     "h": 3.4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 4.413333333333333,
+     "w": 0.385056,
+     "d": 0.385056,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 8.946666666666667,
+     "w": 0.37296000000000007,
+     "d": 0.37296000000000007,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.4752,
+     "d": 0.4752,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.432,
+     "d": 0.432,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.17729999999999999,
+     "y": 1,
+     "w": 0.05,
+     "d": 0.03,
+     "h": 2.38,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 13.6,
+     "w": 0.40275,
+     "d": 0.40275,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 13.95,
+     "w": 0.25776,
+     "d": 0.25776,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 13.6,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 14.4,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "triumphal_arch",
+   "summary": "triple-bay triumphal arch, 23 m high",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.18,
+     "d": 0.3,
+     "h": 3.6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 2,
+     "gap": 0.55
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.73,
+     "d": 0.34,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3.4,
+     "w": 0.23399999999999999,
+     "d": 0.4,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.55
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3.6,
+     "w": 0.91,
+     "d": 0.34,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 16,
+     "w": 1,
+     "d": 0.7,
+     "h": 5.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": -0.32,
+     "z": 0.02,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.1,
+     "h": 8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0.32,
+     "z": 0.02,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.1,
+     "h": 8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 21.5,
+     "w": 0.9,
+     "d": 0.5,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.4,
+     "z": 0.34,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 14,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 4,
+     "gap": 0.27
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "round_vesta",
+   "summary": "round marble temple, slender columns, 12 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.7168000000000001,
+     "d": 0.7168000000000001,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.64,
+     "d": 0.64,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.64,
+     "d": 0.64,
+     "h": 2.16,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.36,
+     "y": 0,
+     "w": 0.18,
+     "d": 0.12,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 8.11,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 1,
+     "d": 1,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.4,
+     "z": 0,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 8,
+     "gap": 0.12
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 7.5,
+     "w": 0.8,
+     "d": 0.8,
+     "h": 4,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "stalls_row",
+   "summary": "stone shopfronts with awnings and amphorae, 5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.98,
+     "d": 0.8,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.3,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 3,
+     "gap": 0.45
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 3,
+     "gap": 0.45
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0,
+     "y": 2.8,
+     "w": 1.1,
+     "d": 0.9,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.28,
+     "y": 0.12,
+     "w": 0.5599999999999999,
+     "d": 0.14,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.28,
+     "y": 1.02,
+     "w": 0.12,
+     "d": 0.1,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 3,
+     "gap": 0.13999999999999999
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.4,
+     "y": 0,
+     "w": 0.95,
+     "d": 0.2,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0.48,
+     "y": 3,
+     "w": 1,
+     "d": 0.4,
+     "h": 1,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.38,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 6,
+     "gap": 0.15
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.28,
+     "y": 2,
+     "w": 0.9,
+     "d": 0.02,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  }
+ ],
+ "props": [
+  {
+   "kind": "umbrella_pine",
+   "size": 6,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0.005089337845716365,
+     "z": 0.007422845835133523,
+     "y": 0,
+     "w": 0.1022,
+     "d": 0.1022,
+     "h": 0.597715625,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.0031304507955688364,
+     "z": 0.004565791141088569,
+     "y": 0.597715625,
+     "w": 0.08176,
+     "d": 0.08176,
+     "h": 0.597715625,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.0004512314212349556,
+     "z": -0.0006581251583866543,
+     "y": 1.19543125,
+     "w": 0.06132,
+     "d": 0.06132,
+     "h": 0.597715625,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.029012394548581642,
+     "z": 0.00498941808719799,
+     "y": 1.5031250000000003,
+     "w": 0.749544810582418,
+     "d": 0.6794317276767133,
+     "h": 0.11466,
+     "rot": 40.59253765270114,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.014044727453472704,
+     "z": 0.026085413605612708,
+     "y": 1.7956250000000002,
+     "w": 0.5108842159566312,
+     "d": 0.464686475803958,
+     "h": 0.11466,
+     "rot": 49.12013672059402,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.005089337845716365,
+     "z": -0.007422845835133523,
+     "y": 1.793146875,
+     "w": 0.04088,
+     "d": 0.04088,
+     "h": 0.597715625,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.0012013648365467198,
+     "z": 0.0026841126761558204,
+     "y": 2.2197500000000003,
+     "w": 0.19841283461619172,
+     "d": 0.18196837834420215,
+     "h": 0.38025,
+     "rot": 21.749850721098483,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.018201225231470664,
+     "z": 0.008461297300332328,
+     "y": 2.0881250000000002,
+     "w": 0.34327976684261385,
+     "d": 0.32221880831993255,
+     "h": 0.11466,
+     "rot": 19.134713988751173,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.027774421685444906,
+     "z": -0.21423899195892984,
+     "y": 1.5031250000000003,
+     "w": 0.438463810812993,
+     "d": 0.16489985832813195,
+     "h": 0.103194,
+     "rot": -89.67645677737892,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.0990337695513871,
+     "z": 0.148130852985474,
+     "y": 1.7956250000000002,
+     "w": 0.3327571832931724,
+     "d": 0.11239452751045888,
+     "h": 0.103194,
+     "rot": 132.81596422240403,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.1403899894441062,
+     "z": -0.0015664448167238606,
+     "y": 2.0881250000000002,
+     "w": 0.24519910042067625,
+     "d": 0.07552154870537504,
+     "h": 0.103194,
+     "rot": -4.691614777813015,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.005089337845716365,
+     "z": 0.007422845835133523,
+     "y": 0,
+     "w": 0.19418,
+     "d": 0.19418,
+     "h": 0.16352,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 3,
+   "nature": "plant"
+  },
+  {
+   "kind": "fig_tree",
+   "size": 6,
+   "parts": [
+    {
+     "shape": "cone",
+     "x": 0.0031632664303408945,
+     "z": -0.014662665020066384,
+     "y": 0,
+     "w": 0.34,
+     "d": 0.34,
+     "h": 0.26,
+     "rot": -90,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.0009264992867470847,
+     "z": -0.00429459515411066,
+     "y": 0.4056,
+     "w": 0.16,
+     "d": 0.16,
+     "h": 0.4056,
+     "rot": -90,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.0031632664303408945,
+     "z": 0.014662665020066384,
+     "y": 0.8112,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 0.4056,
+     "rot": -90,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.0031632664303408945,
+     "z": 0.014662665020066384,
+     "y": 1.1520000000000001,
+     "w": 0.7200000000000001,
+     "d": 0.6528989061545581,
+     "h": 0.648,
+     "rot": 58.11877238564193,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.03129169737586106,
+     "z": -0.3029346188010964,
+     "y": 0.9256609495416788,
+     "w": 0.582562202140689,
+     "d": 0.5728707300871058,
+     "h": 0.40978097527474167,
+     "rot": 7.102747550234199,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.2607928110983746,
+     "z": -0.04656793262740302,
+     "y": 1.0633649147639852,
+     "w": 0.4808600054755807,
+     "d": 0.4697714359364349,
+     "h": 0.4813815827602521,
+     "rot": -63.67273428943008,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.2889262159243264,
+     "z": -0.07103448653941682,
+     "y": 0.9335738743694499,
+     "w": 0.427544956676662,
+     "d": 0.41905016461737216,
+     "h": 0.34938425602298234,
+     "rot": 55.41119109839201,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.040324002274916795,
+     "z": 0.20820114756612015,
+     "y": 1.1684941297912674,
+     "w": 0.41861647655069834,
+     "d": 0.36572288465307234,
+     "h": 0.363064927933272,
+     "rot": 74.52427403535694,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.0031632664303408945,
+     "z": -0.014662665020066384,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 0.4056,
+     "rot": -90,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.03028487873015455,
+     "z": -0.29360211806212805,
+     "y": 0.7374960000000002,
+     "w": 0.1689597533151973,
+     "d": 0.07200000000000001,
+     "h": 0.37632989908335734,
+     "rot": 96.15742888636316,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.27992622477940204,
+     "z": -0.06894886493362601,
+     "y": 0.7848,
+     "w": 0.16629278162796984,
+     "d": 0.07200000000000001,
+     "h": 0.2975477487388999,
+     "rot": 13.047194660221692,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.25274188782749857,
+     "z": -0.044654476450919606,
+     "y": 0.861264,
+     "w": 0.14895332267903721,
+     "d": 0.054,
+     "h": 0.40420182952797046,
+     "rot": 166.63060722071998,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.0391627292797738,
+     "z": 0.20215306998655597,
+     "y": 0.9850320000000001,
+     "w": 0.110853986623697,
+     "d": 0.054,
+     "h": 0.3669242595825345,
+     "rot": -100.86890998831495,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.011155324461730965,
+     "z": -0.11628460402173027,
+     "y": 0.7374960000000002,
+     "w": 0.3052796710869297,
+     "d": 0.08,
+     "h": 0.08,
+     "rot": 96.15742888636316,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.1089263930258393,
+     "z": -0.029322054423600467,
+     "y": 0.7848,
+     "w": 0.3017237088372931,
+     "d": 0.08,
+     "h": 0.08,
+     "rot": 13.047194660221692,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.07454871127209606,
+     "z": 0.14288758330378026,
+     "y": 0,
+     "w": 0.25134730524271737,
+     "d": 0.05600000000000001,
+     "h": 0.10800000000000001,
+     "rot": 63.74508770182729,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.1669926095033707,
+     "z": -0.0253865011780314,
+     "y": 0,
+     "w": 0.22835988983847208,
+     "d": 0.05600000000000001,
+     "h": 0.10800000000000001,
+     "rot": -176.25491229817277,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.08528533794608428,
+     "z": -0.1470599274840607,
+     "y": 0,
+     "w": 0.21844742563944317,
+     "d": 0.05600000000000001,
+     "h": 0.10800000000000001,
+     "rot": -56.25491229817274,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.09977434568085354,
+     "z": -0.00829880909773464,
+     "y": 0.861264,
+     "w": 0.25860443023871627,
+     "d": 0.06,
+     "h": 0.06,
+     "rot": 166.63060722071998,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.017098542372056855,
+     "z": 0.08723959597483653,
+     "y": 0.9850320000000001,
+     "w": 0.20780531549826264,
+     "d": 0.06,
+     "h": 0.06,
+     "rot": -100.86890998831495,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2,
+   "nature": "plant"
+  },
+  {
+   "kind": "oil_lamp_post",
+   "size": 2,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2.9,
+     "w": 0.5,
+     "d": 0.04,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 2.7199999999999998,
+     "w": 0.15,
+     "d": 0.15,
+     "h": 0.18,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 3
+  },
+  {
+   "kind": "amphora_stack",
+   "size": 1.2,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.96,
+     "d": 0.7,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.22,
+     "d": 0.22,
+     "h": 0.16000000000000003,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.16999999999999998,
+     "w": 0.44,
+     "d": 0.44,
+     "h": 0.44000000000000006,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.53,
+     "w": 0.17600000000000002,
+     "d": 0.17600000000000002,
+     "h": 0.22400000000000003,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.7220000000000001,
+     "w": 0.24200000000000002,
+     "d": 0.24200000000000002,
+     "h": 0.08000000000000002,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.22,
+     "d": 0.22,
+     "h": 0.16000000000000003,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.16999999999999998,
+     "w": 0.44,
+     "d": 0.44,
+     "h": 0.44000000000000006,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.53,
+     "w": 0.17600000000000002,
+     "d": 0.17600000000000002,
+     "h": 0.22400000000000003,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.7220000000000001,
+     "w": 0.24200000000000002,
+     "d": 0.24200000000000002,
+     "h": 0.08000000000000002,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.6000000000000001,
+     "w": 0.21,
+     "d": 0.21,
+     "h": 0.16000000000000003,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 0.7200000000000001,
+     "w": 0.42,
+     "d": 0.42,
+     "h": 0.44000000000000006,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 1.08,
+     "w": 0.168,
+     "d": 0.168,
+     "h": 0.22400000000000003,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 1.2720000000000002,
+     "w": 0.231,
+     "d": 0.231,
+     "h": 0.08000000000000002,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2
+  },
+  {
+   "kind": "market_bench",
+   "size": 1.5,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.25,
+     "w": 0.7,
+     "d": 0.3,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.26,
+     "h": 0.26,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.5599999999999999
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.1,
+     "w": 0.5599999999999999,
+     "d": 0.04,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.12,
+     "y": 0.3,
+     "w": 0.7,
+     "d": 0.05,
+     "h": 0.275,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "forum_statue",
+   "prompt": "Weathered marble statue of a Roman orator in a toga on a stepped stone plinth, one arm raised, chipped fingers, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 6
+  }
+ ]
+}

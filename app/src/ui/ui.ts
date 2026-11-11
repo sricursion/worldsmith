@@ -4,11 +4,12 @@ import './ui.css';
 import { Bag, el } from './dom';
 import { createDialogue, type DialogueHandle } from './dialogue';
 import { createHud, type HudHandlers } from './hud';
-import { createLanding } from './landing';
+import { createLanding, outlineInfo } from './landing';
 import type { SoundChange, SoundSettings } from './sound';
 import { createNotices } from './notices';
 import { createRules } from './rules';
 import { createWhy } from './why';
+import { BUILD, fallbackNotice, type BuildStage } from './text';
 
 export { formatClock, splitSentencesForTypewriter } from './text';
 export type { DialogueHandle } from './dialogue';
@@ -36,6 +37,14 @@ export interface UI {
   getSound(): SoundSettings;
   /** Applies level deltas (0..1 units) or a mute toggle, saves, updates the panel and notifies the sound handler. */
   adjustSound(change: SoundChange): SoundSettings;
+  /** Opens the build panel for a prompt; steps then turn over through buildStage. */
+  startBuild(prompt: string): void;
+  /** A stage of the build stream has arrived. Pass the outline with 'outline' so its name and story line show at once. */
+  buildStage(stage: BuildStage, outline?: unknown): void;
+  /** True while the world is open but its people and story are still being written. */
+  setStoryPending(on: boolean): void;
+  /** Says in one lasting line that a saved world is being shown and why, with a retry. */
+  showFallback(reason: string, retry?: () => void): void;
   dispose(): void;
 }
 
@@ -70,6 +79,7 @@ export function createUI(root: HTMLElement): UI {
       dialogue.close();
       rules.close();
       why.close();
+      notices.closeNotice();
       landing.showLanding(examples, onSubmit);
     },
     showCompiling: (status, partial) => landing.showCompiling(status, partial),
@@ -90,6 +100,13 @@ export function createUI(root: HTMLElement): UI {
     setBadge: (text) => hud.setBadge(text),
     getSound: () => hud.getSound(),
     adjustSound: (change) => hud.adjustSound(change),
+    startBuild: (prompt) => {
+      notices.closeNotice();
+      landing.startBuild(prompt);
+    },
+    buildStage: (stage, outline) => landing.buildStage(stage, outlineInfo(outline)),
+    setStoryPending: (on) => hud.setPending(on ? BUILD.pending : null),
+    showFallback: (reason, retry) => notices.showNotice(fallbackNotice(reason), retry),
     dispose() {
       bag.dispose();
       notices.dispose();

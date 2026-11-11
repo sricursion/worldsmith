@@ -1,0 +1,1445 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "an American suburb in the 1950s",
+ "title": "Maple Court, 1957",
+ "tagline": "Everyone here smiles a little too carefully",
+ "theme": "modern",
+ "era": "1950s postwar America",
+ "palette": {
+  "ground": "#5f6e45",
+  "accent": "#6f8f8a",
+  "sky": "dusk",
+  "fog": 0.15
+ },
+ "time": {
+  "startHour": 18,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "ranch_a",
+   "role": "house",
+   "label": "Number 12",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "ranch_low"
+  },
+  {
+   "id": "ranch_b",
+   "role": "house",
+   "label": "Number 14",
+   "size": "medium",
+   "blueprint": "split_level"
+  },
+  {
+   "id": "ranch_c",
+   "role": "house",
+   "label": "Number 16",
+   "size": "medium",
+   "blueprint": "ranch_low"
+  },
+  {
+   "id": "ranch_d",
+   "role": "house",
+   "label": "Number 18",
+   "size": "medium",
+   "blueprint": "cape_cod"
+  },
+  {
+   "id": "corner_shop",
+   "role": "general_store",
+   "label": "Hendry's Corner Shop",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "corner_store"
+  },
+  {
+   "id": "soda_fountain",
+   "role": "cafe",
+   "label": "Maple Soda Fountain",
+   "size": "small",
+   "blueprint": "diner"
+  },
+  {
+   "id": "church",
+   "role": "church",
+   "label": "First Methodist",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "church_steeple"
+  },
+  {
+   "id": "water_tower",
+   "role": "command",
+   "label": "Maple Court Water Tower",
+   "size": "large",
+   "blueprint": "water_tower"
+  },
+  {
+   "id": "garage",
+   "role": "garage",
+   "label": "Delmar's Garage",
+   "size": "small",
+   "blueprint": "cinder_garage"
+  },
+  {
+   "id": "school",
+   "role": "school",
+   "label": "Eisenhower Elementary",
+   "size": "large",
+   "blueprint": "split_level"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "dot",
+   "name": "Dot Callahan",
+   "role": "housewife",
+   "persona": "Bright-voiced and curious about everyone's business. She hides her nerves behind casseroles and gossip.",
+   "knowledge": [
+    "The lights at Number 20 have burned every night since the moving van left.",
+    "The van had no company name, only a plain gray door.",
+    "Mr. Hendry delivered a grocery order to Number 20 and got no answer."
+   ],
+   "secrets": [
+    "She left a pie on the porch of Number 20, and it was gone by morning but the plate never came back."
+   ],
+   "home": "ranch_a",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "ranch_a",
+     "activity": "eat"
+    },
+    {
+     "hour": 10,
+     "place": "street",
+     "activity": "wander"
+    },
+    {
+     "hour": 15,
+     "place": "corner_shop",
+     "activity": "trade"
+    },
+    {
+     "hour": 21,
+     "place": "ranch_a",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "walt",
+     "stance": "family"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1.2,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.6,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.4,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "walt",
+   "name": "Walt Callahan",
+   "role": "insurance man",
+   "persona": "Tidy, careful, and tired of being asked questions he can't answer. He believes in rules because rules keep a street calm.",
+   "knowledge": [
+    "A policy was written for Number 20 by mail, and the signature was neat.",
+    "Civil defense drills this year made everybody jumpy.",
+    "Plenty of men on Maple Court never talk about the war or their jobs."
+   ],
+   "secrets": [
+    "The Number 20 policy lists a government office as the employer, and he was told not to mention it."
+   ],
+   "home": "ranch_a",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "ranch_a",
+     "activity": "eat"
+    },
+    {
+     "hour": 9,
+     "place": "street",
+     "activity": "work"
+    },
+    {
+     "hour": 17,
+     "place": "soda_fountain",
+     "activity": "rest"
+    },
+    {
+     "hour": 22,
+     "place": "ranch_a",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "dot",
+     "stance": "family"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "mr_hendry",
+   "name": "Mr. Hendry",
+   "role": "shopkeeper",
+   "persona": "Brisk and proud of his stock. He counts every nickel and notices every odd order.",
+   "knowledge": [
+    "Number 20 orders coffee, cigarettes and light bulbs, a dozen bulbs at a time.",
+    "The orders are paid in new bills, always exact change.",
+    "Delmar fixed a delivery bike for the house and kept a gas can that was left behind."
+   ],
+   "secrets": [
+    "He peeked in the Number 20 order box and saw a radio part wrapped in a Pentagon memo envelope."
+   ],
+   "home": "corner_shop",
+   "work": "corner_shop",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "corner_shop",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "soda_fountain",
+     "activity": "eat"
+    },
+    {
+     "hour": 13,
+     "place": "corner_shop",
+     "activity": "trade"
+    },
+    {
+     "hour": 20,
+     "place": "corner_shop",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "delmar",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.2,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.6
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1.1
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "rev_cole",
+   "name": "Reverend Cole",
+   "role": "minister",
+   "persona": "Gentle and slow to judge, with a dry streak. He says a stranger deserves a welcome before a verdict.",
+   "knowledge": [
+    "The new neighbour has not come to service, but a note and an offering envelope arrived anonymously.",
+    "Folks are talking about him more than about the sermon.",
+    "He prays for the street each dusk and watches the lights from the steeple door."
+   ],
+   "secrets": [
+    "The man at Number 20 came to the church at midnight once and asked for the bell rope to be left untied."
+   ],
+   "home": "church",
+   "work": "church",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "church",
+     "activity": "pray"
+    },
+    {
+     "hour": 10,
+     "place": "church",
+     "activity": "work"
+    },
+    {
+     "hour": 16,
+     "place": "street",
+     "activity": "wander"
+    },
+    {
+     "hour": 21,
+     "place": "church",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "dot",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0.3,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "delmar",
+   "name": "Delmar",
+   "role": "mechanic",
+   "persona": "Gruff, oil-stained and plain-spoken. He trusts engines more than people and says so.",
+   "knowledge": [
+    "A black sedan with no plates idled at the pump one night and took on exactly five gallons.",
+    "The driver paid in cash and left a toolbox with a taped label.",
+    "The water tower hums oddly after midnight, like a generator."
+   ],
+   "secrets": [
+    "He pried open the toolbox and found a dial radio and a hand-drawn map of Maple Court's water tower."
+   ],
+   "home": "garage",
+   "work": "garage",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "garage",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "soda_fountain",
+     "activity": "eat"
+    },
+    {
+     "hour": 13,
+     "place": "garage",
+     "activity": "work"
+    },
+    {
+     "hour": 19,
+     "place": "garage",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "mr_hendry",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.2,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.7
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "peggy",
+   "name": "Peggy Lund",
+   "role": "soda jerk",
+   "persona": "Quick-witted and chatty, with a swell sense of who sits where and why. She flirts with the truth and gives it up for a good story.",
+   "knowledge": [
+    "Walt drinks a cherry cola alone every afternoon and watches the street.",
+    "The Number 20 man called ahead for a malt, then never showed.",
+    "Kids dare each other to knock on Number 20's door and run."
+   ],
+   "secrets": [
+    "A man in a gray suit left a quarter tip and a note under a saucer reading 'Watch the antenna at Number 16.'"
+   ],
+   "home": "soda_fountain",
+   "work": "soda_fountain",
+   "schedule": [
+    {
+     "hour": 10,
+     "place": "soda_fountain",
+     "activity": "work"
+    },
+    {
+     "hour": 14,
+     "place": "soda_fountain",
+     "activity": "trade"
+    },
+    {
+     "hour": 18,
+     "place": "plaza",
+     "activity": "wander"
+    },
+    {
+     "hour": 22,
+     "place": "soda_fountain",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "walt",
+     "stance": "neutral"
+    }
+   ],
+   "appearance": {
+    "base": "rogue_hooded",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.7,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.5,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.5,
+    "rate": 1.3
+   },
+   "mood": "cheerful"
+  }
+ ],
+ "items": [
+  {
+   "id": "pie_plate",
+   "name": "Dot's Pie Plate",
+   "description": "A blue-rimmed plate with a smear of cherry. Initials DC on the bottom.",
+   "holder": "ranch_d"
+  },
+  {
+   "id": "toolbox",
+   "name": "Taped Toolbox",
+   "description": "Dented steel box, taped label reading 'MC-20'. Heavy for its size.",
+   "holder": "garage"
+  },
+  {
+   "id": "order_slip",
+   "name": "Number 20 Order Slip",
+   "description": "A grocery slip for coffee, bulbs and one coil of copper wire, in tidy block letters.",
+   "holder": "corner_shop"
+  },
+  {
+   "id": "bell_rope_note",
+   "name": "Church Note",
+   "description": "An unsigned note on cheap stationery: 'Leave the rope. Someone may need to ring.'",
+   "holder": "church"
+  }
+ ],
+ "quest": {
+  "id": "number_twenty",
+  "title": "The Light at Number 20",
+  "hook": "Maple Court is quiet, lawns clipped, antennas aimed at the same three channels. But Number 20 has a new tenant nobody has met, and its lights burn all night. Neighbours whisper over fences and nobody knocks. You are new enough here to ask what the rest won't.",
+  "giver": "dot",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "dot",
+    "requires": [],
+    "objective": "Hear Dot out about the new neighbour at Number 20.",
+    "beat": "Dot lowers her voice over the fence and begs someone to find out who he is.",
+    "reveals": [
+     "dot:0"
+    ]
+   },
+   {
+    "id": "s2",
+    "kind": "fetch",
+    "target": "order_slip",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Pick up the Number 20 order slip at Hendry's Corner Shop.",
+    "beat": "The slip lists a dozen bulbs and copper wire. Nobody lights a house like that without a reason.",
+    "item": "order_slip"
+   },
+   {
+    "id": "s3",
+    "kind": "visit",
+    "target": "garage",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Visit Delmar's Garage and ask about the black sedan.",
+    "beat": "Delmar wipes his hands and says the sedan paid cash and left a toolbox behind.",
+    "reveals": [
+     "delmar:0"
+    ]
+   },
+   {
+    "id": "s4",
+    "kind": "fetch",
+    "target": "toolbox",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Take the taped toolbox from the garage.",
+    "beat": "Inside is a dial radio and a hand-drawn map of the water tower.",
+    "item": "toolbox"
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "walt",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Decide what to do with the toolbox and the map.",
+    "beat": "Walt wants it quietly handed to the authorities. Dot wants a knock on the door.",
+    "choices": [
+     {
+      "label": "Bring the toolbox to Walt and the authorities",
+      "unlocks": [
+       "s6a"
+      ]
+     },
+     {
+      "label": "Knock on Number 20 and return it yourself",
+      "unlocks": [
+       "s6b"
+      ]
+     }
+    ],
+    "reveals": [
+     "walt:0"
+    ]
+   },
+   {
+    "id": "s6a",
+    "kind": "deliver",
+    "target": "walt",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Deliver the toolbox to Walt.",
+    "beat": "Walt takes it gravely. By morning a gray sedan is parked at Number 20 and the lights go dark.",
+    "item": "toolbox"
+   },
+   {
+    "id": "s6b",
+    "kind": "deliver",
+    "target": "rev_cole",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Give the toolbox to Reverend Cole to return in person.",
+    "beat": "The Reverend carries it to Number 20 at dusk. The door opens and a tired man thanks him, and the lights burn on.",
+    "item": "toolbox"
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6a",
+    "label": "The street is quiet again, and nobody ever learns his name.",
+    "tone": "bitter"
+   },
+   {
+    "stepId": "s6b",
+    "label": "The new neighbour comes to Sunday service and sits in the back pew.",
+    "tone": "good"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "Children must be off the street by dark and indoors for civil defense hour.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 21,
+    "toHour": 6,
+    "exemptRoles": [
+     "minister",
+     "mechanic"
+    ]
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Nobody trespasses at Number 20 or the water tower after dusk.",
+   "effect": {
+    "type": "ban",
+    "what": "trespass",
+    "where": "water_tower",
+    "enforcer": "walt"
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "swell",
+  "gee whiz",
+  "soda jerk",
+  "civil defense",
+  "Cold War",
+  "Levittown"
+ ],
+ "style": {
+  "name": "Maple Court Dusk",
+  "wall": "#b8b0a0",
+  "wall2": "#8f6a58",
+  "roof": "#4a4745",
+  "trim": "#d2cdc1",
+  "accent": "#6f8f8a",
+  "dark": "#2a2826",
+  "glass": "#3a4650",
+  "glow": "#ffd9a0",
+  "ground": "#5f6e45",
+  "road": "#3b3c3e",
+  "variety": 0.2,
+  "foliage": "#4f6a3a",
+  "bark": "#5a4a3a",
+  "surfaces": {
+   "wall": "plaster",
+   "wall2": "brick",
+   "roof": "shingle",
+   "trim": "timber",
+   "ground": "grass",
+   "road": "asphalt",
+   "wear": 0.45,
+   "wet": 0
+  }
+ },
+ "site": {
+  "pattern": "street",
+  "wild": 0.2,
+  "paths": "road",
+  "spacing": 9
+ },
+ "mood": {
+  "weather": "clear",
+  "intensity": 0,
+  "grade": "golden",
+  "haze": 0.35,
+  "ambience": [
+   "birds",
+   "crickets",
+   "leaves",
+   "machinery"
+  ],
+  "music": "soft crooning radio"
+ },
+ "terrain": {
+  "relief": "flat",
+  "ruggedness": 0.05,
+  "water": "none",
+  "waterAmount": 0,
+  "horizon": "tree-lined streets and TV antennas",
+  "settled": 0.6
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "sparrows",
+   "name": "house sparrows",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.4
+   },
+   "size": 0.2,
+   "count": 8,
+   "behaviour": "flock",
+   "haunt": "sky",
+   "body": "#8a7556",
+   "accent": "#5a4a38",
+   "glow": "#000000",
+   "note": "Chirping along the telephone wires."
+  },
+  {
+   "id": "tabby",
+   "name": "neighbourhood tabby",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.3,
+    "tail": 0.8
+   },
+   "size": 0.5,
+   "count": 1,
+   "behaviour": "roam",
+   "haunt": "plaza",
+   "body": "#a88a5a",
+   "accent": "#6a5238",
+   "glow": "#000000",
+   "note": "Watches you from a porch rail."
+  },
+  {
+   "id": "beagle",
+   "name": "backyard beagle",
+   "family": "quadruped",
+   "dials": {
+    "ears": 0.8,
+    "snout": 0.5
+   },
+   "size": 0.6,
+   "count": 1,
+   "behaviour": "patrol",
+   "haunt": "ranch_c",
+   "body": "#b89a6a",
+   "accent": "#e8dcc0",
+   "glow": "#000000",
+   "note": "Barks once, then loses interest."
+  }
+ ],
+ "folk": {
+  "name": "suburban neighbours",
+  "height": 1.72,
+  "bulk": 0.45,
+  "head": 1,
+  "features": [
+   "hat"
+  ],
+  "skin": [
+   "#e8c4a0",
+   "#d9a882",
+   "#b98760"
+  ],
+  "cloth": [
+   "#7a9a8c",
+   "#c9b98a",
+   "#a86a5a"
+  ],
+  "trim": [
+   "#5a4632",
+   "#8a7a5a"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "ranch_low",
+   "summary": "low ranch house, picture window, carport, 4 m ridge",
+   "parts": [
+    {
+     "shape": "box",
+     "x": -0.5,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.35,
+     "d": 0.5,
+     "h": 2.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.5,
+     "z": 0.1,
+     "y": 2.6,
+     "w": 0.4,
+     "d": 0.55,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.1,
+     "z": 0.5,
+     "y": 0.8,
+     "w": 0.3,
+     "d": 0.03,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.1,
+     "z": 0.5,
+     "y": 0.8,
+     "w": 0.3,
+     "d": 0.02,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0.3,
+   "family": "hall",
+   "dials": {
+    "storeys": 1,
+    "roof": "hip",
+    "overhang": 0.2,
+    "front": "porch",
+    "rhythm": 3,
+    "chimney": 1,
+    "taper": 0
+   }
+  },
+  {
+   "id": "split_level",
+   "summary": "pastel split-level with brick chimney, 8 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0.35,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.35,
+     "d": 0.5,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0.35,
+     "z": 0.1,
+     "y": 2.2,
+     "w": 0.4,
+     "d": 0.55,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.1,
+     "z": 0.5,
+     "y": 2.2,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.2
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": -0.45,
+     "y": 6.2,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": -0.15,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "gable",
+    "overhang": 0.15,
+    "front": "stoop",
+    "rhythm": 4,
+    "chimney": 2,
+    "taper": 0.1
+   }
+  },
+  {
+   "id": "cape_cod",
+   "summary": "cape cod house, picket fence, dormers, 7.5 m",
+   "parts": [
+    {
+     "shape": "gable",
+     "x": -0.15,
+     "z": 0.15,
+     "y": 5.2,
+     "w": 0.12,
+     "d": 0.14,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0.15,
+     "z": 0.15,
+     "y": 5.2,
+     "w": 0.12,
+     "d": 0.14,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.03,
+     "h": 1,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.2,
+     "z": 0.5,
+     "y": 1.4,
+     "w": 0.05,
+     "d": 0.02,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.4
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "gable",
+    "overhang": 0.1,
+    "front": "plain",
+    "rhythm": 3,
+    "chimney": 1,
+    "taper": 0
+   }
+  },
+  {
+   "id": "corner_store",
+   "summary": "brick storefront, striped awning, 6 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.3,
+     "w": 0.9,
+     "d": 0.1,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0.4,
+     "w": 0.6,
+     "d": 0.02,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.3,
+     "y": 6,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": -0.25,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "flat",
+    "overhang": 0.05,
+    "front": "awning",
+    "rhythm": 4,
+    "chimney": 0,
+    "taper": 0
+   }
+  },
+  {
+   "id": "diner",
+   "summary": "chrome diner, neon sign, flat roof, 5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.7,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.36,
+     "y": 0.6,
+     "w": 0.8,
+     "d": 0.02,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.36,
+     "y": 0.7,
+     "w": 0.7,
+     "d": 0.02,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.4,
+     "z": 0.3,
+     "y": 3.2,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "canopy",
+   "dials": {
+    "posts": 6,
+    "roof": "flat",
+    "counter": 0.7
+   }
+  },
+  {
+   "id": "church_steeple",
+   "summary": "white clapboard church, steeple 22 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.7,
+     "d": 0.6,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0.1,
+     "y": 6,
+     "w": 0.75,
+     "d": 0.65,
+     "h": 3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 12,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.03,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.25,
+     "z": 0.5,
+     "y": 2.2,
+     "w": 0.05,
+     "d": 0.02,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.5
+    }
+   ],
+   "doorX": 0,
+   "family": "spire",
+   "dials": {
+    "count": 1,
+    "height": 22,
+    "lean": 0,
+    "sharpness": 0.85,
+    "variance": 0
+   }
+  },
+  {
+   "id": "water_tower",
+   "summary": "riveted steel water tower, 28 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 28,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.4,
+     "y": 0,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 24,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 4,
+     "gap": 0.35
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.1,
+     "y": 28.5,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 24,
+    "section": "round",
+    "taper": 0.1,
+    "bands": 3,
+    "top": "tank",
+    "flare": 0.1
+   }
+  },
+  {
+   "id": "cinder_garage",
+   "summary": "cinder-block garage, gas pump, oil sign, 12 m sign mast",
+   "parts": [
+    {
+     "shape": "box",
+     "x": -0.1,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.85,
+     "d": 0.55,
+     "h": 3.4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.02,
+     "h": 2.6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.25,
+     "z": 0.4,
+     "y": 10,
+     "w": 0.3,
+     "d": 0.05,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "mast",
+   "dials": {
+    "height": 12,
+    "shaft": "pole",
+    "arms": 1,
+    "armLength": 0.5,
+    "hang": "lamps",
+    "top": "light",
+    "stays": 0,
+    "base": "cabin"
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "maple_tree",
+   "size": 9,
+   "parts": [],
+   "weight": 4,
+   "family": "broadleaf",
+   "dials": {
+    "height": 2,
+    "trunk": 0.3,
+    "girth": 0.2,
+    "limbs": 4,
+    "spread": 0.8,
+    "crown": "round",
+    "buttress": 0.1,
+    "hang": 0,
+    "lean": 0,
+    "bloom": 0,
+    "glow": 0
+   }
+  },
+  {
+   "kind": "hedge_shrub",
+   "size": 1.6,
+   "parts": [],
+   "weight": 4,
+   "family": "shrub",
+   "dials": {
+    "form": "mound",
+    "height": 0.7,
+    "spread": 0.9,
+    "stems": 5,
+    "density": 0.8,
+    "berries": 0,
+    "glow": 0
+   }
+  },
+  {
+   "kind": "lawn_grass",
+   "size": 0.9,
+   "parts": [],
+   "weight": 3,
+   "family": "grassclump",
+   "dials": {
+    "form": "blades",
+    "height": 0.4,
+    "spread": 0.6,
+    "count": 9,
+    "lean": 0.2,
+    "heads": "none",
+    "glow": 0
+   }
+  },
+  {
+   "kind": "street_lamp",
+   "size": 2,
+   "parts": [],
+   "weight": 2,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 3,
+    "arms": 1
+   }
+  },
+  {
+   "kind": "mailbox",
+   "size": 0.8,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.8,
+     "w": 0.6,
+     "d": 0.3,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2,
+   "family": "container",
+   "dials": {
+    "form": "crate",
+    "count": 1,
+    "height": 0.9
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "fire_hydrant",
+   "prompt": "A squat cast-iron fire hydrant with chained caps, chipped red paint over rust, a dented bonnet and a worn stencilled collar, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 2
+  }
+ ]
+}

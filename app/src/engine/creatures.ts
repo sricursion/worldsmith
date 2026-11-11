@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import type { CreatureBehaviour, CreatureSpec } from '../world/spec';
 import { buildBody, restPositions } from '../world/bodies';
 import type { BodyPlan } from '../world/bodies';
+import { makeRng } from '../world/rng';
 import type { Rng } from '../world/rng';
 import { createBody } from './bodies/animate';
 import type { BodyRig } from './bodies/animate';
@@ -321,7 +322,11 @@ export function createCreatures(scene: THREE.Scene, opts: CreaturesOptions): Cre
     const count = Math.min(clamp(Math.round(spec.count), 1, 24), perKind, spec.family === 'colossus' ? 2 : large ? 3 : 24);
     const spread = clamp(3 + size * 2.5 + count, 5, 28);
     for (let i = 0; i < count; i++) {
-      const rig = createBody(plan, colors, { quality, seed: seed + i * 7919, shadows: large || (quality > 0 && size >= 0.7) });
+      // Every member of a herd gets a body of its own: the same kind, a slightly different build and size.
+      // The first keeps the kind's plan, which is the one the behaviour is tuned from.
+      const own = seed + i * 7919;
+      const body = i === 0 ? plan : buildBody(spec.family, spec.dials, spec.size * makeRng(own, 'stature').range(0.9, 1.08), own);
+      const rig = createBody(body, colors, { quality, seed: own, shadows: large || (quality > 0 && size >= 0.7) });
       const b: Being = {
         kind, rig, x: spot.x, y: 0, z: spot.z, yaw: rng.range(-Math.PI, Math.PI), speed: 0, hx: spot.x, hz: spot.z, tx: spot.x, tz: spot.z,
         state: 'idle', timer: rng.range(0.5, 6), stuck: 0, navT: rng.range(0, 0.4), seq: i,

@@ -41,7 +41,7 @@ import {
   horizonPalette, horizonRadii, makeLand, makeTerrainField,
 } from './terrain';
 import type { Quality } from './terrain';
-import { buildWater } from './water';
+import { buildWater, waterLookFor } from './water';
 import type { WaterKind } from './water';
 
 export { setSignLabel } from './sign';
@@ -555,8 +555,9 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
   const terrainMesh = drawn(buildGroundGeometry(layout, field, { quality, doors: doorPoints, half, land }), groundMat, 'terrain');
 
   // Water the land holds, drawn over the carved ground.
+  const waterWorld = { words: `${spec.prompt} ${spec.title} ${spec.tagline}`, ground: look.ground };
   const water = shaped && land.water.length > 0
-    ? buildWater({ land, quality, reach: half, tint: (kind, wl) => { if (kind === 'lava') wl.glowColour = `#${new THREE.Color(wl.glowColour).lerp(new THREE.Color(look.glow), 0.25).getHexString()}`; } })
+    ? buildWater({ land, quality, reach: half, world: waterWorld, tint: (kind, wl) => { if (kind === 'lava') wl.glowColour = `#${new THREE.Color(wl.glowColour).lerp(new THREE.Color(look.glow), 0.25).getHexString()}`; } })
     : null;
   if (water) group.add(water.group);
 
@@ -825,7 +826,7 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
     land, seed: spec.seed, quality, terrain: terrainMesh, groundMaterial: groundMat, groundHex: look.ground,
     horizon: { meshes: horizonMeshes, inner: radii.inner, outer: radii.outer, baseY: forms.reduce((n, f) => n + f.y, 0) / Math.max(1, forms.length), fog: horizonFog },
     waterCovered: water ? water.covered : null,
-    tintWater: (kind, wl) => { if (kind === 'lava') wl.glowColour = `#${new THREE.Color(wl.glowColour).lerp(new THREE.Color(look.glow), 0.25).getHexString()}`; },
+    tintWater: (kind, wl) => { Object.assign(wl, waterLookFor(kind, waterWorld)); if (kind === 'lava') wl.glowColour = `#${new THREE.Color(wl.glowColour).lerp(new THREE.Color(look.glow), 0.25).getHexString()}`; },
     scatter: farScatter.window,
     life: (spec.props?.length ?? 0) > 0 || blueprints.length > 0
       ? { style: look, props: spec.props ?? [], blueprints: farBlueprints, mats, wild: wildness, settled: settledness }

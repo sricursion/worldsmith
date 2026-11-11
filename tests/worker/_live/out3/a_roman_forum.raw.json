@@ -1,0 +1,1466 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a Roman forum",
+ "title": "The Forum Romanum",
+ "tagline": "Marble, markets and murmuring senators",
+ "theme": "medieval",
+ "era": "Imperial Rome",
+ "palette": {
+  "ground": "#9a8d74",
+  "accent": "#7a2f2b",
+  "sky": "dusk",
+  "fog": 0.15
+ },
+ "time": {
+  "startHour": 17.5,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "temple_saturn",
+   "role": "church",
+   "label": "Temple of Saturn",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "temple_front"
+  },
+  {
+   "id": "rostra",
+   "role": "plaza",
+   "label": "The Rostra",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "rostra_platform"
+  },
+  {
+   "id": "basilica",
+   "role": "townhall",
+   "label": "Basilica Julia",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "basilica_hall"
+  },
+  {
+   "id": "curia",
+   "role": "townhall",
+   "label": "Senate Curia",
+   "size": "large",
+   "blueprint": "brick_curia"
+  },
+  {
+   "id": "column",
+   "role": "plaza",
+   "label": "Column of Phocas",
+   "size": "small",
+   "blueprint": "fluted_column"
+  },
+  {
+   "id": "arch",
+   "role": "plaza",
+   "label": "Arch of Septimius",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "triumphal_arch"
+  },
+  {
+   "id": "vesta",
+   "role": "church",
+   "label": "Temple of Vesta",
+   "size": "medium",
+   "blueprint": "round_vesta"
+  },
+  {
+   "id": "tabernae",
+   "role": "market",
+   "label": "Tabernae Row",
+   "size": "medium",
+   "blueprint": "stalls_row"
+  },
+  {
+   "id": "bank",
+   "role": "bank",
+   "label": "Moneychangers",
+   "size": "small",
+   "blueprint": "temple_front"
+  },
+  {
+   "id": "fountain",
+   "role": "plaza",
+   "label": "Lacus Curtius",
+   "size": "small",
+   "blueprint": "rostra_platform"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "marcus",
+   "name": "Marcus",
+   "role": "senator",
+   "persona": "Proud, sleepless, lives for the vote tonight. Pretends the lost edict is a clerk's error while sweating through his toga.",
+   "knowledge": [
+    "The edict was sealed with three senators' rings and kept in the Curia chest.",
+    "The vote is called at nightfall and cannot be put off.",
+    "The bronze doors were locked at noon; no one forced them."
+   ],
+   "secrets": [
+    "He left the Curia door unbarred for an hour to meet a creditor."
+   ],
+   "home": "curia",
+   "work": "rostra",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "curia",
+     "activity": "rest"
+    },
+    {
+     "hour": 9,
+     "place": "rostra",
+     "activity": "work"
+    },
+    {
+     "hour": 14,
+     "place": "curia",
+     "activity": "work"
+    },
+    {
+     "hour": 18,
+     "place": "rostra",
+     "activity": "wander"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "cassius",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.2,
+     "idle": 0,
+     "flee": 0,
+     "investigate": -0.3,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "livia",
+   "name": "Livia",
+   "role": "matron",
+   "persona": "Sharp-eyed, thrifty, hears everything over the market stalls. Trades gossip like coin and wants her son's name kept clear.",
+   "knowledge": [
+    "A hooded man crossed from the Curia to the tabernae at midday.",
+    "Gaius has been hoarding wax tablets and drafts at the Rostra.",
+    "Tullia was paid in silver for wine nobody saw delivered."
+   ],
+   "secrets": [
+    "Her son, a clerk, was bribed to copy the edict's seal."
+   ],
+   "home": "tabernae",
+   "work": "plaza",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "tabernae",
+     "activity": "eat"
+    },
+    {
+     "hour": 10,
+     "place": "plaza",
+     "activity": "wander"
+    },
+    {
+     "hour": 16,
+     "place": "tabernae",
+     "activity": "trade"
+    },
+    {
+     "hour": 20,
+     "place": "tabernae",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tullia",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.3,
+    "rate": 1.1
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "gaius",
+   "name": "Gaius",
+   "role": "orator",
+   "persona": "Theatrical and vain, speaks in periods even to a dog. Wants the edict gone because it names him for exile.",
+   "knowledge": [
+    "The edict concerns land grants and a charge against a speaker of the Rostra.",
+    "Marcus has been pale all week and avoids the moneychangers.",
+    "A lictor passed the Rostra at dusk carrying a scroll case."
+   ],
+   "secrets": [
+    "He paid a pickpocket to lift the edict and hid it behind the ship prows."
+   ],
+   "home": "rostra",
+   "work": "rostra",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "rostra",
+     "activity": "rest"
+    },
+    {
+     "hour": 9,
+     "place": "rostra",
+     "activity": "work"
+    },
+    {
+     "hour": 15,
+     "place": "plaza",
+     "activity": "wander"
+    },
+    {
+     "hour": 19,
+     "place": "rostra",
+     "activity": "work"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "marcus",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.6,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "tullia",
+   "name": "Tullia",
+   "role": "wine seller",
+   "persona": "Blunt, loud, pours generously and forgets nothing owed. Dislikes senators and lictors equally.",
+   "knowledge": [
+    "Cassius counts denarii late, with the shutters closed.",
+    "A cloaked stranger bought a jug and asked the way to the Curia.",
+    "Decimus drinks here on his watch and never pays."
+   ],
+   "secrets": [
+    "She sold a forged seal-wax stamp to a man who paid double."
+   ],
+   "home": "tabernae",
+   "work": "tabernae",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "tabernae",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "tabernae",
+     "activity": "trade"
+    },
+    {
+     "hour": 17,
+     "place": "tabernae",
+     "activity": "drink"
+    },
+    {
+     "hour": 21,
+     "place": "tabernae",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "decimus",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 1.1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.4,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 1
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "cassius",
+   "name": "Cassius",
+   "role": "moneychanger",
+   "persona": "Dry, precise, speaks in sums and never lowers his voice. Keeps every debt in a ledger and expects it paid.",
+   "knowledge": [
+    "Marcus owes him four thousand denarii, due this week.",
+    "A sealed scroll was offered as surety against that debt.",
+    "His iron-banded chests are counted twice daily."
+   ],
+   "secrets": [
+    "He holds the edict as surety and plans to sell it to the highest bidder."
+   ],
+   "home": "bank",
+   "work": "bank",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "bank",
+     "activity": "rest"
+    },
+    {
+     "hour": 8,
+     "place": "bank",
+     "activity": "work"
+    },
+    {
+     "hour": 15,
+     "place": "tabernae",
+     "activity": "eat"
+    },
+    {
+     "hour": 17,
+     "place": "bank",
+     "activity": "guard"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "marcus",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": -0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "vestal",
+   "name": "Aemilia",
+   "role": "vestal virgin",
+   "persona": "Composed and austere, answers in few words. Guards the flame and an uncomfortable truth.",
+   "knowledge": [
+    "No one enters the Curia without passing the Temple of Vesta's steps.",
+    "Decimus stood watch near the Curia at noon.",
+    "A scroll was carried past her, wrapped in a wine merchant's cloth."
+   ],
+   "secrets": [
+    "She saw Gaius hide something behind the Rostra prows and kept silent."
+   ],
+   "home": "vesta",
+   "work": "vesta",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "vesta",
+     "activity": "pray"
+    },
+    {
+     "hour": 10,
+     "place": "vesta",
+     "activity": "work"
+    },
+    {
+     "hour": 16,
+     "place": "vesta",
+     "activity": "pray"
+    },
+    {
+     "hour": 20,
+     "place": "vesta",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [],
+   "appearance": {
+    "base": "mage",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.4,
+     "flee": 0.1,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "decimus",
+   "name": "Decimus",
+   "role": "legionary",
+   "persona": "Gruff veteran, bored on watch, loyal to his coin. Talks of Dacia when asked, deflects when pressed about noon.",
+   "knowledge": [
+    "He was posted near the Curia at noon and left for wine.",
+    "Tullia keeps a tab on him that he cannot pay.",
+    "The Arch of Septimius shades the best spot to watch the Rostra."
+   ],
+   "secrets": [
+    "He abandoned his post for an hour and let someone slip into the Curia."
+   ],
+   "home": "arch",
+   "work": "plaza",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "arch",
+     "activity": "rest"
+    },
+    {
+     "hour": 9,
+     "place": "plaza",
+     "activity": "patrol"
+    },
+    {
+     "hour": 14,
+     "place": "tabernae",
+     "activity": "drink"
+    },
+    {
+     "hour": 18,
+     "place": "arch",
+     "activity": "guard"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tullia",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0.2,
+     "talk_to": 0,
+     "idle": 0.3,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  }
+ ],
+ "items": [
+  {
+   "id": "edict",
+   "name": "Sealed Edict",
+   "description": "A scroll case with three broken wax seals.",
+   "holder": "rostra"
+  },
+  {
+   "id": "ring",
+   "name": "Senator's Ring",
+   "description": "A gold seal ring dropped near the tabernae.",
+   "holder": "tabernae"
+  },
+  {
+   "id": "ledger",
+   "name": "Moneychanger's Ledger",
+   "description": "Wax tablets listing Marcus's debt and a surety.",
+   "holder": "cassius"
+  },
+  {
+   "id": "feather",
+   "name": "Grey Feather",
+   "description": "A dove feather caught on the scroll case.",
+   "holder": "rostra"
+  }
+ ],
+ "quest": {
+  "id": "lost_edict",
+  "title": "The Lost Edict",
+  "hook": "A sealed edict vanished from the Curia hours before tonight's vote. Every faction blames another, and you owe none of them anything. As a stranger, you can ask what they cannot.",
+  "giver": "marcus",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "marcus",
+    "requires": [],
+    "objective": "Hear Marcus out at the Curia.",
+    "beat": "Marcus claims a clerk misplaced it. His hands say otherwise.",
+    "reveals": [
+     "marcus:0"
+    ]
+   },
+   {
+    "id": "s2",
+    "kind": "talk",
+    "target": "livia",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Ask Livia what the market saw at midday.",
+    "beat": "Livia saw a hooded man hurry from the Curia to the tabernae.",
+    "reveals": [
+     "livia:0"
+    ]
+   },
+   {
+    "id": "s3",
+    "kind": "visit",
+    "target": "rostra",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Search the Rostra while pigeons settle for dusk.",
+    "beat": "Pigeons roost on the ship prows. Something is wedged behind them."
+   },
+   {
+    "id": "s4",
+    "kind": "fetch",
+    "target": "edict",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Take the edict from behind the prows.",
+    "beat": "The seals are broken and a grey feather clings to the case.",
+    "item": "edict"
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "gaius",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Decide what to do with Gaius and the edict.",
+    "beat": "Gaius stands pale beside the prows, the edict between you.",
+    "choices": [
+     {
+      "label": "Return it to Marcus",
+      "unlocks": [
+       "s6a"
+      ]
+     },
+     {
+      "label": "Give it to Cassius",
+      "unlocks": [
+       "s6b"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s6a",
+    "kind": "deliver",
+    "target": "marcus",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Deliver the edict to Marcus at the Curia.",
+    "beat": "The vote proceeds. Gaius is named and Marcus's debt stays hidden.",
+    "item": "edict"
+   },
+   {
+    "id": "s6b",
+    "kind": "deliver",
+    "target": "cassius",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Deliver the edict to Cassius at the bank.",
+    "beat": "Cassius pays you in denarii. By Jupiter, the vote goes to whoever bids highest.",
+    "item": "edict"
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6a",
+    "label": "The Senate votes on schedule and the truth stays buried.",
+    "tone": "bitter"
+   },
+   {
+    "stepId": "s6b",
+    "label": "Cassius holds the Forum's secrets and the Forum's purse.",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "No weapons are carried on the Rostra; lictors enforce it.",
+   "effect": {
+    "type": "ban",
+    "what": "weapons",
+    "where": "rostra",
+    "enforcer": "decimus"
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Wine sells dear on the night of a vote.",
+   "effect": {
+    "type": "price",
+    "item": "wine",
+    "multiplier": 1.5
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "denarii",
+  "Quirites",
+  "Rostra",
+  "by Jupiter",
+  "lictor",
+  "Via Sacra"
+ ],
+ "style": {
+  "name": "Imperial Forum at Dusk",
+  "wall": "#b8ad98",
+  "wall2": "#8f6a52",
+  "roof": "#8a5745",
+  "trim": "#cfc6b4",
+  "accent": "#7a2f2b",
+  "dark": "#2e2926",
+  "glass": "#2b3036",
+  "glow": "#ffb56a",
+  "ground": "#9a8d74",
+  "road": "#8c8576",
+  "variety": 0.2,
+  "foliage": "#5f6a3a",
+  "bark": "#5a4a3a",
+  "surfaces": {
+   "wall": "stone",
+   "wall2": "brick",
+   "roof": "tile",
+   "trim": "stone",
+   "ground": "gravel",
+   "road": "cobble",
+   "wear": 0.65,
+   "wet": 0
+  }
+ },
+ "site": {
+  "pattern": "ring",
+  "wild": 0.05,
+  "paths": "road",
+  "spacing": 6
+ },
+ "mood": {
+  "weather": "clear",
+  "intensity": 0,
+  "grade": "golden",
+  "haze": 0.45,
+  "ambience": [
+   "crowd",
+   "birds",
+   "wind"
+  ],
+  "music": "warm lyre"
+ },
+ "terrain": {
+  "relief": "flat",
+  "ruggedness": 0.08,
+  "water": "none",
+  "waterAmount": 0,
+  "horizon": "seven hills with terracotta rooftops",
+  "settled": 0.85
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "pigeons",
+   "name": "rock doves",
+   "family": "bird",
+   "dials": {},
+   "size": 0.3,
+   "count": 10,
+   "behaviour": "flock",
+   "haunt": "plaza",
+   "body": "#8a8a90",
+   "accent": "#b8b0a0",
+   "glow": "#000000",
+   "note": "They strut between sandals like small senators."
+  },
+  {
+   "id": "swallows",
+   "name": "swallows",
+   "family": "bird",
+   "dials": {},
+   "size": 0.2,
+   "count": 8,
+   "behaviour": "circle",
+   "haunt": "sky",
+   "body": "#2a3a58",
+   "accent": "#c8a888",
+   "glow": "#000000",
+   "note": "Darting above the columns, hunting dusk insects."
+  },
+  {
+   "id": "dogs",
+   "name": "stray dogs",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.5,
+    "tail": 0.6
+   },
+   "size": 0.6,
+   "count": 2,
+   "behaviour": "roam",
+   "haunt": "tabernae",
+   "body": "#a8845a",
+   "accent": "#6a4a30",
+   "glow": "#000000",
+   "note": "Scavenging scraps beneath the market awnings."
+  }
+ ],
+ "folk": {
+  "name": "Roman citizens",
+  "height": 1.68,
+  "bulk": 0.45,
+  "head": 1,
+  "features": [
+   "cloak"
+  ],
+  "skin": [
+   "#c99a74",
+   "#a87656",
+   "#e0b890"
+  ],
+  "cloth": [
+   "#e8dfc8",
+   "#b8a888",
+   "#8c3d31"
+  ],
+  "trim": [
+   "#7a2c25",
+   "#c9a24a"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "temple_front",
+   "summary": "marble Ionic temple, 8 columns, pediment, 16 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.2,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.5,
+     "h": 10,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.95,
+     "d": 0.12,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0,
+     "y": 12,
+     "w": 0.95,
+     "d": 0.6,
+     "h": 3.5,
+     "rot": 90,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": -0.02,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.06,
+     "h": 5.5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.4,
+     "z": 0.35,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 12,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.8
+    }
+   ],
+   "doorX": 0,
+   "family": "colonnade",
+   "dials": {
+    "plan": "double",
+    "count": 8,
+    "height": 12,
+    "girth": 0.07,
+    "shaft": "round",
+    "top": "pediment",
+    "broken": 0.05,
+    "steps": 3
+   }
+  },
+  {
+   "id": "rostra_platform",
+   "summary": "raised stone speaker platform with ship prows, 3 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.46,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.06,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.35,
+     "z": 0.5,
+     "y": 1.2,
+     "w": 0.1,
+     "d": 0.05,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 4,
+     "gap": 0.23
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.35,
+     "y": 3,
+     "w": 0.5,
+     "d": 0.1,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "pit",
+   "dials": {
+    "shape": "square",
+    "radius": 0.9,
+    "rim": 3,
+    "tiers": 2,
+    "fill": "dark",
+    "posts": 6,
+    "postHeight": 1.2,
+    "centre": "none"
+   }
+  },
+  {
+   "id": "basilica_hall",
+   "summary": "two-storey arcaded marble hall, 100 m long, 18 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 1,
+     "d": 0.03,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.49,
+     "y": 6.4,
+     "w": 1,
+     "d": 0.03,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": -0.4,
+     "z": 0.5,
+     "y": 0.5,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 4.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 8,
+     "gap": 0.11
+    },
+    {
+     "shape": "arch",
+     "x": -0.4,
+     "z": 0.5,
+     "y": 7,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 3.6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 8,
+     "gap": 0.11
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.2,
+     "y": 12,
+     "w": 1.02,
+     "d": 0.6,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 4,
+    "roof": "gable",
+    "overhang": 0.1,
+    "front": "arcade",
+    "rhythm": 8,
+    "chimney": 0,
+    "taper": 0
+   }
+  },
+  {
+   "id": "brick_curia",
+   "summary": "plain brick senate hall, bronze doors, 21 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.38,
+     "d": 0.04,
+     "h": 5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.22,
+     "d": 0.03,
+     "h": 5.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 18,
+     "w": 0.98,
+     "d": 0.1,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 9.6,
+     "w": 0.9,
+     "d": 0.02,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 4,
+     "gap": 0.18
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 3,
+    "roof": "flat",
+    "overhang": 0.02,
+    "front": "plain",
+    "rhythm": 2,
+    "chimney": 0,
+    "taper": 0.05
+   }
+  },
+  {
+   "id": "fluted_column",
+   "summary": "lone fluted column on a plinth, 13.6 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 13.6,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 14.4,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 13.6,
+    "section": "round",
+    "taper": 0.12,
+    "bands": 2,
+    "top": "flat",
+    "flare": 0.2
+   }
+  },
+  {
+   "id": "triumphal_arch",
+   "summary": "triple-bay triumphal arch, 23 m high",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 16,
+     "w": 1,
+     "d": 0.7,
+     "h": 5.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": -0.32,
+     "z": 0.02,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.1,
+     "h": 8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0.32,
+     "z": 0.02,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.1,
+     "h": 8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 21.5,
+     "w": 0.9,
+     "d": 0.5,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.4,
+     "z": 0.34,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 14,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 4,
+     "gap": 0.27
+    }
+   ],
+   "doorX": 0,
+   "family": "arch",
+   "dials": {
+    "span": 0.55,
+    "thickness": 0.18,
+    "lintel": "flat",
+    "towers": 0
+   }
+  },
+  {
+   "id": "round_vesta",
+   "summary": "round marble temple, slender columns, 12 m",
+   "parts": [
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 1,
+     "d": 1,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.4,
+     "z": 0,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 8,
+     "gap": 0.12
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 7.5,
+     "w": 0.8,
+     "d": 0.8,
+     "h": 4,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "dome",
+   "dials": {
+    "flatness": 0.5,
+    "drum": 6,
+    "oculus": 0.3,
+    "ribs": 0,
+    "pods": 0
+   }
+  },
+  {
+   "id": "stalls_row",
+   "summary": "stone shopfronts with awnings and amphorae, 5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.4,
+     "y": 0,
+     "w": 0.95,
+     "d": 0.2,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0.48,
+     "y": 3,
+     "w": 1,
+     "d": 0.4,
+     "h": 1,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.38,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 6,
+     "gap": 0.15
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.28,
+     "y": 2,
+     "w": 0.9,
+     "d": 0.02,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "canopy",
+   "dials": {
+    "posts": 6,
+    "roof": "shed",
+    "counter": 0.7
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "umbrella_pine",
+   "size": 6,
+   "parts": [],
+   "weight": 3,
+   "family": "conifer",
+   "dials": {
+    "height": 2.6,
+    "width": 0.7,
+    "whorls": 4,
+    "bare": 0.55,
+    "droop": 0.2,
+    "foliage": 0.85
+   }
+  },
+  {
+   "kind": "fig_tree",
+   "size": 6,
+   "parts": [],
+   "weight": 2,
+   "family": "broadleaf",
+   "dials": {
+    "height": 1.8,
+    "girth": 0.2,
+    "limbs": 4,
+    "spread": 0.8,
+    "crown": "round"
+   }
+  },
+  {
+   "kind": "oil_lamp_post",
+   "size": 2,
+   "parts": [],
+   "weight": 3,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 3,
+    "arms": 1
+   }
+  },
+  {
+   "kind": "amphora_stack",
+   "size": 1.2,
+   "parts": [],
+   "weight": 2,
+   "family": "container",
+   "dials": {
+    "form": "urn",
+    "count": 3,
+    "height": 0.8
+   }
+  },
+  {
+   "kind": "market_bench",
+   "size": 1.5,
+   "parts": [],
+   "weight": 2,
+   "family": "furniture",
+   "dials": {
+    "form": "bench",
+    "length": 0.7,
+    "height": 0.5
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "forum_statue",
+   "prompt": "Weathered marble statue of a Roman orator in a toga on a stepped stone plinth, one arm raised, chipped fingers, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 6
+  }
+ ]
+}

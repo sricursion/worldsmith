@@ -2,11 +2,12 @@ import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { buildingAabb, distanceToRoad, generateLayout } from '../../app/src/town/layout';
 import { catenaryPoints, facingPairs, lineKindFor } from '../../app/src/town/props';
-import { SCATTER_FAR, WIND, buildScatter, crossedQuads, scatterBudget, scatterMix, tuftTexels, updateScatter } from '../../app/src/town/scatter';
+import { SCATTER_FAR, WIND, buildScatter, crossedQuads, markPlan, markTexels, scatterBudget, scatterMix, tuftTexels, updateScatter } from '../../app/src/town/scatter';
 import type { ScatterInput } from '../../app/src/town/scatter';
 import {
   FLAT_MARGIN, buildGroundGeometry, buildHorizonGeometry, buildRoadGeometry, fbm, groundHalfExtent, horizonForms, horizonKindFor,
-  horizonPalette, horizonRadii, landformFor, makeTerrainField, outsideDistance, roadClassFor, roadDecalKind, terrainHeight, valueNoise,
+  bankTint, horizonPalette, horizonRadii, landformFor, makeTerrainField, outsideDistance, patchTint, reliefTint, roadClassFor, roadDecalKind,
+  terrainHeight, valueNoise,
 } from '../../app/src/town/terrain';
 import type { RoadInput } from '../../app/src/town/terrain';
 import type { SurfaceKind, SurfaceSet } from '../../app/src/world/spec';
@@ -422,6 +423,60 @@ describe('scatter', () => {
     expect(disposed).toBe(seen.size);
     a.dispose();
     b.dispose();
+  });
+
+  it('lays marks on the ground out of the same budget, off the roads, in the ground\'s own colours', () => {
+    const inp = base(0.5);
+    const set = buildScatter(inp);
+    expect(set.marks).toBeGreaterThan(100);
+    expect(set.total).toBeLessThanOrEqual(scatterBudget(1, 0.5));
+    expect(set.total).toBe(set.counts.tufts + set.counts.flowers + set.counts.stones + set.counts.debris + set.marks);
+    const mesh = set.group.getObjectByName('scatter:marks') as THREE.InstancedMesh;
+    expect(mesh.geometry.getIndex()?.count).toBe(6);
+    const m = new THREE.Matrix4();
+    const p = new THREE.Vector3();
+    updateScatter(new THREE.Vector3(inp.layout.spawn.x, 0, inp.layout.spawn.z));
+    for (let i = 0; i < mesh.count; i++) {
+      mesh.getMatrixAt(i, m);
+      p.setFromMatrixPosition(m);
+      expect(inp.layout.roads.some((r) => distanceToRoad(r, p.x, p.z) === 0)).toBe(false);
+    }
+    set.dispose();
+    // An alien soil keeps its hue: no mark strays far from the ground colour unless it is one of the accents.
+    const hsl = { h: 0, s: 0, l: 0 };
+    const plan = markPlan('regolith', '#6a3f8c', ['#35e0c8']);
+    new THREE.Color('#6a3f8c').getHSL(hsl);
+    const hue = hsl.h;
+    expect(plan.colours.length).toBe(3);
+    for (const c of plan.colours.slice(0, 2)) { c.getHSL(hsl); expect(Math.abs(hsl.h - hue)).toBeLessThan(0.02); }
+    for (const g of GROUNDS) expect(markPlan(g, '#808070', []).colours.length).toBeGreaterThan(1);
+    const px = markTexels(64, 7);
+    expect(px[3]).toBe(0);
+    expect(px[(32 * 64 + 32) * 4 + 3]).toBeGreaterThan(60);
+    expect(Array.from(markTexels(64, 7))).toEqual(Array.from(px));
+  });
+
+  it('shades hollows darker than crests, banks damp, and leaves level ground alone', () => {
+    const t: [number, number, number] = [0, 0, 0];
+    reliefTint(0, 0, t);
+    expect(t).toEqual([1, 1, 1]);
+    reliefTint(0.08, 0, t);
+    const low = t[1];
+    reliefTint(-0.08, 0, t);
+    expect(low).toBeLessThan(1);
+    expect(t[1]).toBeGreaterThan(1);
+    expect(t[0]).toBeGreaterThan(t[2]);
+    reliefTint(0, 1.2, t);
+    expect(t[1]).toBeLessThan(1);
+    expect(bankTint(-1)).toBe(1);
+    expect(bankTint(0.1)).toBeLessThan(0.85);
+    expect(bankTint(3)).toBeCloseTo(1, 6);
+    for (let i = 0; i < 200; i++) {
+      const k = patchTint(i * 3.7, i * -2.1, 5);
+      expect(k).toBeGreaterThan(0.85);
+      expect(k).toBeLessThan(1.1);
+      expect(patchTint(i * 3.7, i * -2.1, 5)).toBe(k);
+    }
   });
 
   it('exposes one shared wind', () => {

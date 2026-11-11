@@ -3,7 +3,7 @@ import { Color, InstancedMesh, Mesh, Scene, ShaderLib, Vector3 } from 'three';
 import type { InstancedBufferGeometry, MeshStandardMaterial, Object3D, ShaderMaterial } from 'three';
 import type { MoodSpec, StyleSpec, SurfaceKind } from '../../app/src/world/spec';
 import { makeRng } from '../../app/src/world/rng';
-import { createLife, lifeLight, nightFactor, planLife, sunHeight } from '../../app/src/engine/life';
+import { createLife, lifeLight, MOTE_CAP, nightFactor, planLife, sunHeight } from '../../app/src/engine/life';
 import type { Life } from '../../app/src/engine/life';
 
 const BOUNDS = { minX: -80, maxX: 80, minZ: -60, maxZ: 60 };
@@ -229,6 +229,38 @@ describe('createLife', () => {
       expect(free).toBeGreaterThan(0);
       life.dispose();
     }
+  });
+
+  it('fills still air with motes that suit the place and leaves it to the weather otherwise', () => {
+    expect(planLife('medieval', mood('clear'), style('mushroom forest', 'moss')).motes).toBe('pollen');
+    expect(planLife('western', mood('clear'), style('weathered frontier timber', 'sand')).motes).toBe('dust');
+    expect(planLife('medieval', mood('clear'), style('basalt forge above a lava field')).motes).toBe('embers');
+    expect(planLife('medieval', mood('clear'), style('snowbound monastery', 'snow')).motes).toBe('none');
+    for (const w of ['rain', 'storm', 'snow', 'dust', 'ash', 'spores', 'embers', 'fireflies'] as const) expect(planLife('medieval', mood(w), style('mushroom forest', 'moss')).motes, w).toBe('none');
+    expect(planLife('scifi', mood('clear'), style('underwater coral city'))).toMatchObject({ flyer: 'fish', nightFlyer: 'none', motes: 'bubbles', drift: 'none', insects: false });
+  });
+
+  it('caps the motes, scales them with quality and schools fish for a sunken world', () => {
+    const counts = ([0, 1, 2] as const).map((quality) => {
+      const scene = new Scene();
+      const life = createLife(scene, { theme: 'medieval', mood: mood('clear'), style: style('underwater coral city'), bounds: BOUNDS, quality, rng: makeRng(8, 'life') });
+      const n = instancesOf(scene.getObjectByName('life_motes') as Object3D);
+      expect(scene.getObjectByName('life_fish')).toBeDefined();
+      expect(scene.getObjectByName('life_bats')).toBeUndefined();
+      expect(uniformsOf(scene, 'life_fish').uMode?.value).toBe(2);
+      life.dispose();
+      return n;
+    });
+    expect(counts[2]).toBe(MOTE_CAP);
+    expect(counts[0]).toBeLessThan(counts[1] as number);
+    expect(counts[1]).toBeLessThan(counts[2] as number);
+    // Motes come last: a world's birds are where they were before there were motes at all.
+    const birds = (m: MoodSpec): number[] => {
+      const scene = new Scene();
+      createLife(scene, { theme: 'western', mood: m, style: style('weathered frontier timber', 'sand'), bounds: BOUNDS, rng: makeRng(21, 'life') });
+      return Array.from((scene.getObjectByName('life_birds') as Mesh).geometry.getAttribute('aFly').array);
+    };
+    expect(birds(mood('clear'))).toEqual(birds(mood('fog')));
   });
 
   it('skips smoke without sources and honours given flag anchors and quality', () => {

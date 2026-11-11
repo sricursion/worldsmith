@@ -26,6 +26,47 @@ export interface WaterLook {
   /** How strongly dark cracks are drawn (ice). */
   crack: number;
   opaque: boolean;
+  /** Colour the surface leans to where it is seen at a low angle, far off. Absent: a pale cast of the shallows. */
+  horizon?: string;
+}
+
+/** What the world says about itself, for choosing the water that belongs in it. */
+export interface WaterWorld {
+  /** Free words: the prompt, the title, the style name, the ambience. */
+  words: string;
+  /** Hex colour of the ground; it shows through the shallows as the bed. */
+  ground?: string;
+}
+
+const TROPICAL = /tropic|lagoon|coral|reef|atoll|turquoise|crystal[- ]clear|oasis|paradise|caribbean/;
+const PEAT = /peat|bog\b|swamp|marsh|\bfen\b|moor|mire|bayou|blackwater|mangrove/;
+const MURK = /canal|sewer|harbo|dock|industrial|pollut|murk|slum|gutter|moat|ditch|stagnant|factory/;
+const STILL = /glacial|frozen|arctic|tundra|mirror|tarn|still water|windless/;
+const HEX6 = /^#[0-9a-f]{6}$/i;
+
+/**
+ * The look of a kind of water in a particular world: clear and bright over a reef, brown and slow in a bog,
+ * grey-green and flat in a canal, glassy in the cold. Lava, ice and mist keep their own look. Pure.
+ */
+export function waterLookFor(kind: WaterKind, world: WaterWorld): WaterLook {
+  const look = waterLook(kind);
+  if (look.opaque || kind === 'mist_sea') return look;
+  const words = world.words.toLowerCase();
+  if (kind !== 'acid') {
+    if (TROPICAL.test(words)) {
+      Object.assign(look, { shallow: '#5fc9bf', deep: '#0b5878', horizon: '#bfe6ea', alpha0: 0.18, fade: look.fade * 1.6, foam: '#f2f7f4' });
+    } else if (PEAT.test(words)) {
+      Object.assign(look, { shallow: '#5a4326', deep: '#120c06', horizon: '#8d8a78', alpha0: 0.55, alpha1: 0.97, fade: look.fade * 0.5, bump: look.bump * 0.5, speed: look.speed * 0.5, foamAmount: look.foamAmount * 0.4, foam: '#b9ad8c' });
+    } else if (MURK.test(words)) {
+      Object.assign(look, { shallow: '#565f49', deep: '#1b231c', horizon: '#959c94', alpha0: 0.7, alpha1: 0.98, fade: look.fade * 0.6, bump: look.bump * 0.6, speed: look.speed * 0.5, foamAmount: look.foamAmount * 0.5, roughness: 0.14, foam: '#aeb3a2' });
+    }
+    if (STILL.test(words)) Object.assign(look, { bump: look.bump * 0.3, speed: look.speed * 0.3, foamAmount: look.foamAmount * 0.5 });
+  }
+  // The bed shows through where the water is thin.
+  if (world.ground !== undefined && HEX6.test(world.ground)) {
+    look.shallow = `#${new THREE.Color(look.shallow).lerp(new THREE.Color(world.ground), 0.3).getHexString()}`;
+  }
+  return look;
 }
 
 const LOOKS: Record<WaterKind, WaterLook> = {
@@ -50,6 +91,7 @@ uniform vec3 uShallow;
 uniform vec3 uDeep;
 uniform vec3 uFoam;
 uniform vec3 uGlowColour;
+uniform vec3 uHorizon;
 uniform vec4 uWaterA; // alpha0, alpha1, fade depth, foam depth
 uniform vec4 uWaterB; // foam amount, bump, 1 / scale, speed
 uniform vec2 uWaterC; // glow, crack
@@ -88,6 +130,8 @@ export function waterMaterial(look: WaterLook, far?: { level: number; hole: Rect
     uDeep: { value: new THREE.Color(look.deep) },
     uFoam: { value: new THREE.Color(look.foam) },
     uGlowColour: { value: new THREE.Color(look.glowColour) },
+    // Solid surfaces (lava crust, ice) keep their own colour at a distance; open water pales toward the sky.
+    uHorizon: { value: new THREE.Color(look.horizon ?? look.shallow).lerp(new THREE.Color('#cdd8e0'), look.horizon !== undefined || look.opaque ? 0 : 0.55) },
     uWaterA: { value: new THREE.Vector4(look.alpha0, look.alpha1, Math.max(0.05, look.fade), Math.max(0.01, look.foamDepth)) },
     uWaterB: { value: new THREE.Vector4(look.foamAmount, look.bump, 1 / Math.max(0.1, look.scale), look.speed) },
     uWaterC: { value: new THREE.Vector2(look.glow, look.crack) },
@@ -110,9 +154,18 @@ export function waterMaterial(look: WaterLook, far?: { level: number; hole: Rect
         float wDeepness = smoothstep(0.0, uWaterA.z, vWaterDepth);
         float wRidge = 1.0 - abs(2.0 * wNoise(wP * 0.9 + 3.7) - 1.0);
         float wCrack = smoothstep(0.93, 0.995, wRidge) * uWaterC.y;
-        float wEdge = 1.0 - smoothstep(0.0, uWaterA.w, vWaterDepth);
+        // The shore line laps: the foam reaches further out and draws back, a little out of step along the bank.
+        float wLap = mix(0.5, 0.5 + 0.5 * sin(uWaterTime * (0.5 + uWaterB.w) + wN * 5.0 + vWaterXZ.x * 0.07), step(0.001, uWaterB.w));
+        float wEdge = 1.0 - smoothstep(0.0, uWaterA.w * (0.6 + 0.9 * wLap), vWaterDepth);
         float wFoam = clamp(wEdge * smoothstep(0.3, 0.6, wN + 0.35 * wEdge), 0.0, 1.0) * uWaterB.x;
-        diffuseColor.rgb = mix(uShallow, uDeep, wDeepness) * (1.0 - 0.7 * wCrack);
+        // A wider, fainter pale band over the shallows, so the shore still reads as a line from far away.
+        wFoam = max(wFoam, (1.0 - smoothstep(0.0, uWaterA.w * 4.0, vWaterDepth)) * 0.22 * uWaterB.x);
+        // Looking down you see into the water and it darkens with depth; at a low angle it takes the sky.
+        float wDist = length(vViewPosition);
+        float wFacing = clamp(abs(dot(normalize(vViewPosition), viewMatrix[1].xyz)), 0.0, 1.0);
+        float wGraze = pow(1.0 - wFacing, 3.0);
+        diffuseColor.rgb = mix(uShallow, uDeep, wDeepness) * (1.0 - 0.7 * wCrack) * (1.0 - 0.3 * wFacing * wDeepness);
+        diffuseColor.rgb = mix(diffuseColor.rgb, uHorizon, 0.6 * wGraze);
         diffuseColor.rgb = mix(diffuseColor.rgb, uFoam, wFoam);
         diffuseColor.a = max(mix(uWaterA.x, uWaterA.y, wDeepness), wFoam) * smoothstep(-0.1, 0.02, vWaterDepth);`)
       .replace('#include <normal_fragment_maps>', /* glsl */ `#include <normal_fragment_maps>
@@ -121,7 +174,12 @@ export function waterMaterial(look: WaterLook, far?: { level: number; hole: Rect
           float wH0 = wField(wP);
           float wHx = wField(wP + vec2(wE, 0.0));
           float wHz = wField(wP + vec2(0.0, wE));
-          vec3 wUp = normalize(vec3((wH0 - wHx) * uWaterB.y / wE * 0.3, 1.0, (wH0 - wHz) * uWaterB.y / wE * 0.3));
+          // Fine ripples are for close up: far off they only sparkle, so they give way to a long slow swell.
+          float wFar = smoothstep(20.0, 140.0, wDist);
+          vec2 wQ = wP * 0.19 + uWaterTime * uWaterB.w * vec2(0.11, 0.07);
+          float wS0 = wNoise(wQ);
+          vec2 wG = vec2(wH0 - wHx, wH0 - wHz) * (1.0 - 0.8 * wFar) + vec2(wS0 - wNoise(wQ + vec2(wE, 0.0)), wS0 - wNoise(wQ + vec2(0.0, wE))) * (0.5 + 1.5 * wFar);
+          vec3 wUp = normalize(vec3(wG.x * uWaterB.y / wE * 0.3, 1.0, wG.y * uWaterB.y / wE * 0.3));
           normal = normalize((viewMatrix * vec4(wUp, 0.0)).xyz);
         }`)
       .replace('#include <emissivemap_fragment>', /* glsl */ `#include <emissivemap_fragment>
@@ -133,7 +191,7 @@ export function waterMaterial(look: WaterLook, far?: { level: number; hole: Rect
           diffuseColor.a = mix(diffuseColor.a, max(diffuseColor.a, 0.96), wFresnel * step(0.001, diffuseColor.a));
         }`);
   };
-  m.customProgramCacheKey = () => (far ? 'town-water-far' : 'town-water');
+  m.customProgramCacheKey = () => (far ? 'town-water-far-2' : 'town-water-2');
   return m;
 }
 
@@ -215,6 +273,8 @@ export interface WaterInput {
   reach: number;
   /** Tints the look of a kind before its material is made (the style's glow on lava, say). */
   tint?: (kind: WaterKind, look: WaterLook) => void;
+  /** The world the water lies in. Given, the look of each kind is chosen for it (see waterLookFor). */
+  world?: WaterWorld;
 }
 
 export interface WaterSet {
@@ -267,7 +327,7 @@ export function buildWater(inp: WaterInput): WaterSet {
     geos.push(g);
     let mat = mats.get(kind);
     if (!mat) {
-      const look = waterLook(kind);
+      const look = inp.world ? waterLookFor(kind, inp.world) : waterLook(kind);
       inp.tint?.(kind, look);
       mat = waterMaterial(look);
       mats.set(kind, mat);

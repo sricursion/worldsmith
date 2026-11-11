@@ -2,6 +2,8 @@
 import type { BlueprintPart } from '../spec';
 import { arch, box, C, cone, cyl, dome, int, N, num, pyr, ring, skel, sph, str, wedge } from './util';
 
+export { vehicle, machine, fence, stall } from './object-b';
+
 export const pole = skel(
   'pole', 'object', 'Thin upright with a head: lamp, banner, totem, signs or antenna.',
   ['street lamp', 'banner pole', 'totem', 'signpost', 'radio mast', 'maypole'],

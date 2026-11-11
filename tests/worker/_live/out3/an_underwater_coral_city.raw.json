@@ -1,0 +1,1365 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "an underwater coral city",
+ "title": "Corallum",
+ "tagline": "A city grown, not built, beneath the waves",
+ "theme": "scifi",
+ "era": "Deep Reef Age",
+ "palette": {
+  "ground": "#8c8672",
+  "accent": "#7a8f7b",
+  "sky": "overcast",
+  "fog": 0.5
+ },
+ "time": {
+  "startHour": 10,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "spire_hall",
+   "role": "townhall",
+   "label": "Spire of Tides",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "staghorn_spire"
+  },
+  {
+   "id": "nursery",
+   "role": "lab",
+   "label": "Polyp Nursery",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "brain_dome"
+  },
+  {
+   "id": "lantern_mast",
+   "role": "command",
+   "label": "Lantern Mast",
+   "size": "medium",
+   "blueprint": "kelp_mast"
+  },
+  {
+   "id": "kelp_market",
+   "role": "market",
+   "label": "Kelp Market",
+   "size": "medium",
+   "blueprint": "fan_arcade"
+  },
+  {
+   "id": "pearl_exchange",
+   "role": "bank",
+   "label": "Pearl Exchange",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "nacre_rotunda"
+  },
+  {
+   "id": "diver_lodge",
+   "role": "inn",
+   "label": "Diver Lodge",
+   "size": "medium",
+   "blueprint": "table_tiers"
+  },
+  {
+   "id": "dock_cavern",
+   "role": "hangar",
+   "label": "Dock Cavern",
+   "size": "large",
+   "blueprint": "reef_cave"
+  },
+  {
+   "id": "shell_homes",
+   "role": "house",
+   "label": "Shellwright Homes",
+   "size": "small",
+   "blueprint": "conch_cluster"
+  },
+  {
+   "id": "airlock",
+   "role": "station",
+   "label": "Surface Airlock",
+   "size": "small",
+   "blueprint": "staghorn_spire"
+  },
+  {
+   "id": "archive",
+   "role": "school",
+   "label": "Reef Archive",
+   "size": "medium",
+   "blueprint": "brain_dome"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "marisol",
+   "name": "Marisol",
+   "role": "coral warden",
+   "persona": "Tired, exact, hates guessing. She has counted the dead rings of the Spire every dawn and trusts no one's count but her own.",
+   "knowledge": [
+    "The Spire fades from the base upward, one ring per tide cycle.",
+    "The Nursery's polyps still bloom, so the fault is not in the seed stock.",
+    "Wardens tested the water at the Spire's foot and found it clean."
+   ],
+   "secrets": [
+    "She has not reported that the fading rings follow the line of the old glasswater pipe."
+   ],
+   "home": "nursery",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "nursery",
+     "activity": "work"
+    },
+    {
+     "hour": 10,
+     "place": "street",
+     "activity": "patrol"
+    },
+    {
+     "hour": 17,
+     "place": "kelp_market",
+     "activity": "eat"
+    },
+    {
+     "hour": 21,
+     "place": "nursery",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "teo",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.5,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 1.1,
+    "rate": 0.95
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "teo",
+   "name": "Teo",
+   "role": "pearl broker",
+   "persona": "Smooth, quick, always pricing the room. He smiles first and answers second.",
+   "knowledge": [
+    "Brineshare payments to the wardens have doubled this season.",
+    "Nacre from the Spire's lower rings no longer takes a polish.",
+    "A buyer from deepward has been asking after Spire shards."
+   ],
+   "secrets": [
+    "He has been selling flaked Spire coral to a deepward buyer, and the scraping is what drains the colour."
+   ],
+   "home": "pearl_exchange",
+   "work": "pearl_exchange",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "pearl_exchange",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "kelp_market",
+     "activity": "trade"
+    },
+    {
+     "hour": 18,
+     "place": "diver_lodge",
+     "activity": "drink"
+    },
+    {
+     "hour": 23,
+     "place": "pearl_exchange",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "nara",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "nara",
+   "name": "Nara",
+   "role": "dock master",
+   "persona": "Blunt and weathered, speaks in short orders. She logs every hull and every crate, and remembers what did not match.",
+   "knowledge": [
+    "Sealed crates left the dock cavern deepward at night, signed by Teo.",
+    "The Surface Airlock has been shut to cargo since the fading began.",
+    "Her log shows tide-mark stamps on the crates, which only wardens may issue."
+   ],
+   "secrets": [
+    "She took payment to look away and kept one crate's contents: a sack of scraped coral."
+   ],
+   "home": "dock_cavern",
+   "work": "dock_cavern",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "dock_cavern",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "dock_cavern",
+     "activity": "eat"
+    },
+    {
+     "hour": 14,
+     "place": "airlock",
+     "activity": "guard"
+    },
+    {
+     "hour": 20,
+     "place": "dock_cavern",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "teo",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": -0.2,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.85
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "oshun",
+   "name": "Oshun",
+   "role": "archivist",
+   "persona": "Soft-spoken and precise, speaks as if reading aloud. She would rather be right than liked.",
+   "knowledge": [
+    "The Spire's colour comes from a polyp-bond that must be renewed each generation.",
+    "An old record says scraping a ring breaks the bond for the rings above it.",
+    "The Archive holds the original tide-mark rules forbidding any cutting of the Spire."
+   ],
+   "secrets": [
+    "She found the scraping record months ago and stayed silent, afraid the wardens would blame the Archive."
+   ],
+   "home": "archive",
+   "work": "archive",
+   "schedule": [
+    {
+     "hour": 8,
+     "place": "archive",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "kelp_market",
+     "activity": "eat"
+    },
+    {
+     "hour": 15,
+     "place": "archive",
+     "activity": "work"
+    },
+    {
+     "hour": 22,
+     "place": "archive",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "marisol",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0.3,
+     "investigate": 0.4,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 0.8
+   },
+   "mood": "afraid"
+  },
+  {
+   "id": "kelp",
+   "name": "Brin",
+   "role": "kelp farmer",
+   "persona": "Cheerful and nosy, sells gossip with the greens. Knows who ate what and who paid in what.",
+   "knowledge": [
+    "Teo pays his kelp debts in coral flakes, never in pearls.",
+    "Nara's dock hands come to the market with new gear and no explanation.",
+    "Shell homes near the Spire's foot find pale grit on their doorsteps."
+   ],
+   "secrets": [
+    "He has been trading kelp for scraps of Spire coral and has a sack hidden in his shell home."
+   ],
+   "home": "shell_homes",
+   "work": "kelp_market",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "kelp_market",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "kelp_market",
+     "activity": "trade"
+    },
+    {
+     "hour": 18,
+     "place": "diver_lodge",
+     "activity": "drink"
+    },
+    {
+     "hour": 22,
+     "place": "shell_homes",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "teo",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.6,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0.2,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1.15
+   },
+   "mood": "cheerful"
+  }
+ ],
+ "items": [
+  {
+   "id": "pale_flake",
+   "name": "Pale Spire Flake",
+   "description": "A dull, colourless shard scraped from a lower ring of the Spire.",
+   "holder": "shell_homes"
+  },
+  {
+   "id": "dock_log",
+   "name": "Dock Ledger Page",
+   "description": "A torn page of Nara's log listing night crates stamped with a warden's tide-mark.",
+   "holder": "nara"
+  },
+  {
+   "id": "bond_record",
+   "name": "Polyp-Bond Record",
+   "description": "An old tube-coral scroll warning that cutting one ring starves the rings above.",
+   "holder": "archive"
+  }
+ ],
+ "quest": {
+  "id": "fading_spire",
+  "title": "The Fading Spire",
+  "hook": "The Spire of Tides is losing its colour, one ring per tide, and the wardens have run out of explanations. They need a stranger who owes no one in Corallum. Start with the warden Marisol at the Nursery and follow the grey downward.",
+  "giver": "marisol",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "marisol",
+    "requires": [],
+    "objective": "Hear Marisol's account of the fading.",
+    "beat": "Marisol shows you the dead rings and says the water tests clean. Something is taking the colour by hand."
+   },
+   {
+    "id": "s2",
+    "kind": "visit",
+    "target": "spire_hall",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Inspect the base of the Spire.",
+    "beat": "Fine scrape marks run along the lowest grey ring, and pale grit lies in the sand beneath."
+   },
+   {
+    "id": "s3",
+    "kind": "fetch",
+    "target": "pale_flake",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Collect a flake of the pale grit from the shell homes near the Spire.",
+    "beat": "The same colourless grit is piled on a doorstep. Someone has been carrying it away.",
+    "item": "pale_flake"
+   },
+   {
+    "id": "s4",
+    "kind": "talk",
+    "target": "oshun",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Ask Oshun what a scraped ring does to the Spire.",
+    "beat": "Oshun hesitates, then admits a record exists: cut a ring and the polyp-bond starves every ring above it.",
+    "reveals": [
+     "oshun:0"
+    ]
+   },
+   {
+    "id": "s5",
+    "kind": "talk",
+    "target": "nara",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Ask Nara about night cargo leaving the dock.",
+    "beat": "Nara's ledger shows sealed crates stamped with a tide-mark, signed by Teo. She looked away and was paid for it.",
+    "reveals": [
+     "nara:0"
+    ]
+   },
+   {
+    "id": "s6",
+    "kind": "confront",
+    "target": "teo",
+    "requires": [
+     "s4",
+     "s5"
+    ],
+    "objective": "Confront Teo at the Pearl Exchange.",
+    "beat": "Teo's smile fails. He has been selling Spire flakes to a deepward buyer and never believed the damage would spread.",
+    "reveals": [
+     "teo:0"
+    ]
+   },
+   {
+    "id": "s7",
+    "kind": "choose",
+    "target": "marisol",
+    "requires": [
+     "s6"
+    ],
+    "objective": "Decide what happens to Teo and the stolen coral.",
+    "beat": "Marisol waits on your word. The Spire can be mended only if the flakes are returned, and Teo's name is worth more alive than ruined.",
+    "choices": [
+     {
+      "label": "Hand Teo to the wardens",
+      "unlocks": [
+       "s8a"
+      ]
+     },
+     {
+      "label": "Make Teo restore the coral himself",
+      "unlocks": [
+       "s8b"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s8a",
+    "kind": "talk",
+    "target": "marisol",
+    "requires": [
+     "s7"
+    ],
+    "objective": "Report Teo to Marisol.",
+    "beat": "The wardens seize Teo's stock and the Spire is sealed, but the lost rings stay grey."
+   },
+   {
+    "id": "s8b",
+    "kind": "visit",
+    "target": "spire_hall",
+    "requires": [
+     "s7"
+    ],
+    "objective": "Watch Teo graft the flakes back at the Spire.",
+    "beat": "Teo grafts what he can salvage. Colour creeps back up the rings, slowly, and the Exchange loses its best broker."
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s8a",
+    "label": "Justice done, rings lost",
+    "tone": "bitter"
+   },
+   {
+    "stepId": "s8b",
+    "label": "The Spire slowly recovers",
+    "tone": "good"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "No cutting or scraping of the Spire of Tides, on pain of exile.",
+   "effect": {
+    "type": "ban",
+    "what": "scraping coral",
+    "where": "spire_hall",
+    "enforcer": "marisol"
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Cargo may not leave the Dock Cavern between nightfall and dawn.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 21,
+    "toHour": 5,
+    "exemptRoles": [
+     "coral warden"
+    ]
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "polyp-bond",
+  "tide-mark",
+  "brineshare",
+  "glasswater",
+  "deepward",
+  "spirefall"
+ ],
+ "style": {
+  "name": "Corallum Deep Reef",
+  "wall": "#b3ab9a",
+  "wall2": "#8a7f70",
+  "roof": "#5a5f58",
+  "trim": "#9b9283",
+  "accent": "#7a8f7b",
+  "dark": "#2a2f2e",
+  "glass": "#2d4548",
+  "glow": "#dfefff",
+  "ground": "#8c8672",
+  "road": "#7a7565",
+  "variety": 0.2,
+  "foliage": "#4f6a4a",
+  "bark": "#6a5f52",
+  "surfaces": {
+   "wall": "coral",
+   "wall2": "stone",
+   "roof": "coral",
+   "trim": "stone",
+   "ground": "sand",
+   "road": "gravel",
+   "wear": 0.6,
+   "wet": 0.9
+  }
+ },
+ "site": {
+  "pattern": "terraces",
+  "wild": 0.4,
+  "paths": "track",
+  "spacing": 6
+ },
+ "mood": {
+  "weather": "mist",
+  "intensity": 0.3,
+  "grade": "verdant",
+  "haze": 0.7,
+  "ambience": [
+   "water",
+   "machinery"
+  ],
+  "music": "slow glass harmonics"
+ },
+ "terrain": {
+  "relief": "terraced",
+  "ruggedness": 0.55,
+  "water": "lake",
+  "waterAmount": 0.95,
+  "horizon": "blue abyss beyond reef wall",
+  "settled": 0.6
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "reef_fish",
+   "name": "reef fish",
+   "family": "swimmer",
+   "dials": {
+    "depth": 0.5
+   },
+   "size": 0.3,
+   "count": 12,
+   "behaviour": "flock",
+   "haunt": "water",
+   "body": "#e0a84a",
+   "accent": "#3f7ab8",
+   "glow": "#000000",
+   "note": "Darting in bright schools through coral arches."
+  },
+  {
+   "id": "manta",
+   "name": "manta ray",
+   "family": "swimmer",
+   "dials": {
+    "flat": 0.9,
+    "pectoral": 0.9
+   },
+   "size": 3,
+   "count": 2,
+   "behaviour": "circle",
+   "haunt": "water",
+   "body": "#3a4a5a",
+   "accent": "#d8dde0",
+   "glow": "#000000",
+   "note": "Glides overhead like a slow, patient kite."
+  },
+  {
+   "id": "sea_turtle",
+   "name": "green sea turtle",
+   "family": "swimmer",
+   "dials": {
+    "flat": 0.4
+   },
+   "size": 1.2,
+   "count": 3,
+   "behaviour": "roam",
+   "haunt": "water",
+   "body": "#6a7a4a",
+   "accent": "#a89a6a",
+   "glow": "#000000",
+   "note": "Unhurried, ancient, entirely unbothered by you."
+  },
+  {
+   "id": "jellies",
+   "name": "glow jellies",
+   "family": "floater",
+   "dials": {
+    "shape": "bell",
+    "tentacles": 8,
+    "hover": 0.5
+   },
+   "size": 0.6,
+   "count": 6,
+   "behaviour": "roam",
+   "haunt": "water",
+   "body": "#b8c8e0",
+   "accent": "#7aa8d8",
+   "glow": "#7ad8e8",
+   "note": "Pulsing softly, trailing faint blue light."
+  },
+  {
+   "id": "reef_shark",
+   "name": "reef shark",
+   "family": "swimmer",
+   "dials": {
+    "dorsal": 0.7
+   },
+   "size": 1.8,
+   "count": 2,
+   "behaviour": "patrol",
+   "haunt": "water",
+   "body": "#6a7078",
+   "accent": "#c8ccd0",
+   "glow": "#000000",
+   "note": "Circles the city's edge, watching."
+  }
+ ],
+ "folk": {
+  "name": "reef dwellers",
+  "height": 1.7,
+  "bulk": 0.35,
+  "head": 1,
+  "features": [
+   "visor",
+   "pack"
+  ],
+  "skin": [
+   "#c9a88a",
+   "#8a6a52",
+   "#e0c4a8"
+  ],
+  "cloth": [
+   "#3f6f7a",
+   "#6a8f84",
+   "#8a7a62"
+  ],
+  "trim": [
+   "#d9b77a",
+   "#b8553f"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "staghorn_spire",
+   "summary": "branching staghorn coral tower, 28 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 6,
+     "w": 0.03,
+     "d": 0.02,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.12
+    },
+    {
+     "shape": "wedge",
+     "x": -0.3,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.1,
+     "h": 5,
+     "rot": 90,
+     "tone": "wall2",
+     "repeat": 4,
+     "gap": 0.2
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.2,
+     "z": -0.1,
+     "y": 18,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 5,
+     "rot": 25,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "spire",
+   "dials": {
+    "count": 6,
+    "height": 24,
+    "lean": 0.3,
+    "sharpness": 0.45,
+    "variance": 0.5
+   }
+  },
+  {
+   "id": "brain_dome",
+   "summary": "brain-coral greenhouse dome, 10 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.4,
+     "d": 0.08,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 1,
+     "w": 0.03,
+     "d": 0.02,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 4,
+     "gap": 0.1
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.4,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 2.6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "dome",
+   "dials": {
+    "flatness": 0.3,
+    "drum": 3,
+    "oculus": 0.2,
+    "ribs": 5,
+    "pods": 3
+   }
+  },
+  {
+   "id": "kelp_mast",
+   "summary": "kelp-wrapped beacon mast, 22 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.2,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 21,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.05,
+     "y": 4,
+     "w": 0.12,
+     "d": 0.04,
+     "h": 5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.4
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.15,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 12,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "mast",
+   "dials": {
+    "height": 22,
+    "shaft": "tapered",
+    "arms": 2,
+    "armLength": 0.5,
+    "hang": "wires",
+    "top": "light",
+    "stays": 3,
+    "base": "plinth"
+   }
+  },
+  {
+   "id": "fan_arcade",
+   "summary": "open arcade of fan-coral arches, 6 m",
+   "parts": [
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.48,
+     "y": 0,
+     "w": 0.16,
+     "d": 0.04,
+     "h": 3.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 4,
+     "gap": 0.2
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.4,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.1,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0.45,
+     "y": 3.8,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "canopy",
+   "dials": {
+    "posts": 6,
+    "roof": "shed",
+    "counter": 0.5
+   }
+  },
+  {
+   "id": "nacre_rotunda",
+   "summary": "nacre-lined round exchange, 8 m",
+   "parts": [
+    {
+     "shape": "dome",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.8,
+     "d": 0.8,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.6,
+     "d": 0.6,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 0.5,
+     "w": 0.03,
+     "d": 0.02,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.12
+    }
+   ],
+   "doorX": 0,
+   "family": "colonnade",
+   "dials": {
+    "plan": "ring",
+    "count": 10,
+    "height": 6,
+    "girth": 0.07,
+    "shaft": "round",
+    "top": "roof",
+    "broken": 0,
+    "steps": 2
+   }
+  },
+  {
+   "id": "table_tiers",
+   "summary": "stacked table-coral tiers with portholes, 14 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.48,
+     "y": 2,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 6,
+     "gap": 0.1
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.48,
+     "y": 5,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 5,
+     "gap": 0.12
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.5
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.2,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "tiers",
+   "dials": {
+    "levels": 5,
+    "shrink": 0.8,
+    "flare": 0.3,
+    "top": "flat"
+   }
+  },
+  {
+   "id": "reef_cave",
+   "summary": "reef cave mouth, 12 m high",
+   "parts": [
+    {
+     "shape": "dome",
+     "x": -0.4,
+     "z": 0,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.4,
+     "h": 8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.4,
+     "z": 0,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.4,
+     "h": 10,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.35,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.04,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "cave",
+   "dials": {
+    "mass": "face",
+    "height": 12,
+    "width": 0.9,
+    "mouth": 0.45,
+    "mouthHeight": 0.6,
+    "frame": "rocks",
+    "teeth": 4,
+    "glow": 0.2,
+    "spill": 0.3
+   }
+  },
+  {
+   "id": "conch_cluster",
+   "summary": "cluster of giant conch dwellings, 5 m",
+   "parts": [
+    {
+     "shape": "dome",
+     "x": -0.3,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.4,
+     "d": 0.4,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.3,
+     "z": -0.2,
+     "y": 0,
+     "w": 0.45,
+     "d": 0.45,
+     "h": 3.6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 1.5,
+     "w": 0.05,
+     "d": 0.02,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "shell",
+   "dials": {
+    "stalk": 1,
+    "cap": 0.8,
+    "droop": 0.4,
+    "lobes": 4
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "kelp_forest",
+   "size": 2,
+   "parts": [],
+   "weight": 5,
+   "family": "grassclump",
+   "dials": {
+    "form": "ribbons",
+    "height": 4,
+    "spread": 0.6,
+    "count": 9,
+    "lean": 0.5,
+    "heads": "none",
+    "glow": 0
+   }
+  },
+  {
+   "kind": "staghorn_coral",
+   "size": 2.5,
+   "parts": [],
+   "weight": 4,
+   "family": "shrub",
+   "dials": {
+    "form": "tangle",
+    "height": 1.2,
+    "spread": 1,
+    "stems": 7,
+    "density": 0.5,
+    "berries": 0,
+    "glow": 0
+   }
+  },
+  {
+   "kind": "sea_fan",
+   "size": 1.8,
+   "parts": [],
+   "weight": 3,
+   "family": "vine",
+   "dials": {
+    "support": "post",
+    "length": 2,
+    "strands": 8,
+    "sag": 0.2,
+    "leaves": 0.7,
+    "flowers": 0,
+    "glow": 0
+   }
+  },
+  {
+   "kind": "coral_boulder",
+   "size": 3,
+   "parts": [],
+   "weight": 3,
+   "family": "boulder",
+   "dials": {
+    "height": 1.5,
+    "width": 1,
+    "angular": 0.3,
+    "scatter": 0.5,
+    "split": 0,
+    "moss": 0.5,
+    "glow": 0
+   }
+  },
+  {
+   "kind": "beacon_post",
+   "size": 2,
+   "parts": [],
+   "weight": 2,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 3,
+    "arms": 1
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "pearl_clam",
+   "prompt": "giant open clam shell holding a large pearl, fluted ridged valves encrusted with barnacles and algae, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 5
+  }
+ ]
+}

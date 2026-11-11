@@ -1,264 +1,184 @@
 # Worldsmith architecture
 
-Worldsmith turns a plain-language prompt into a small playable town in the browser. A language model
-compiles the prompt into a **world spec** (data only). The engine builds the town, runs the clock,
-moves the NPCs, tracks the quest, and enforces the rules. A second, cheaper model voices NPC lines.
-A decision model picks per-tick NPC actions from choices the engine offers. Nothing in the hot loop
-waits on a network call.
-
-Two rules that every module obeys:
-
-1. Models emit data; the engine runs the world. If a behaviour cannot be explained from engine
-   state, it does not ship.
-2. Every mesh, texture, animation and sky is a static file under `assets/`. No asset generation at
-   runtime.
+A prompt becomes a `WorldSpec` (plain JSON), the browser turns the spec into a walkable world, and a few
+small model calls keep it alive (dialogue, per-person decisions, rule patches). The model writes data.
+The engine runs the world.
 
 ## Layout
 
 ```
-app/                  Vite + TypeScript browser app (vanilla three.js, no framework)
-  index.html
-  src/
-    main.ts           boot: UI, renderer, game loop                      (integration, owner: lead)
-    game.ts           Game orchestrator: compile -> layout -> build -> play (owner: lead)
-    world/            spec types, zod schema, fixtures, quest verifier, state reducer
-    town/             deterministic layout generator and scene builder
-    engine/           renderer, sky, input, asset loading, characters, navmesh, player
-    npc/              schedules, decision sampling, dialogue client, speech
-    net/              fetch/SSE wrappers for the Worker API
-    ui/               HTML/CSS overlay: prompt, HUD, dialogue, rule editor, why-overlay
-worker/               Cloudflare Worker: model proxy, decision proxy, share links, rate limits
-  src/index.ts
-  src/prompts/
-  wrangler.toml
-assets/               Vite publicDir: served at the site root, so a file at assets/third_party/x/y.glb
-  third_party/<pack>/ is fetched as /third_party/x/y.glb. Committed CC0 kits with LICENSE and manifest.json
-  skies/              1k HDRIs (optional), served as /skies/...
-scripts/              asset fetch + gltf-transform optimisation (build time only)
-tests/                vitest unit tests, mirror of app/src
-docs/                 this file, THIRD_PARTY.md
+app/                  Vite + TypeScript browser app, vanilla three.js, no UI framework
+  index.html, vite.config.ts
+  src/main.ts         boot: UI, viewport, input, API client, frame loop
+  src/game.ts         Game: prompt -> compile -> build -> play; ticks, dialogue, rules, share
+  src/world/          spec types, zod schema, coercion, skeletons, quest verify, state reducer, body plans, fixtures
+  src/town/           layout, terrain, endless land, water, blueprint meshes, surfaces, props, scatter, signs
+  src/engine/         renderer and film pipeline, sky, weather, atmosphere, audio, navmesh, player, people, creatures
+  src/npc/            schedules and rules (brain), decision sampling, dialogue client, speech
+  src/net/            fetch and SSE client for the Worker API
+  src/ui/             landing, HUD, dialogue, rules panel, why overlay, sound panel
+worker/               Cloudflare Worker: src/index.ts routes, src/routes/, src/prompts/, src/lib/, wrangler.toml
+api/index.ts          Vercel Edge entry that wraps the same Worker fetch handler
+assets/               Vite publicDir: CC0 packs under third_party/ (see THIRD_PARTY.md)
+scripts/              asset fetch and optimise (build time only)
+tests/                Vitest, one folder per area of app/src plus worker/
 ```
 
-Imports inside `app/src` use **relative paths** (`../world/spec`), not the `@/` alias, so each
-module can be type-checked alone.
+Pure modules (`world/`, `town/layout.ts`, `town/terrain.ts`, `npc/brain.ts`, `npc/decide.ts`) import no DOM
+and run under Node in tests. Randomness is always a seeded `Rng` (`app/src/world/rng.ts`, from `spec.seed`
+plus a salt), so the same spec builds the same world. Units are metres and seconds; town time is hours.
 
-## Conventions
+## The compile pipeline
 
-- TypeScript 5.9, `strict`, `noUncheckedIndexedAccess`. No `any` outside type guards.
-- Pure modules (`world/`, `town/layout`, `npc/brain`, `npc/decide`) import nothing from three or the
-  DOM, so they run in vitest under Node.
-- Deterministic randomness: every module that needs randomness takes a `Rng` (see
-  `app/src/world/rng.ts`) seeded from `spec.seed` plus a module salt. `Math.random` is banned.
-- Units: metres, seconds, town hours (0..24, fractional). +Y up, buildings face −Z by default.
-- Dispose everything you create: geometries, materials, navmeshes, crowds, DOM listeners. Towns are
-  regenerated many times in one page session.
-- Errors are values at module boundaries (`{ ok: true, value } | { ok: false, error }`); only the
-  game loop throws.
-- No console output in production paths except `console.warn` for recoverable asset problems.
+`POST /api/compile` (`worker/src/routes/compile.ts`) streams server-sent events over one response. Three
+stages call `claude-sonnet-5-5` (`worker/src/lib/anthropic.ts`), each with a cached system prompt:
 
-## Module contracts
+1. Outline (`prompts/compile.ts`): what kind of place this is. Land, how settled it is, site pattern,
+   the people's body plan, creatures, sky features, mood (weather, grade, haze, ambience, music), start
+   hour, quest premise. Event `outline`.
+2. Look (`prompts/compilelook.ts`) and story (`prompts/compilestory.ts`) run in parallel. Look returns
+   style and surfaces, blueprints (a skeleton family, dials and extra parts), props, landmarks and which
+   blueprint each building uses. Story returns people, items, the quest and starting rules, written
+   against the outline's ids. Events `look`, then `spec`.
+3. `prompts/compilemerge.ts` coerces each stage (`coerceOutline`, `coerceLook`, `coerceStory`,
+   `parseLooseJson`) and `mergeSpec` joins them. If the merged spec fails `validateSpec`, the story is
+   replaced by the stock cast and the spec is merged again. A stage that fails or cannot be read falls
+   back to a stock result (`lib/mockcast.ts`) and the stream carries a `stage` event saying so.
 
-Each module exports exactly the surface below. Add internal helpers freely; do not change these
-signatures without updating this file and `game.ts`.
+The stream also sends `partial` text deltas (coalesced to one per 120 ms), `ping` every 3 s, and `error`.
+With `MOCK=1` or no `ANTHROPIC_API_KEY` the same events are produced from fixtures (`isMock` in
+`lib/env.ts`). Abuse controls (`lib/guard.ts`, `lib/budget.ts`): a per-IP rate limit binding, and daily
+output-token budgets per session, per IP and globally; over budget returns `429 resting`.
 
-### world/ (pure)
+On the client (`app/src/net/api.ts`, `net/sse.ts`) `buildFromPrompt` in `game.ts` starts loading the
+nearest theme's kit and the human models immediately. On `look` it builds a preview from `lookSpec`
+(`world/coerce.ts`), so the world is walkable while the story is still being written. On `spec` it runs
+`coerceSpec`, `validateSpec`, `normalizeSpec`, then `playSpec`, which keeps the player's position if it is
+replacing a preview of the same world. A failed compile shows a saved fixture world and says so.
 
-```ts
-// spec.ts — already written. WorldSpec, WorldState, NpcAction and friends.
-// rng.ts
-export type Rng = { next(): number; int(lo: number, hi: number): number; pick<T>(xs: readonly T[]): T; shuffle<T>(xs: T[]): T[] };
-export function makeRng(seed: number, salt?: string): Rng; // mulberry32 over a 32-bit hash of seed+salt
-// schema.ts
-export const WorldSpecSchema: z.ZodType<WorldSpec>;   // zod 4; no min/max in the JSON schema export, clamp in normalize
-export function validateSpec(raw: unknown): { ok: true; value: WorldSpec } | { ok: false; error: string };
-export function normalizeSpec(spec: WorldSpec): WorldSpec; // clamps ranges, dedupes ids, repairs dangling references, sorts schedules
-export function worldSpecJsonSchema(): object;         // JSON schema the Worker hands to the compile model (no recursion, additionalProperties false)
-// fixtures.ts
-export const FIXTURES: Record<ThemeId, WorldSpec>;     // four complete, valid, hand-written towns (used offline and as few-shot examples)
-export function nearestTheme(prompt: string): ThemeId; // keyword mapping so any prompt lands on a kit
-// verify.ts
-export interface QuestReport { winnable: boolean; order: string[]; problems: string[]; unreachable: string[] }
-export function verifyQuest(spec: WorldSpec): QuestReport;   // graph walk: items reachable, NPC reachable at some hour under rules, no cycles
-export function repairQuest(spec: WorldSpec): WorldSpec;     // drops or rewires unreachable steps, guarantees at least one ending
-// state.ts
-export function createState(spec: WorldSpec): WorldState;
-export type WorldEvent =
-  | { type: 'tick'; dtHours: number }
-  | { type: 'talk'; npcId: string }
-  | { type: 'pickup'; item: string }
-  | { type: 'give'; item: string; to: string }
-  | { type: 'visit'; buildingId: string }
-  | { type: 'choose'; stepId: string; choice: number }
-  | { type: 'rule_add'; rule: RuleSpec }
-  | { type: 'rule_remove'; ruleId: string }
-  | { type: 'npc_moved'; npcId: string; place: string }
-  | { type: 'npc_mood'; npcId: string; mood: Mood };
-export function applyEvent(spec: WorldSpec, state: WorldState, ev: WorldEvent): { state: WorldState; completed: string[]; unlocked: string[] };
-export function activeRules(state: WorldState, hour: number): RuleSpec[];
-```
+## WorldSpec and normalise
 
-### town/ (layout pure; build uses three)
+`app/src/world/spec.ts` is the single contract. A spec holds: theme, era, palette, time; buildings, people,
+items, a quest, rules; and the optional generated parts: `style` (colours and `SurfaceSet`), `site`
+(street, ring, scatter, grid, terraces, wild, path, shoreline, cliffside), `mood`, `terrain`,
+`skyFeatures`, `creatures`, `folk`, `blueprints`, `props`, `landmarks`.
 
-```ts
-// layout.ts
-export interface PlacedBuilding { id: string; role: BuildingRole; size: BuildingSize; x: number; z: number; rotY: number; w: number; d: number; door: { x: number; z: number } }
-export interface RoadSegment { ax: number; az: number; bx: number; bz: number; width: number }
-export interface PlacedProp { kind: string; x: number; z: number; rotY: number; scale: number }
-export interface TownLayout {
-  buildings: PlacedBuilding[]; roads: RoadSegment[]; props: PlacedProp[];
-  plaza: { x: number; z: number; r: number }; spawn: { x: number; z: number; rotY: number };
-  bounds: { minX: number; maxX: number; minZ: number; maxZ: number };
-  walkable: { x: number; z: number }[]; // sample points on streets, for wander targets before the navmesh exists
-}
-export function generateLayout(spec: WorldSpec): TownLayout;
-// Main street along X through the origin, 1–3 cross streets, lots on both sides, key buildings nearest the centre,
-// plaza at the main crossing, props by poisson-disk sampling off the roads. Deterministic from spec.seed.
-// Footprints come from FOOTPRINTS[size] = { small: {w:6,d:6}, medium: {w:9,d:8}, large: {w:12,d:10} } unless the kit says otherwise.
+`app/src/world/schema.ts` mirrors it in zod and exports `validateSpec` and `normalizeSpec`. Normalise
+clamps every range, caps lists (14 buildings, 10 people, 8 blueprints, 20 items), makes ids unique, repairs
+dangling references (homes, workplaces, quest targets, blueprint assignment) and sorts schedules.
+`world/verify.ts` holds `verifyQuest` and `repairQuest`: the quest is a graph of required steps, items and
+choices, and it counts as winnable when the giver has a step and at least one ending is not blocked. The HUD
+badge reads "quest verified" with the step count.
 
-// kits.ts
-export interface KitManifest { theme: ThemeId; pack: string; buildings: Record<BuildingRole, string[]>; props: Record<string, string>; ground: { color: string; texture?: string } }
-export const KITS: Record<ThemeId, KitManifest>; // URL paths under /third_party/..., role -> candidate mesh files
-// build.ts
-export interface TownObjects { group: THREE.Group; statics: THREE.Mesh[]; signs: Map<string, THREE.Object3D>; doors: Map<string, THREE.Vector3>; dispose(): void }
-export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, scene: THREE.Scene): TownObjects;
-// Falls back to coloured boxes with the right footprint when a kit mesh is missing, so the town always renders.
-```
+## Skeletons
 
-### engine/ (three)
+`app/src/world/skeletons.ts` registers every family exported from `app/src/world/skeletons/`
+(`structure-a..d.ts`, `nature*.ts`, `object.ts`; helpers in `util.ts`). A `Skeleton` has an id, a group
+(structure, nature, object), what it can become, dials (number with range, or choice) and a `build`
+function that returns at most 28 `BlueprintPart`s from primitive shapes (box, cylinder, cone, pyramid,
+gable, dome, sphere, wedge, arch, ring). `buildSkeleton` resolves every dial (missing, wrong type or out
+of range becomes the default or the nearest legal value) and never throws. Structure families also take
+the shared `ruin` dial (`ruinParts`). `ALIASES` fold names a model is likely to use (`ship`, `crater`,
+`monolith`) into a real family with preset dials. `skeletonCatalogText()` writes the one-line-per-family
+catalogue that goes into the look prompt, so adding a family needs no prompt edit. A blueprint's own
+`parts` are added on top of the skeleton's, which is where a prompt makes a building belong to its world.
 
-```ts
-// renderer.ts
-export interface Viewport { renderer: THREE.WebGLRenderer; scene: THREE.Scene; camera: THREE.PerspectiveCamera; resize(): void; start(step: (dt: number) => void): void; stop(): void; dispose(): void }
-export function createViewport(canvas: HTMLCanvasElement): Viewport | null; // null when WebGL is unavailable; caller shows a message
-// sky.ts
-export interface SkyRig { setHour(h: number): void; setPreset(p: SkyPreset, fog: number): void; dispose(): void }
-export function createSky(scene: THREE.Scene, renderer: THREE.WebGLRenderer): SkyRig; // Sky.js + PMREM env, one directional light + hemisphere
-// input.ts
-export interface Input { down(code: string): boolean; axis(): { x: number; y: number }; onKey(code: string, cb: () => void): () => void; pointerDelta(): { dx: number; dy: number }; dispose(): void }
-export function createInput(target: HTMLElement): Input; // ignores keys while an input/textarea is focused
-// assets.ts
-export interface LoadedKit { manifest: KitManifest; building(role: BuildingRole, size: BuildingSize, rng: Rng): THREE.Object3D | null; prop(kind: string): THREE.Object3D | null; footprint(role: BuildingRole, size: BuildingSize): { w: number; d: number } }
-export function loadKit(theme: ThemeId, onProgress?: (p: number) => void): Promise<LoadedKit>; // GLTFLoader + MeshoptDecoder, caches per theme, clones on request
-// character.ts
-export interface CharacterRig { root: THREE.Object3D; mixer: THREE.AnimationMixer; play(name: 'idle' | 'walk' | 'run' | 'talk' | 'sit' | 'wave', fade?: number): void; setPalette(index: number, theme: ThemeId): void; lookAt(target: THREE.Vector3 | null): void; update(dt: number): void; dispose(): void }
-export function loadCharacterBase(base: CharacterBase): Promise<void>;     // loads /third_party/kaykit-adventurers/<Base>.glb once
-export function createCharacter(base: CharacterBase): CharacterRig;        // SkeletonUtils.clone of the cached base; maps KayKit clip names to the six logical names
-// nav.ts
-export interface NavWorld { addAgent(pos: THREE.Vector3, opts?: { radius?: number; speed?: number }): NavAgent; moveAlongSurface(from: THREE.Vector3, delta: THREE.Vector3): THREE.Vector3; randomPointNear(p: THREE.Vector3, r: number): THREE.Vector3; nearest(p: THREE.Vector3): THREE.Vector3; update(dt: number): void; debugMesh(): THREE.Object3D; dispose(): void }
-export interface NavAgent { position(): THREE.Vector3; velocity(): THREE.Vector3; setTarget(p: THREE.Vector3): void; stop(): void; remove(): void }
-export function buildNav(statics: THREE.Mesh[], ground: THREE.Mesh, opts?: { cellSize?: number; agentRadius?: number }): Promise<NavWorld>; // recast-navigation solo navmesh + Crowd; init() once
-// player.ts
-export interface Player { rig: CharacterRig; position: THREE.Vector3; update(dt: number): void; teleport(p: THREE.Vector3, rotY: number): void; nearestNpc(npcs: { id: string; pos: THREE.Vector3 }[], maxDist: number): string | null; dispose(): void }
-export function createPlayer(rig: CharacterRig, nav: NavWorld, camera: THREE.PerspectiveCamera, input: Input, statics: THREE.Mesh[]): Player; // third-person orbit camera, BVH boom raycast, wall sliding via nav.moveAlongSurface
-```
+## Building the world
 
-### npc/ (brain and decide pure; dialogue and speech use fetch/DOM)
+`generateLayout` (`town/layout.ts`) places lots by the site pattern, keeps key buildings central, plans
+water bodies as shapes and allows zero buildings. Footprints grow with `terrain.settled`.
+`buildTown` (`town/build.ts`) produces the scene objects and the `statics` that the navmesh and camera
+collide with.
 
-```ts
-// brain.ts
-export interface NpcIntent { npcId: string; place: string; activity: ScheduleEntry['activity']; reason: string }
-export function whereShouldBe(npc: NpcSpec, hour: number, rules: RuleSpec[]): NpcIntent;  // schedule lookup, then rule overrides (curfew sends home, ban closes a place, schedule_override wins)
-export function planTick(spec: WorldSpec, state: WorldState): NpcIntent[];               // one intent per NPC for the current hour
-// decide.ts
-export interface ChoiceQuestion { npcId: string; question: string; options: { id: NpcActionId; label: string; target?: string }[] }
-export function buildQuestions(spec: WorldSpec, state: WorldState, intents: NpcIntent[], playerNear: string | null): ChoiceQuestion[]; // 3–5 options each, the schedule intent always included as 'continue'
-export function sampleAction(probs: number[], options: ChoiceQuestion['options'], npc: NpcSpec, rng: Rng): NpcAction; // p_i^(1/tau) * exp(bias), renormalise, sample
-export function localFallback(q: ChoiceQuestion, npc: NpcSpec, rng: Rng): NpcAction; // used on 429/timeout: weighted toward 'continue'
-// dialogue.ts
-export interface DialogueTurn { speaker: 'player' | 'npc'; text: string }
-export interface DialogueSession { say(playerText: string, onToken: (partial: string) => void): Promise<{ text: string; source: 'model' | 'fallback' }>; history: DialogueTurn[]; close(): void }
-export function openDialogue(spec: WorldSpec, getState: () => WorldState, npcId: string, api: Api): DialogueSession; // reads live state on every say()
-export function validateLine(text: string): { ok: boolean; cleaned: string; reason?: string }; // rejects reasoning leaks ("Let me think", "As an AI", bracketed stage directions longer than 40 chars, empty)
-export function cannedLine(npc: NpcSpec, mood: Mood, rng: Rng): string;
-// speech.ts
-export interface Speech { speak(text: string, voice: NpcSpec['voice']): void; cancel(): void; enabled: boolean }
-export function createSpeech(): Speech; // SpeechSynthesis queue, sentence-split, no-op where unsupported
-```
+- Buildings: `town/variation.ts` varies each archetype per building (storeys, handedness, width, clutter,
+  wear) and keeps a variant only if it still passes the blueprint lint. `town/blueprint-mesh.ts` turns
+  parts into geometry with box-projected UVs in metres, then `town/detail.ts` adds construction (plinth,
+  storey bands, eaves, gutters, chimneys, openings). `town/sign.ts` draws signs that match the material.
+- Surfaces: `town/surfaces.ts` and `town/surfaces/` generate albedo, normal and roughness/metalness maps in
+  the browser for each `SurfaceKind`, with wear and wetness. Nothing is downloaded.
+- Terrain: `town/terrain.ts` (`makeLand`) builds relief from `terrain.relief` and `ruggedness`, carves
+  basins for water, and keeps the place level under footprints. `town/water.ts` draws water, lava, acid,
+  ice sheets and mist seas with one shader.
+- Props and ground cover: `town/props.ts` (prop shapes and set dressing), `town/scatter.ts` (instanced
+  grass, flowers, pebbles, litter, windblown).
+- Kit meshes (`town/kits.ts`, `engine/assets.ts`) are used only when a spec has no style or blueprints.
 
-### net/
+## Endless land
 
-```ts
-// api.ts
-export interface Api {
-  compile(prompt: string, seed: number, onPartial: (text: string) => void, signal?: AbortSignal): Promise<{ ok: true; spec: unknown } | { ok: false; error: string }>;
-  npcSay(body: NpcSayRequest, onToken: (t: string) => void, signal?: AbortSignal): Promise<{ ok: true; text: string } | { ok: false; error: string; refusal?: boolean }>;
-  tick(body: TickRequest): Promise<{ ok: true; probs: number[][] } | { ok: false; error: string }>;
-  patchRules(body: PatchRequest): Promise<{ ok: true; rules: RuleSpec[] } | { ok: false; error: string }>;
-  share(spec: WorldSpec): Promise<{ ok: true; id: string } | { ok: false; error: string }>;
-  load(id: string): Promise<{ ok: true; spec: unknown } | { ok: false; error: string }>;
-  health(): Promise<{ ok: boolean; mock: boolean }>;
-}
-export function createApi(base?: string): Api; // SSE parsing for compile/npcSay; 20 s timeout on compile tokens, 8 s on npcSay
-// Request shapes are shared with the Worker and live in app/src/net/types.ts (NpcSayRequest, TickRequest, PatchRequest).
-```
+`town/endless.ts` makes the land continue past the place. Height is a function defined everywhere
+(`Land.heightAt`). Around the player it is drawn as a quadtree of tiles of equal grid size, coarser with
+distance, built a few rows per frame within a time budget, with skirts to hide seams. The place keeps its
+own ground mesh for roads and wear; tiles reach its edge and share heights there. The world's props are
+scattered over the land a chunk at a time, and every few hundred metres a place worth walking to is
+generated from the cell it lies in. The horizon ring travels with the player. `Game.update` calls
+`objects.update(playerPosition, dt)` each frame, and `engine/player.ts` lets the player walk on past the
+navmesh, turned aside by steep slopes, deep water and solid objects.
 
-### ui/
+## Navmesh, people and creatures
 
-```ts
-// ui.ts
-export interface UI {
-  showLanding(examples: string[], onSubmit: (prompt: string) => void): void;
-  showCompiling(status: string, partial?: string): void;   // skeleton town is already visible behind it
-  showHud(spec: WorldSpec): void; setClock(hour: number, day: number): void; setObjective(text: string): void; toast(text: string, kind?: 'info' | 'warn'): void;
-  openDialogue(npc: NpcSpec, onSend: (text: string) => void, onClose: () => void): DialogueHandle; // { stream, done, addAction(label, cb) => remove, clearActions }
-  openRules(rules: RuleSpec[], onAdd: (text: string) => void | Promise<boolean>, onRemove: (id: string) => void): void; closeRules(): void; // a pending promise disables Apply; true clears the box
-  showWhy(lines: string[]): void;                           // the "why did they do that?" overlay from state.log
-  setPrompt(label: string | null): void;                   // bottom-centre hint: "E · talk to Sheriff Cole"
-  showError(text: string, retry?: () => void): void;
-  onHud(handlers: { newTown?: () => void; talk?: () => void; rules?: () => void; why?: () => void; share?: () => void }): void; // HUD buttons and the talk pill
-  setBadge(text: string | null): void;                     // the verified badge next to the clock
-  dispose(): void;
-}
-export function createUI(root: HTMLElement): UI;
-// ui.css: dark-first tokens on :root, light under prefers-color-scheme; 16px gutters; works at 400px; canvas untouched by layout.
-```
+`engine/nav.ts` bakes a Recast solo navmesh (`recast-navigation`) over the walkable ground plus statics,
+and runs a `Crowd` for people (cell size 0.3 m, agent radius 0.4 m by default). The player moves with
+camera-relative controls and a BVH camera boom (`engine/player.ts`, `camera-rig.ts`, `three-mesh-bvh`).
 
-### worker/
+People are built from `spec.folk`. `engine/humans.ts` uses the Quaternius models when the folk are human;
+otherwise `engine/bodies/figure.ts` draws the folk body plan. Creatures (`engine/creatures.ts`) use
+`world/bodies.ts`, a joint tree plus primitive segments per `CreatureFamily`, reshaped by dials and animated
+from joint roles by `engine/bodies/animate.ts`. A small behaviour machine decides where each creature goes.
+`engine/life.ts` adds flocks, chimney smoke, cloth and litter as instanced shader-driven layers.
 
-Routes, all under `/api`, JSON in, JSON or SSE out, CORS same-origin only:
+## Light, air and sound
 
-| Route | Body | Returns | Model |
-|---|---|---|---|
-| `POST /api/compile` | `{ prompt, seed }` | SSE: `partial {text}` deltas (plus `ping {}` keepalives while the model thinks), then `spec` with the parsed object, or `error {error, reason}` | Sonnet 5.5, structured outputs, `thinking: {type:"between_tools"}`, effort low |
-| `POST /api/npc/say` | `NpcSayRequest` (system bible, persona, trimmed state, history, player line) | SSE `token {text}` deltas, then `done {refusal}` or `error` | Haiku 5.5, thinking disabled; Sonnet retry on refusal; Groq gpt-oss-120b on vendor error |
-| `POST /api/tick` | `TickRequest` (questions) | `{ probs: number[][] }` | Jev `jev-1.14.0` via TypeSafe; Workers AI Clef-flash fallback; `{probs: []}` on total failure |
-| `POST /api/rules/patch` | `PatchRequest` (rule text, spec summary) | `{ rules: RuleSpec[] }` | Sonnet 5.5, structured output of `RuleSpec[]` |
-| `POST /api/share` | `WorldSpec` | `{ id }` (24 hex chars of the SHA-256; existing ids are never overwritten) | KV, 30-day TTL |
-| `GET /api/load/:id` | | spec | KV |
-| `GET /api/health` | | `{ ok, mock }` | |
+`engine/sky.ts` and `skyfeatures.ts` draw the sky and its moons, planets, rings and aurora. `engine/weather.ts`
+is GPU particle weather. `engine/atmosphere.ts` turns `MoodSpec` into fog, haze and wetness. `engine/post.ts`
+is the film pipeline (ambient occlusion, air, weather, focus pull during conversation, bloom, grade), with
+quality tiers chosen from measured frame time. `engine/audio/` synthesises beds, footsteps, music and
+interface sounds with Web Audio.
 
-`MOCK=1` (or any missing key) makes the Worker answer from `app/src/world/fixtures` so the whole
-app runs with zero credentials. Secrets: `ANTHROPIC_API_KEY`, `GROQ_API_KEY`, `TYPESAFE_API_KEY`,
-via `wrangler secret put` and a gitignored `.dev.vars`. Rate Limiting binding per IP on the model
-routes; per-session, per-IP and global daily token budgets in KV (ceilings are Worker vars) with a
-`429 { reason: "resting" }` response the UI turns into a "the town is resting" state. Turnstile is not
-used: the client has no widget, so a server check would lock everyone out. SSE bodies pass through untouched.
+## People, rules and state
 
-## Game flow (game.ts)
+`world/state.ts` is the pure reducer `applyEvent` over `WorldState` (clock, quest progress, inventory,
+moods, rules, log). Events: tick, talk, pickup, give, visit, choose, rule_add, rule_remove, npc_moved,
+npc_mood.
 
-1. Landing prompt. On submit: `seed = hash(prompt)`, pick `nearestTheme(prompt)`, start loading
-   that kit and the character bases immediately, show a skeleton town (boxes) within a second.
-2. `api.compile` streams. Partial text updates the compiling panel. On the `spec` event:
-   `validateSpec` → `normalizeSpec` → `repairQuest` → `verifyQuest` (report shown in the HUD as a
-   badge: "quest verified, 6 steps").
-3. `generateLayout(spec)` → `buildTown` → `buildNav` over an invisible ground plane the size of
-   `layout.bounds` plus 18 m (not the 400 m visual ground) → spawn player at `layout.spawn`, spawn one
-   `CharacterRig` + `NavAgent` per NPC at `whereShouldBe(npc, startHour)`.
-4. Loop at 60 Hz: input → player → crowd → rigs. Town clock advances by
-   `minutesPerRealSecond`. Every 20 real seconds (or when the player approaches an NPC):
-   `planTick` → `buildQuestions` → `api.tick` → `sampleAction` per NPC → set agent targets, push a
-   `log` line with the reason. On API failure `localFallback` keeps everyone moving.
-5. `E` near an NPC opens dialogue; lines stream from `api.npcSay`; `validateLine` gates every line;
-   `applyEvent({type:'talk'})` advances quest steps whose target is that NPC; `deliver` and `fetch`
-   are offered as buttons in the dialogue panel when the state allows.
-6. `R` opens the rule editor. New rule text → `api.patchRules` → `applyEvent({type:'rule_add'})`,
-   the next tick re-plans, and the "why" overlay cites the rule.
-7. `?` shows the last 12 log lines. `Share` compresses the spec with fflate into the URL hash (or KV
-   if over 4 KB).
+`npc/brain.ts` (`whereShouldBe`, `planTick`) looks up each person's schedule and applies rules: `curfew`,
+`ban` and `schedule_override` change where they go, `mood` changes how they feel. `time_scale` and `weather`
+are applied in `game.ts`. `price` and `relationship` have no movement effect; they reach the dialogue
+model as rule text. Every 20 seconds `game.ts` calls `buildQuestions` (`npc/decide.ts`), `POST /api/tick`,
+and `sampleAction` per person, or `localFallback` if the call fails. Each move writes a log line with its
+reason; the "why" overlay (`ui/why.ts`) shows the last 12.
 
-## Testing
+A typed rule goes from `ui/rules.ts` to `Game.addRule`, then `POST /api/rules/patch` (one to three typed
+`RuleSpec`s, structured output, model `claude-sonnet-5-5`), then `rule_add`, and the next tick re-plans.
+In mock mode `lib/mockrules.ts` maps keywords to effects.
 
-- `npm test` runs vitest over `tests/`. Pure modules need tests; three-dependent modules get a
-  smoke test only where jsdom is not required.
-- `npm run typecheck` must pass before any commit.
-- Manual: `npm run dev` with the Worker in mock mode shows the western fixture end to end.
+Dialogue (`npc/dialogue.ts`, `POST /api/npc/say`) streams one line with the person's persona, trimmed live
+state and history. `validateLine` rejects reasoning leaks. Worker order: Anthropic `claude-sonnet-5-5`, then
+Groq `openai/gpt-oss-120b` if the first fails before any text. Speech uses the browser's `SpeechSynthesis`.
+Quest progress comes from the reducer: talk steps on conversation, fetch and visit steps by walking to a
+door, deliver and choose steps through buttons in the dialogue panel.
+
+## Worker and Vercel entry
+
+Routes (`worker/src/index.ts`), all under `/api`: `GET health`, `POST compile`, `POST npc/say`,
+`POST tick`, `POST rules/patch`, `POST share`, `GET load/:id`, and the landmark routes (`POST landmark`,
+`GET landmark/:job`, `GET landmark/file/:id`). Origin is checked and CORS is same-origin.
+
+- `POST tick` uses TypeSafe `jev-1.14.0` (2.5 s timeout), then Workers AI `@cf/cloudflare/clef-flash`,
+  then returns no probabilities and the client falls back (`lib/typesafe.ts`).
+- `POST share` stores a spec in KV for 30 days under a hash id (`routes/share.ts`). The client prefers a
+  link that carries the whole spec: `app/src/share.ts` deflates it with fflate into the URL hash and uses KV
+  only above 4000 characters.
+- Landmarks (`routes/landmark.ts`, `lib/tripo.ts`): optional text-to-3D through Tripo or Meshy, capped per
+  day, GLB kept in KV or R2, swapped into the world when ready (`engine/landmark.ts`).
+- `worker/wrangler.toml` binds the built app as static assets, KV (`TOWNS`), Workers AI and the rate
+  limiter. `[env.dev]` sets `MOCK=1`.
+- Vercel: `vercel.json` rewrites `/api/*` to one Edge function, `api/index.ts`, which supplies a
+  per-instance in-memory store and environment variables to the same `worker.fetch`. `share` answers 503
+  and `load` 404 there because nothing durable exists; the whole-spec link still works. The Workers AI
+  and rate-limit bindings are absent on Vercel.
+
+## Tests
+
+`npm test` runs Vitest over `tests/**/*.test.ts` in the Node environment. Areas: `world`, `town`, `engine`,
+`engine-nav`, `npc`, `ui-net`, `worker`, `game`, `integration`. `tests/worker/_live/` calls a running Worker
+and is skipped unless `LIVE=1`. `npm run typecheck` checks the app and the Worker.

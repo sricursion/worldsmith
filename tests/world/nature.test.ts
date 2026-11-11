@@ -55,9 +55,10 @@ function boxGap(a: Box, b: Box): number {
 }
 
 describe('nature catalogue', () => {
-  it('lists the old ids and the eleven families, each with what it becomes and dials inside range', () => {
+  it('lists the old ids and the nineteen families, each with what it becomes and dials inside range', () => {
     expect(NATURE_SKELETONS.map((s) => s.id)).toEqual([
       'tree', 'rock', 'broadleaf', 'conifer', 'palm', 'succulent', 'fungus', 'shrub', 'grassclump', 'vine', 'deadwood', 'boulder', 'crystal',
+      'coral', 'lily', 'flower', 'crop', 'pod', 'pinnacle', 'vent', 'mound',
     ]);
     for (const s of NATURE_SKELETONS) {
       expect(s.group, s.id).toBe('nature');

@@ -1,0 +1,3273 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "an underwater coral city",
+ "title": "Corallum",
+ "tagline": "A city grown, not built, beneath the waves",
+ "theme": "scifi",
+ "era": "Deep Reef Age",
+ "palette": {
+  "ground": "#8c8672",
+  "accent": "#7a8f7b",
+  "sky": "overcast",
+  "fog": 0.5
+ },
+ "time": {
+  "startHour": 10,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "spire_hall",
+   "role": "townhall",
+   "label": "Spire of Tides",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "staghorn_spire"
+  },
+  {
+   "id": "nursery",
+   "role": "lab",
+   "label": "Polyp Nursery",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "brain_dome"
+  },
+  {
+   "id": "lantern_mast",
+   "role": "command",
+   "label": "Lantern Mast",
+   "size": "medium",
+   "blueprint": "kelp_mast"
+  },
+  {
+   "id": "kelp_market",
+   "role": "market",
+   "label": "Kelp Market",
+   "size": "medium",
+   "blueprint": "fan_arcade"
+  },
+  {
+   "id": "pearl_exchange",
+   "role": "bank",
+   "label": "Pearl Exchange",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "nacre_rotunda"
+  },
+  {
+   "id": "diver_lodge",
+   "role": "inn",
+   "label": "Diver Lodge",
+   "size": "medium",
+   "blueprint": "table_tiers"
+  },
+  {
+   "id": "dock_cavern",
+   "role": "hangar",
+   "label": "Dock Cavern",
+   "size": "large",
+   "blueprint": "reef_cave"
+  },
+  {
+   "id": "shell_homes",
+   "role": "house",
+   "label": "Shellwright Homes",
+   "size": "small",
+   "blueprint": "conch_cluster"
+  },
+  {
+   "id": "airlock",
+   "role": "station",
+   "label": "Surface Airlock",
+   "size": "small",
+   "blueprint": "staghorn_spire"
+  },
+  {
+   "id": "archive",
+   "role": "school",
+   "label": "Reef Archive",
+   "size": "medium",
+   "blueprint": "brain_dome"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "marisol",
+   "name": "Marisol",
+   "role": "coral warden",
+   "persona": "Tired, exact, hates guessing. She has counted the dead rings of the Spire every dawn and trusts no one's count but her own.",
+   "knowledge": [
+    "The Spire fades from the base upward, one ring per tide cycle.",
+    "The Nursery's polyps still bloom, so the fault is not in the seed stock.",
+    "Wardens tested the water at the Spire's foot and found it clean."
+   ],
+   "secrets": [
+    "She has not reported that the fading rings follow the line of the old glasswater pipe."
+   ],
+   "home": "nursery",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "nursery",
+     "activity": "work"
+    },
+    {
+     "hour": 10,
+     "place": "street",
+     "activity": "patrol"
+    },
+    {
+     "hour": 17,
+     "place": "kelp_market",
+     "activity": "eat"
+    },
+    {
+     "hour": 21,
+     "place": "nursery",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "teo",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.5,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 1.1,
+    "rate": 0.95
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "teo",
+   "name": "Teo",
+   "role": "pearl broker",
+   "persona": "Smooth, quick, always pricing the room. He smiles first and answers second.",
+   "knowledge": [
+    "Brineshare payments to the wardens have doubled this season.",
+    "Nacre from the Spire's lower rings no longer takes a polish.",
+    "A buyer from deepward has been asking after Spire shards."
+   ],
+   "secrets": [
+    "He has been selling flaked Spire coral to a deepward buyer, and the scraping is what drains the colour."
+   ],
+   "home": "pearl_exchange",
+   "work": "pearl_exchange",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "pearl_exchange",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "kelp_market",
+     "activity": "trade"
+    },
+    {
+     "hour": 18,
+     "place": "diver_lodge",
+     "activity": "drink"
+    },
+    {
+     "hour": 23,
+     "place": "pearl_exchange",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "nara",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "nara",
+   "name": "Nara",
+   "role": "dock master",
+   "persona": "Blunt and weathered, speaks in short orders. She logs every hull and every crate, and remembers what did not match.",
+   "knowledge": [
+    "Sealed crates left the dock cavern deepward at night, signed by Teo.",
+    "The Surface Airlock has been shut to cargo since the fading began.",
+    "Her log shows tide-mark stamps on the crates, which only wardens may issue."
+   ],
+   "secrets": [
+    "She took payment to look away and kept one crate's contents: a sack of scraped coral."
+   ],
+   "home": "dock_cavern",
+   "work": "dock_cavern",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "dock_cavern",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "dock_cavern",
+     "activity": "eat"
+    },
+    {
+     "hour": 14,
+     "place": "airlock",
+     "activity": "guard"
+    },
+    {
+     "hour": 20,
+     "place": "dock_cavern",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "teo",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": -0.2,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.85
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "oshun",
+   "name": "Oshun",
+   "role": "archivist",
+   "persona": "Soft-spoken and precise, speaks as if reading aloud. She would rather be right than liked.",
+   "knowledge": [
+    "The Spire's colour comes from a polyp-bond that must be renewed each generation.",
+    "An old record says scraping a ring breaks the bond for the rings above it.",
+    "The Archive holds the original tide-mark rules forbidding any cutting of the Spire."
+   ],
+   "secrets": [
+    "She found the scraping record months ago and stayed silent, afraid the wardens would blame the Archive."
+   ],
+   "home": "archive",
+   "work": "archive",
+   "schedule": [
+    {
+     "hour": 8,
+     "place": "archive",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "kelp_market",
+     "activity": "eat"
+    },
+    {
+     "hour": 15,
+     "place": "archive",
+     "activity": "work"
+    },
+    {
+     "hour": 22,
+     "place": "archive",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "marisol",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0.3,
+     "investigate": 0.4,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 0.8
+   },
+   "mood": "afraid"
+  },
+  {
+   "id": "kelp",
+   "name": "Brin",
+   "role": "kelp farmer",
+   "persona": "Cheerful and nosy, sells gossip with the greens. Knows who ate what and who paid in what.",
+   "knowledge": [
+    "Teo pays his kelp debts in coral flakes, never in pearls.",
+    "Nara's dock hands come to the market with new gear and no explanation.",
+    "Shell homes near the Spire's foot find pale grit on their doorsteps."
+   ],
+   "secrets": [
+    "He has been trading kelp for scraps of Spire coral and has a sack hidden in his shell home."
+   ],
+   "home": "shell_homes",
+   "work": "kelp_market",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "kelp_market",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "kelp_market",
+     "activity": "trade"
+    },
+    {
+     "hour": 18,
+     "place": "diver_lodge",
+     "activity": "drink"
+    },
+    {
+     "hour": 22,
+     "place": "shell_homes",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "teo",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.6,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0.2,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1.15
+   },
+   "mood": "cheerful"
+  }
+ ],
+ "items": [
+  {
+   "id": "pale_flake",
+   "name": "Pale Spire Flake",
+   "description": "A dull, colourless shard scraped from a lower ring of the Spire.",
+   "holder": "shell_homes"
+  },
+  {
+   "id": "dock_log",
+   "name": "Dock Ledger Page",
+   "description": "A torn page of Nara's log listing night crates stamped with a warden's tide-mark.",
+   "holder": "nara"
+  },
+  {
+   "id": "bond_record",
+   "name": "Polyp-Bond Record",
+   "description": "An old tube-coral scroll warning that cutting one ring starves the rings above.",
+   "holder": "archive"
+  }
+ ],
+ "quest": {
+  "id": "fading_spire",
+  "title": "The Fading Spire",
+  "hook": "The Spire of Tides is losing its colour, one ring per tide, and the wardens have run out of explanations. They need a stranger who owes no one in Corallum. Start with the warden Marisol at the Nursery and follow the grey downward.",
+  "giver": "marisol",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "marisol",
+    "requires": [],
+    "objective": "Hear Marisol's account of the fading.",
+    "beat": "Marisol shows you the dead rings and says the water tests clean. Something is taking the colour by hand."
+   },
+   {
+    "id": "s2",
+    "kind": "visit",
+    "target": "spire_hall",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Inspect the base of the Spire.",
+    "beat": "Fine scrape marks run along the lowest grey ring, and pale grit lies in the sand beneath."
+   },
+   {
+    "id": "s3",
+    "kind": "fetch",
+    "target": "pale_flake",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Collect a flake of the pale grit from the shell homes near the Spire.",
+    "beat": "The same colourless grit is piled on a doorstep. Someone has been carrying it away.",
+    "item": "pale_flake"
+   },
+   {
+    "id": "s4",
+    "kind": "talk",
+    "target": "oshun",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Ask Oshun what a scraped ring does to the Spire.",
+    "beat": "Oshun hesitates, then admits a record exists: cut a ring and the polyp-bond starves every ring above it.",
+    "reveals": [
+     "oshun:0"
+    ]
+   },
+   {
+    "id": "s5",
+    "kind": "talk",
+    "target": "nara",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Ask Nara about night cargo leaving the dock.",
+    "beat": "Nara's ledger shows sealed crates stamped with a tide-mark, signed by Teo. She looked away and was paid for it.",
+    "reveals": [
+     "nara:0"
+    ]
+   },
+   {
+    "id": "s6",
+    "kind": "confront",
+    "target": "teo",
+    "requires": [
+     "s4",
+     "s5"
+    ],
+    "objective": "Confront Teo at the Pearl Exchange.",
+    "beat": "Teo's smile fails. He has been selling Spire flakes to a deepward buyer and never believed the damage would spread.",
+    "reveals": [
+     "teo:0"
+    ]
+   },
+   {
+    "id": "s7",
+    "kind": "choose",
+    "target": "marisol",
+    "requires": [
+     "s6"
+    ],
+    "objective": "Decide what happens to Teo and the stolen coral.",
+    "beat": "Marisol waits on your word. The Spire can be mended only if the flakes are returned, and Teo's name is worth more alive than ruined.",
+    "choices": [
+     {
+      "label": "Hand Teo to the wardens",
+      "unlocks": [
+       "s8a"
+      ]
+     },
+     {
+      "label": "Make Teo restore the coral himself",
+      "unlocks": [
+       "s8b"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s8a",
+    "kind": "talk",
+    "target": "marisol",
+    "requires": [
+     "s7"
+    ],
+    "objective": "Report Teo to Marisol.",
+    "beat": "The wardens seize Teo's stock and the Spire is sealed, but the lost rings stay grey."
+   },
+   {
+    "id": "s8b",
+    "kind": "visit",
+    "target": "spire_hall",
+    "requires": [
+     "s7"
+    ],
+    "objective": "Watch Teo graft the flakes back at the Spire.",
+    "beat": "Teo grafts what he can salvage. Colour creeps back up the rings, slowly, and the Exchange loses its best broker."
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s8a",
+    "label": "Justice done, rings lost",
+    "tone": "bitter"
+   },
+   {
+    "stepId": "s8b",
+    "label": "The Spire slowly recovers",
+    "tone": "good"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "No cutting or scraping of the Spire of Tides, on pain of exile.",
+   "effect": {
+    "type": "ban",
+    "what": "scraping coral",
+    "where": "spire_hall",
+    "enforcer": "marisol"
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Cargo may not leave the Dock Cavern between nightfall and dawn.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 21,
+    "toHour": 5,
+    "exemptRoles": [
+     "coral warden"
+    ]
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "polyp-bond",
+  "tide-mark",
+  "brineshare",
+  "glasswater",
+  "deepward",
+  "spirefall"
+ ],
+ "style": {
+  "name": "Corallum Deep Reef",
+  "wall": "#b3ab9a",
+  "wall2": "#8a7f70",
+  "roof": "#5a5f58",
+  "trim": "#9b9283",
+  "accent": "#7a8f7b",
+  "dark": "#2a2f2e",
+  "glass": "#2d4548",
+  "glow": "#dfefff",
+  "ground": "#8c8672",
+  "road": "#7a7565",
+  "variety": 0.2,
+  "surfaces": {
+   "wall": "coral",
+   "wall2": "stone",
+   "roof": "coral",
+   "trim": "stone",
+   "ground": "sand",
+   "road": "gravel",
+   "wear": 0.6,
+   "wet": 0.9
+  },
+  "foliage": "#4f6a4a",
+  "bark": "#6a5f52"
+ },
+ "site": {
+  "pattern": "terraces",
+  "wild": 0.4,
+  "paths": "track",
+  "spacing": 6
+ },
+ "mood": {
+  "weather": "mist",
+  "intensity": 0.3,
+  "grade": "verdant",
+  "haze": 0.7,
+  "ambience": [
+   "water",
+   "machinery"
+  ],
+  "music": "slow glass harmonics"
+ },
+ "terrain": {
+  "relief": "terraced",
+  "ruggedness": 0.55,
+  "water": "lake",
+  "waterAmount": 0.95,
+  "horizon": "blue abyss beyond reef wall",
+  "settled": 0.6
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "reef_fish",
+   "name": "reef fish",
+   "family": "swimmer",
+   "dials": {
+    "depth": 0.5
+   },
+   "size": 0.3,
+   "count": 12,
+   "behaviour": "flock",
+   "haunt": "water",
+   "body": "#e0a84a",
+   "accent": "#3f7ab8",
+   "glow": "#000000",
+   "note": "Darting in bright schools through coral arches."
+  },
+  {
+   "id": "manta",
+   "name": "manta ray",
+   "family": "swimmer",
+   "dials": {
+    "flat": 0.9,
+    "pectoral": 0.9
+   },
+   "size": 3,
+   "count": 2,
+   "behaviour": "circle",
+   "haunt": "water",
+   "body": "#3a4a5a",
+   "accent": "#d8dde0",
+   "glow": "#000000",
+   "note": "Glides overhead like a slow, patient kite."
+  },
+  {
+   "id": "sea_turtle",
+   "name": "green sea turtle",
+   "family": "swimmer",
+   "dials": {
+    "flat": 0.4
+   },
+   "size": 1.2,
+   "count": 3,
+   "behaviour": "roam",
+   "haunt": "water",
+   "body": "#6a7a4a",
+   "accent": "#a89a6a",
+   "glow": "#000000",
+   "note": "Unhurried, ancient, entirely unbothered by you."
+  },
+  {
+   "id": "jellies",
+   "name": "glow jellies",
+   "family": "floater",
+   "dials": {
+    "shape": "bell",
+    "tentacles": 8,
+    "hover": 0.5
+   },
+   "size": 0.6,
+   "count": 6,
+   "behaviour": "roam",
+   "haunt": "water",
+   "body": "#b8c8e0",
+   "accent": "#7aa8d8",
+   "glow": "#7ad8e8",
+   "note": "Pulsing softly, trailing faint blue light."
+  },
+  {
+   "id": "reef_shark",
+   "name": "reef shark",
+   "family": "swimmer",
+   "dials": {
+    "dorsal": 0.7
+   },
+   "size": 1.8,
+   "count": 2,
+   "behaviour": "patrol",
+   "haunt": "water",
+   "body": "#6a7078",
+   "accent": "#c8ccd0",
+   "glow": "#000000",
+   "note": "Circles the city's edge, watching."
+  }
+ ],
+ "folk": {
+  "name": "reef dwellers",
+  "height": 1.7,
+  "bulk": 0.35,
+  "head": 1,
+  "features": [
+   "visor",
+   "pack"
+  ],
+  "skin": [
+   "#c9a88a",
+   "#8a6a52",
+   "#e0c4a8"
+  ],
+  "cloth": [
+   "#3f6f7a",
+   "#6a8f84",
+   "#8a7a62"
+  ],
+  "trim": [
+   "#d9b77a",
+   "#b8553f"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "staghorn_spire",
+   "summary": "branching staghorn coral tower, 28 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.8,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.14150000000000001,
+     "d": 0.14150000000000001,
+     "h": 13.200000000000001,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.06792000000000001,
+     "z": 0,
+     "y": 13.200000000000001,
+     "w": 0.13442500000000002,
+     "d": 0.13442500000000002,
+     "h": 10.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.22933425336848517,
+     "z": 0.0174871447617798,
+     "y": 0,
+     "w": 0.14150000000000001,
+     "d": 0.14150000000000001,
+     "h": 9.591905305869876,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.2972542533684852,
+     "z": 0.0174871447617798,
+     "y": 9.591905305869876,
+     "w": 0.13442500000000002,
+     "d": 0.13442500000000002,
+     "h": 7.847922522984444,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.09881547821847607,
+     "z": -0.2938290340733092,
+     "y": 0,
+     "w": 0.14150000000000001,
+     "d": 0.14150000000000001,
+     "h": 11.799027494117617,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.16673547821847606,
+     "z": -0.2938290340733092,
+     "y": 11.799027494117617,
+     "w": 0.13442500000000002,
+     "d": 0.13442500000000002,
+     "h": 9.653749767914414,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.15311153369062522,
+     "z": 0.32,
+     "y": 0,
+     "w": 0.14150000000000001,
+     "d": 0.14150000000000001,
+     "h": 10.316411205762996,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.08519153369062521,
+     "z": 0.32,
+     "y": 10.316411205762996,
+     "w": 0.13442500000000002,
+     "d": 0.13442500000000002,
+     "h": 8.440700077442452,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.1498518157224528,
+     "z": -0.32,
+     "y": 0,
+     "w": 0.14150000000000001,
+     "d": 0.14150000000000001,
+     "h": 11.271535784010776,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.08193181572245278,
+     "z": -0.32,
+     "y": 11.271535784010776,
+     "w": 0.13442500000000002,
+     "d": 0.13442500000000002,
+     "h": 9.222165641463361,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3546424706047308,
+     "z": 0.061876635682401385,
+     "y": 0,
+     "w": 0.14150000000000001,
+     "d": 0.14150000000000001,
+     "h": 11.974930275643711,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.2867224706047308,
+     "z": 0.061876635682401385,
+     "y": 11.974930275643711,
+     "w": 0.13442500000000002,
+     "d": 0.13442500000000002,
+     "h": 9.797670225526671,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.06792000000000001,
+     "z": 0,
+     "y": 24,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.03,
+     "d": 0.02,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.12
+    },
+    {
+     "shape": "wedge",
+     "x": -0.3,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.1,
+     "h": 5,
+     "rot": 90,
+     "tone": "wall2",
+     "repeat": 4,
+     "gap": 0.2
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.2,
+     "z": -0.1,
+     "y": 4,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 5,
+     "rot": 25,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "brain_dome",
+   "summary": "brain-coral greenhouse dome, 10 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.7168000000000001,
+     "d": 0.7168000000000001,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.64,
+     "d": 0.64,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.64,
+     "d": 0.64,
+     "h": 2.576,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.36,
+     "y": 0,
+     "w": 0.18,
+     "d": 0.12,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 3.429333333333333,
+     "w": 0.6499799655032111,
+     "d": 0.6499799655032111,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 3.8586666666666667,
+     "w": 0.6214997202108962,
+     "d": 0.6214997202108962,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 4.288,
+     "w": 0.570883946174702,
+     "d": 0.570883946174702,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 4.717333333333333,
+     "w": 0.4913386702559538,
+     "d": 0.4913386702559538,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 5.1466666666666665,
+     "w": 0.36438651030037994,
+     "d": 0.36438651030037994,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 5.526000000000001,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.3346718902303578,
+     "z": 0.16103952287643808,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.011464060487996766,
+     "z": -0.3398452404289979,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.3232078297423609,
+     "z": 0.1788057175525597,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.4,
+     "d": 0.08,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 1,
+     "w": 0.03,
+     "d": 0.02,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 4,
+     "gap": 0.1
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.4,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 2.6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "kelp_mast",
+   "summary": "kelp-wrapped beacon mast, 22 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.12240000000000001,
+     "d": 0.12240000000000001,
+     "h": 7.333333333333333,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 7.333333333333333,
+     "w": 0.0884,
+     "d": 0.0884,
+     "h": 7.333333333333333,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 14.666666666666666,
+     "w": 0.054400000000000004,
+     "d": 0.054400000000000004,
+     "h": 7.333333333333333,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 20.240000000000002,
+     "w": 0.5,
+     "d": 0.03,
+     "h": 0.14,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 19.540000000000003,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.46
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 16.28,
+     "w": 0.44,
+     "d": 0.03,
+     "h": 0.14,
+     "rot": 90,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 15.580000000000002,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 90,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.4048
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 22,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.134,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.025,
+     "h": 5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.134,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.025,
+     "h": 5,
+     "rot": 180,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0.134,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.025,
+     "h": 5,
+     "rot": 90,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.9099999999999999,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.2,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 21,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.05,
+     "y": 4,
+     "w": 0.12,
+     "d": 0.04,
+     "h": 5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.4
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.15,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 12,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "fan_arcade",
+   "summary": "open arcade of fan-coral arches, 6 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.98,
+     "d": 0.8,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.3,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 3,
+     "gap": 0.45
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 3,
+     "gap": 0.45
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0,
+     "y": 2.8,
+     "w": 1.1,
+     "d": 0.9,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.28,
+     "y": 0.12,
+     "w": 0.4,
+     "d": 0.14,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.28,
+     "y": 1.02,
+     "w": 0.12,
+     "d": 0.1,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 3,
+     "gap": 0.1
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.48,
+     "y": 0,
+     "w": 0.16,
+     "d": 0.04,
+     "h": 3.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 4,
+     "gap": 0.2
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.4,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.1,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0.45,
+     "y": 3.8,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "nacre_rotunda",
+   "summary": "nacre-lined round exchange, 8 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 1,
+     "d": 1,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.95,
+     "d": 0.95,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.39944373684396445,
+     "y": 0.56,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.2595742752749558
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.2468698059628387,
+     "y": 0.56,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.6795742752749558
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 2.5717582782094416e-17,
+     "y": 0.56,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.84
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.24686980596283867,
+     "y": 0.56,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.6795742752749558
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.39944373684396445,
+     "y": 0.56,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.2595742752749559
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 6.5600000000000005,
+     "w": 0.952,
+     "d": 0.952,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 6.960000000000001,
+     "w": 1.012,
+     "d": 1.012,
+     "h": 3.0999999999999996,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.8,
+     "d": 0.8,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.6,
+     "d": 0.6,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 0.5,
+     "w": 0.03,
+     "d": 0.02,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.12
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "table_tiers",
+   "summary": "stacked table-coral tiers with portholes, 14 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8640000000000001,
+     "d": 0.7344,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.4,
+     "w": 0.8,
+     "d": 0.68,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 3.1999999999999997,
+     "w": 1.4,
+     "d": 1.19,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3.8,
+     "w": 0.6400000000000001,
+     "d": 0.544,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 6.6,
+     "w": 1.12,
+     "d": 0.9520000000000001,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 7.199999999999999,
+     "w": 0.5120000000000001,
+     "d": 0.4352000000000001,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 10,
+     "w": 0.8960000000000002,
+     "d": 0.7616000000000002,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 10.6,
+     "w": 0.40960000000000013,
+     "d": 0.3481600000000001,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 13.399999999999999,
+     "w": 0.7168000000000002,
+     "d": 0.6092800000000002,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 14,
+     "w": 0.3276800000000001,
+     "d": 0.27852800000000005,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 16.8,
+     "w": 0.42598400000000014,
+     "d": 0.3620864000000001,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.48,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 6,
+     "gap": 0.1
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.48,
+     "y": 4.5,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 5,
+     "gap": 0.12
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.5
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.2,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "reef_cave",
+   "summary": "reef cave mouth, 12 m high",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.04,
+     "y": 0,
+     "w": 1,
+     "d": 0.92,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.05458050476052273,
+     "z": -0.19150440389756113,
+     "y": 0.31,
+     "w": 0.8665483025880532,
+     "d": 0.6169911922048777,
+     "h": 7.914,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.05951183991297226,
+     "z": -0.21043931247200817,
+     "y": 8.224,
+     "w": 0.8100751317758114,
+     "d": 0.5791213750559836,
+     "h": 1.888,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.023783990800071153,
+     "z": -0.2472426163358614,
+     "y": 10.112,
+     "w": 0.8278834305005148,
+     "d": 0.5055147673282773,
+     "h": 1.888,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.04000000000000001,
+     "y": 0.31,
+     "w": 0.055,
+     "d": 0.3,
+     "h": 7.013999999999999,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.505
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.04000000000000001,
+     "y": 7.323999999999999,
+     "w": 0.5800000000000001,
+     "d": 0.31,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.03400000000000001,
+     "y": 0.31,
+     "w": 0.45,
+     "d": 0.3,
+     "h": 7.013999999999999,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0.17,
+     "y": 0.31,
+     "w": 0.12100000000000001,
+     "d": 0.1,
+     "h": 3.5069999999999997,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 2,
+     "gap": 0.5820000000000001
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0.148,
+     "y": 0.31,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 2.0297251153668383,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 4,
+     "gap": 0.10125
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.148,
+     "y": 6.002303979517844,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 1.3216960204821544,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 3,
+     "gap": 0.10125
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0.172,
+     "y": 4.1677,
+     "w": 0.035,
+     "d": 0.02,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.135
+    },
+    {
+     "shape": "cone",
+     "x": 0.385,
+     "z": 0.25,
+     "y": 0,
+     "w": 0.19,
+     "d": 0.14,
+     "h": 0.79,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.385,
+     "z": 0.27,
+     "y": 0,
+     "w": 0.09,
+     "d": 0.08,
+     "h": 0.39,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 2,
+     "gap": 0.12
+    },
+    {
+     "shape": "dome",
+     "x": -0.4,
+     "z": 0,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.4,
+     "h": 8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.4,
+     "z": 0,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.4,
+     "h": 10,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.35,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.04,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "conch_cluster",
+   "summary": "cluster of giant conch dwellings, 5 m",
+   "parts": [
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.34,
+     "d": 0.34,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 1,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.3599999999999999,
+     "w": 0.768,
+     "d": 0.6880000000000001,
+     "h": 0.6400000000000001,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0,
+     "z": 0,
+     "y": 1,
+     "w": 0.8,
+     "d": 0.7200000000000001,
+     "h": 3.52,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.19021312839205246,
+     "z": -0.13171697797823917,
+     "y": 2.056,
+     "w": 0.36000000000000004,
+     "d": 0.32000000000000006,
+     "h": 2.112,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.23304474345710596,
+     "z": -0.051623826989864306,
+     "y": 2.056,
+     "w": 0.36000000000000004,
+     "d": 0.32000000000000006,
+     "h": 2.112,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.12301659859109526,
+     "z": 0.18546752368426297,
+     "y": 2.056,
+     "w": 0.36000000000000004,
+     "d": 0.32000000000000006,
+     "h": 2.112,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": -0.15,
+     "y": 2.76,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 3,
+     "gap": 0.2
+    },
+    {
+     "shape": "dome",
+     "x": -0.3,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.4,
+     "d": 0.4,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.3,
+     "z": -0.2,
+     "y": 0,
+     "w": 0.45,
+     "d": 0.45,
+     "h": 3.6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.02,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0
+  }
+ ],
+ "props": [
+  {
+   "kind": "kelp_forest",
+   "size": 2,
+   "parts": [
+    {
+     "shape": "sphere",
+     "x": 0.04650177676625252,
+     "z": 0.01837347973524932,
+     "y": 0,
+     "w": 0.132,
+     "d": 0.07260000000000001,
+     "h": 1.5999999999999999,
+     "rot": 158.44035496707772,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.12080155504064019,
+     "z": -0.17799655825079327,
+     "y": 0,
+     "w": 0.132,
+     "d": 0.07260000000000001,
+     "h": 1.2314260414056482,
+     "rot": -31.589961033790473,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.04650177676625252,
+     "z": -0.01837347973524932,
+     "y": 1.3333333333333333,
+     "w": 0.10560000000000001,
+     "d": 0.058080000000000014,
+     "h": 1.5999999999999999,
+     "rot": 158.44035496707772,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.13038607715638204,
+     "z": 0.05285075864895079,
+     "y": 0,
+     "w": 0.132,
+     "d": 0.07260000000000001,
+     "h": 0.9986667389981448,
+     "rot": -116.57480303335649,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.1359123385875385,
+     "z": 0.04913301446482784,
+     "y": 0,
+     "w": 0.132,
+     "d": 0.07260000000000001,
+     "h": 0.9586682005226613,
+     "rot": 105.91761796642652,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.06484137931524415,
+     "z": -0.17343584834938966,
+     "y": 0,
+     "w": 0.132,
+     "d": 0.07260000000000001,
+     "h": 0.8844193738512695,
+     "rot": 20.932775966860618,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.20598342806249423,
+     "z": -0.12561289182232785,
+     "y": 1.0261883678380401,
+     "w": 0.10560000000000001,
+     "d": 0.058080000000000014,
+     "h": 1.2314260414056482,
+     "rot": -31.589961033790473,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.08564949492452231,
+     "z": 0.1422858647886097,
+     "y": 0.8322222824984541,
+     "w": 0.10560000000000001,
+     "d": 0.058080000000000014,
+     "h": 0.9986667389981448,
+     "rot": -116.57480303335649,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.16333783189102993,
+     "z": -0.0470326879298417,
+     "y": 0.7988901671022178,
+     "w": 0.10560000000000001,
+     "d": 0.058080000000000014,
+     "h": 0.9586682005226613,
+     "rot": 105.91761796642652,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.04650177676625252,
+     "z": 0.01837347973524932,
+     "y": 2.6666666666666665,
+     "w": 0.0792,
+     "d": 0.04356000000000001,
+     "h": 1.5999999999999999,
+     "rot": 158.44035496707772,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.02855864568747163,
+     "z": -0.2091630834718011,
+     "y": 0.7370161448760579,
+     "w": 0.10560000000000001,
+     "d": 0.058080000000000014,
+     "h": 0.8844193738512695,
+     "rot": 20.932775966860618,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.12080155504064019,
+     "z": -0.17799655825079327,
+     "y": 2.0523767356760803,
+     "w": 0.0792,
+     "d": 0.04356000000000001,
+     "h": 1.2314260414056482,
+     "rot": -31.589961033790473,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.13038607715638204,
+     "z": 0.05285075864895079,
+     "y": 1.6644445649969082,
+     "w": 0.0792,
+     "d": 0.04356000000000001,
+     "h": 0.9986667389981448,
+     "rot": -116.57480303335649,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.1359123385875385,
+     "z": 0.04913301446482784,
+     "y": 1.5977803342044357,
+     "w": 0.0792,
+     "d": 0.04356000000000001,
+     "h": 0.9586682005226613,
+     "rot": 105.91761796642652,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.06484137931524415,
+     "z": -0.17343584834938966,
+     "y": 1.4740322897521159,
+     "w": 0.0792,
+     "d": 0.04356000000000001,
+     "h": 0.8844193738512695,
+     "rot": 20.932775966860618,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.24,
+     "d": 0.21,
+     "h": 0.06,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 5,
+   "nature": "plant"
+  },
+  {
+   "kind": "staghorn_coral",
+   "size": 2.5,
+   "parts": [
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.7905,
+     "d": 0.7457535828999128,
+     "h": 1.08,
+     "rot": 147.06078233197331,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.002066511066052667,
+     "z": -0.013796087561837301,
+     "y": 0.54,
+     "w": 0.830025,
+     "d": 0.763623,
+     "h": 0.05,
+     "rot": 40,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.011684774877412965,
+     "z": 0.0076202713904544635,
+     "y": 0.27,
+     "w": 0.7188227357761788,
+     "d": 0.6613169169140845,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.013404718963067929,
+     "z": 0.0038621250007174843,
+     "y": 0.81,
+     "w": 0.7188227357761788,
+     "d": 0.6613169169140845,
+     "h": 0.05,
+     "rot": 80,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.034804680682515,
+     "z": 0.24656311414897034,
+     "y": 0.8794436717089903,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.320120762374252,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.21052161776692577,
+     "z": -0.17337303844325502,
+     "y": 0.8384079623466207,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.3192359183002263,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.04780064355948657,
+     "z": -0.1465487981238636,
+     "y": 0.9847969804411925,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.26877811071462926,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.2960259211535099,
+     "z": -0.015615550309416214,
+     "y": 0.7870268955612177,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.26218038900755347,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.008844742162579994,
+     "z": -0.03445538118099232,
+     "y": 1.037203216593467,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.2448850882295519,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.22434998292889893,
+     "z": 0.2283959465841125,
+     "y": 0.7181077013490241,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.24013200402259827,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.15489143354125057,
+     "z": 0.08742832905749919,
+     "y": 0.9650617141403748,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.21624222714453936,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.12746988289508554,
+     "z": -0.18576366574484682,
+     "y": 0.913227651345762,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.2084752720892429,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.05393895450782095,
+     "z": 0.118757005026454,
+     "y": 1.0010946690466171,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.20846214200556276,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.09817549836913132,
+     "z": -0.041835347808076066,
+     "y": 1.0142816964128765,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.20236038330942388,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.07828396639345311,
+     "z": -0.027586873906963492,
+     "y": 1.0245926991485872,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.20169786618277427,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.00993205864580102,
+     "z": 0.006477230681886294,
+     "y": 1.0396899620171205,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.19705836529657245,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.027920898865189465,
+     "z": 0.05230134857544175,
+     "y": 1.0321948680239414,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.19532599343173204,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.19637151133185438,
+     "z": 0.04551612948717621,
+     "y": 0.9414280513173081,
+     "w": 0.0279,
+     "d": 0.0279,
+     "h": 0.1785042422376573,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 4,
+   "nature": "plant"
+  },
+  {
+   "kind": "sea_fan",
+   "size": 1.8,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.14,
+     "h": 0.6666666666666666,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.007127548244716476,
+     "z": -0.016177084286707513,
+     "y": 0.6666666666666666,
+     "w": 0.11550000000000002,
+     "d": 0.11550000000000002,
+     "h": 0.6666666666666666,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.020159750788293178,
+     "z": -0.0457557039958289,
+     "y": 1.3333333333333333,
+     "w": 0.09100000000000001,
+     "d": 0.09100000000000001,
+     "h": 0.6666666666666666,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.020159750788293178,
+     "z": -0.0457557039958289,
+     "y": 2,
+     "w": 0.336,
+     "d": 0.30800000000000005,
+     "h": 0.12600000000000003,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.024761698527713,
+     "z": -0.06432413445893612,
+     "y": 1.1333856003591791,
+     "w": 0.16,
+     "d": 0.12,
+     "h": 0.16,
+     "rot": 109.48416776955128,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.0018813629620042975,
+     "z": 0.040865899671614844,
+     "y": 0.6923382192151621,
+     "w": 0.16,
+     "d": 0.12,
+     "h": 0.16,
+     "rot": 114.07924229744822,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.05230253720690169,
+     "z": -0.05215322738552293,
+     "y": 1.308489488158375,
+     "w": 0.16,
+     "d": 0.12,
+     "h": 0.16,
+     "rot": 83.38272519875318,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.025231642907811866,
+     "z": -0.048897578965523845,
+     "y": 1.6775265065487475,
+     "w": 0.16,
+     "d": 0.12,
+     "h": 0.16,
+     "rot": 53.60419732052833,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.266,
+     "d": 0.266,
+     "h": 0.14,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.0060479252364879525,
+     "z": -0.01372671119874867,
+     "y": 0.2608695652173913,
+     "w": 0.18978086298657584,
+     "d": 0.17080277668791827,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.021330413508816853,
+     "z": -0.011352292240431223,
+     "y": 1.1304347826086958,
+     "w": 0.1681447887368384,
+     "d": 0.15133030986315457,
+     "h": 0.05,
+     "rot": 100,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.006604283284151863,
+     "z": -0.010140793798106305,
+     "y": 0.6956521739130436,
+     "w": 0.166603880854568,
+     "d": 0.1499434927691112,
+     "h": 0.05,
+     "rot": 50,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.01294614263806847,
+     "z": -0.05890727642862231,
+     "y": 1.565217391304348,
+     "w": 0.13682210728895156,
+     "d": 0.1231398965600564,
+     "h": 0.05,
+     "rot": 150,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.007009120517173402,
+     "z": -0.009257725531440011,
+     "y": 1.3968741887877696,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 0.6031258112122304,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.025335663195846715,
+     "z": -0.04510971141713412,
+     "y": 1.4261788866994902,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 0.5738211133005098,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.0541429171557292,
+     "z": -0.01550021848256758,
+     "y": 1.4417993135680445,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 0.5582006864319555,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.06484728880109582,
+     "z": -0.05431572422678161,
+     "y": 1.4440652965032497,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 0.5559347034967504,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.015539054535658233,
+     "z": -0.0910204713777661,
+     "y": 1.5240763087919913,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 0.47592369120800865,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.01857358245789499,
+     "z": -0.06962993478217538,
+     "y": 1.7009576361905783,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 0.2990423638094217,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 3,
+   "nature": "plant"
+  },
+  {
+   "kind": "coral_boulder",
+   "size": 3,
+   "parts": [
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.85,
+     "d": 0.72,
+     "h": 1.5,
+     "rot": 58.070277627557516,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.1220513060548702,
+     "z": 0.15844077344642196,
+     "y": 0,
+     "w": 0.5494102620054037,
+     "d": 0.5850772801786661,
+     "h": 0.9908360881672706,
+     "rot": 151.95724227000028,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.16850383818913495,
+     "z": -0.10773326559391877,
+     "y": 0,
+     "w": 0.4658979754894972,
+     "d": 0.5284726256504655,
+     "h": 1.1632044495432639,
+     "rot": 61.65238360874355,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.19702215034463985,
+     "z": -0.034384186388136916,
+     "y": 0,
+     "w": 0.5600314134266228,
+     "d": 0.4152741233352572,
+     "h": 1.0088813892798498,
+     "rot": 124.58082279190421,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.0002720166577351462,
+     "z": -0.13999973573881458,
+     "y": 0.44999999999999996,
+     "w": 0.5,
+     "d": 0.45,
+     "h": 0.8999999999999999,
+     "rot": 41.87258682679385,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0,
+     "z": 0,
+     "y": 1.23,
+     "w": 0.5,
+     "d": 0.42500000000000004,
+     "h": 0.15,
+     "rot": 58.070277627557516,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.45390589428529504,
+     "z": -0.1250619896934581,
+     "y": 0,
+     "w": 0.2174665194284171,
+     "d": 0.16289156301883784,
+     "h": 0.15466081117481711,
+     "rot": 52.90808275574818,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.16746627865724464,
+     "z": 0.4498389106254527,
+     "y": 0,
+     "w": 0.14802612592931835,
+     "d": 0.14724400507155477,
+     "h": 0.08839968298119012,
+     "rot": 2.8155651362612844,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.4121349034431411,
+     "z": -0.21079352448603234,
+     "y": 0,
+     "w": 0.15232124750502407,
+     "d": 0.14239541901218158,
+     "h": 0.07888876987557596,
+     "rot": 88.45945112407207,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0.44,
+     "y": 0,
+     "w": 0.09,
+     "d": 0.08,
+     "h": 0.05,
+     "rot": 98.08448399417102,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.27
+    }
+   ],
+   "weight": 3,
+   "nature": "mineral"
+  },
+  {
+   "kind": "beacon_post",
+   "size": 2,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2.9,
+     "w": 0.5,
+     "d": 0.04,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 2.7199999999999998,
+     "w": 0.15,
+     "d": 0.15,
+     "h": 0.18,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "pearl_clam",
+   "prompt": "giant open clam shell holding a large pearl, fluted ridged valves encrusted with barnacles and algae, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 5
+  }
+ ]
+}

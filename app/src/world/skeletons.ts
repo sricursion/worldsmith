@@ -8,6 +8,7 @@ import { hall, tower, spire, domeForm, tiers, tent } from './skeletons/structure
 import { stilts, archway, hull, shell, block, wall, canopy } from './skeletons/structure-b';
 import { cliff, cave, ruin, bridge, stair, gantry } from './skeletons/structure-c';
 import { stack, mast, pit, colonnade, wreck, megastructure } from './skeletons/structure-d';
+import { keep, arena, tank, pier, terrace } from './skeletons/structure-e';
 import * as natureGroup from './skeletons/nature';
 import * as objectGroup from './skeletons/object';
 import type { DialSpec, Dials, Skeleton } from './skeletons/types';
@@ -32,6 +33,7 @@ export const SKELETONS: Record<string, Skeleton> = Object.fromEntries(
   [
     hall, tower, spire, domeForm, tiers, tent, stilts, archway, hull, shell, block, wall, canopy,
     cliff, cave, ruin, bridge, stair, gantry, stack, mast, pit, colonnade, wreck, megastructure,
+    keep, arena, tank, pier, terrace,
     ...exported(natureGroup, []),
     ...exported(objectGroup, ['pole', 'container', 'furniture', 'blade', 'statue']),
   ].map((s) => [s.id, s]),
@@ -61,6 +63,13 @@ const ALIASES: Record<string, { id: string; dials: Dials }> = {
   outcrop: { id: 'cliff', dials: {} },
   shipwreck: { id: 'wreck', dials: {} },
   monolith: { id: 'megastructure', dials: { form: 'slab' } },
+  castle: { id: 'keep', dials: {} },
+  fort: { id: 'keep', dials: {} },
+  stadium: { id: 'arena', dials: {} },
+  silo: { id: 'tank', dials: {} },
+  jetty: { id: 'pier', dials: {} },
+  dock: { id: 'pier', dials: {} },
+  terraces: { id: 'terrace', dials: {} },
 };
 
 const clampNum = (n: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, n));
@@ -107,7 +116,7 @@ function sane(p: BlueprintPart): BlueprintPart {
   };
 }
 
-const MINERAL_FAMILIES = new Set(['rock', 'boulder', 'crystal']);
+const MINERAL_FAMILIES = new Set(['rock', 'boulder', 'crystal', 'pinnacle', 'vent', 'mound']);
 
 /** Whether a prop of this family is a plant or a mineral; undefined for made things and unknown families. */
 export function skeletonNature(family: string | undefined): 'plant' | 'mineral' | undefined {

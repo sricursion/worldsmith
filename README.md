@@ -1,111 +1,113 @@
 # Worldsmith
 
-Type a sentence, get a small playable town. Worldsmith compiles a plain-language prompt into a data
-spec, lays out streets and buildings deterministically, fills the town with NPCs on schedules, and
-generates a quest that is checked to be winnable. You walk in, talk to people, and rewrite the
-town's rules in plain language while it runs.
+Type a sentence and walk into the world it describes. Worldsmith turns any text prompt into a
+first-person 3D place in the browser: land, water, sky, buildings, plants, people and animals, built
+procedurally in three.js from a spec a language model writes. You can talk to the people, follow a quest
+the engine has checked can be finished, and change how the world behaves by writing rules in plain language.
 
-Built for the Victoria VR AI Builder Hackathon 2026.
+Made for the Victoria VR AI Builder Hackathon 2026.
 
 ## Try it
 
-Demo: `DEMO_URL_PLACEHOLDER`
+Demo: DEMO_URL
 
-Prompts to start with:
+Type a prompt and press Enter, or pick one of the example chips. Prompts that work well range from
+a western town in 1874 to a dragon's lair, a seabed city or a colony on Mars.
 
-1. `a Wild West town in the Arizona Territory, 1874, with a missing payroll`
-2. A medieval river market town the night before a saint's feast, when the relic goes missing
-3. A mining outpost on a frozen moon in 2187 where the reactor is failing and someone is behind it
-
-Controls: WASD to move, E to talk, R to open the rule editor, ? to ask why something happened.
-After the town loads, try the rule `nobody is allowed in the saloon after dark` and watch the
-regulars leave.
+Controls: WASD to move, mouse to look, Shift to run, E to talk, R for the rules panel, ? for the "why"
+overlay, V to switch between first and third person. Then try a rule such as
+`everyone must be home after dark` and watch the people walk home.
 
 ## How it works
 
-1. **Prompt.** The prompt is hashed into a seed and mapped to the nearest theme kit. A skeleton town
-   of boxes is on screen within a second while the kit and characters load.
-2. **Compiled world spec.** The compile model streams a `WorldSpec` (buildings, NPCs, items, quest,
-   rules). The client validates it with zod, normalizes it, repairs unreachable quest steps, and
-   verifies the quest by graph walk. The HUD shows the result, for example "quest verified, 6 steps".
-3. **Deterministic layout.** `generateLayout` places a main street, cross streets, lots, a plaza and
-   props from the spec and the seed. The same spec always produces the same town.
-4. **Navmesh and crowd.** The built town is baked into a Recast navmesh. The player and every NPC
-   walk it with a crowd simulation and a wall-sliding third-person camera.
-5. **Schedules and a decision model.** Each NPC has an hourly schedule. Every 20 seconds the engine
-   offers each NPC three to five options and a decision model returns per-option probabilities, which
-   are sampled client-side with a seeded stream and the NPC's temperament. If the call fails, a local
-   weighted fallback keeps everyone moving. Dialogue lines stream from a separate model and are
-   validated before they are shown.
-6. **Live rule rewriting.** Type a rule in plain language. The Worker turns it into a typed effect
-   (curfew, ban, price, mood, weather, time scale, schedule override), the engine applies it, the next
-   tick re-plans, and the "why?" overlay cites the rule from engine state.
+1. The browser sends the prompt to `POST /api/compile`. The Worker runs three model calls and streams
+   the results back as server-sent events: an outline (what kind of place, how built-up, the land, the
+   people, the creatures, the sky), then in parallel a look (building skeletons with dials, palette,
+   props, landmarks) and a story (people, items, quest, starting rules).
+2. The client shows the world as soon as the look arrives, then swaps in the full spec when the story
+   lands, keeping the player where they stand. The spec is cleaned up (`coerceSpec`), checked with zod
+   (`validateSpec`), normalised, and the quest is repaired and verified by a graph walk.
+3. `generateLayout` plans streets, lots, water and points of interest. `buildTown` builds terrain,
+   water, buildings from blueprints, props, signs and ground cover. Surfaces (wood, stone, rust, ice and
+   so on) are generated in the browser as PBR maps.
+4. The land keeps going past the edge of the place: ground, plants and a place worth walking to every
+   few hundred metres (standing stones, a camp, a great tree) stream in around the player.
+5. A Recast navmesh is baked over the place. The player walks it, and walks on over open land beyond it.
+   People follow hourly schedules on a crowd simulation.
+6. Every 20 seconds the engine asks a decision model to pick each person's next action from options the
+   engine offers; if that call fails, a local weighted choice is used.
+7. Rules typed in plain language go to `POST /api/rules/patch` and come back as typed effects (curfew,
+   ban, price, mood, time scale, weather, schedule override, relationship). The engine applies them and
+   the "why" overlay shows the last twelve log lines with the reason for each move.
 
-Models emit data. The engine runs the world. If a behaviour cannot be explained from engine state,
-it does not ship.
+Models write data. The engine runs the world.
 
-## Why this generalises
+## What makes it general
 
-- The world spec is data. It is JSON-serialisable and has no engine objects in it.
-- There are four theme kits (western, medieval, sci-fi, modern). Any prompt maps to the nearest kit,
-  and the model supplies names, people, plot and slang on top of it.
-- The same engine runs every town. Layout, pathing, schedules, rules and quest state do not know which
-  theme they are in.
-- The Worker is a thin proxy: it forwards to the models, rate-limits, and stores shared worlds. It
-  holds no game logic.
-- Share links carry the whole world. The spec is compressed into the URL hash; larger worlds go to KV
-  with a 30-day expiry.
-- Every mesh, texture, animation and sky is a static file. Nothing is generated at runtime, so a town
-  that works once works again.
+- Nothing is placed by hand for a theme. Buildings and props come from skeleton families: parametric
+  bone structures with dials, such as `hall`, `tower`, `hull`, `cave`, `bridge`, `broadleaf`, `crystal`
+  and `statue`. The prompt supplies the dial settings, the colours, the surfaces and extra parts, so the
+  same `shell` family becomes a mushroom house in one world and a beehive or a jellyfish tower in
+  another, and `hall` can be a saloon, a longhouse or a tenement. Every structure family also takes a
+  `ruin` dial that turns it into its own ruin.
+- There are 43 families (25 structure, 13 nature, 5 object) in
+  `app/src/world/skeletons/`, and every dial is clamped, so any model output builds something valid.
+- Creatures come from ten body plans (quadruped, biped, winged, serpent, bird, swimmer, crawler,
+  floater, colossus, swarm) reshaped by dials. The people are a body plan too (height, bulk, head size,
+  features, skin and cloth colours), with the modelled human bodies used where the folk are human.
+- Terrain relief, water kind, weather, colour grade, sky features, ambience and music are all fields in
+  the spec. Sound is synthesised in the browser.
+- The spec is plain JSON with no engine objects, so a world fits in a share link: it is deflated into
+  the URL hash.
 
 ## Run locally
 
+Needs Node 22 or newer.
+
 ```
 npm install
-npm run dev            # app on the Vite dev server
-npm run worker:dev     # Worker on wrangler dev, in a second terminal
+npm run worker:dev     # Worker on http://127.0.0.1:8788, answers from fixtures (MOCK=1)
+npm run dev            # app on http://127.0.0.1:5173, proxies /api to the Worker
 ```
 
-Set `MOCK=1` for the Worker and no keys are needed: it answers from the hand-written fixture towns.
-A missing key has the same effect.
+Run the two commands in separate terminals. Mock mode needs no keys. For real models, copy
+`worker/.dev.vars.example` to `worker/.dev.vars` (gitignored), fill in the keys and set `MOCK=0`.
 
-For real models, set these secrets with `wrangler secret put` or in a gitignored `worker/.dev.vars`:
+Environment variable names (set values yourself, never commit them):
 
-- `ANTHROPIC_API_KEY`
-- `GROQ_API_KEY`
-- `TYPESAFE_API_KEY`
+- `ANTHROPIC_API_KEY` required for real compile, rules and dialogue.
+- `ANTHROPIC_BASE_URL` optional gateway origin.
+- `GROQ_API_KEY` optional, fallback for NPC lines.
+- `TYPESAFE_API_KEY` optional, decision model for NPC actions.
+- `TRIPO_API_KEY` or `MESHY_API_KEY` optional, landmark models.
+- `MOCK` set to `1` to force fixtures.
+- `BUDGET_SESSION_TOKENS`, `BUDGET_IP_TOKENS`, `BUDGET_GLOBAL_TOKENS`, `LANDMARK_DAILY_CAP` optional
+  daily ceilings (defaults in `worker/src/lib/budget.ts` and `wrangler.toml`).
 
-Other scripts: `npm test`, `npm run typecheck`, `npm run build`, `npm run worker:deploy`,
-`npm run assets:fetch`, `npm run assets:optimize`.
+Other scripts: `npm run build`, `npm run preview`, `npm run typecheck`, `npm run worker:deploy`,
+`npm run deploy` (build, then deploy the Worker), `npm run assets:fetch`, `npm run assets:optimize`.
 
-Model routing in the Worker: world compile and rule patches call Claude Sonnet 5.5; NPC lines call
-Claude Haiku 5.5, retry on Sonnet after a refusal, and fall back to Groq gpt-oss-120b on vendor
-error; per-tick decisions call Jev 1.14 through TypeSafe, with a Workers AI fallback.
+Hosting: the Worker serves the built app and `/api/*` (`worker/wrangler.toml`), or Vercel serves `dist/`
+and one Edge function (`api/index.ts`, `vercel.json`). On Vercel there is no durable store, so short
+share ids and landmark files are unavailable and the share link carries the whole world.
 
-## Architecture
-
-Full module contracts and the game flow are in [docs/architecture.md](docs/architecture.md).
+## Tests
 
 ```
-app/src/main.ts      boot, renderer, game loop
-app/src/game.ts      prompt -> compile -> layout -> build -> play
-app/src/world/       spec types, schema, fixtures, quest verifier, state reducer
-app/src/town/        deterministic layout and scene builder
-app/src/engine/      renderer, sky, input, assets, characters, navmesh, player
-app/src/npc/         schedules, decision sampling, dialogue, speech
-app/src/net/         fetch and SSE clients for the Worker API
-app/src/ui/          prompt, HUD, dialogue, rule editor, why overlay
-worker/src/          Cloudflare Worker: model proxy, share links, rate limits
-assets/, tests/      static CC0 kits; vitest tests mirroring app/src
+npm test
 ```
+
+Vitest over `tests/`: 65 test files with about 800 test cases, covering the spec and schema,
+skeletons, layout, terrain and endless land, surfaces, navmesh and player, NPC brain and dialogue, the
+UI and network clients, and the Worker. The live-model check in `tests/worker/_live/` is skipped unless
+`LIVE=1`.
 
 ## Credits
 
-All 3D models are CC0 packs by Kenney and KayKit (Kay Lousberg), committed under
-`assets/third_party/` with their licenses and hash manifests. Pack list and sources:
-[docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
+Quaternius human models are the only third-party art in compiled worlds; Kenney and KayKit kits remain as
+a fallback. All are CC0. Full list, licences and npm dependencies: [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
+Design notes: [docs/architecture.md](docs/architecture.md).
 
-## License
+## Licence
 
-MIT for the code in this repository; see `LICENSE`. Third-party assets keep their own CC0 terms, listed in `docs/THIRD_PARTY.md`.
-Third-party assets keep their own CC0 licenses.
+MIT for the code, see `LICENSE`. Third-party assets keep their own terms, listed in `docs/THIRD_PARTY.md`.

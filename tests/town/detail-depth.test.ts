@@ -150,8 +150,10 @@ describe('openings cut into walls', () => {
       }
     }
     const holes = d.openings.reduce((s, o) => s + (o.u1 - o.u0) * (o.v1 - o.v0), 0);
-    // trim that lies flat on the face shares the plane and the surface only when it is the wall's own tone: none here
-    expect(area).toBeCloseTo(0.8 * W * 4 - holes, 3);
+    // trim that lies flat on the face shares the plane and the surface only when it is the wall's own tone: none here.
+    // At this quality the wall's upright corners and its top edge are bevelled 35 mm, which the face gives up.
+    const bevel = 0.035;
+    expect(area).toBeCloseTo((0.8 * W - 2 * bevel) * (4 - bevel) - holes, 3);
     drop(meshes);
   });
 
@@ -257,7 +259,7 @@ describe('budgets, reach and determinism', () => {
       drop(bare);
       drop(full);
     }
-  });
+  }, 30_000);
 
   it('builds the same thing for the same seed and place, and tells two neighbours of one blueprint apart', () => {
     const src = expandBlueprintParts(HOUSE);

@@ -1,0 +1,1517 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a cyberpunk alley market",
+ "title": "Gutterlight Bazaar",
+ "tagline": "Everything sells here, even your name.",
+ "theme": "scifi",
+ "era": "Near-future megacity",
+ "palette": {
+  "ground": "#3b3c3e",
+  "accent": "#7a3b34",
+  "sky": "night",
+  "fog": 0.35
+ },
+ "time": {
+  "startHour": 22,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "noodle_stall",
+   "role": "cafe",
+   "label": "Steam Dragon Noodles",
+   "size": "small",
+   "keyBuilding": true,
+   "blueprint": "noodle_stall"
+  },
+  {
+   "id": "chop_shop",
+   "role": "workshop",
+   "label": "Splice Garage",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "chop_garage"
+  },
+  {
+   "id": "data_den",
+   "role": "shop",
+   "label": "Black Cache",
+   "size": "small",
+   "keyBuilding": true,
+   "blueprint": "hole_shop"
+  },
+  {
+   "id": "pharma",
+   "role": "doctor",
+   "label": "Back-Door Clinic",
+   "size": "small",
+   "blueprint": "hole_shop"
+  },
+  {
+   "id": "scrap_yard",
+   "role": "warehouse",
+   "label": "Salvage Row",
+   "size": "medium",
+   "blueprint": "yard_stack"
+  },
+  {
+   "id": "arcade",
+   "role": "shop",
+   "label": "Ghost Arcade",
+   "size": "medium",
+   "blueprint": "hole_shop"
+  },
+  {
+   "id": "hotel_pod",
+   "role": "hotel",
+   "label": "Capsule Stack",
+   "size": "medium",
+   "blueprint": "pod_stack"
+  },
+  {
+   "id": "tower_a",
+   "role": "apartment",
+   "label": "Helix Residences",
+   "size": "large",
+   "blueprint": "helix_tower"
+  },
+  {
+   "id": "relay_mast",
+   "role": "command",
+   "label": "Signal Mast",
+   "size": "medium",
+   "blueprint": "signal_mast"
+  },
+  {
+   "id": "billboard_tower",
+   "role": "office",
+   "label": "Kiroku Billboard",
+   "size": "large",
+   "blueprint": "corp_billboard"
+  },
+  {
+   "id": "tea_house",
+   "role": "tavern",
+   "label": "Lantern Tea House",
+   "size": "small",
+   "blueprint": "noodle_stall"
+  },
+  {
+   "id": "plaza_core",
+   "role": "plaza",
+   "label": "Crossing",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "chop_garage"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "mika",
+   "name": "Mika",
+   "role": "noodle cook",
+   "persona": "Fast-talking cook who hears everything over the steam. Feeds runners on credit and expects favors back.",
+   "knowledge": [
+    "Juno ran through here at ten past nine, no pack on her back.",
+    "Vex pays double for any chip with a corpo seal.",
+    "Rook stitches runners up at night and asks nothing."
+   ],
+   "secrets": [
+    "Mika found a sealed case lid in the noodle vats and sold it to Old Sen."
+   ],
+   "home": "noodle_stall",
+   "work": "noodle_stall",
+   "schedule": [
+    {
+     "hour": 2,
+     "place": "noodle_stall",
+     "activity": "sleep"
+    },
+    {
+     "hour": 6,
+     "place": "noodle_stall",
+     "activity": "work"
+    },
+    {
+     "hour": 15,
+     "place": "plaza_core",
+     "activity": "trade"
+    },
+    {
+     "hour": 19,
+     "place": "noodle_stall",
+     "activity": "work"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "juno",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.4,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "rook",
+   "name": "Rook",
+   "role": "street ripper",
+   "persona": "Flat-voiced ripper who talks while cutting. Trusts nobody who still has all their original parts.",
+   "knowledge": [
+    "A runner came in bleeding at nine and left a chip behind.",
+    "Tamsin's implants glitch and Rook cleans up after them.",
+    "Whoever carries the case is already marked."
+   ],
+   "secrets": [
+    "Rook cut a tracker out of Juno and it is still in a dish on the shelf."
+   ],
+   "home": "pharma",
+   "work": "pharma",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "pharma",
+     "activity": "sleep"
+    },
+    {
+     "hour": 14,
+     "place": "pharma",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "tea_house",
+     "activity": "drink"
+    },
+    {
+     "hour": 23,
+     "place": "pharma",
+     "activity": "work"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tamsin",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": -0.3,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "vex",
+   "name": "Vex",
+   "role": "data broker",
+   "persona": "Smiling broker who sells facts by the byte. Never says anything she can't invoice.",
+   "knowledge": [
+    "A corpo bounty went up at nine for one sealed case.",
+    "The case holds a key, not creds.",
+    "The Signal Mast is relaying the bounty across the sprawl."
+   ],
+   "secrets": [
+    "Vex already holds the case's decryption half and is waiting for someone to bring the rest."
+   ],
+   "home": "data_den",
+   "work": "data_den",
+   "schedule": [
+    {
+     "hour": 0,
+     "place": "data_den",
+     "activity": "work"
+    },
+    {
+     "hour": 8,
+     "place": "data_den",
+     "activity": "sleep"
+    },
+    {
+     "hour": 13,
+     "place": "data_den",
+     "activity": "work"
+    },
+    {
+     "hour": 20,
+     "place": "plaza_core",
+     "activity": "trade"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "old_sen",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "rogue_hooded",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 1.1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.3,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.4,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 1
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "old_sen",
+   "name": "Old Sen",
+   "role": "scrap dealer",
+   "persona": "Gruff scavenger who weighs everything twice. Remembers every crate and every debt.",
+   "knowledge": [
+    "Anything that falls off a runner ends up in Salvage Row by dawn.",
+    "Tamsin buys busted decks by the kilo.",
+    "Dax rents pods to people who don't want to be found."
+   ],
+   "secrets": [
+    "Old Sen has the sealed case under a crate stack and cannot crack it."
+   ],
+   "home": "scrap_yard",
+   "work": "scrap_yard",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "scrap_yard",
+     "activity": "work"
+    },
+    {
+     "hour": 16,
+     "place": "plaza_core",
+     "activity": "trade"
+    },
+    {
+     "hour": 20,
+     "place": "tea_house",
+     "activity": "drink"
+    },
+    {
+     "hour": 23,
+     "place": "scrap_yard",
+     "activity": "guard"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "mika",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.2,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.8
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "juno",
+   "name": "Juno",
+   "role": "courier",
+   "persona": "Jittery runner who talks while moving. Lost the case and is terrified to say so.",
+   "knowledge": [
+    "She dropped the case dodging a drone near the crossing.",
+    "Three corpo runners have been tailing her since nine.",
+    "The case was sealed with her own handprint."
+   ],
+   "secrets": [
+    "Juno was paid to lose the case on purpose and hates herself for it."
+   ],
+   "home": "plaza_core",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 8,
+     "place": "plaza_core",
+     "activity": "sleep"
+    },
+    {
+     "hour": 14,
+     "place": "street",
+     "activity": "work"
+    },
+    {
+     "hour": 19,
+     "place": "noodle_stall",
+     "activity": "eat"
+    },
+    {
+     "hour": 22,
+     "place": "street",
+     "activity": "wander"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "mika",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0.6,
+     "investigate": 0,
+     "follow_player": 0.2,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.5,
+    "rate": 1.3
+   },
+   "mood": "afraid"
+  },
+  {
+   "id": "tamsin",
+   "name": "Tamsin",
+   "role": "chop-shop tech",
+   "persona": "Greasy-handed tech who loves hardware more than people. Grins at risk and hates being told no.",
+   "knowledge": [
+    "Hacked decks bring good creds but burn out fast.",
+    "Rook botches half the grafts Tamsin starts.",
+    "Chrome rats chew the cables behind the garage."
+   ],
+   "secrets": [
+    "Tamsin has a client who pays to keep the case sealed and unopened."
+   ],
+   "home": "chop_shop",
+   "work": "chop_shop",
+   "schedule": [
+    {
+     "hour": 0,
+     "place": "chop_shop",
+     "activity": "work"
+    },
+    {
+     "hour": 7,
+     "place": "chop_shop",
+     "activity": "sleep"
+    },
+    {
+     "hour": 13,
+     "place": "chop_shop",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "arcade",
+     "activity": "wander"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "rook",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1.2,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1.1
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "dax",
+   "name": "Dax",
+   "role": "pod keeper",
+   "persona": "Soft-spoken keeper who counts guests like inventory. Sells quiet and keeps the books clean.",
+   "knowledge": [
+    "A corpo runner took pod 4 and hasn't left.",
+    "Pods lock from the inside after midnight.",
+    "Juno slept here twice this week, paid in chips."
+   ],
+   "secrets": [
+    "Dax is hiding a corpo runner in pod 4 and is paid to say nothing."
+   ],
+   "home": "hotel_pod",
+   "work": "hotel_pod",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "hotel_pod",
+     "activity": "work"
+    },
+    {
+     "hour": 14,
+     "place": "hotel_pod",
+     "activity": "guard"
+    },
+    {
+     "hour": 20,
+     "place": "tea_house",
+     "activity": "drink"
+    },
+    {
+     "hour": 22,
+     "place": "hotel_pod",
+     "activity": "guard"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "juno",
+     "stance": "neutral"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.3,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 0.9
+   },
+   "mood": "calm"
+  }
+ ],
+ "items": [
+  {
+   "id": "sealed_case",
+   "name": "Sealed Case",
+   "description": "Matte black case with a handprint lock and a corpo seal.",
+   "holder": "scrap_yard"
+  },
+  {
+   "id": "tracker_chip",
+   "name": "Tracker Chip",
+   "description": "Bloody chip cut from a runner's arm, still pinging.",
+   "holder": "pharma"
+  },
+  {
+   "id": "case_lid",
+   "name": "Cracked Case Lid",
+   "description": "Torn lid stamped with a corpo seal and noodle grease.",
+   "holder": "noodle_stall"
+  },
+  {
+   "id": "shed_feather",
+   "name": "Chrome Feather",
+   "description": "Metal feather dropped by an augmented pigeon.",
+   "holder": "plaza_core"
+  }
+ ],
+ "quest": {
+  "id": "lost_case",
+  "title": "Gutterlight: The Lost Case",
+  "hook": "A courier dropped a sealed case somewhere in the Bazaar and now every broker, ripper and corpo hound is hunting it. Find it first and you eat for a year, or you end up in a gutter with your chips cut out.",
+  "giver": "juno",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "juno",
+    "requires": [],
+    "objective": "Hear Juno out at the crossing.",
+    "beat": "Juno admits she dropped the case near the crossing while a drone chased her. She begs you to find it before the corpos do.",
+    "reveals": [
+     "juno:0"
+    ]
+   },
+   {
+    "id": "s2",
+    "kind": "visit",
+    "target": "noodle_stall",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Check Steam Dragon Noodles for what Juno left behind.",
+    "beat": "Mika steams noodles over a torn lid with a corpo seal. Pigeons peck at the scraps outside."
+   },
+   {
+    "id": "s3",
+    "kind": "fetch",
+    "target": "case_lid",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Take the cracked lid from Mika.",
+    "beat": "Mika hands it over and says Old Sen paid for the rest.",
+    "item": "case_lid",
+    "reveals": [
+     "mika:0"
+    ]
+   },
+   {
+    "id": "s4",
+    "kind": "talk",
+    "target": "old_sen",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Press Old Sen in Salvage Row about the case.",
+    "beat": "Old Sen admits the case is under his crates and he can't crack it. Vex has the other half of the key.",
+    "reveals": [
+     "old_sen:0"
+    ]
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "old_sen",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Decide who gets the case.",
+    "beat": "Old Sen will sell the case to you. Juno, Vex and the corpos will all pay or kill for it.",
+    "choices": [
+     {
+      "label": "Return it to Juno",
+      "unlocks": [
+       "s6a"
+      ]
+     },
+     {
+      "label": "Sell it to Vex",
+      "unlocks": [
+       "s6b"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s6a",
+    "kind": "deliver",
+    "target": "juno",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Hand the case back to Juno.",
+    "beat": "Juno takes it and runs, shaking. The corpo hounds lose the trail for now.",
+    "item": "sealed_case"
+   },
+   {
+    "id": "s6b",
+    "kind": "deliver",
+    "target": "vex",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Sell the case to Vex at Black Cache.",
+    "beat": "Vex pays in creds and locks the case in a deck. By dawn the bounty is gone and so is Juno.",
+    "item": "sealed_case"
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6a",
+    "label": "Juno lives, you walk away poor and clean.",
+    "tone": "good"
+   },
+   {
+    "stepId": "s6b",
+    "label": "You get rich and Juno vanishes into the sprawl.",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "Corpo bounty hunters sweep the sprawl after midnight. Stay off the street.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 0,
+    "toHour": 4,
+    "exemptRoles": [
+     "courier",
+     "street ripper"
+    ]
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Salvage Row sells nothing to strangers without creds up front.",
+   "effect": {
+    "type": "price",
+    "item": "sealed_case",
+    "multiplier": 2
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "creds",
+  "chip",
+  "ripper",
+  "glitch",
+  "corpo",
+  "sprawl"
+ ],
+ "style": {
+  "name": "Gutterlight Bazaar night mist",
+  "wall": "#7d7f80",
+  "wall2": "#4f4d4a",
+  "roof": "#3a3b3d",
+  "trim": "#5f5a54",
+  "accent": "#7a3b34",
+  "dark": "#16181b",
+  "glass": "#1f2a33",
+  "glow": "#ffb347",
+  "ground": "#3b3c3e",
+  "road": "#2f3033",
+  "variety": 0.2,
+  "foliage": "#3f4a36",
+  "bark": "#4a4238",
+  "surfaces": {
+   "wall": "concrete",
+   "wall2": "corrugated",
+   "roof": "corrugated",
+   "trim": "metal_panel",
+   "ground": "concrete",
+   "road": "asphalt",
+   "wear": 0.7,
+   "wet": 0.3
+  }
+ },
+ "site": {
+  "pattern": "street",
+  "wild": 0.03,
+  "paths": "road",
+  "spacing": 3
+ },
+ "mood": {
+  "weather": "mist",
+  "intensity": 0.3,
+  "grade": "neon_noir",
+  "haze": 0.6,
+  "ambience": [
+   "crowd",
+   "neon",
+   "machinery",
+   "wind"
+  ],
+  "music": "low synth drone"
+ },
+ "terrain": {
+  "relief": "flat",
+  "ruggedness": 0.05,
+  "water": "none",
+  "waterAmount": 0,
+  "horizon": "glass towers with lit windows",
+  "settled": 0.9
+ },
+ "skyFeatures": [
+  {
+   "kind": "orbital_ring",
+   "size": 0.3,
+   "color": "#8fa3b8"
+  }
+ ],
+ "creatures": [
+  {
+   "id": "pigeons",
+   "name": "augmented pigeons",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.5
+   },
+   "size": 0.3,
+   "count": 8,
+   "behaviour": "flock",
+   "haunt": "plaza",
+   "body": "#6a6f78",
+   "accent": "#4a4f58",
+   "glow": "#3fc8d9",
+   "note": "Cheap cyber-eyes glint in their heads."
+  },
+  {
+   "id": "drones",
+   "name": "courier drones",
+   "family": "floater",
+   "dials": {
+    "shape": "orb",
+    "tentacles": 0,
+    "hover": 0.8
+   },
+   "size": 0.5,
+   "count": 3,
+   "behaviour": "patrol",
+   "haunt": "sky",
+   "body": "#3a3f48",
+   "accent": "#d94f8c",
+   "glow": "#e0b040",
+   "note": "Humming boxes carrying parcels overhead."
+  },
+  {
+   "id": "rats",
+   "name": "chrome rats",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.2,
+    "tail": 0.8
+   },
+   "size": 0.3,
+   "count": 5,
+   "behaviour": "roam",
+   "haunt": "wild",
+   "body": "#4a4a50",
+   "accent": "#8a9098",
+   "glow": "#d94f8c",
+   "note": "One gleaming eye scans for scraps."
+  }
+ ],
+ "folk": {
+  "name": "alley vendors and runners",
+  "height": 1.7,
+  "bulk": 0.4,
+  "head": 1,
+  "features": [
+   "hood",
+   "pack",
+   "visor"
+  ],
+  "skin": [
+   "#c8a07a",
+   "#8a6048",
+   "#e0bfa0"
+  ],
+  "cloth": [
+   "#2c3340",
+   "#4a3a55",
+   "#5a5f4a"
+  ],
+  "trim": [
+   "#d94f8c",
+   "#41c8d9",
+   "#e0b143"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "noodle_stall",
+   "summary": "cramped steel-and-canvas noodle counter, 3.5 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": -0.25,
+     "z": -0.1,
+     "y": 0,
+     "w": 0.22,
+     "d": 0.22,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.2,
+     "z": -0.1,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 2.6,
+     "w": 0.9,
+     "d": 0.05,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3,
+     "y": 2.7,
+     "w": 0.12,
+     "d": 0.06,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "canopy",
+   "dials": {
+    "posts": 4,
+    "roof": "shed",
+    "counter": 0.8
+   }
+  },
+  {
+   "id": "chop_garage",
+   "summary": "tarp-roofed garage with antenna stack, 16 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.1,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 3.2,
+     "w": 0.9,
+     "d": 0.05,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3,
+     "z": 0,
+     "y": 16,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.5,
+     "y": 5,
+     "w": 0.05,
+     "d": 0.04,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 4,
+     "gap": 0.2
+    },
+    {
+     "shape": "box",
+     "x": 0.45,
+     "z": 0,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.5,
+     "h": 10,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 16,
+    "section": "square",
+    "taper": 0.1,
+    "bands": 2,
+    "top": "platform",
+    "flare": 0.1
+   }
+  },
+  {
+   "id": "hole_shop",
+   "summary": "narrow concrete hole-in-wall shopfront, 4 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.5,
+     "w": 0.7,
+     "d": 0.05,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 1.4,
+     "w": 0.6,
+     "d": 0.03,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3,
+     "z": -0.2,
+     "y": 3.2,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 1,
+    "roof": "flat",
+    "overhang": 0.1,
+    "front": "awning",
+    "rhythm": 2,
+    "chimney": 0,
+    "taper": 0
+   }
+  },
+  {
+   "id": "yard_stack",
+   "summary": "stacked scavenged crates under tarp, 6 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.1,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.4,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 3.6,
+     "w": 0.5,
+     "d": 0.04,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "stack",
+   "dials": {
+    "unit": "box",
+    "across": 4,
+    "ranks": 2,
+    "tiers": 3,
+    "unitHeight": 1.2,
+    "pyramid": 0.2,
+    "jitter": 0.3,
+    "cover": "tarp"
+   }
+  },
+  {
+   "id": "pod_stack",
+   "summary": "six-high capsule stack in steel frame, 14 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.95,
+     "d": 0.04,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.4,
+     "w": 0.12,
+     "d": 0.04,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 6,
+     "gap": 0.14
+    },
+    {
+     "shape": "box",
+     "x": -0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.9,
+     "h": 14,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.9,
+     "h": 14,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 12,
+     "w": 0.6,
+     "d": 0.04,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "block",
+   "dials": {
+    "modules": 6,
+    "offset": 0.05,
+    "cantilever": 0.1
+   }
+  },
+  {
+   "id": "helix_tower",
+   "summary": "glass residential tower, 24 m shaft with 40 m spire",
+   "parts": [
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 16,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 6,
+     "w": 0.1,
+     "d": 0.03,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 8,
+     "gap": 0.1
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 12,
+     "w": 1.1,
+     "d": 1.1,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.4,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.15,
+     "d": 0.3,
+     "h": 10,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 24,
+    "section": "round",
+    "taper": 0.3,
+    "bands": 4,
+    "top": "needle",
+    "flare": 0.15
+   }
+  },
+  {
+   "id": "signal_mast",
+   "summary": "rusted lattice antenna mast with beacons, 27 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.2,
+     "h": 2.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 27,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 22,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3,
+     "z": 0,
+     "y": 20,
+     "w": 0.15,
+     "d": 0.15,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "mast",
+   "dials": {
+    "height": 27,
+    "shaft": "lattice",
+    "arms": 3,
+    "armLength": 0.6,
+    "hang": "wires",
+    "top": "light",
+    "stays": 4,
+    "base": "cabin"
+   }
+  },
+  {
+   "id": "corp_billboard",
+   "summary": "corporate slab tower with holo-ad, 24 m + 12 m crown",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 10,
+     "w": 0.8,
+     "d": 0.04,
+     "h": 10,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 26,
+     "w": 0.7,
+     "d": 0.1,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.35,
+     "z": 0,
+     "y": 28,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 3,
+     "w": 0.7,
+     "d": 0.05,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "megastructure",
+   "dials": {
+    "form": "slab",
+    "height": 28,
+    "width": 0.8,
+    "taper": 0.1,
+    "bands": 5,
+    "lights": 0.6,
+    "void": 0
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "street_lamp",
+   "size": 2,
+   "parts": [],
+   "weight": 4,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 3,
+    "arms": 1
+   }
+  },
+  {
+   "kind": "scrap_crates",
+   "size": 1.5,
+   "parts": [],
+   "weight": 4,
+   "family": "container",
+   "dials": {
+    "form": "crate",
+    "count": 3,
+    "height": 0.8
+   }
+  },
+  {
+   "kind": "oil_drums",
+   "size": 1,
+   "parts": [],
+   "weight": 3,
+   "family": "container",
+   "dials": {
+    "form": "barrel",
+    "count": 3,
+    "height": 0.9
+   }
+  },
+  {
+   "kind": "planter_shrub",
+   "size": 1.5,
+   "parts": [],
+   "weight": 2,
+   "family": "shrub",
+   "dials": {
+    "form": "tangle",
+    "height": 0.8,
+    "spread": 0.9,
+    "stems": 4,
+    "density": 0.5
+   }
+  },
+  {
+   "kind": "stall_cart",
+   "size": 2,
+   "parts": [],
+   "weight": 2,
+   "family": "furniture",
+   "dials": {
+    "form": "cart",
+    "length": 0.8,
+    "height": 0.7
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "holo_dragon",
+   "prompt": "A rusted steel sculpture of a coiled dragon with a hollow ribcage, built from scrap pipes and plating, corroded and scorched, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 6
+  }
+ ]
+}

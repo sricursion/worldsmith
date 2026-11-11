@@ -41,12 +41,16 @@ describe('sky feature placement', () => {
     expect(featureAngularRadius(Number.NaN)).toBe(featureAngularRadius(0));
   });
 
-  it('is the same for the same seed and keeps bodies well above the horizon', () => {
+  it('is the same for the same seed and keeps bodies above the horizon, planets low enough to be in frame', () => {
+    for (let seed = 1; seed < 40; seed += 3) {
+      expect(featurePlacement('ringed_planet', 0, seed).elevationDeg).toBeLessThanOrEqual(30);
+      expect(featurePlacement('planet', 0, seed).elevationDeg).toBeLessThanOrEqual(32);
+    }
     for (const kind of ['moon', 'planet', 'ringed_planet', 'comet', 'nebula'] as const) {
       for (let seed = 1; seed < 40; seed += 3) {
         const a = featurePlacement(kind, 0, seed);
         expect(featurePlacement(kind, 0, seed)).toEqual(a);
-        expect(a.elevationDeg, kind).toBeGreaterThanOrEqual(20);
+        expect(a.elevationDeg, kind).toBeGreaterThanOrEqual(13);
         expect(a.elevationDeg, kind).toBeLessThanOrEqual(66);
         expect(a.azimuthDeg).toBeGreaterThanOrEqual(0);
         expect(a.azimuthDeg).toBeLessThan(360);

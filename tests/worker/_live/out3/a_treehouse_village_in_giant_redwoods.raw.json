@@ -1,0 +1,1165 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a treehouse village in giant redwoods",
+ "title": "Heartwood Hollow",
+ "tagline": "Life above the fog line",
+ "theme": "medieval",
+ "era": "Timeless present",
+ "palette": {
+  "ground": "#3a4230",
+  "accent": "#7d4a3a",
+  "sky": "dawn",
+  "fog": 0.5
+ },
+ "time": {
+  "startHour": 6.5,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "great_hall",
+   "role": "townhall",
+   "label": "Hall of Rings",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "ring_hall"
+  },
+  {
+   "id": "rope_market",
+   "role": "market",
+   "label": "Swing Market",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "rope_hub"
+  },
+  {
+   "id": "lantern_tower",
+   "role": "command",
+   "label": "Lantern Spire",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "lantern_spire"
+  },
+  {
+   "id": "weaver_nest",
+   "role": "workshop",
+   "label": "Weavers' Nest",
+   "size": "small",
+   "blueprint": "fork_loom_house"
+  },
+  {
+   "id": "tea_house",
+   "role": "inn",
+   "label": "Cloud Tea House",
+   "size": "medium",
+   "blueprint": "trunk_pavilion"
+  },
+  {
+   "id": "root_cellar",
+   "role": "warehouse",
+   "label": "Rootbound Stores",
+   "size": "small",
+   "blueprint": "stump_cellar"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "wren",
+   "name": "Wren",
+   "role": "bridge-keeper",
+   "persona": "Wiry and sleepless, counts every rope knot by touch. Blames herself for the silent bells because she keeps the bridges.",
+   "knowledge": [
+    "The fogbells hang on the three high boughs, each tuned to a different bridge.",
+    "Without the bells, climbers read the bough-mark on the trunks, but fog hides them past ten paces.",
+    "Oskar spliced the bell ropes, and his lines were never meant to fray."
+   ],
+   "secrets": [
+    "Wren cut one bell rope herself to silence a bell that was swaying the Swing Market's hub loose."
+   ],
+   "home": "lantern_tower",
+   "work": "rope_market",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "lantern_tower",
+     "activity": "patrol"
+    },
+    {
+     "hour": 8,
+     "place": "rope_market",
+     "activity": "work"
+    },
+    {
+     "hour": 18,
+     "place": "tea_house",
+     "activity": "eat"
+    },
+    {
+     "hour": 22,
+     "place": "lantern_tower",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "oskar",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": -0.3,
+     "flee": 0,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 1.1,
+    "rate": 1.15
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "oskar",
+   "name": "Oskar",
+   "role": "rope-weaver",
+   "persona": "Gruff and proud of his splices, talks to his hands more than to people. Takes any doubt about his rope as a personal insult.",
+   "knowledge": [
+    "Good bell rope is cinder-moss fibre twisted wet and dried under strain.",
+    "Cinder-moss grows only on the heartwood of the Hall of Rings, where the old fires scorched it.",
+    "The bell ropes were sound at last ringcount, so something else failed."
+   ],
+   "secrets": [
+    "Oskar sold the last of his cinder-moss fibre to an outsider last month and wove the bell ropes short of stock."
+   ],
+   "home": "weaver_nest",
+   "work": "weaver_nest",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "weaver_nest",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "tea_house",
+     "activity": "eat"
+    },
+    {
+     "hour": 13,
+     "place": "weaver_nest",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "weaver_nest",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "wren",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": -0.2,
+     "idle": 0,
+     "flee": -0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.6
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.85
+   },
+   "mood": "angry"
+  },
+  {
+   "id": "maple",
+   "name": "Maple",
+   "role": "tea-keeper",
+   "persona": "Warm, nosy and cheerful, pours before anyone asks. Hears every rumour that climbs the trunk and trades them like coin.",
+   "knowledge": [
+    "Lost climbers stop at the Cloud Tea House first, and two have not come in since the bells went quiet.",
+    "The clappers of the fogbells are kept wrapped in felt in the Rootbound Stores between storms.",
+    "Tamsin has not slept in the Hall of Rings since the third night."
+   ],
+   "secrets": [
+    "Maple saw Tamsin carry the bell clappers down to the cellar by lantern, before the bells stopped."
+   ],
+   "home": "tea_house",
+   "work": "tea_house",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "tea_house",
+     "activity": "work"
+    },
+    {
+     "hour": 14,
+     "place": "rope_market",
+     "activity": "trade"
+    },
+    {
+     "hour": 17,
+     "place": "tea_house",
+     "activity": "work"
+    },
+    {
+     "hour": 23,
+     "place": "tea_house",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tamsin",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0.1,
+     "talk_to": 0.6,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.2,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "tamsin",
+   "name": "Tamsin",
+   "role": "elder",
+   "persona": "Slow-spoken and exact, weighs each word like a load on a rope. Would rather be thought stubborn than be seen afraid.",
+   "knowledge": [
+    "The fogbells were hung by her grandmother's generation to call climbers home through the fog.",
+    "The Hall of Rings keeps the old ringcount, a ledger of every night the bells rang.",
+    "A sway-pass is the slow crossing of a bridge in wind, and the bells mark its rhythm."
+   ],
+   "secrets": [
+    "Tamsin ordered the clappers taken down, fearing the bell-noise draws something up the trunks at night."
+   ],
+   "home": "great_hall",
+   "work": "great_hall",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "great_hall",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "tea_house",
+     "activity": "eat"
+    },
+    {
+     "hour": 14,
+     "place": "great_hall",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "great_hall",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "maple",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.2,
+     "flee": -0.3,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 0.75
+   },
+   "mood": "grieving"
+  }
+ ],
+ "items": [
+  {
+   "id": "bell_clappers",
+   "name": "Felted Bell Clappers",
+   "description": "Three iron clappers wrapped in grey felt, still cold from the cellar.",
+   "holder": "root_cellar"
+  },
+  {
+   "id": "cinder_moss",
+   "name": "Cinder-Moss Fibre",
+   "description": "Black, brittle moss scraped from the scorched heartwood. Twists into rope that never rots.",
+   "holder": "great_hall"
+  },
+  {
+   "id": "ringcount_ledger",
+   "name": "Ringcount Ledger",
+   "description": "A bark-bound tally of every night the fogbells rang, the last page torn.",
+   "holder": "great_hall"
+  }
+ ],
+ "quest": {
+  "id": "silent_fogbells",
+  "title": "The Silent Fogbells of Heartwood Hollow",
+  "hook": "Three nights ago the fogbells stopped, and the mist has not lifted since. Climbers who lose the bough-marks wander the crowns until they fall or freeze. Wren is out of sleep, Oskar will not meet her eye, and the elder keeps her own counsel. Someone has to find out why the bells are silent before another climber does not come home.",
+  "giver": "wren",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "wren",
+    "requires": [],
+    "objective": "Hear Wren out at the Swing Market",
+    "beat": "Wren says the bells hang dead and begs you to find out why before the next climbers arrive."
+   },
+   {
+    "id": "s2",
+    "kind": "talk",
+    "target": "maple",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Ask Maple what the tea house has heard",
+    "beat": "Maple pours and talks. The clappers were wrapped in felt and taken down, and Tamsin carried them.",
+    "reveals": [
+     "maple:0"
+    ]
+   },
+   {
+    "id": "s3",
+    "kind": "fetch",
+    "target": "bell_clappers",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Fetch the felted clappers from the Rootbound Stores",
+    "beat": "The stump cellar is dry and cold. The clappers lie wrapped in felt, exactly where someone meant them to stay.",
+    "item": "bell_clappers"
+   },
+   {
+    "id": "s4",
+    "kind": "visit",
+    "target": "great_hall",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Climb to the Hall of Rings and find Tamsin",
+    "beat": "A spotted owl watches from the rafters as you cross the platform. Tamsin sits by the cold hearth with the ringcount ledger.",
+    "reveals": [
+     "tamsin:0"
+    ]
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "tamsin",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Decide whether to rehang the bells or keep them silent",
+    "beat": "Tamsin fears the ringing draws something up the trunks at night. Climbers fear the fog. Neither fear is wrong.",
+    "choices": [
+     {
+      "label": "Rehang the bells and ring them",
+      "unlocks": [
+       "s6a"
+      ]
+     },
+     {
+      "label": "Honour Tamsin and leave the bells silent",
+      "unlocks": [
+       "s6b"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s6a",
+    "kind": "deliver",
+    "target": "wren",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Bring the clappers to Wren to rehang",
+    "beat": "Wren and Oskar hang the clappers together, arguing over the rope. The first bell rolls out through the fog and the climbers answer.",
+    "item": "bell_clappers"
+   },
+   {
+    "id": "s6b",
+    "kind": "talk",
+    "target": "wren",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Tell Wren the bells stay silent",
+    "beat": "Wren takes it badly, then strings lanterns on every bridge herself. Fewer climbers come home than before."
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6a",
+    "label": "The bells ring and the bridges are found again",
+    "tone": "good"
+   },
+   {
+    "stepId": "s6b",
+    "label": "The bells stay silent and the lanterns burn",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "No open flame on the platforms; lanterns only, and shuttered.",
+   "effect": {
+    "type": "ban",
+    "what": "open flame",
+    "where": "street"
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Nobody crosses the high bridges unroped between dusk and dawn.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 20,
+    "toHour": 5,
+    "exemptRoles": [
+     "bridge-keeper"
+    ]
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "cinder-moss",
+  "bough-mark",
+  "fogbell",
+  "heartwood",
+  "sway-pass",
+  "ringcount"
+ ],
+ "style": {
+  "name": "Heartwood Hollow dawn mist",
+  "wall": "#7a6650",
+  "wall2": "#5a4a3a",
+  "roof": "#4a4f3a",
+  "trim": "#8a7a62",
+  "accent": "#7d4a3a",
+  "dark": "#24201a",
+  "glass": "#323c42",
+  "glow": "#ffd9a0",
+  "ground": "#3a4230",
+  "road": "#5a4a38",
+  "variety": 0.2,
+  "foliage": "#2f4a2a",
+  "bark": "#5b3f2e",
+  "surfaces": {
+   "wall": "timber",
+   "wall2": "bark",
+   "roof": "shingle",
+   "trim": "timber",
+   "ground": "moss",
+   "road": "dirt",
+   "wear": 0.65,
+   "wet": 0.3
+  }
+ },
+ "site": {
+  "pattern": "scatter",
+  "wild": 0.8,
+  "paths": "track",
+  "spacing": 10
+ },
+ "mood": {
+  "weather": "mist",
+  "intensity": 0.5,
+  "grade": "verdant",
+  "haze": 0.7,
+  "ambience": [
+   "wind",
+   "birds",
+   "leaves",
+   "water"
+  ],
+  "music": "soft cello"
+ },
+ "terrain": {
+  "relief": "rolling",
+  "ruggedness": 0.4,
+  "water": "river",
+  "waterAmount": 0.1,
+  "horizon": "endless redwood crowns in fog",
+  "settled": 0.4
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "ravens",
+   "name": "coastal ravens",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.6
+   },
+   "size": 0.6,
+   "count": 6,
+   "behaviour": "circle",
+   "haunt": "sky",
+   "body": "#22262b",
+   "accent": "#3a4048",
+   "glow": "#000000",
+   "note": "Their calls echo off the great trunks."
+  },
+  {
+   "id": "flyers",
+   "name": "northern flying squirrels",
+   "family": "quadruped",
+   "dials": {
+    "tailw": 0.7,
+    "legs": 0.2
+   },
+   "size": 0.3,
+   "count": 4,
+   "behaviour": "perch",
+   "haunt": "wild",
+   "body": "#8a7a68",
+   "accent": "#d8cdb8",
+   "glow": "#000000",
+   "note": "Glides between the branches at dawn."
+  },
+  {
+   "id": "elk",
+   "name": "roosevelt elk",
+   "family": "quadruped",
+   "dials": {
+    "horns": "antlers",
+    "neck": 0.7
+   },
+   "size": 2.4,
+   "count": 3,
+   "behaviour": "graze",
+   "haunt": "wild",
+   "body": "#7a5a3e",
+   "accent": "#4a3626",
+   "glow": "#000000",
+   "note": "Grazes the ferns far below the platforms."
+  },
+  {
+   "id": "owl",
+   "name": "spotted owl",
+   "family": "bird",
+   "dials": {
+    "head": 0.9,
+    "beak": 0.3
+   },
+   "size": 0.45,
+   "count": 1,
+   "behaviour": "perch",
+   "haunt": "great_hall",
+   "body": "#6b5a48",
+   "accent": "#d8cdb8",
+   "glow": "#000000",
+   "note": "Watches silently from the hall's rafters."
+  }
+ ],
+ "folk": {
+  "name": "canopy folk",
+  "height": 1.7,
+  "bulk": 0.4,
+  "head": 1,
+  "features": [
+   "hood",
+   "pack"
+  ],
+  "skin": [
+   "#c8a07a",
+   "#a67c5a",
+   "#8a6347"
+  ],
+  "cloth": [
+   "#5a6b3c",
+   "#7a5c3a",
+   "#4a5548"
+  ],
+  "trim": [
+   "#b08a4a",
+   "#6b4a2a"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "ring_hall",
+   "summary": "round timber hall on a trunk platform, 40 m up, 12 m tall",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 8,
+     "w": 0.8,
+     "d": 0.8,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 12,
+     "w": 0.95,
+     "d": 0.95,
+     "h": 4,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.42,
+     "y": 8.5,
+     "w": 0.06,
+     "d": 0.03,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.12
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 8,
+     "w": 1,
+     "d": 1,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.45,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.3,
+     "z": 0.4,
+     "y": 8,
+     "w": 0.3,
+     "d": 0.12,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "stilts",
+   "dials": {
+    "legHeight": 8,
+    "legs": 6,
+    "hut": 1,
+    "access": "ladder"
+   }
+  },
+  {
+   "id": "rope_hub",
+   "summary": "hanging market stalls on a rope-bridge hub, 6 m tall",
+   "parts": [
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0,
+     "y": 3,
+     "w": 0.2,
+     "d": 0.3,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.3
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0,
+     "y": 4.8,
+     "w": 0.24,
+     "d": 0.34,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 3,
+     "gap": 0.3
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0,
+     "y": 3,
+     "w": 0.18,
+     "d": 0.28,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 2,
+     "gap": 0.3
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0.3,
+     "y": 5,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.5
+    }
+   ],
+   "doorX": 0,
+   "family": "bridge",
+   "dials": {
+    "type": "rope",
+    "rise": 4,
+    "deck": 0.4,
+    "piers": 2,
+    "towers": 6,
+    "rails": "posts",
+    "under": "void",
+    "lamps": 3
+   }
+  },
+  {
+   "id": "lantern_spire",
+   "summary": "slender timber lookout tower, 55 m up, 14 m tall",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 22,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 26,
+     "w": 0.7,
+     "d": 0.7,
+     "h": 4,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3,
+     "y": 22,
+     "w": 0.05,
+     "d": 0.03,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.1
+    },
+    {
+     "shape": "wedge",
+     "x": -0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 6,
+     "rot": 90,
+     "tone": "wall2",
+     "repeat": 4,
+     "gap": 0.33
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 30,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 22,
+    "section": "hex",
+    "taper": 0.45,
+    "bands": 3,
+    "top": "lantern",
+    "flare": 0.1
+   }
+  },
+  {
+   "id": "fork_loom_house",
+   "summary": "bark-shingled loom house in a fork, 6 m tall",
+   "parts": [
+    {
+     "shape": "wedge",
+     "x": -0.45,
+     "z": 0,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.9
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 3.2,
+     "w": 0.7,
+     "d": 0.06,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.5,
+     "y": 2.2,
+     "w": 0.05,
+     "d": 0.03,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.3
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3,
+     "z": -0.2,
+     "y": 6,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "gable",
+    "overhang": 0.2,
+    "front": "porch",
+    "rhythm": 3,
+    "chimney": 1,
+    "taper": 0.15
+   }
+  },
+  {
+   "id": "trunk_pavilion",
+   "summary": "open-sided pavilion around a trunk, 9 m tall",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.25,
+     "d": 0.25,
+     "h": 9,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 1,
+     "d": 1,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.3,
+     "z": 0.3,
+     "y": 2.6,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.2
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 0.2,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "colonnade",
+   "dials": {
+    "plan": "ring",
+    "count": 8,
+    "height": 3,
+    "girth": 0.05,
+    "shaft": "round",
+    "top": "roof",
+    "broken": 0,
+    "steps": 1
+   }
+  },
+  {
+   "id": "stump_cellar",
+   "summary": "stone-lined cellar in a hollow stump, 4 m tall",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.1,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.42,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.06,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.45,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.1,
+     "h": 2.4,
+     "rot": 90,
+     "tone": "wall2",
+     "repeat": 4,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "cave",
+   "dials": {
+    "mass": "mound",
+    "height": 4,
+    "width": 0.8,
+    "mouth": 0.3,
+    "mouthHeight": 0.5,
+    "frame": "beam",
+    "teeth": 0,
+    "glow": 0,
+    "spill": 0.1
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "coast_redwood",
+   "size": 15,
+   "parts": [],
+   "weight": 4,
+   "family": "conifer",
+   "dials": {
+    "height": 4.8,
+    "width": 0.5,
+    "whorls": 6,
+    "bare": 0.65,
+    "droop": 0.5,
+    "foliage": 0.9,
+    "cut": "round",
+    "lean": 0.05
+   }
+  },
+  {
+   "kind": "sword_fern",
+   "size": 1.4,
+   "parts": [],
+   "weight": 5,
+   "family": "shrub",
+   "dials": {
+    "form": "upright",
+    "height": 1,
+    "spread": 1.1,
+    "stems": 7,
+    "density": 0.7
+   }
+  },
+  {
+   "kind": "cinder_moss_log",
+   "size": 3.5,
+   "parts": [],
+   "weight": 3,
+   "family": "deadwood",
+   "dials": {
+    "form": "log",
+    "size": 1.2,
+    "girth": 0.3,
+    "branches": 1,
+    "moss": 0.9
+   }
+  },
+  {
+   "kind": "hanging_lichen",
+   "size": 2.5,
+   "parts": [],
+   "weight": 2,
+   "family": "vine",
+   "dials": {
+    "support": "bough",
+    "length": 3,
+    "strands": 6,
+    "sag": 0.4,
+    "leaves": 0.3
+   }
+  },
+  {
+   "kind": "lantern_post",
+   "size": 2,
+   "parts": [],
+   "weight": 1,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 3,
+    "arms": 1
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "silent_fogbell",
+   "prompt": "A large cast bronze fogbell with green verdigris, hanging from a carved redwood yoke on a short post, rope pull frayed, bark-wrapped hood, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 4
+  }
+ ]
+}

@@ -159,14 +159,18 @@ const widthFor = (paths: Paths, normal: number): number => (paths === 'road' ? n
 const faceToward = (x: number, z: number, tx: number, tz: number): number => Math.atan2(-(tx - x), -(tz - z));
 const rectOf = (x: number, z: number): Rect => ({ minX: x, maxX: x, minZ: z, maxZ: z });
 
-function streetPlan(spec: WorldSpec, ordered: BuildingSpec[], o: { mainW: number; crossW: number; gap: number; setback?: number; jitter?: number }): Plan {
+function streetPlan(spec: WorldSpec, ordered: BuildingSpec[], o: { mainW: number; crossW: number; gap: number; setback?: number; jitter?: number; single?: boolean }): Plan {
   const { mainW, crossW, gap } = o;
   const setback = o.setback ?? SETBACK;
   const jitter = o.jitter ?? 1.5;
   const rng = makeRng(spec.seed, 'layout');
   const count = ordered.length;
-  const nCross = crossStreetCount(count);
-  const crossXs = crossStreetXs(nCross, rng);
+  // A strung-out place (frontier, roadside) is one street and nothing else: no cross streets, every lot on the
+  // main street, and the key building across the far end so the street leads the eye to it.
+  const single = o.single === true;
+  const nCross = single ? 0 : crossStreetCount(count);
+  const crossXs = single ? [] : crossStreetXs(nCross, rng);
+  const head = single && count >= 3 && ordered[0]?.keyBuilding ? ordered[0] : null;
 
   // While placing, streets are treated as infinite so every building keeps its setback.
   const corridors: Rect[] = [
@@ -212,10 +216,10 @@ function streetPlan(spec: WorldSpec, ordered: BuildingSpec[], o: { mainW: number
     return null;
   };
 
-  const mainCount = Math.min(count, Math.max(Math.min(count, 4), Math.ceil(count * 0.6)));
+  const mainCount = single ? count : Math.min(count, Math.max(Math.min(count, 4), Math.ceil(count * 0.6)));
   const mainStart: 1 | -1 = rng.chance(0.5) ? 1 : -1;
   const perSide: Record<string, number> = {};
-  for (let i = 0; i < mainCount; i++) {
+  for (let i = head ? 1 : 0; i < mainCount; i++) {
     const s = ordered[i];
     if (!s) continue;
     const { w, d } = fpFor(spec, s);
@@ -224,7 +228,8 @@ function streetPlan(spec: WorldSpec, ordered: BuildingSpec[], o: { mainW: number
     perSide[side] = k + 1;
     const dir: 1 | -1 = k % 2 === 0 ? 1 : -1;
     const rotY = side > 0 ? 0 : Math.PI;
-    const z = side * (mainW / 2 + setback + d / 2);
+    // Along a single street the fronts do not line up: each lot sits a little nearer or further back.
+    const z = side * (mainW / 2 + setback + (single ? rng.range(0, 1.5) : 0) + d / 2);
     const pos = slide(`m:${side}:${dir}`, w, (c) => {
       const x = dir * (c + w / 2);
       return { x, z, r: buildingAabb({ x, z, rotY, w, d }) };
@@ -268,6 +273,16 @@ function streetPlan(spec: WorldSpec, ordered: BuildingSpec[], o: { mainW: number
       crossMax[st - 1] = Math.max(crossMax[st - 1] ?? 24, r.maxZ + 12);
     }
   });
+  if (head) {
+    // The street stops at the landmark's door; the landmark stands square across it, facing back down the street.
+    const { w, d } = fpFor(spec, head);
+    const front = Math.max(20, boxes.reduce((m, r) => Math.max(m, r.maxX), 0) + Math.max(gap, 3) + 3);
+    const rotY = Math.PI / 2;
+    const b: PlacedBuilding = { id: head.id, role: head.role, size: head.size, x: front + d / 2, z: 0, rotY, w, d, door: { x: front - 1, z: 0 } };
+    placed.unshift(b);
+    boxes.unshift(buildingAabb(b));
+    mainMax = front - 1;
+  }
   const roads: RoadSegment[] = [{ ax: mainMin, az: 0, bx: mainMax, bz: 0, width: mainW }];
   crossXs.forEach((cx, j) => roads.push({ ax: cx, az: crossMin[j] ?? -24, bx: cx, bz: crossMax[j] ?? 24, width: crossW }));
 
@@ -378,22 +393,41 @@ function ringPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: 
     { ax: -S, az: -S, bx: -S, bz: S, width: rw },
     { ax: S, az: -S, bx: S, bz: S, width: rw },
   ];
-  const dirs = rng.shuffle<[number, number]>([[1, 0], [-1, 0], [0, 1], [0, -1]]).slice(0, rng.chance(0.5) ? 3 : 4);
+  const allDirs = rng.shuffle<[number, number]>([[1, 0], [-1, 0], [0, 1], [0, -1]]);
+  const fourSpokes = !rng.chance(0.5);
+  // On land the key building takes the head of the plaza: the side with no spoke is its own, and it stands
+  // centred there facing the open ground, so the spoke opposite arrives looking straight at it.
+  const head = spec.terrain && n >= 4 && ordered[0]?.keyBuilding ? ordered[0] : null;
+  const rest = head ? ordered.slice(1) : ordered;
+  const m = rest.length;
+  const dirs = allDirs.slice(0, fourSpokes && !head ? 4 : 3);
   const spokeRect = ([dx, dz]: [number, number]): Rect => (dx !== 0
     ? { minX: dx > 0 ? P : -FAR, maxX: dx > 0 ? FAR : -P, minZ: -sw / 2, maxZ: sw / 2 }
     : { minX: -sw / 2, maxX: sw / 2, minZ: dz > 0 ? P : -FAR, maxZ: dz > 0 ? FAR : -P });
   // The whole square (road and the open ground inside it) is closed to buildings.
   const c = newCtx(rng, gap, P, [{ minX: -S - h, maxX: S + h, minZ: -S - h, maxZ: S + h }, ...dirs.map(spokeRect)]);
 
-  const inner = n <= 8 ? n : Math.ceil(n * 0.55);
+  const closed = allDirs[3];
+  if (head && closed) {
+    const { w, d } = fpFor(spec, head);
+    const rotY = snapRot(closed[0], closed[1], 0, 0);
+    for (let r = S + h + 1.5 + d / 2; r < S + 60; r += 0.5) {
+      const x = closed[0] * r;
+      const z = closed[1] * r;
+      if (ctxFits(c, buildingAabb({ x, z, rotY, w, d }))) { ctxCommit(c, head, x, z, rotY, w, d); break; }
+    }
+    if (c.placed.length === 0) fallbackPlace(c, head, w, d);
+  }
+
+  const inner = m <= 8 ? m : Math.ceil(m * 0.55);
   let index = 0;
   let startR = S;
-  for (let ringNo = 0; ringNo < 2 && index < n; ringNo++) {
-    const k = ringNo === 0 ? inner : n - inner;
+  for (let ringNo = 0; ringNo < 2 && index < m; ringNo++) {
+    const k = ringNo === 0 ? inner : m - inner;
     const a0 = rng.range(0, (Math.PI * 2) / Math.max(1, k)) + (ringNo === 1 ? Math.PI / Math.max(1, k) : 0);
     const from = index;
     for (let j = 0; j < k; j++, index++) {
-      const s = ordered[index];
+      const s = rest[index];
       if (!s) continue;
       const { w, d } = fpFor(spec, s);
       let best: { r: number; x: number; z: number; rotY: number } | null = null;
@@ -411,7 +445,7 @@ function ringPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, paths: 
       if (!done) fallbackPlace(c, s, w, d);
     }
     if (ringNo === 0) {
-      const rs = c.placed.slice(from).map((b) => Math.hypot(b.x, b.z));
+      const rs = c.placed.slice(from + (head ? 1 : 0)).map((b) => Math.hypot(b.x, b.z));
       startR = (rs.length > 0 ? rs.reduce((a, b) => a + b, 0) / rs.length : S) + 6;
     }
   }
@@ -593,10 +627,13 @@ function trackFor(from: PlacedBuilding, boxes: Rect[], width: number, rng: Rng):
   const pt = (a: number, b: number): Pt => (alongX ? { x: a, z: b } : { x: b, z: a });
   const pa = (p: Pt): number => (alongX ? p.x : p.z);
   const pb = (p: Pt): number => (alongX ? p.z : p.x);
-  for (let t = 0; t < 36; t++) {
-    const L1 = rng.range(2, 6);
+  // After the usual tries the search widens (a longer first leg, a crossing leg beyond either end), so a track
+  // in a widely spaced place still reaches the centre instead of stopping short outside its door.
+  for (let t = 0; t < 96; t++) {
+    const wide = t >= 36;
+    const L1 = rng.range(2, wide ? 6 + (t - 36) * 0.5 : 6);
     const p1: Pt = { x: D.x + fx * L1, z: D.z + fz * L1 };
-    const variant = t % 3;
+    const variant = wide ? 1 + (t % 2) : t % 3;
     let pts: Pt[];
     if (variant === 0) {
       const direct = alongX ? -D.x * fx : -D.z * fz; // distance along the facing axis to the centre line
@@ -605,13 +642,85 @@ function trackFor(from: PlacedBuilding, boxes: Rect[], width: number, rng: Rng):
     } else if (variant === 1) {
       pts = [D, p1, pt(pa(p1), 0), { x: 0, z: 0 }];
     } else {
-      const bm = pb(p1) * rng.range(0.3, 0.7);
+      const bm = wide ? rng.range(-1, 1) * (2 + (t - 36) * 0.4) : pb(p1) * rng.range(0.3, 0.7);
       pts = [D, p1, pt(pa(p1), bm), pt(0, bm), { x: 0, z: 0 }];
     }
     const segs = build(pts);
     if (segs.length >= 2 && segs.length <= 4 && clear(segs)) return segs;
   }
+  // No simple dog-leg is free: search a 1 m grid for the route to the centre with the fewest corners. The
+  // track is drawn narrow here, since what blocked the simple routes is usually a tight gap.
+  const narrow = Math.min(width, TRACK_WIDTH);
+  const found = fewestCorners(D, fx, fz, boxes, narrow);
+  if (found) {
+    const segs: RoadSegment[] = [];
+    for (let i = 0; i + 1 < found.length; i++) {
+      const a = found[i] as Pt;
+      const b = found[i + 1] as Pt;
+      const horiz = Math.abs(b.z - a.z) < 1e-6;
+      const sgn = Math.sign(horiz ? b.x - a.x : b.z - a.z);
+      const e0 = i > 0 ? (narrow / 2) * sgn : 0;
+      const e1 = (narrow / 2) * sgn;
+      segs.push(horiz ? { ax: a.x - e0, az: a.z, bx: b.x + e1, bz: a.z, width: narrow } : { ax: a.x, az: a.z - e0, bx: a.x, bz: b.z + e1, width: narrow });
+    }
+    return segs;
+  }
   return build([D, { x: D.x + fx * 3, z: D.z + fz * 3 }]);
+}
+
+/**
+ * Corner points of an axis-aligned route from a door to the middle of the place that keeps `width` clear of
+ * every footprint, with as few corners as can be had; null when the door is boxed in. Works on a 1 m grid
+ * hung off the door, so the route ends within half a metre of the centre rather than exactly on it.
+ */
+function fewestCorners(D: Pt, fx: number, fz: number, boxes: readonly Rect[], width: number): Pt[] | null {
+  const grown = boxes.map((r) => grow(r, width / 2 + 0.4));
+  let area = union(rectOf(D.x, D.z), rectOf(0, 0));
+  for (const r of boxes) area = union(area, r);
+  area = grow(area, 8);
+  const i0 = Math.floor(area.minX - D.x);
+  const j0 = Math.floor(area.minZ - D.z);
+  const W = Math.ceil(area.maxX - D.x) - i0 + 1;
+  const H = Math.ceil(area.maxZ - D.z) - j0 + 1;
+  const open = new Uint8Array(W * H);
+  for (let i = 0; i < W; i++) {
+    for (let j = 0; j < H; j++) {
+      const x = D.x + i0 + i;
+      const z = D.z + j0 + j;
+      if (!grown.some((r) => inside(r, x, z))) open[i * H + j] = 1;
+    }
+  }
+  const at = (i: number, j: number): number => (i - i0) * H + (j - j0);
+  const start = at(fx * 2, fz * 2); // two steps out of the door, clear of the building's own walls
+  const goal = at(Math.round(-D.x), Math.round(-D.z));
+  if (!open[start] || !open[goal]) return null;
+  // Breadth-first by straight runs: everything reached in one run from a cell has one corner more than it.
+  const prev = new Int32Array(W * H).fill(-2);
+  prev[start] = -1;
+  const queue = [start];
+  for (let q = 0; q < queue.length && prev[goal] === -2; q++) {
+    const cur = queue[q] as number;
+    const ci = Math.floor(cur / H);
+    const cj = cur % H;
+    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+      for (let i = ci + di, j = cj + dj; i >= 0 && i < W && j >= 0 && j < H && open[i * H + j]; i += di, j += dj) {
+        const k = i * H + j;
+        if (prev[k] === -2) { prev[k] = cur; queue.push(k); }
+      }
+    }
+  }
+  if (prev[goal] === -2) return null;
+  const pts: Pt[] = [];
+  for (let k = goal; k >= 0; k = prev[k] as number) pts.push({ x: D.x + i0 + Math.floor(k / H), z: D.z + j0 + (k % H) });
+  pts.push({ x: D.x, z: D.z });
+  pts.reverse();
+  // Drop the points that lie on a straight run (the first leg out of the door often continues straight on).
+  return pts.filter((p, i) => {
+    const a = pts[i - 1];
+    const b = pts[i + 1];
+    if (!a || !b) return true;
+    return !((Math.abs(a.x - p.x) < 1e-6 && Math.abs(b.x - p.x) < 1e-6) || (Math.abs(a.z - p.z) < 1e-6 && Math.abs(b.z - p.z) < 1e-6));
+  });
 }
 
 /** A camp, grove or village: no street grid, buildings dart-thrown with per-pair spacing, tracks to the centre. */
@@ -620,6 +729,9 @@ function scatterPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, path
   const n = ordered.length;
   const plazaR = clampN(3.5 + n * 0.15, 4, 6);
   const c = newCtx(rng, gap, plazaR, []);
+  // A settled scatter is a village round its green: every door looks onto the green. A thin one is a camp or
+  // compound, where some turn to a neighbour instead.
+  const village = !!spec.terrain && clampN(finiteOr(spec.terrain.settled, 0.7), 0, 1) >= 0.5;
   const diag: number[] = [];
   // Two centres stay at least half of each diagonal apart plus the spacing, so footprints never come closer than the spacing.
   for (const s of ordered) {
@@ -637,7 +749,7 @@ function scatterPlan(spec: WorldSpec, ordered: BuildingSpec[], gap: number, path
       if (c.placed.some((b, i) => Math.hypot(b.x - x, b.z - z) < ((diag[i] ?? 0) + dg) / 2 + gap)) continue;
       let tx = 0;
       let tz = 0;
-      if (c.placed.length > 0 && rng.chance(0.45)) {
+      if (!village && c.placed.length > 0 && rng.chance(0.45)) {
         const near = [...c.placed].sort((p, q) => Math.hypot(p.x - x, p.z - z) - Math.hypot(q.x - x, q.z - z)).slice(0, 3);
         const t = rng.pick(near);
         tx = t.x;
@@ -1087,7 +1199,7 @@ function planWater(spec: WorldSpec, terrain: TerrainSpec, wilderness: boolean, p
   return out;
 }
 
-interface Site { pattern: SitePattern; wild: number; paths: Paths; gap: number; setback: number; jitter: number }
+interface Site { pattern: SitePattern; wild: number; paths: Paths; gap: number; setback: number; jitter: number; settled?: number }
 
 /**
  * Lot spacing from the site and, when the world carries terrain, from how settled it is: above 0.8 walls
@@ -1103,9 +1215,9 @@ function normaliseSite(site: SiteSpec, terrain?: TerrainSpec): Site {
   if (!terrain) return { pattern, wild, paths, gap: spacing, setback: SETBACK, jitter: -1 };
   const settled = clampN(finiteOr(terrain.settled, 0.7), 0, 1);
   if (settled > 0.8) return { pattern, wild, paths, gap: 1.5 + ((1 - settled) / 0.2) * 1.5, setback: 1.2, jitter: 0.6 };
-  if (settled < 0.3) return { pattern, wild, paths, gap: clampN(spacing * 1.6, 10, 18), setback: SETBACK, jitter: 3 };
+  if (settled < 0.3) return { pattern, wild, paths, gap: clampN(spacing * 1.6, 10, 18), setback: SETBACK, jitter: 3, settled };
   const t = (settled - 0.3) / 0.5;
-  return { pattern, wild, paths, gap: clampN(spacing * (1.3 - 0.75 * t), 3, 12), setback: SETBACK - 1.1 * t, jitter: 1.5 };
+  return { pattern, wild, paths, gap: clampN(spacing * (1.3 - 0.75 * t), 3, 12), setback: SETBACK - 1.1 * t, jitter: 1.5, settled };
 }
 
 const NEUTRAL_SITE: SiteSpec = { pattern: 'street', wild: 0.3, paths: 'road', spacing: 6 };
@@ -1129,6 +1241,8 @@ export function generateLayout(spec: WorldSpec): TownLayout {
   else {
     plan = streetPlan(spec, ordered, {
       mainW: widthFor(site.paths, MAIN_WIDTH), crossW: widthFor(site.paths, CROSS_WIDTH), gap: site.gap, setback: site.setback, jitter: j,
+      // A thinly settled street place with few buildings is a single strung-out street, not a crossroads town.
+      single: !!spec.site && site.settled !== undefined && site.settled < 0.5 && ordered.length <= 9,
     });
   }
   const { placed, boxes, routes, plaza, spawn, walkable } = plan;

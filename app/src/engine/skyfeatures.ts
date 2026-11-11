@@ -72,8 +72,9 @@ export function skyDirection(elevationDeg: number, azimuthDeg: number, out: Vect
 
 const ELEVATION: Partial<Record<SkyFeature['kind'], readonly [number, number]>> = {
   moon: [20, 48],
-  planet: [22, 50],
-  ringed_planet: [24, 46],
+  // Low enough to stand in the frame when the player looks level: a big one rests on the horizon.
+  planet: [13, 32],
+  ringed_planet: [14, 30],
   comet: [26, 52],
   nebula: [38, 66],
 };
@@ -95,6 +96,31 @@ export function featurePlacement(kind: SkyFeature['kind'], index: number, seed: 
 /** Share of a body's disc that is lit, 0 new .. 1 full, seen from the ground with the sun far behind everything. */
 export function litFraction(body: Vector3, sun: Vector3): number {
   return clamp01((1 - body.dot(sun)) / 2);
+}
+
+/** How much of a solid body's disc covers the sky behind it: all of it at night, this share at noon. */
+export const BODY_COVER_DAY = 0.45;
+
+/**
+ * The hue a world's sky leans to and how far (0..1), from what hangs in it. A second sun colours the whole
+ * day; a planet that fills a good share of the sky lends a little of its own. Everything else, and a sky
+ * with no features at all, gives 0: a natural sky.
+ */
+export function skyCastFor(features: readonly SkyFeature[]): { color: string; amount: number } {
+  let color = '#ffffff';
+  let amount = 0;
+  for (const f of features) {
+    if (!HEX6.test(f.color)) continue;
+    const size = clamp01(f.size);
+    let a = 0;
+    if (f.kind === 'second_sun') a = 0.25 + 0.35 * size;
+    else if ((f.kind === 'planet' || f.kind === 'ringed_planet') && size >= 0.3) a = 0.08 + 0.2 * size;
+    if (a > amount) {
+      amount = a;
+      color = f.color.startsWith('#') ? f.color : `#${f.color}`;
+    }
+  }
+  return { color, amount };
 }
 
 /** A companion sun: the sun turned round the zenith by `offsetRad` and held a little lower, so it rises and sets with it. */
@@ -795,7 +821,7 @@ export function createSkyFeatures(
     const stars = add(new Points(geo, starMaterial), -0.85);
     const gain = gainOf(u);
     ticks.push(() => {
-      gain.value = 0.42 * night;
+      gain.value = 0.6 * night;
       mesh.visible = night > 0.01;
       const alpha = clamp01(1 - day / 0.2);
       stars.visible = alpha > 0.01;
@@ -841,7 +867,7 @@ export function createSkyFeatures(
       const u = quadUniforms(tint, tint2, rng.range(0, 40), (span * reach) / 90);
       add(new Mesh(geo, material(AURORA_VERTEX, AURORA_FRAGMENT, u, 'add')), -0.8);
       const gain = gainOf(u);
-      const level = (0.6 + 0.7 * size) * rng.range(0.7, 1);
+      const level = (0.75 + 0.8 * size) * rng.range(0.75, 1);
       // An aurora is far too faint for a lit sky: it comes up through dusk and owns the night.
       ticks.push(() => {
         gain.value = level * night;
@@ -981,6 +1007,12 @@ export function createSkyFeatures(
   });
   if (ownsMoon) AIR.rigMoon = false;
   if (group.children.length > 0) scene.add(group);
+  // The sky rig colours the air and shapes its clouds from these.
+  const cast = skyCastFor(list);
+  AIR.skyCast.set(cast.color);
+  AIR.skyCastMix = cast.amount;
+  AIR.skySeed = opts.seed;
+  AIR.skyRev++;
 
   return {
     update(dt, camera) {
@@ -993,7 +1025,7 @@ export function createSkyFeatures(
       night = (1 - day) * (1 - day);
       const sky = AIR.fogColor;
       shared.uLevel.value = bodyLevel(day, 0.2126 * sky.r + 0.7152 * sky.g + 0.0722 * sky.b) * (AIR.postActive ? 1 : 0.4);
-      shared.uAlpha.value = 1 - 0.9 * day;
+      shared.uAlpha.value = 1 - (1 - BODY_COVER_DAY) * day;
       group.position.setFromMatrixPosition(camera.matrixWorld);
       for (const tick of ticks) tick(h);
     },
@@ -1006,6 +1038,10 @@ export function createSkyFeatures(
       ticks.length = 0;
       if (ownsMoon) AIR.rigMoon = true;
       if (eclipsed) AIR.keyDim = 1;
+      AIR.skyCast.setRGB(1, 1, 1);
+      AIR.skyCastMix = 0;
+      AIR.skySeed = 0;
+      AIR.skyRev++;
     },
   };
 }

@@ -1,0 +1,1601 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "midtown Manhattan at rush hour",
+ "title": "Rush Hour Midtown",
+ "tagline": "Five o'clock, and the whole city is moving.",
+ "theme": "modern",
+ "era": "Present day",
+ "palette": {
+  "ground": "#7d7c78",
+  "accent": "#8a3d30",
+  "sky": "dusk",
+  "fog": 0.15
+ },
+ "time": {
+  "startHour": 17.5,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "glass_tower",
+   "role": "office",
+   "label": "Meridian Tower",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "glass_office_tower"
+  },
+  {
+   "id": "art_deco_spire",
+   "role": "office",
+   "label": "Crown Building",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "deco_setback_spire"
+  },
+  {
+   "id": "transit_hub",
+   "role": "station",
+   "label": "Fifth Avenue Station",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "subway_stair_kiosk"
+  },
+  {
+   "id": "coffee_cart",
+   "role": "cafe",
+   "label": "Corner Coffee",
+   "size": "small",
+   "blueprint": "street_cart"
+  },
+  {
+   "id": "hotel_marquee",
+   "role": "hotel",
+   "label": "Hotel Vanderlyn",
+   "size": "large",
+   "blueprint": "stone_hotel_marquee"
+  },
+  {
+   "id": "corner_deli",
+   "role": "shop",
+   "label": "Sal's Deli",
+   "size": "small",
+   "blueprint": "corner_shop_neon"
+  },
+  {
+   "id": "steam_plaza",
+   "role": "plaza",
+   "label": "Midtown Plaza",
+   "size": "medium",
+   "blueprint": "granite_bank"
+  },
+  {
+   "id": "broadcast_mast",
+   "role": "command",
+   "label": "Broadcast Mast",
+   "size": "large",
+   "blueprint": "broadcast_rooftop_mast"
+  },
+  {
+   "id": "bank_branch",
+   "role": "bank",
+   "label": "Hudson Savings",
+   "size": "medium",
+   "blueprint": "granite_bank"
+  },
+  {
+   "id": "bookshop",
+   "role": "shop",
+   "label": "Pageturn Books",
+   "size": "small",
+   "blueprint": "glass_office_tower"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "marco",
+   "name": "Marco Esposito",
+   "role": "hot dog vendor",
+   "persona": "Loud, quick, never stops moving his tongs. Trusts regulars, charges strangers double and calls it the tourist tax.",
+   "knowledge": [
+    "Lena cuts through the plaza every night around six, never walks.",
+    "The grate by the benches steams harder after the 5:45 train rumbles under.",
+    "Sal gets his rolls before dawn and sees who sleeps in doorways."
+   ],
+   "secrets": [
+    "Marco saw Lena hand a sealed parcel to a man in a gray coat and pocketed twenty dollars to say nothing."
+   ],
+   "home": "corner_deli",
+   "work": "steam_plaza",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "corner_deli",
+     "activity": "eat"
+    },
+    {
+     "hour": 10,
+     "place": "steam_plaza",
+     "activity": "trade"
+    },
+    {
+     "hour": 20,
+     "place": "steam_plaza",
+     "activity": "work"
+    },
+    {
+     "hour": 22,
+     "place": "corner_deli",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "dee",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1.2,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0,
+     "flee": -0.3,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "priya",
+   "name": "Priya Nair",
+   "role": "office analyst",
+   "persona": "Precise, tired, checks her phone mid-sentence. Hates loose ends and people who waste her train.",
+   "knowledge": [
+    "Meridian Tower's lobby cameras loop every ten minutes; the blind spot is the east revolving door.",
+    "Lena delivers to the tower's twelfth floor but skipped it tonight.",
+    "The stairwell at Fifth Avenue Station has a maintenance door nobody locks."
+   ],
+   "secrets": [
+    "The parcel was addressed to Priya's boss, and she has been told to say she never saw it."
+   ],
+   "home": "glass_tower",
+   "work": "transit_hub",
+   "schedule": [
+    {
+     "hour": 8,
+     "place": "transit_hub",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "steam_plaza",
+     "activity": "eat"
+    },
+    {
+     "hour": 17,
+     "place": "transit_hub",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "glass_tower",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "lena",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": -0.4,
+     "flee": 0,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 1.3,
+    "rate": 1.1
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "dee",
+   "name": "Dee Washington",
+   "role": "traffic agent",
+   "persona": "Blunt, whistle in her teeth, sees the whole block as one machine. Respects anyone who stays out of the crosswalk.",
+   "knowledge": [
+    "A black sedan idled at the hotel curb for twenty minutes, plates covered.",
+    "Courier bikes get waved through the Deuce end of the block because Lena asked her to.",
+    "Marco isn't supposed to block the plaza grate, and he does anyway."
+   ],
+   "secrets": [
+    "Dee waved the sedan through without a ticket because the driver flashed a badge she couldn't read."
+   ],
+   "home": "steam_plaza",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "street",
+     "activity": "patrol"
+    },
+    {
+     "hour": 14,
+     "place": "steam_plaza",
+     "activity": "eat"
+    },
+    {
+     "hour": 16,
+     "place": "street",
+     "activity": "patrol"
+    },
+    {
+     "hour": 22,
+     "place": "steam_plaza",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "marco",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.2,
+     "idle": 0,
+     "flee": -0.5,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 1
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "walt",
+   "name": "Walt Kowalski",
+   "role": "newsstand clerk",
+   "persona": "Gravel voice, long memory, reads every headline and believes none. Talks to the pigeons more than customers.",
+   "knowledge": [
+    "A gray-coated man bought three papers and read none, then watched the hotel entrance.",
+    "Lena owes Walt for a pack of gum and a favor.",
+    "Pageturn Books keeps a back room that opens onto the alley behind the block."
+   ],
+   "secrets": [
+    "Walt let Lena stash the parcel behind the magazine rack before someone took it while he made change."
+   ],
+   "home": "bookshop",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "street",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "bookshop",
+     "activity": "eat"
+    },
+    {
+     "hour": 15,
+     "place": "street",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "bookshop",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "lena",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "rogue_hooded",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.3,
+     "idle": 0.3,
+     "flee": 0,
+     "investigate": 0.2,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.8
+   },
+   "mood": "grieving"
+  },
+  {
+   "id": "lena",
+   "name": "Lena Ortiz",
+   "role": "courier",
+   "persona": "Fast, wired, speaks in fragments between breaths. Fiercely proud that nothing she carries has ever gone missing.",
+   "knowledge": [
+    "She started at Hotel Vanderlyn, where Gus signed for the pickup.",
+    "She cut across the plaza to dodge crosstown traffic.",
+    "The parcel was sealed with red tape and weighed almost nothing."
+   ],
+   "secrets": [
+    "Lena opened the parcel out of curiosity, found a key and a note, and panicked."
+   ],
+   "home": "hotel_marquee",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 9,
+     "place": "street",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "coffee_cart",
+     "activity": "drink"
+    },
+    {
+     "hour": 17,
+     "place": "street",
+     "activity": "wander"
+    },
+    {
+     "hour": 23,
+     "place": "hotel_marquee",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "gus",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0.4,
+     "talk_to": 0,
+     "idle": -0.5,
+     "flee": 0.5,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 1.3
+   },
+   "mood": "afraid"
+  },
+  {
+   "id": "omar",
+   "name": "Omar Haddad",
+   "role": "barista",
+   "persona": "Calm, observant, remembers every order and every face. Keeps a tidy cart and a tidier conscience.",
+   "knowledge": [
+    "Lena orders a double espresso at 4:30 every day, but she didn't come today.",
+    "A man in a gray coat asked for a cup and left a business card with no name.",
+    "The cart's awning hides a small shelf where couriers drop packages for pickup."
+   ],
+   "secrets": [
+    "Omar found the dropped parcel under the cart, opened it, and kept the key."
+   ],
+   "home": "coffee_cart",
+   "work": "coffee_cart",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "coffee_cart",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "coffee_cart",
+     "activity": "work"
+    },
+    {
+     "hour": 18,
+     "place": "coffee_cart",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "coffee_cart",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "lena",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.3,
+     "idle": 0,
+     "flee": -0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 0.9
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "gus",
+   "name": "Gus Petrakis",
+   "role": "doorman",
+   "persona": "Formal, upright, treats the marquee like a post of honor. Dislikes questions that sound like accusations.",
+   "knowledge": [
+    "He signed Lena's pickup slip at 5:10 and the parcel was in her bag.",
+    "A guest in suite 9 expected something delivered tonight.",
+    "The service door by the garage is propped open during shift change."
+   ],
+   "secrets": [
+    "Gus took a tip to let the gray-coated man wait unseen in the lobby."
+   ],
+   "home": "hotel_marquee",
+   "work": "hotel_marquee",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "hotel_marquee",
+     "activity": "guard"
+    },
+    {
+     "hour": 13,
+     "place": "hotel_marquee",
+     "activity": "eat"
+    },
+    {
+     "hour": 15,
+     "place": "hotel_marquee",
+     "activity": "guard"
+    },
+    {
+     "hour": 23,
+     "place": "hotel_marquee",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "lena",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.1,
+     "idle": 0,
+     "flee": 0,
+     "investigate": -0.2,
+     "follow_player": 0,
+     "work": 0.6
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  }
+ ],
+ "items": [
+  {
+   "id": "red_tape",
+   "name": "Strip of Red Tape",
+   "description": "Torn security tape that sealed the parcel. Stuck to the cart's rail.",
+   "holder": "coffee_cart"
+  },
+  {
+   "id": "gray_card",
+   "name": "Blank Business Card",
+   "description": "Heavy stock, no name, a phone number on the back.",
+   "holder": "omar"
+  },
+  {
+   "id": "hotel_key",
+   "name": "Brass Room Key",
+   "description": "Old brass key stamped with the number 9, the parcel's real contents.",
+   "holder": "omar"
+  },
+  {
+   "id": "pickup_slip",
+   "name": "Signed Pickup Slip",
+   "description": "Pickup slip with Gus's signature and the time, 5:10.",
+   "holder": "gus"
+  }
+ ],
+ "quest": {
+  "id": "vanished_parcel",
+  "title": "The Parcel Nobody Saw",
+  "hook": "Lena swears the sealed parcel left Hotel Vanderlyn in her bag at ten past five and never reached its door. The crush swallowed it somewhere between the lobby and the plaza, and the people who handled it all remember something different. Retrace her steps before the block empties for the night.",
+  "giver": "lena",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "lena",
+    "requires": [],
+    "objective": "Hear Lena's account of the missing parcel",
+    "beat": "Lena rattles off her route and begs you to find it before her boss does."
+   },
+   {
+    "id": "s2",
+    "kind": "talk",
+    "target": "gus",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Ask Gus about the pickup at the hotel",
+    "beat": "Gus confirms the signature but stiffens when you ask who else was in the lobby.",
+    "reveals": [
+     "gus:0"
+    ]
+   },
+   {
+    "id": "s3",
+    "kind": "visit",
+    "target": "coffee_cart",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Check Corner Coffee, Lena's usual stop",
+    "beat": "A strip of red tape clings to the cart's rail while Omar polishes a cup too carefully."
+   },
+   {
+    "id": "s4",
+    "kind": "fetch",
+    "target": "red_tape",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Take the red tape from the cart",
+    "beat": "The tape is torn clean, opened by hand, not cut.",
+    "item": "red_tape"
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "omar",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Decide how to press Omar",
+    "beat": "Omar goes quiet, hands flat on the counter.",
+    "choices": [
+     {
+      "label": "Show him the tape and demand the key",
+      "unlocks": [
+       "s6a"
+      ]
+     },
+     {
+      "label": "Tell him Lena will be fired and ask for mercy",
+      "unlocks": [
+       "s6b"
+      ]
+     }
+    ],
+    "reveals": [
+     "omar:0"
+    ]
+   },
+   {
+    "id": "s6a",
+    "kind": "confront",
+    "target": "omar",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Make Omar hand over the key",
+    "beat": "Omar sets the brass key on the counter and mutters about a gray coat that scared him.",
+    "reveals": [
+     "omar:0"
+    ]
+   },
+   {
+    "id": "s6b",
+    "kind": "talk",
+    "target": "omar",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Win the key back through sympathy",
+    "beat": "Omar slides the key across and asks you to keep his name out of it."
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6a",
+    "label": "You force the truth out and return the key; Omar loses the cart's trust.",
+    "tone": "bitter"
+   },
+   {
+    "stepId": "s6b",
+    "label": "You recover the key quietly and Lena keeps her job.",
+    "tone": "good"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "Nobody blocks the crosswalks after five; Dee writes tickets.",
+   "effect": {
+    "type": "ban",
+    "what": "blocking the crosswalk",
+    "where": "street",
+    "enforcer": "dee"
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Street vendors pack up from the plaza by ten.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 22,
+    "toHour": 6,
+    "exemptRoles": [
+     "traffic agent",
+     "doorman"
+    ]
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "the block",
+  "bodega",
+  "crosstown",
+  "MetroCard",
+  "the Deuce",
+  "uptown"
+ ],
+ "style": {
+  "name": "Midtown Dusk",
+  "wall": "#8a8782",
+  "wall2": "#6b4f43",
+  "roof": "#45484d",
+  "trim": "#9a958b",
+  "accent": "#8a3d30",
+  "dark": "#232426",
+  "glass": "#2c3a46",
+  "glow": "#ffd9a0",
+  "ground": "#7d7c78",
+  "road": "#3b3c3e",
+  "variety": 0.2,
+  "foliage": "#4f5c3a",
+  "bark": "#4a3f35",
+  "surfaces": {
+   "wall": "concrete",
+   "wall2": "brick",
+   "roof": "metal_panel",
+   "trim": "stone",
+   "ground": "concrete",
+   "road": "asphalt",
+   "wear": 0.6,
+   "wet": 0
+  }
+ },
+ "site": {
+  "pattern": "grid",
+  "wild": 0.03,
+  "paths": "road",
+  "spacing": 3
+ },
+ "mood": {
+  "weather": "clear",
+  "intensity": 0,
+  "grade": "teal_orange",
+  "haze": 0.5,
+  "ambience": [
+   "crowd",
+   "machinery",
+   "birds",
+   "wind"
+  ],
+  "music": "restless city jazz"
+ },
+ "terrain": {
+  "relief": "flat",
+  "ruggedness": 0.03,
+  "water": "none",
+  "waterAmount": 0,
+  "horizon": "glass towers with lit windows",
+  "settled": 1
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "pigeons",
+   "name": "city pigeons",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.5
+   },
+   "size": 0.32,
+   "count": 10,
+   "behaviour": "flock",
+   "haunt": "plaza",
+   "body": "#8a8f98",
+   "accent": "#5e6670",
+   "glow": "#000000",
+   "note": "Pecking crumbs between hurrying shoes."
+  },
+  {
+   "id": "hawk",
+   "name": "red-tailed hawk",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.8
+   },
+   "size": 0.55,
+   "count": 1,
+   "behaviour": "circle",
+   "haunt": "sky",
+   "body": "#8a6a48",
+   "accent": "#d9b48a",
+   "glow": "#000000",
+   "note": "Rides the heat rising off the towers."
+  },
+  {
+   "id": "street_dog",
+   "name": "off-leash terrier",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.3
+   },
+   "size": 0.5,
+   "count": 1,
+   "behaviour": "roam",
+   "haunt": "plaza",
+   "body": "#b89a72",
+   "accent": "#e8dcc0",
+   "glow": "#000000",
+   "note": "Trots through the crowd, tail up."
+  }
+ ],
+ "folk": {
+  "name": "New York commuters",
+  "height": 1.72,
+  "bulk": 0.45,
+  "head": 1,
+  "features": [
+   "pack"
+  ],
+  "skin": [
+   "#e0b48c",
+   "#a8714a",
+   "#6e4a32"
+  ],
+  "cloth": [
+   "#2b2f3a",
+   "#4a4f5c",
+   "#7a6a58"
+  ],
+  "trim": [
+   "#b84d37",
+   "#d9c9a0"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "glass_office_tower",
+   "summary": "glass curtain-wall office tower, about 220 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.7,
+     "d": 0.7,
+     "h": 30,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 30,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 30,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 30,
+     "w": 0.35,
+     "d": 0.35,
+     "h": 30,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.06,
+     "h": 5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.5,
+     "y": 6,
+     "w": 0.08,
+     "d": 0.02,
+     "h": 3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 5,
+     "gap": 0.15
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.36,
+     "y": 26,
+     "w": 0.55,
+     "d": 0.02,
+     "h": 2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 24,
+    "section": "square",
+    "taper": 0.15,
+    "bands": 3,
+    "top": "flat",
+    "flare": 0.05
+   }
+  },
+  {
+   "id": "deco_setback_spire",
+   "summary": "setback art deco tower with spire, about 180 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 12,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 12,
+     "w": 0.7,
+     "d": 0.7,
+     "h": 20,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 30,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 24,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 30,
+     "w": 0.32,
+     "d": 0.32,
+     "h": 26,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 30,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 30,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.46,
+     "y": 4,
+     "w": 0.07,
+     "d": 0.02,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 5,
+     "gap": 0.15
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.04,
+     "h": 5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "spire",
+   "dials": {
+    "count": 1,
+    "height": 24,
+    "lean": 0,
+    "sharpness": 0.8,
+    "variance": 0
+   }
+  },
+  {
+   "id": "subway_stair_kiosk",
+   "summary": "subway stairwell with street kiosk, 5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.36,
+     "y": 1.6,
+     "w": 0.2,
+     "d": 0.02,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.4,
+     "z": 0.4,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 3.4,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.4,
+     "z": 0.4,
+     "y": 3.4,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "stair",
+   "dials": {
+    "type": "steps",
+    "rise": 3,
+    "flights": 1,
+    "width": 0.4,
+    "under": "solid",
+    "rails": 2,
+    "landing": 0.2,
+    "top": "canopy"
+   }
+  },
+  {
+   "id": "street_cart",
+   "summary": "steel coffee cart with striped awning, 2.5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.3,
+     "w": 0.8,
+     "d": 0.5,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3,
+     "y": 2.1,
+     "w": 0.9,
+     "d": 0.3,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 5,
+     "gap": 0.2
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.38,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.76
+    },
+    {
+     "shape": "sphere",
+     "x": 0.3,
+     "z": 0.3,
+     "y": 2,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "canopy",
+   "dials": {
+    "posts": 4,
+    "roof": "shed",
+    "counter": 0.6
+   }
+  },
+  {
+   "id": "stone_hotel_marquee",
+   "summary": "stone hotel block, about 60 m, lit marquee",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 12.8,
+     "w": 0.95,
+     "d": 0.95,
+     "h": 12,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 24.8,
+     "w": 0.85,
+     "d": 0.85,
+     "h": 12,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 30,
+     "w": 0.75,
+     "d": 0.75,
+     "h": 12,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 3.4,
+     "w": 0.5,
+     "d": 0.1,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.4,
+     "z": 0.5,
+     "y": 5,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 6,
+     "gap": 0.16
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.7,
+     "d": 0.08,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 4,
+    "roof": "flat",
+    "overhang": 0.1,
+    "front": "awning",
+    "rhythm": 8,
+    "chimney": 0,
+    "taper": 0.1
+   }
+  },
+  {
+   "id": "corner_shop_neon",
+   "summary": "brick corner shop with neon sign, 6 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.5,
+     "y": 4,
+     "w": 0.3,
+     "d": 0.03,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.6,
+     "w": 0.9,
+     "d": 0.1,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.2,
+     "z": 0.5,
+     "y": 3.8,
+     "w": 0.12,
+     "d": 0.02,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.2
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "flat",
+    "overhang": 0.1,
+    "front": "awning",
+    "rhythm": 3,
+    "chimney": 0,
+    "taper": 0
+   }
+  },
+  {
+   "id": "granite_bank",
+   "summary": "granite bank with portico columns, about 25 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.2,
+     "y": 0,
+     "w": 0.95,
+     "d": 0.6,
+     "h": 20,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.2,
+     "y": 20,
+     "w": 1,
+     "d": 0.65,
+     "h": 2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.2,
+     "y": 22,
+     "w": 0.95,
+     "d": 0.6,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.35,
+     "z": 0.12,
+     "y": 6,
+     "w": 0.06,
+     "d": 0.02,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.15
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.12,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.04,
+     "h": 4.5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "colonnade",
+   "dials": {
+    "plan": "row",
+    "count": 6,
+    "height": 9,
+    "girth": 0.07,
+    "shaft": "round",
+    "top": "pediment",
+    "steps": 3
+   }
+  },
+  {
+   "id": "broadcast_rooftop_mast",
+   "summary": "lattice rooftop broadcast mast, 27 m on a 150 m tower",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.7,
+     "d": 0.7,
+     "h": 2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3,
+     "z": 0.2,
+     "y": 2,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 27,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 1,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "mast",
+   "dials": {
+    "height": 27,
+    "shaft": "lattice",
+    "arms": 3,
+    "armLength": 0.5,
+    "hang": "dishes",
+    "top": "light",
+    "stays": 4,
+    "base": "plinth"
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "street_lamp",
+   "size": 2,
+   "parts": [],
+   "weight": 4,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 3,
+    "arms": 1
+   }
+  },
+  {
+   "kind": "plane_tree",
+   "size": 8,
+   "parts": [],
+   "weight": 2,
+   "family": "broadleaf",
+   "dials": {
+    "height": 2.2,
+    "trunk": 0.3,
+    "girth": 0.12,
+    "limbs": 4,
+    "spread": 0.8,
+    "crown": "round",
+    "buttress": 0.1
+   }
+  },
+  {
+   "kind": "planter_shrub",
+   "size": 1.2,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 1,
+     "d": 1,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 3,
+   "family": "shrub",
+   "dials": {
+    "form": "mound",
+    "height": 0.6,
+    "spread": 0.8,
+    "stems": 4,
+    "density": 0.8
+   }
+  },
+  {
+   "kind": "plaza_bench",
+   "size": 1.8,
+   "parts": [],
+   "weight": 3,
+   "family": "furniture",
+   "dials": {
+    "form": "bench",
+    "length": 0.8,
+    "height": 0.5
+   }
+  },
+  {
+   "kind": "trash_bin",
+   "size": 0.7,
+   "parts": [],
+   "weight": 3,
+   "family": "container",
+   "dials": {
+    "form": "tank",
+    "count": 1,
+    "height": 0.9
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "steam_grate_stack",
+   "prompt": "A cast iron street steam vent stack with an orange and white striped chimney, rising from a corroded iron base plate, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 4
+  }
+ ]
+}

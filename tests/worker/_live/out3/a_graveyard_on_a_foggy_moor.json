@@ -1,0 +1,1919 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a graveyard on a foggy moor",
+ "title": "The Drowned Churchyard",
+ "tagline": "The fog keeps what the moor buries.",
+ "theme": "medieval",
+ "era": "Victorian gothic",
+ "palette": {
+  "ground": "#4a4d3a",
+  "accent": "#5e3a34",
+  "sky": "overcast",
+  "fog": 0.75
+ },
+ "time": {
+  "startHour": 6,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "ruined_chapel",
+   "role": "church",
+   "label": "St Ewan's Chapel",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "chapel_ruin"
+  },
+  {
+   "id": "sexton_hut",
+   "role": "house",
+   "label": "Sexton's Hut",
+   "size": "small",
+   "keyBuilding": true,
+   "blueprint": "turf_hut"
+  },
+  {
+   "id": "lych_gate",
+   "role": "church",
+   "label": "Lych Gate",
+   "size": "small",
+   "blueprint": "lych_gate"
+  },
+  {
+   "id": "crypt",
+   "role": "undertaker",
+   "label": "The Old Crypt",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "crypt_mound"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "sexton_bram",
+   "name": "Bram",
+   "role": "gravedigger",
+   "persona": "Gruff, slow-spoken, wary of strangers. Keeps the dead in order and hates being asked why the order is breaking.",
+   "knowledge": [
+    "The graves open from below. The soil is heaped inside the pit, not beside it.",
+    "Peat-black prints lead from the opened graves to the crypt mound.",
+    "The hound only howls on nights a grave opens."
+   ],
+   "secrets": [
+    "Bram opened the first grave himself, to bury his brother's shroud beside his father, and something answered."
+   ],
+   "home": "sexton_hut",
+   "work": "plaza",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "plaza",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "sexton_hut",
+     "activity": "eat"
+    },
+    {
+     "hour": 14,
+     "place": "ruined_chapel",
+     "activity": "work"
+    },
+    {
+     "hour": 20,
+     "place": "sexton_hut",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "widow_marne",
+     "stance": "neutral"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": -0.3,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.8
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "widow_marne",
+   "name": "Marne",
+   "role": "grieving widow",
+   "persona": "Soft-voiced and unmoving as stone. Visits the chapel to keep a promise to a man who is not where she left him.",
+   "knowledge": [
+    "Her husband's grave was among the first found open, and the shroud was gone.",
+    "She hears knocking under the chapel floor before dawn.",
+    "Bram has not spoken to anyone since the second grave opened."
+   ],
+   "secrets": [
+    "Marne has been leaving food at the crypt door, and it is always gone by morning."
+   ],
+   "home": "sexton_hut",
+   "work": "ruined_chapel",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "ruined_chapel",
+     "activity": "pray"
+    },
+    {
+     "hour": 11,
+     "place": "plaza",
+     "activity": "wander"
+    },
+    {
+     "hour": 15,
+     "place": "ruined_chapel",
+     "activity": "pray"
+    },
+    {
+     "hour": 21,
+     "place": "sexton_hut",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "sexton_bram",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.2,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.2,
+     "flee": 0.2,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.3,
+    "rate": 0.9
+   },
+   "mood": "grieving"
+  }
+ ],
+ "items": [
+  {
+   "id": "torn_shroud",
+   "name": "Torn Shroud",
+   "description": "Grave linen, ripped from within and stiff with black peat.",
+   "holder": "crypt"
+  },
+  {
+   "id": "grave_spade",
+   "name": "Bram's Spade",
+   "description": "Worn ash handle, fresh soil on the blade, a thumb-worn notch near the grip.",
+   "holder": "sexton_hut"
+  },
+  {
+   "id": "wight_bone_charm",
+   "name": "Bone Charm",
+   "description": "A finger bone on a cord, dropped on the lychway. Cold to hold.",
+   "holder": "lych_gate"
+  }
+ ],
+ "quest": {
+  "id": "drowned_churchyard",
+  "title": "What Walks the Moor",
+  "hook": "Fresh graves in St Ewan's churchyard keep opening overnight, and the sexton has gone silent. The villagers bar their doors by dusk. Someone with no kin buried here must learn what climbs out and where it goes.",
+  "giver": "widow_marne",
+  "steps": [
+   {
+    "id": "s1_talk",
+    "kind": "talk",
+    "target": "widow_marne",
+    "requires": [],
+    "objective": "Ask Marne about the opened graves",
+    "beat": "Marne says her husband's grave was emptied and the shroud taken. She asks you to find out why Bram will not speak."
+   },
+   {
+    "id": "s2_visit",
+    "kind": "visit",
+    "target": "lych_gate",
+    "requires": [
+     "s1_talk"
+    ],
+    "objective": "Search the lychway for tracks",
+    "beat": "Black peat prints cross the lychway toward the mound. Crows watch from the chapel gable, silent, and a bone charm lies in the mud."
+   },
+   {
+    "id": "s3_fetch",
+    "kind": "fetch",
+    "target": "wight_bone_charm",
+    "requires": [
+     "s2_visit"
+    ],
+    "objective": "Take the bone charm from the lych gate",
+    "beat": "The charm is a wight's token, left by something that wanted to be found. Grave moths drift thick around the crypt beyond.",
+    "item": "wight_bone_charm"
+   },
+   {
+    "id": "s4_talk",
+    "kind": "talk",
+    "target": "sexton_bram",
+    "requires": [
+     "s3_fetch"
+    ],
+    "objective": "Show Bram the charm and make him talk",
+    "beat": "Bram goes grey. He admits he opened a grave himself, and the wight has been digging out the rest of the dead since.",
+    "reveals": [
+     "sexton_bram:0"
+    ]
+   },
+   {
+    "id": "s5_visit",
+    "kind": "visit",
+    "target": "crypt",
+    "requires": [
+     "s4_talk"
+    ],
+    "objective": "Go to the half-sunk crypt door",
+    "beat": "The vault door stands ajar, peat smeared on the stone. Something inside is breathing, and moths pour from the dark.",
+    "reveals": [
+     "widow_marne:0"
+    ]
+   },
+   {
+    "id": "s6_choose",
+    "kind": "choose",
+    "target": "sexton_bram",
+    "requires": [
+     "s5_visit"
+    ],
+    "objective": "Decide the wight's fate",
+    "beat": "The wight is Bram's brother, drowned in the peat and dragged back by the shroud. Bram waits for your word.",
+    "choices": [
+     {
+      "label": "Bind the wight with the bone charm and reseal the crypt",
+      "unlocks": [
+       "s7_bind"
+      ]
+     },
+     {
+      "label": "Open the vault and let it walk the moor",
+      "unlocks": [
+       "s7_free"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s7_bind",
+    "kind": "confront",
+    "target": "sexton_bram",
+    "requires": [
+     "s6_choose"
+    ],
+    "objective": "Reseal the crypt with Bram",
+    "beat": "Bram sets the charm in the door and the knocking stops. The graves stay shut, and Marne's husband stays gone."
+   },
+   {
+    "id": "s7_free",
+    "kind": "confront",
+    "target": "widow_marne",
+    "requires": [
+     "s6_choose"
+    ],
+    "objective": "Open the vault for the wight",
+    "beat": "The wight walks into the fog toward the moor. Marne watches it go and the graves lie quiet, though the hound still howls."
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s7_bind",
+    "label": "The wight is sealed and the churchyard sleeps",
+    "tone": "good"
+   },
+   {
+    "stepId": "s7_free",
+    "label": "The wight walks free and the moor keeps it",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r_curfew",
+   "text": "Villagers keep indoors from dusk to dawn; only the sexton works nights.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 19,
+    "toHour": 5,
+    "exemptRoles": [
+     "gravedigger"
+    ]
+   },
+   "source": "world"
+  },
+  {
+   "id": "r_ban",
+   "text": "Nobody digs a new grave until the opened ones are explained.",
+   "effect": {
+    "type": "ban",
+    "what": "digging new graves",
+    "where": "ruined_chapel",
+    "enforcer": "sexton_bram"
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "barrow",
+  "shroud",
+  "sexton",
+  "peat",
+  "wight",
+  "lychway"
+ ],
+ "style": {
+  "name": "Drowned Churchyard",
+  "wall": "#6b6a64",
+  "wall2": "#4c4b47",
+  "roof": "#3d4146",
+  "trim": "#8a877d",
+  "accent": "#5e3a34",
+  "dark": "#1c1d1f",
+  "glass": "#262c31",
+  "glow": "#ffc27a",
+  "ground": "#4a4d3a",
+  "road": "#5a5446",
+  "variety": 0.2,
+  "surfaces": {
+   "wall": "stone",
+   "wall2": "stone",
+   "roof": "slate",
+   "trim": "stone",
+   "ground": "moss",
+   "road": "mud",
+   "wear": 0.8,
+   "wet": 0.5
+  },
+  "foliage": "#4a5233",
+  "bark": "#3b332b"
+ },
+ "site": {
+  "pattern": "scatter",
+  "wild": 0.55,
+  "paths": "track",
+  "spacing": 12
+ },
+ "mood": {
+  "weather": "fog",
+  "intensity": 0.7,
+  "grade": "cold_steel",
+  "haze": 0.8,
+  "ambience": [
+   "wind",
+   "birds",
+   "leaves"
+  ],
+  "music": "low cello drone"
+ },
+ "terrain": {
+  "relief": "rolling",
+  "ruggedness": 0.3,
+  "water": "pond",
+  "waterAmount": 0.08,
+  "horizon": "peat moor swallowed by fog",
+  "settled": 0.1
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "crows",
+   "name": "carrion crows",
+   "family": "bird",
+   "dials": {},
+   "size": 0.45,
+   "count": 8,
+   "behaviour": "perch",
+   "haunt": "ruined_chapel",
+   "body": "#1c1c1f",
+   "accent": "#3a3a40",
+   "glow": "#000000",
+   "note": "They watch you from every leaning headstone."
+  },
+  {
+   "id": "moor_hound",
+   "name": "black moor hound",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.6,
+    "snout": 0.7
+   },
+   "size": 1.5,
+   "count": 1,
+   "behaviour": "stalk",
+   "haunt": "wild",
+   "body": "#26262a",
+   "accent": "#44444a",
+   "glow": "#c84a2a",
+   "note": "Eyes glow ember-red somewhere in the fog."
+  },
+  {
+   "id": "moths",
+   "name": "grave moths",
+   "family": "swarm",
+   "dials": {
+    "units": 18,
+    "wings": 0.8
+   },
+   "size": 0.2,
+   "count": 18,
+   "behaviour": "roam",
+   "haunt": "crypt",
+   "body": "#b8b0a0",
+   "accent": "#8c8678",
+   "glow": "#000000",
+   "note": "Pale wings flutter around the crypt door."
+  }
+ ],
+ "folk": {
+  "name": "moor villagers",
+  "height": 1.7,
+  "bulk": 0.45,
+  "head": 1,
+  "features": [
+   "hood",
+   "cloak",
+   "hat"
+  ],
+  "skin": [
+   "#d8b9a0",
+   "#c49a7c",
+   "#e4cbb5"
+  ],
+  "cloth": [
+   "#4a4a45",
+   "#5c5346",
+   "#39403a"
+  ],
+  "trim": [
+   "#7a5c3a",
+   "#8c8c80"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "chapel_ruin",
+   "summary": "roofless stone chapel, bell gable 11 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.89,
+     "d": 0.78,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.33499999999999996,
+     "y": 0,
+     "w": 0.85,
+     "d": 0.07,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": -0.33499999999999996,
+     "y": 6,
+     "w": 0.07,
+     "d": 0.85,
+     "h": 2.72,
+     "rot": 90,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.33499999999999996,
+     "y": 1.1,
+     "w": 0.07,
+     "d": 0.082,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.34
+    },
+    {
+     "shape": "box",
+     "x": -0.39,
+     "z": -0.185,
+     "y": 0,
+     "w": 0.07,
+     "d": 0.37,
+     "h": 2.4300903768371795,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.39,
+     "z": 0.185,
+     "y": 0,
+     "w": 0.07,
+     "d": 0.37,
+     "h": 3.5821897161612286,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.39,
+     "z": -0.185,
+     "y": 0,
+     "w": 0.07,
+     "d": 0.37,
+     "h": 2.4560845037223773,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.39,
+     "z": 0.185,
+     "y": 0,
+     "w": 0.07,
+     "d": 0.37,
+     "h": 2.5233350025862453,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.306,
+     "z": 0.33499999999999996,
+     "y": 0,
+     "w": 0.23800000000000002,
+     "d": 0.07,
+     "h": 3.0468285721186543,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.306,
+     "z": 0.33499999999999996,
+     "y": 0,
+     "w": 0.23800000000000002,
+     "d": 0.07,
+     "h": 2.9356369900074792,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.13319999999999999,
+     "y": 0.2,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 2.98298661111854,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.2975
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.13319999999999999,
+     "y": 0.2,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 2.8644735201168805,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.2975
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.11270432986319064,
+     "z": 0.02,
+     "y": 0.2,
+     "w": 0.09,
+     "d": 0.09,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.2598705950262956,
+     "z": 0.16041017991025,
+     "y": 0.2,
+     "w": 0.12744332544738426,
+     "d": 0.08205720470752567,
+     "h": 0.3311041116947308,
+     "rot": 66.58628722652793,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.19467824216466395,
+     "z": 0.030489897541701793,
+     "y": 0.2,
+     "w": 0.06804513271898031,
+     "d": 0.06621016709599645,
+     "h": 0.5166630348889156,
+     "rot": 20.207123367581517,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.0934422393911518,
+     "z": 0.44,
+     "y": 0,
+     "w": 0.1311163193383254,
+     "d": 0.10944596357643605,
+     "h": 0.523676131258253,
+     "rot": 60.23487398866564,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.26888306649634613,
+     "z": -0.027760701365768907,
+     "y": 0.2,
+     "w": 0.10596921304240822,
+     "d": 0.052470379769802095,
+     "h": 0.3519230345962569,
+     "rot": 19.77756556123495,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.45499999999999996,
+     "z": -0.01612156298942863,
+     "y": 0,
+     "w": 0.22125358545221388,
+     "d": 0.16657456911168994,
+     "h": 1.0580254958942534,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.45499999999999996,
+     "z": -0.0012750182300805823,
+     "y": 0,
+     "w": 0.21156804052647205,
+     "d": 0.15709372280165554,
+     "h": 1.0194708686321974,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.46,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.06,
+     "h": 7,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.46,
+     "y": 7,
+     "w": 0.16,
+     "d": 0.06,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": -0.46,
+     "y": 7,
+     "w": 0.08,
+     "d": 0.07,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.46,
+     "y": 11,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.07,
+     "h": 5,
+     "rot": 90,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.35
+    },
+    {
+     "shape": "arch",
+     "x": 0.5,
+     "z": 0,
+     "y": 1,
+     "w": 0.04,
+     "d": 0.12,
+     "h": 3,
+     "rot": 90,
+     "tone": "glass",
+     "repeat": 3,
+     "gap": 0.28
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "turf_hut",
+   "summary": "low turf-roofed stone hut, ridge 3.4 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2.75,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.92,
+     "d": 0.78,
+     "h": 1.9,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.1,
+     "y": 3,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0,
+     "y": 2.6,
+     "w": 1.1,
+     "d": 1.1,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.28,
+     "z": -0.1,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.15,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.18,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.04,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.4,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.3,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.08,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0.15
+  },
+  {
+   "id": "lych_gate",
+   "summary": "rotting oak lych gate, slate roof, ridge 4.4 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.98,
+     "d": 0.8,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.3,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.9
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.9
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0,
+     "y": 2.8,
+     "w": 1.1,
+     "d": 0.9,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.2,
+     "y": 0.2,
+     "w": 0.9,
+     "d": 0.05,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.2,
+     "y": 0.2,
+     "w": 0.9,
+     "d": 0.05,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.9,
+     "d": 0.5,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.42,
+     "z": 0,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.5,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0.28,
+     "y": 0.55,
+     "w": 0.8,
+     "d": 0.1,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "crypt_mound",
+   "summary": "half-sunk vault door in earth mound, 4 m high",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 1,
+     "d": 1,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0,
+     "z": -0.06,
+     "y": 0.31,
+     "w": 0.8,
+     "d": 0.6400000000000001,
+     "h": 3.69,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.24,
+     "z": -0.14,
+     "y": 0.31,
+     "w": 0.4,
+     "d": 0.42,
+     "h": 1.916357982173329,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.256,
+     "z": -0.039999999999999994,
+     "y": 0.31,
+     "w": 0.32000000000000006,
+     "d": 0.36,
+     "h": 1.264962118302472,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.22547445955253206,
+     "y": 0.31,
+     "w": 0.44999999999999996,
+     "d": 0.12905108089493594,
+     "h": 2.1236,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.23147445955253207,
+     "y": 0.31,
+     "w": 0.35,
+     "d": 0.12905108089493594,
+     "h": 1.6236000000000002,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.33499999999999996,
+     "z": 0.35000000000000003,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.14,
+     "h": 0.92,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.33499999999999996,
+     "z": 0.37000000000000005,
+     "y": 0,
+     "w": 0.09,
+     "d": 0.08,
+     "h": 0.42,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 2,
+     "gap": 0.12
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.42,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.1,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.46,
+     "y": 0,
+     "w": 0.28,
+     "d": 0.06,
+     "h": 2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.4,
+     "d": 0.1,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.3,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.5,
+     "y": 0.1,
+     "w": 0.06,
+     "d": 0.04,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  }
+ ],
+ "props": [
+  {
+   "kind": "gravestone",
+   "size": 1.4,
+   "parts": [
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.425,
+     "d": 0.36,
+     "h": 0.9,
+     "rot": 40.82024309551343,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.09983911562402759,
+     "z": 0.005670184424871118,
+     "y": 0,
+     "w": 0.25154536773916336,
+     "d": 0.28262829293962566,
+     "h": 0.5871375671646092,
+     "rot": 2.889813669025898,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.06978787081238912,
+     "z": -0.07162159651580861,
+     "y": 0,
+     "w": 0.25835129062179474,
+     "d": 0.2778838855680078,
+     "h": 0.5498553692456336,
+     "rot": 146.50931290816516,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.003079387878781069,
+     "z": 0.0999525756060944,
+     "y": 0,
+     "w": 0.2995404365239665,
+     "d": 0.2137100538937375,
+     "h": 0.48349177592201165,
+     "rot": 36.759596723131835,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.057710374300444726,
+     "z": 0.039617075839877045,
+     "y": 0.27,
+     "w": 0.25,
+     "d": 0.225,
+     "h": 0.54,
+     "rot": 11.18679047562182,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0,
+     "z": 0,
+     "y": 0.738,
+     "w": 0.28,
+     "d": 0.2375,
+     "h": 0.10200000000000001,
+     "rot": 40.82024309551343,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.030876982504653865,
+     "z": -0.17733192592256844,
+     "y": 0,
+     "w": 0.18,
+     "d": 0.15,
+     "h": 0.198,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0.25,
+     "y": 0,
+     "w": 0.09,
+     "d": 0.08,
+     "h": 0.05,
+     "rot": 35.35155781544745,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.135
+    },
+    {
+     "shape": "sphere",
+     "x": 0.09064874073822932,
+     "z": 0.26396069483179246,
+     "y": 0,
+     "w": 0.06597733058966695,
+     "d": 0.06507857230128723,
+     "h": 0.05,
+     "rot": 10.519446583930403,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 5,
+   "nature": "mineral"
+  },
+  {
+   "kind": "heather_clump",
+   "size": 1.5,
+   "parts": [
+    {
+     "shape": "wedge",
+     "x": -0.20457376658967835,
+     "z": -0.035732846338453576,
+     "y": 0,
+     "w": 0.1384473622944206,
+     "d": 0.036000000000000004,
+     "h": 0.22348246710025707,
+     "rot": 170.09211582151886,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 0.06,
+     "w": 0.405,
+     "d": 0.40432574845198543,
+     "h": 0.425,
+     "rot": 151.69289426878095,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.24548851990761406,
+     "z": -0.042879415606144285,
+     "y": 0.02681789605203085,
+     "w": 0.44715447049238716,
+     "d": 0.4183328241407181,
+     "h": 0.34130076802133363,
+     "rot": 94.27023470867425,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.013932432500510303,
+     "z": -0.2322212397052399,
+     "y": 0.027018820262281227,
+     "w": 0.39159661205057056,
+     "d": 0.34297198826073516,
+     "h": 0.3566657163083884,
+     "rot": 47.05349243246019,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.06544911538701297,
+     "z": 0.16429998529711767,
+     "y": 0.03434609522600658,
+     "w": 0.39206153586530124,
+     "d": 0.330776685076069,
+     "h": 0.3638064131468361,
+     "rot": 80.32700650859624,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.1048000271142634,
+     "z": 0.2023837269315794,
+     "y": 0.041381198451155794,
+     "w": 0.3990074086323381,
+     "d": 0.3380684781383083,
+     "h": 0.33187461179776034,
+     "rot": 43.83438182529062,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.18934737009232966,
+     "z": -0.10741220839715518,
+     "y": 0.03865793669829145,
+     "w": 0.33585912674032153,
+     "d": 0.2901223838611366,
+     "h": 0.38427508098855195,
+     "rot": 89.40462273079902,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.27,
+     "d": 0.24300000000000002,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.08733335592855282,
+     "z": 0.16865310577631618,
+     "y": 0,
+     "w": 0.12661575318127868,
+     "d": 0.036000000000000004,
+     "h": 0.3448433204262983,
+     "rot": -117.37640095097947,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.15778947507694138,
+     "z": -0.08951017366429598,
+     "y": 0,
+     "w": 0.1209400028195232,
+     "d": 0.036000000000000004,
+     "h": 0.3221494724857621,
+     "rot": 29.565199403601696,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.01161036041709192,
+     "z": -0.19351769975436658,
+     "y": 0,
+     "w": 0.12924378444068135,
+     "d": 0.036000000000000004,
+     "h": 0.22515683551901022,
+     "rot": 93.43342339061189,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.05454092948917748,
+     "z": 0.13691665441426473,
+     "y": 0,
+     "w": 0.09825337595678867,
+     "d": 0.036000000000000004,
+     "h": 0.2862174602167215,
+     "rot": -68.2800700792759,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 5,
+   "nature": "plant"
+  },
+  {
+   "kind": "dead_yew",
+   "size": 6,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": -0.006589732568673022,
+     "z": 0.006129879662225846,
+     "y": 0,
+     "w": 0.0978,
+     "d": 0.0978,
+     "h": 0.5285,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.004053343320399014,
+     "z": 0.0037704878801684432,
+     "y": 0.5285,
+     "w": 0.07824,
+     "d": 0.07824,
+     "h": 0.5285,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.0005842595800597834,
+     "z": -0.0005434880520485642,
+     "y": 1.057,
+     "w": 0.05868,
+     "d": 0.05868,
+     "h": 0.5285,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.029111741557366948,
+     "z": -0.004968924870449545,
+     "y": 1.5999999999999999,
+     "w": 0.37586518893649384,
+     "d": 0.3486330948934177,
+     "h": 0.6586666666666665,
+     "rot": 38.73782980721444,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.1525737531511665,
+     "z": 0.0005220863545363063,
+     "y": 1.5999999999999999,
+     "w": 0.24716811696544047,
+     "d": 0.08269034156602864,
+     "h": 0.29639999999999994,
+     "rot": 177.4534306493428,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.006589732568673022,
+     "z": 0.006129879662225846,
+     "y": 0,
+     "w": 0.18581999999999999,
+     "d": 0.18581999999999999,
+     "h": 0.15648,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.10128296409538681,
+     "z": -0.102549449488417,
+     "y": 1.3199999999999998,
+     "w": 0.28832029014900323,
+     "d": 0.03,
+     "h": 0.11999999999999998,
+     "rot": -45.038990350440145,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.006589732568673022,
+     "z": -0.006129879662225846,
+     "y": 1.5855,
+     "w": 0.03912,
+     "d": 0.03912,
+     "h": 0.5285,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.11183790754091175,
+     "z": 0.029840721157007467,
+     "y": 1.42,
+     "w": 0.23065623211920258,
+     "d": 0.03,
+     "h": 0.09599999999999999,
+     "rot": 164.72460435732324,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.026492326499738542,
+     "z": 0.021576028188348667,
+     "y": 1.9999999999999998,
+     "w": 0.08630272213621998,
+     "d": 0.03,
+     "h": 0.11999999999999998,
+     "rot": 39.94585164912576,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.02953290763244688,
+     "z": -0.03192360552128856,
+     "y": 2.054,
+     "w": 0.06904217770897599,
+     "d": 0.03,
+     "h": 0.09599999999999999,
+     "rot": -131.6526662846104,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 3,
+   "nature": "plant"
+  },
+  {
+   "kind": "fallen_bough",
+   "size": 2.5,
+   "parts": [
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.2,
+     "d": 1.2,
+     "h": 0.2,
+     "rot": 90.32715322449803,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.11999804382719967,
+     "z": -0.0006851843879324764,
+     "y": 0.17,
+     "w": 0.18000000000000002,
+     "d": 0.48,
+     "h": 0.05,
+     "rot": 90.32715322449803,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0.23896831107250063,
+     "z": -0.18136743451666448,
+     "y": 0,
+     "w": 0.09000000000000001,
+     "d": 0.6,
+     "h": 0.09000000000000001,
+     "rot": 110.00847097137012,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.359994131481599,
+     "z": 0.002055553163797429,
+     "y": 0.08000000000000002,
+     "w": 0.18000000000000002,
+     "d": 0.18000000000000002,
+     "h": 0.15000000000000002,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.5,
+     "z": 0.00590501559759276,
+     "y": 0.1,
+     "w": 0.1838033425156027,
+     "d": 0.06,
+     "h": 0.28,
+     "rot": -165.31275535002348,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.40238805712217973,
+     "z": -0.04761006957823525,
+     "y": 0.1,
+     "w": 0.1560118879750371,
+     "d": 0.06,
+     "h": 0.23467020545154813,
+     "rot": 57.17966564975944,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.0013703687758649529,
+     "z": -0.23999608765439934,
+     "y": 0,
+     "w": 0.09,
+     "d": 0.07,
+     "h": 0.05,
+     "rot": 0.3271532244980335,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.36
+    }
+   ],
+   "weight": 2,
+   "nature": "plant"
+  },
+  {
+   "kind": "bog_cotton",
+   "size": 1.2,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": -0.07452798189781461,
+     "z": 0.10894760169108367,
+     "y": 0,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 0.8,
+     "rot": 145.6250695930794,
+     "tone": "accent",
+     "repeat": 4,
+     "gap": 0.10729007085319608
+    },
+    {
+     "shape": "sphere",
+     "x": -0.07452798189781461,
+     "z": 0.10894760169108367,
+     "y": 0.656,
+     "w": 0.084,
+     "d": 0.05,
+     "h": 0.24,
+     "rot": 145.6250695930794,
+     "tone": "trim",
+     "repeat": 4,
+     "gap": 0.10729007085319608
+    },
+    {
+     "shape": "wedge",
+     "x": -0.021939316276336617,
+     "z": 0.15848869486915107,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.03,
+     "h": 0.42379765121266244,
+     "rot": -97.8812691751096,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.12323527373926318,
+     "z": -0.10204443790040138,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.03,
+     "h": 0.3660877083614469,
+     "rot": 39.626309825107455,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.09088063141029074,
+     "z": -0.13168413281206995,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.03,
+     "h": 0.34344192065298557,
+     "rot": 124.61115182467324,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.07452798189781461,
+     "z": 0.10894760169108367,
+     "y": 0,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.8,
+     "rot": 145.6250695930794,
+     "tone": "accent",
+     "repeat": 4,
+     "gap": 0.10729007085319608
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.12959025044539596,
+     "z": 0.02510711033750302,
+     "y": 0,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 0.639897582884878,
+     "rot": -79.03522974159569,
+     "tone": "accent",
+     "repeat": 3,
+     "gap": 0.1954716373886913
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 0.6031372169405222,
+     "rot": -150.55848419945687,
+     "tone": "accent",
+     "repeat": 3,
+     "gap": 0.19009049634449182
+    }
+   ],
+   "weight": 3,
+   "nature": "plant"
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "weeping_angel",
+   "prompt": "A weathered stone grave angel on a plinth, head bowed, wings broken, lichen streaking the robes, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 3
+  }
+ ]
+}

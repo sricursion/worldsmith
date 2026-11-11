@@ -1,0 +1,1485 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a Rio favela on a hillside",
+ "title": "Morro Alto",
+ "tagline": "Brick, tin and cable up the hill",
+ "theme": "modern",
+ "era": "Present day",
+ "palette": {
+  "ground": "#7a6c58",
+  "accent": "#3f6f86",
+  "sky": "dusk",
+  "fog": 0.2
+ },
+ "time": {
+  "startHour": 18,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "laje_bar",
+   "role": "cafe",
+   "label": "Bar da Laje",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "bakery_shop"
+  },
+  {
+   "id": "caixa_dagua",
+   "role": "command",
+   "label": "Water Tower",
+   "size": "small",
+   "blueprint": "water_tower"
+  },
+  {
+   "id": "igreja_morro",
+   "role": "church",
+   "label": "Igreja do Morro",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "chapel"
+  },
+  {
+   "id": "quadra",
+   "role": "plaza",
+   "label": "Quadra de Futsal",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "cage_court"
+  },
+  {
+   "id": "padaria",
+   "role": "shop",
+   "label": "Padaria Dona Nena",
+   "size": "small",
+   "blueprint": "bakery_shop"
+  },
+  {
+   "id": "oficina",
+   "role": "workshop",
+   "label": "Oficina do Zeca",
+   "size": "small",
+   "blueprint": "brick_house"
+  },
+  {
+   "id": "casa_tijolo",
+   "role": "house",
+   "label": "Casa de Tijolo",
+   "size": "small",
+   "blueprint": "brick_house"
+  },
+  {
+   "id": "casa_azul",
+   "role": "house",
+   "label": "Casa Azul",
+   "size": "medium",
+   "blueprint": "stacked_house"
+  },
+  {
+   "id": "mercadinho",
+   "role": "market",
+   "label": "Mercadinho Estrela",
+   "size": "small",
+   "blueprint": "stacked_house"
+  },
+  {
+   "id": "escola",
+   "role": "school",
+   "label": "Escola Municipal",
+   "size": "medium",
+   "blueprint": "stacked_house"
+  },
+  {
+   "id": "antena",
+   "role": "command",
+   "label": "Cable Mast",
+   "size": "small",
+   "blueprint": "cable_mast"
+  },
+  {
+   "id": "cable_car",
+   "role": "station",
+   "label": "Teleférico Station",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "cable_station"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "nena",
+   "name": "Dona Nena",
+   "role": "baker",
+   "persona": "Sharp-tongued baker who has fed the morro for forty years. She counts every real and every favour, and keeps both in her head.",
+   "knowledge": [
+    "The cable car fuse box is in the station's back room, and the key hangs on a nail behind the counter at Tião's.",
+    "Zeca keeps the spare fuses, the yellow ones, in a biscuit tin.",
+    "The mast above the station drops its signal when the car stalls, so the whole slope goes silent."
+   ],
+   "secrets": [
+    "She lends reais to half the morro and lets the debts ride, which makes her more feared than liked."
+   ],
+   "home": "padaria",
+   "work": "padaria",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "padaria",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "mercadinho",
+     "activity": "trade"
+    },
+    {
+     "hour": 16,
+     "place": "padaria",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "padaria",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "zeca",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.2,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 1
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "zeca",
+   "name": "Zeca",
+   "role": "motorbike mechanic",
+   "persona": "Greasy-handed and quick to joke, he talks to engines more than people. He is proud that nothing on this hill stays broken for long.",
+   "knowledge": [
+    "The cable car fuse is a 40-amp yellow, and he has two left in the biscuit tin.",
+    "The stairs from the quadra up to the station have 212 steps, and the third landing is the only place the dogs won't follow.",
+    "Cable stalls usually mean the fuse, not the motor, so the climb is worth it."
+   ],
+   "secrets": [
+    "He owes Dona Nena three months of reais and has been hiding the fuse tin so he can sell the spares."
+   ],
+   "home": "oficina",
+   "work": "oficina",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "oficina",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "padaria",
+     "activity": "eat"
+    },
+    {
+     "hour": 13,
+     "place": "oficina",
+     "activity": "work"
+    },
+    {
+     "hour": 19,
+     "place": "laje_bar",
+     "activity": "drink"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "nena",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1.1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": -0.2,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "tiao",
+   "name": "Tião",
+   "role": "bar owner",
+   "persona": "Big, easy, and always wiping the same table. He holds the morro's gossip and keeps half of it to himself.",
+   "knowledge": [
+    "The station key hangs behind his bar, and he will hand it to anyone Dona Nena vouches for.",
+    "From the laje you can see the stalled cabin hanging dark over the bay.",
+    "Júnior knows the back beco up to the station faster than the stairs."
+   ],
+   "secrets": [
+    "He sold the station's spare key to a stranger last week for two hundred reais and swore he'd never say."
+   ],
+   "home": "laje_bar",
+   "work": "laje_bar",
+   "schedule": [
+    {
+     "hour": 10,
+     "place": "laje_bar",
+     "activity": "work"
+    },
+    {
+     "hour": 15,
+     "place": "mercadinho",
+     "activity": "trade"
+    },
+    {
+     "hour": 17,
+     "place": "laje_bar",
+     "activity": "work"
+    },
+    {
+     "hour": 23,
+     "place": "laje_bar",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "junior",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.4,
+     "idle": 0.2,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.9
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "bia",
+   "name": "Bia",
+   "role": "schoolteacher",
+   "persona": "Young, tired and stubborn, she teaches forty kids in a room built for twenty. She is angry at everyone who promised and never delivered.",
+   "knowledge": [
+    "Her students ride the cable car to the cidade for exams, so the stall costs them tomorrow's test.",
+    "The mural wall behind the school has the old station plan painted into it by a former pupil.",
+    "Marcos coaches half her students and will cut practice if it helps."
+   ],
+   "secrets": [
+    "She wrote the city three letters about the failing fuse and got none back, and she kept the replies she invented."
+   ],
+   "home": "escola",
+   "work": "escola",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "escola",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "padaria",
+     "activity": "eat"
+    },
+    {
+     "hour": 13,
+     "place": "escola",
+     "activity": "work"
+    },
+    {
+     "hour": 18,
+     "place": "quadra",
+     "activity": "wander"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "marcos",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 1.1
+   },
+   "mood": "angry"
+  },
+  {
+   "id": "marcos",
+   "name": "Marcos",
+   "role": "futsal coach",
+   "persona": "Broad-shouldered and patient, he treats every problem like a free kick. He believes the morro fixes itself if people show up.",
+   "knowledge": [
+    "The quadra's floodlights run off the same line as the cable car, so the stall dims the court too.",
+    "He can spare a runner to carry the fuse up the 212 steps.",
+    "The urubus circle lower when a cable stalls, they follow the dead air."
+   ],
+   "secrets": [
+    "He lets Júnior's boys use the court at night for something he chooses not to ask about."
+   ],
+   "home": "casa_azul",
+   "work": "quadra",
+   "schedule": [
+    {
+     "hour": 9,
+     "place": "quadra",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "casa_azul",
+     "activity": "eat"
+    },
+    {
+     "hour": 15,
+     "place": "quadra",
+     "activity": "work"
+    },
+    {
+     "hour": 20,
+     "place": "casa_azul",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "bia",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0.2,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 0.9
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "lurdes",
+   "name": "Dona Lurdes",
+   "role": "sacristan",
+   "persona": "Small, stern and devout, she runs the chapel like a ship. She prays for the cable car the way others pray for rain.",
+   "knowledge": [
+    "The chapel bell can be rung to call help up the slope when the mast is dead.",
+    "She keeps a flashlight in the sacristy for the dark stairs.",
+    "The station engineer once confessed that the fuse housing was never sealed against the damp."
+   ],
+   "secrets": [
+    "She took the donation box money to buy a new fuse last year and the fuse she bought was the wrong size."
+   ],
+   "home": "casa_tijolo",
+   "work": "igreja_morro",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "igreja_morro",
+     "activity": "pray"
+    },
+    {
+     "hour": 10,
+     "place": "igreja_morro",
+     "activity": "work"
+    },
+    {
+     "hour": 16,
+     "place": "mercadinho",
+     "activity": "trade"
+    },
+    {
+     "hour": 19,
+     "place": "casa_tijolo",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "nena",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0.1,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 1.3,
+    "rate": 0.8
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "junior",
+   "name": "Júnior",
+   "role": "moto-taxi rider",
+   "persona": "Fast, cocky and always in motion, he knows every beco and who is watching it. He wants the car running because a stalled slope means no fares.",
+   "knowledge": [
+    "The back beco behind Casa Azul cuts forty steps off the climb, but it is steep.",
+    "He can carry the player to the third landing on the bike for fifty reais.",
+    "The cable station looks dark because the glass cabin lost power, not because anyone left."
+   ],
+   "secrets": [
+    "He saw someone at the station yesterday cutting the fuse box seal and said nothing."
+   ],
+   "home": "casa_azul",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 8,
+     "place": "street",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "padaria",
+     "activity": "eat"
+    },
+    {
+     "hour": 14,
+     "place": "street",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "laje_bar",
+     "activity": "drink"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tiao",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "rogue_hooded",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0.4,
+     "talk_to": 0,
+     "idle": -0.3,
+     "flee": 0.1,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1.3
+   },
+   "mood": "tense"
+  }
+ ],
+ "items": [
+  {
+   "id": "fusivel",
+   "name": "Yellow Fuse",
+   "description": "A 40-amp yellow fuse, wrapped in a rag.",
+   "holder": "zeca"
+  },
+  {
+   "id": "chave_estacao",
+   "name": "Station Key",
+   "description": "A heavy brass key on a loop of wire.",
+   "holder": "laje_bar"
+  },
+  {
+   "id": "lanterna",
+   "name": "Sacristy Flashlight",
+   "description": "A rubber torch, battery half-dead.",
+   "holder": "igreja_morro"
+  }
+ ],
+ "quest": {
+  "id": "quest_teleferico",
+  "title": "Dead Wire Over Morro Alto",
+  "hook": "The cable car has stopped halfway up the hill and the cabin hangs dark over the bay. Without it the slope is cut off from the city, and the stairs get dangerous after dark. Someone has to climb to the station and restart it before night falls.",
+  "giver": "nena",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "nena",
+    "requires": [],
+    "objective": "Hear from Dona Nena what failed.",
+    "beat": "She tells you it is the fuse and says Zeca keeps the spares, though he will pretend otherwise.",
+    "reveals": [
+     "nena:0"
+    ]
+   },
+   {
+    "id": "s2",
+    "kind": "fetch",
+    "target": "fusivel",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Get the yellow fuse from Zeca at the oficina.",
+    "beat": "Zeca hands it over after some grumbling about debts and biscuit tins.",
+    "item": "fusivel",
+    "reveals": [
+     "zeca:0"
+    ]
+   },
+   {
+    "id": "s3",
+    "kind": "fetch",
+    "target": "chave_estacao",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Pick up the station key at the Bar da Laje.",
+    "beat": "Tião slides it across the counter, wiping the table and not meeting your eyes.",
+    "item": "chave_estacao",
+    "reveals": [
+     "tiao:0"
+    ]
+   },
+   {
+    "id": "s4",
+    "kind": "choose",
+    "target": "junior",
+    "requires": [
+     "s2",
+     "s3"
+    ],
+    "objective": "Decide how to reach the station.",
+    "beat": "Júnior offers the bike up the beco, but the stairs are slower and safer, and the urubus are circling low.",
+    "choices": [
+     {
+      "label": "Ride with Júnior up the back beco",
+      "unlocks": [
+       "s5a"
+      ]
+     },
+     {
+      "label": "Climb the 212 stairs on foot",
+      "unlocks": [
+       "s5b"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s5a",
+    "kind": "visit",
+    "target": "cable_car",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Reach the Teleférico Station by the beco.",
+    "beat": "The bike screams up the beco and drops you at the gate, Júnior watching the fuse box seal as if it were wrong.",
+    "reveals": [
+     "junior:0"
+    ]
+   },
+   {
+    "id": "s5b",
+    "kind": "visit",
+    "target": "cable_car",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Climb the stairs to the Teleférico Station.",
+    "beat": "The stairs are steep and the vira-latas turn back at the third landing, pigeons scattering below as dusk deepens.",
+    "reveals": [
+     "marcos:0"
+    ]
+   },
+   {
+    "id": "s6",
+    "kind": "deliver",
+    "target": "nena",
+    "requires": [
+     "s5a"
+    ],
+    "objective": "Report back that the fuse is in and the car is moving.",
+    "beat": "The cabin shudders and slides, and the lights come back across the morro. Nena nods once and pretends she was never worried.",
+    "item": "fusivel"
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6",
+    "label": "The car runs and the morro reconnects, though debts and suspicions remain.",
+    "tone": "good"
+   },
+   {
+    "stepId": "s5b",
+    "label": "You restart it on your own, unseen, and the slope never learns who did it.",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r_curfew",
+   "text": "After 21:00 the stairs above the quadra are closed to casual walkers.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 21,
+    "toHour": 5,
+    "exemptRoles": [
+     "moto-taxi rider",
+     "sacristan"
+    ]
+   },
+   "source": "world"
+  },
+  {
+   "id": "r_price",
+   "text": "Spare fuses cost triple while the car is down.",
+   "effect": {
+    "type": "price",
+    "item": "fusivel",
+    "multiplier": 3
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "laje",
+  "morro",
+  "quebrada",
+  "beco",
+  "reais",
+  "carioca"
+ ],
+ "style": {
+  "name": "Morro Alto dusk",
+  "wall": "#a89c88",
+  "wall2": "#8a5a47",
+  "roof": "#6e5a4c",
+  "trim": "#c4bbab",
+  "accent": "#3f6f86",
+  "dark": "#2a2623",
+  "glass": "#2c3a44",
+  "glow": "#ffb86b",
+  "ground": "#7a6c58",
+  "road": "#575450",
+  "variety": 0.25,
+  "foliage": "#46603a",
+  "bark": "#5a4634",
+  "surfaces": {
+   "wall": "plaster",
+   "wall2": "brick",
+   "roof": "corrugated",
+   "trim": "concrete",
+   "ground": "dirt",
+   "road": "concrete",
+   "wear": 0.7,
+   "wet": 0
+  }
+ },
+ "site": {
+  "pattern": "terraces",
+  "wild": 0.12,
+  "paths": "track",
+  "spacing": 3
+ },
+ "mood": {
+  "weather": "clear",
+  "intensity": 0,
+  "grade": "golden",
+  "haze": 0.55,
+  "ambience": [
+   "crowd",
+   "birds",
+   "machinery",
+   "wind"
+  ],
+  "music": "distant samba cavaquinho"
+ },
+ "terrain": {
+  "relief": "terraced",
+  "ruggedness": 0.7,
+  "water": "shore",
+  "waterAmount": 0.25,
+  "horizon": "Guanabara Bay and Sugarloaf at dusk",
+  "settled": 0.85
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "vira_latas",
+   "name": "vira-lata strays",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.5,
+    "bulk": 0.35
+   },
+   "size": 0.6,
+   "count": 4,
+   "behaviour": "roam",
+   "haunt": "plaza",
+   "body": "#a67c52",
+   "accent": "#e8dcc0",
+   "glow": "#000000",
+   "note": "Street dogs, tails up, utterly at home."
+  },
+  {
+   "id": "urubus",
+   "name": "black vultures",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.8
+   },
+   "size": 0.7,
+   "count": 5,
+   "behaviour": "circle",
+   "haunt": "sky",
+   "body": "#1f1f22",
+   "accent": "#6a6a70",
+   "glow": "#000000",
+   "note": "Kettling on the evening thermals above the roofs."
+  },
+  {
+   "id": "sagui",
+   "name": "marmosets",
+   "family": "biped",
+   "dials": {
+    "limbs": 0.4,
+    "hair": 0.8
+   },
+   "size": 0.25,
+   "count": 3,
+   "behaviour": "perch",
+   "haunt": "caixa_dagua",
+   "body": "#9a8a78",
+   "accent": "#e8e0d0",
+   "glow": "#000000",
+   "note": "Tufted-eared and cheeky, raiding the cable runs."
+  },
+  {
+   "id": "pombos",
+   "name": "feral pigeons",
+   "family": "bird",
+   "dials": {},
+   "size": 0.3,
+   "count": 8,
+   "behaviour": "flock",
+   "haunt": "plaza",
+   "body": "#8d949c",
+   "accent": "#4f5a66",
+   "glow": "#000000",
+   "note": "Wheeling between laundry lines and the court."
+  }
+ ],
+ "folk": {
+  "name": "Carioca residents",
+  "height": 1.7,
+  "bulk": 0.45,
+  "head": 1,
+  "features": [
+   "hat"
+  ],
+  "skin": [
+   "#8a5a3c",
+   "#6b4330",
+   "#c08a62"
+  ],
+  "cloth": [
+   "#d9d2c3",
+   "#3f6f8f",
+   "#c46745"
+  ],
+  "trim": [
+   "#e0b543",
+   "#2f7a4a"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "stacked_house",
+   "summary": "stacked blue house, 3 storeys, about 10 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 9.6,
+     "w": 0.5,
+     "d": 0.7,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3,
+     "z": -0.2,
+     "y": 9.6,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 3.2,
+     "w": 0.9,
+     "d": 0.04,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.5,
+     "y": 1.2,
+     "w": 0.14,
+     "d": 0.02,
+     "h": 0.18,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.5
+    }
+   ],
+   "doorX": 0.2,
+   "family": "hall",
+   "dials": {
+    "storeys": 3,
+    "roof": "flat",
+    "overhang": 0.08,
+    "front": "stoop",
+    "rhythm": 3,
+    "chimney": 0,
+    "taper": 0.1
+   }
+  },
+  {
+   "id": "brick_house",
+   "summary": "raw brick house with rebar, about 6 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": -0.4,
+     "z": 0.2,
+     "y": 6,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 3,
+     "gap": 0.4
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.4,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.15,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.5,
+     "y": 1.4,
+     "w": 0.12,
+     "d": 0.02,
+     "h": 0.16,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": -0.2,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "shed",
+    "overhang": 0.05,
+    "front": "plain",
+    "rhythm": 2,
+    "chimney": 0,
+    "taper": 0
+   }
+  },
+  {
+   "id": "water_tower",
+   "summary": "blue cistern tower on stilts, 14 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 8,
+     "w": 0.7,
+     "d": 0.7,
+     "h": 5.5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 13.5,
+     "w": 0.7,
+     "d": 0.7,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.8,
+     "d": 0.04,
+     "h": 0.05,
+     "rot": 45,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 10,
+     "w": 0.74,
+     "d": 0.74,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.5
+    }
+   ],
+   "doorX": 0,
+   "family": "stilts",
+   "dials": {
+    "legHeight": 8,
+    "legs": 4,
+    "hut": 0.6,
+    "access": "ladder"
+   }
+  },
+  {
+   "id": "cable_mast",
+   "summary": "steel mast hung with wires, 20 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 13,
+     "w": 0.3,
+     "d": 0.2,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.2,
+     "z": 0,
+     "y": 16,
+     "w": 0.15,
+     "d": 0.15,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2,
+     "w": 0.6,
+     "d": 0.5,
+     "h": 2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "mast",
+   "dials": {
+    "height": 20,
+    "shaft": "lattice",
+    "arms": 3,
+    "armLength": 0.7,
+    "hang": "wires",
+    "top": "light",
+    "stays": 3,
+    "base": "pad"
+   }
+  },
+  {
+   "id": "chapel",
+   "summary": "white chapel, squat bell tower, 12 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.3,
+     "y": 6.4,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 5.6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0.3,
+     "z": 0.3,
+     "y": 12,
+     "w": 0.32,
+     "d": 0.32,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0.3,
+     "z": 0.46,
+     "y": 8.5,
+     "w": 0.12,
+     "d": 0.04,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.47,
+     "y": 9,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.2,
+     "z": 0.5,
+     "y": 4,
+     "w": 0.16,
+     "d": 0.02,
+     "h": 0.16,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": -0.15,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "gable",
+    "overhang": 0.1,
+    "front": "porch",
+    "rhythm": 3,
+    "chimney": 0,
+    "taper": 0
+   }
+  },
+  {
+   "id": "cable_station",
+   "summary": "concrete cable-car station, 10 m with cabin",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.3,
+     "y": 10,
+     "w": 0.7,
+     "d": 0.5,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.5,
+     "z": 0.5,
+     "y": 3,
+     "w": 0.1,
+     "d": 0.02,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 3,
+     "gap": 1
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.5,
+     "z": 0,
+     "y": 10.5,
+     "w": 0.6,
+     "d": 0.04,
+     "h": 0.05,
+     "rot": 90,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 1.5,
+     "w": 0.1,
+     "d": 0.02,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.6
+    }
+   ],
+   "doorX": -0.2,
+   "family": "block",
+   "dials": {
+    "modules": 3,
+    "offset": 0.1,
+    "cantilever": 0.3
+   }
+  },
+  {
+   "id": "cage_court",
+   "summary": "caged concrete futsal court, fence 8 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.96,
+     "d": 0.96,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.45,
+     "y": 6,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.04,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.6
+    },
+    {
+     "shape": "box",
+     "x": 0.2,
+     "z": 0.5,
+     "y": 7,
+     "w": 0.1,
+     "d": 0.02,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.5
+    }
+   ],
+   "doorX": 0,
+   "family": "wall",
+   "dials": {
+    "height": 8,
+    "crenels": 0,
+    "posts": 10
+   }
+  },
+  {
+   "id": "bakery_shop",
+   "summary": "two-storey bakery with tin awning, 7 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.04,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.6,
+     "w": 0.7,
+     "d": 0.02,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.2,
+     "z": 0.5,
+     "y": 4.6,
+     "w": 0.12,
+     "d": 0.02,
+     "h": 0.18,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.35
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "shed",
+    "overhang": 0.2,
+    "front": "awning",
+    "rhythm": 3,
+    "chimney": 1,
+    "taper": 0
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "almond_tree",
+   "size": 8,
+   "parts": [],
+   "weight": 2,
+   "family": "broadleaf",
+   "dials": {
+    "height": 2,
+    "trunk": 0.3,
+    "girth": 0.2,
+    "limbs": 3,
+    "spread": 0.8,
+    "crown": "round"
+   }
+  },
+  {
+   "kind": "banana_clump",
+   "size": 3,
+   "parts": [],
+   "weight": 3,
+   "family": "palm",
+   "dials": {
+    "height": 0.8,
+    "girth": 0.1,
+    "crown": 1,
+    "fronds": 6,
+    "arch": 0.9
+   }
+  },
+  {
+   "kind": "weed_scrub",
+   "size": 1.5,
+   "parts": [],
+   "weight": 4,
+   "family": "shrub",
+   "dials": {
+    "form": "tangle",
+    "height": 0.8,
+    "spread": 0.9,
+    "density": 0.6
+   }
+  },
+  {
+   "kind": "street_lamp",
+   "size": 2,
+   "parts": [],
+   "weight": 2,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 3,
+    "arms": 1
+   }
+  },
+  {
+   "kind": "concrete_stair_rail",
+   "size": 1.5,
+   "parts": [],
+   "weight": 2,
+   "family": "container",
+   "dials": {
+    "form": "tank",
+    "count": 2,
+    "height": 1
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "christ_statue",
+   "prompt": "concrete hilltop statue of a robed figure with outstretched arms on a stepped plinth, pale weathered stone, stained by rain, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 10
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{"prompt":"a research base on Mars","ok":true,"secs":29.1,"blueprints":5,"bpFamilies":1,"blueprintsUsed":5,"buildings":5,"propKinds":5,"propFamilies":1,"people":4,"creatureKinds":2,"questSteps":6,"rawBlueprints":5,"rawProps":5,"rawNpcs":4,"fellBack":[],"error":null}
+{"prompt":"midtown Manhattan at rush hour","ok":false,"err":"TypeError: terminated","secs":0}
+{"prompt":"an Edo-period Japanese village in autumn","ok":true,"secs":34.3,"blueprints":6,"bpFamilies":1,"blueprintsUsed":6,"buildings":6,"propKinds":5,"propFamilies":1,"people":5,"creatureKinds":3,"questSteps":7,"rawBlueprints":6,"rawProps":5,"rawNpcs":5,"fellBack":[],"error":null}
+{"prompt":"an underwater coral city","ok":true,"secs":38.2,"blueprints":8,"bpFamilies":1,"blueprintsUsed":8,"buildings":10,"propKinds":5,"propFamilies":1,"people":5,"creatureKinds":5,"questSteps":9,"rawBlueprints":8,"rawProps":5,"rawNpcs":5,"fellBack":[],"error":null}
+{"prompt":"a medieval castle under siege","ok":true,"secs":34.7,"blueprints":8,"bpFamilies":1,"blueprintsUsed":8,"buildings":8,"propKinds":6,"propFamilies":1,"people":5,"creatureKinds":3,"questSteps":7,"rawBlueprints":8,"rawProps":6,"rawNpcs":5,"fellBack":[],"error":null}
+{"prompt":"a Rio favela on a hillside","ok":true,"secs":45.6,"blueprints":8,"bpFamilies":1,"blueprintsUsed":8,"buildings":12,"propKinds":5,"propFamilies":1,"people":7,"creatureKinds":4,"questSteps":7,"rawBlueprints":8,"rawProps":5,"rawNpcs":7,"fellBack":[],"error":null}
+{"prompt":"an oil rig in a storm-free North Sea","ok":false,"err":"TypeError: terminated","secs":0}
+{"prompt":"a Mayan temple city in the jungle","ok":true,"secs":33.1,"blueprints":6,"bpFamilies":1,"blueprintsUsed":6,"buildings":6,"propKinds":5,"propFamilies":1,"people":3,"creatureKinds":4,"questSteps":8,"rawBlueprints":6,"rawProps":5,"rawNpcs":3,"fellBack":[],"error":null}
+{"prompt":"an American suburb in the 1950s","ok":false,"err":"TypeError: terminated","secs":0}
+{"prompt":"an Arctic research station","ok":true,"secs":30.3,"blueprints":4,"bpFamilies":1,"blueprintsUsed":4,"buildings":4,"propKinds":5,"propFamilies":1,"people":4,"creatureKinds":3,"questSteps":7,"rawBlueprints":4,"rawProps":5,"rawNpcs":4,"fellBack":[],"error":null}
+{"prompt":"a Moroccan bazaar","ok":false,"err":"TypeError: terminated","secs":0}
+{"prompt":"a cyberpunk alley market","ok":true,"secs":40.3,"blueprints":8,"bpFamilies":1,"blueprintsUsed":8,"buildings":12,"propKinds":5,"propFamilies":1,"people":7,"creatureKinds":3,"questSteps":7,"rawBlueprints":8,"rawProps":5,"rawNpcs":7,"fellBack":[],"error":null}
+{"prompt":"a Roman forum","ok":true,"secs":36.8,"blueprints":8,"bpFamilies":1,"blueprintsUsed":8,"buildings":10,"propKinds":5,"propFamilies":1,"people":7,"creatureKinds":3,"questSteps":7,"rawBlueprints":8,"rawProps":5,"rawNpcs":7,"fellBack":[],"error":null}
+{"prompt":"a treehouse village in giant redwoods","ok":true,"secs":33.6,"blueprints":6,"bpFamilies":1,"blueprintsUsed":6,"buildings":6,"propKinds":5,"propFamilies":1,"people":4,"creatureKinds":4,"questSteps":7,"rawBlueprints":6,"rawProps":5,"rawNpcs":4,"fellBack":[],"error":null}
+{"prompt":"a graveyard on a foggy moor","ok":false,"err":"TypeError: terminated","secs":0}
+{"prompt":"a candy kingdom","ok":true,"secs":37.1,"blueprints":8,"bpFamilies":1,"blueprintsUsed":8,"buildings":8,"propKinds":5,"propFamilies":1,"people":5,"creatureKinds":3,"questSteps":6,"rawBlueprints":8,"rawProps":5,"rawNpcs":5,"fellBack":[],"error":null}
+done 11/16

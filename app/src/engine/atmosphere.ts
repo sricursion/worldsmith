@@ -8,7 +8,7 @@ import type { GradeKind, MoodSpec, SkyPreset, StyleSpec, SurfaceKind, ThemeId, W
 import { makeRng } from '../world/rng';
 import type { Viewport } from './renderer';
 import { AIR, AIR_UNIFORMS, GRADES, applyGrade, gradeTint, onQuality, resetAirMods } from './post';
-import { REFERENCE_ALBEDO, acesDisplay, lightRigFor, playerFillIrradiance, skyLookFor, sunFromHour, type SkyRig } from './sky';
+import { REFERENCE_ALBEDO, acesDisplay, lightRigFor, playerFillIrradiance, skyLookFor, sunFromHour, type CloudForm, type SkyRig } from './sky';
 import { createWeather, type WeatherTint } from './weather';
 
 /** 0 dry .. 1 soaked. The atmosphere sets it; a ground material may read `WET.value` or hold the object as a uniform. */
@@ -303,6 +303,37 @@ export function airFor(mood: MoodSpec, baseWet = 0): AirSettings {
   };
 }
 
+/**
+ * The cloud each weather makes at full intensity: rain and storm bring big, solid, low masses; snow, fog and
+ * mist a soft low deck; dust, ash and embers thin high veils pulled into bands by the wind.
+ */
+export const CLOUD_FORMS: Record<WeatherKind, CloudForm> = {
+  clear: { size: 1, density: 1, elevation: 0.5, stretch: 1 },
+  rain: { size: 1.7, density: 1.9, elevation: 0.72, stretch: 1 },
+  storm: { size: 2.3, density: 2.6, elevation: 0.82, stretch: 1.3 },
+  snow: { size: 1.5, density: 1.3, elevation: 0.68, stretch: 1 },
+  fog: { size: 1.8, density: 0.8, elevation: 0.75, stretch: 1 },
+  mist: { size: 1.3, density: 0.75, elevation: 0.62, stretch: 1.4 },
+  dust: { size: 0.7, density: 0.5, elevation: 0.3, stretch: 3 },
+  ash: { size: 1.2, density: 1.5, elevation: 0.6, stretch: 2.2 },
+  spores: { size: 0.8, density: 0.7, elevation: 0.42, stretch: 1.6 },
+  embers: { size: 0.9, density: 1.2, elevation: 0.5, stretch: 2 },
+  fireflies: { size: 0.9, density: 0.8, elevation: 0.45, stretch: 1 },
+};
+
+/** The cloud form for a mood: fair-weather cloud at intensity 0, the weather's own at 1. */
+export function cloudFormFor(mood: Pick<MoodSpec, 'weather' | 'intensity'>): CloudForm {
+  const a = CLOUD_FORMS.clear;
+  const b = CLOUD_FORMS[mood.weather];
+  const i = Number.isFinite(mood.intensity) ? Math.min(1, Math.max(0, mood.intensity)) : 0;
+  return {
+    size: a.size + (b.size - a.size) * i,
+    density: a.density + (b.density - a.density) * i,
+    elevation: a.elevation + (b.elevation - a.elevation) * i,
+    stretch: a.stretch + (b.stretch - a.stretch) * i,
+  };
+}
+
 // ---- Brightness estimate -----------------------------------------------------------------------
 
 export interface ShownLuminance {
@@ -417,6 +448,8 @@ export function createAtmosphere(viewport: Viewport, sky: SkyRig): Atmosphere {
       if (disposed) return;
       mood = next ?? defaultMood(theme ?? inferTheme(style), sky.getPreset?.() ?? 'day', sky.getFogHint?.() ?? 0, sitePattern);
       target = airFor(mood, style?.surfaces?.wet ?? 0);
+      Object.assign(AIR.cloudForm, cloudFormFor(mood));
+      AIR.skyRev++;
       wetOverride = undefined;
       // A place that is wet when the player arrives is wet at once; only a change of weather soaks in slowly.
       WET.value = Math.max(WET.value, 0.85 * target.wet);

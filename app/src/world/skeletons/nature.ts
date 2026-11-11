@@ -9,6 +9,7 @@ import { build, finished, SPARE } from './nature-util';
 import * as trees from './nature-trees';
 import * as plants from './nature-plants';
 import * as ground from './nature-ground';
+import * as more from './nature-more';
 import type { Skeleton } from './types';
 
 export const broadleaf = finished(trees.broadleaf);
@@ -22,6 +23,14 @@ export const vine = finished(plants.vine);
 export const deadwood = finished(ground.deadwood);
 export const boulder = finished(ground.boulder);
 export const crystal = finished(ground.crystal);
+export const coral = finished(more.coral);
+export const lily = finished(more.lily);
+export const flower = finished(more.flower);
+export const crop = finished(more.crop);
+export const pod = finished(more.pod);
+export const pinnacle = finished(more.pinnacle);
+export const vent = finished(more.vent);
+export const mound = finished(more.mound);
 
 /**
  * The old ids keep to eight parts: a prop that arrives already expanded, with no family named, is held to
@@ -144,4 +153,5 @@ export const rock = finished(skel(
 /** Every nature skeleton, in catalogue order. The registry takes its nature families from this list. */
 export const NATURE_SKELETONS: Skeleton[] = [
   tree, rock, broadleaf, conifer, palm, succulent, fungus, shrub, grassclump, vine, deadwood, boulder, crystal,
+  coral, lily, flower, crop, pod, pinnacle, vent, mound,
 ];

@@ -1,8 +1,12 @@
-// Toasts (bottom-centre) and the blocking error modal with an optional retry.
-import { Bag, button, el, focusSoon } from './dom';
+// Toasts (bottom-centre), the one-line notice that stays until answered, and the blocking error modal.
+import { Bag, button, closeButton, el, focusSoon } from './dom';
+import { NOTICE } from './text';
 
 export interface NoticesView {
   toast(text: string, kind?: 'info' | 'warn'): void;
+  /** A single line that stays on screen until dismissed, with an optional retry. */
+  showNotice(text: string, retry?: () => void): void;
+  closeNotice(): void;
   showError(text: string, retry?: () => void): void;
   closeError(): void;
   isErrorOpen(): boolean;
@@ -20,6 +24,14 @@ export function createNotices(layer: HTMLElement): NoticesView {
 
   const timers = new Set<ReturnType<typeof setTimeout>>();
   let modal: { node: HTMLElement; bag: Bag; restore: HTMLElement | null } | null = null;
+
+  let notice: { node: HTMLElement; bag: Bag } | null = null;
+  const closeNotice = (): void => {
+    if (!notice) return;
+    notice.bag.dispose();
+    notice.node.remove();
+    notice = null;
+  };
 
   const dropToast = (node: HTMLElement): void => {
     node.remove();
@@ -46,6 +58,24 @@ export function createNotices(layer: HTMLElement): NoticesView {
       timers.add(timer);
       node.addEventListener('click', () => dropToast(node), { once: true });
     },
+
+    showNotice(text, retry) {
+      closeNotice();
+      const bag = new Bag();
+      const node = el('div', 'tf-notice tf-panel');
+      node.setAttribute('role', 'alert');
+      node.append(el('p', 'tf-notice-text', text));
+      if (retry) {
+        node.append(button('tf-btn tf-btn-small tf-btn-primary', NOTICE.retry, () => {
+          closeNotice();
+          retry();
+        }, bag));
+      }
+      node.append(closeButton(NOTICE.dismiss, bag, closeNotice));
+      layer.append(node);
+      notice = { node, bag };
+    },
+    closeNotice,
 
     showError(text, retry) {
       closeError();
@@ -100,6 +130,7 @@ export function createNotices(layer: HTMLElement): NoticesView {
       for (const t of timers) clearTimeout(t);
       timers.clear();
       closeError();
+      closeNotice();
       toasts.remove();
     },
   };

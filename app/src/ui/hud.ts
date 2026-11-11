@@ -2,9 +2,9 @@
 import type { WorldSpec } from '../world/spec';
 import { Bag, button, closeButton, el } from './dom';
 import { createSound, type SoundChange, type SoundSettings } from './sound';
-import { controlsHint, formatClock, normalizeHex, promptLabel, readableOn } from './text';
+import { controlsParts, formatClock, normalizeHex, promptLabel, readableOn } from './text';
 
-const HINT_MS = 15_000;
+const HINT_FADE_MS = 700;
 const MOVE_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 
 export interface HudHandlers {
@@ -23,6 +23,8 @@ export interface HudView {
   setObjective(text: string): void;
   setBadge(text: string | null): void;
   setPrompt(label: string | null): void;
+  /** A quiet line for work still going on behind the open world, or null to clear it. */
+  setPending(text: string | null): void;
   setHandlers(handlers: HudHandlers): void;
   getSound(): SoundSettings;
   adjustSound(change: SoundChange): SoundSettings;
@@ -36,6 +38,8 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
   let handlers: HudHandlers = {};
   const coarse = (): boolean => typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
   let hintTimer: ReturnType<typeof setTimeout> | undefined;
+  // Once the player has moved (or closed the hint) it stays away until the next world.
+  let hintDone = false;
 
   const hud = el('div', 'tf-hud');
   hud.hidden = true;
@@ -61,16 +65,41 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
   hint.hidden = true;
   const hideHint = (): void => {
     hint.hidden = true;
+    hint.classList.remove('tf-fading');
     if (hintTimer !== undefined) clearTimeout(hintTimer);
     hintTimer = undefined;
   };
-  const dismiss = closeButton('Dismiss controls hint', bag, hideHint);
+  // The hint has done its job at the first step: let it fade out instead of blinking off.
+  const fadeHint = (): void => {
+    hintDone = true;
+    if (hint.hidden || hintTimer !== undefined) return;
+    hint.classList.add('tf-fading');
+    hintTimer = setTimeout(hideHint, HINT_FADE_MS);
+  };
+  const dismiss = closeButton('Dismiss controls hint', bag, () => {
+    hintDone = true;
+    hideHint();
+  });
   const hintText = el('span', 'tf-controls-text');
   hint.append(hintText, dismiss);
   bag.on(document, 'keydown', (e) => {
-    if (!hint.hidden && MOVE_KEYS.has(e.code)) hideHint();
+    if (hud.hidden || !MOVE_KEYS.has(e.code)) return;
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    fadeHint();
+  });
+  // On touch there are no movement keys; the first touch on the scene is the first move.
+  bag.on(document, 'pointerdown', (e) => {
+    if (!hud.hidden && e.pointerType === 'touch' && e.target instanceof HTMLCanvasElement) fadeHint();
   });
   bag.add(hideHint);
+
+  const pending = el('p', 'tf-pending tf-panel');
+  pending.hidden = true;
+  pending.setAttribute('role', 'status');
+  const pendingText = el('span', 'tf-pending-text');
+  const pendingDots = el('span', 'tf-dots');
+  pendingDots.setAttribute('aria-hidden', 'true');
+  pending.append(pendingDots, pendingText);
 
   const prompt = button('tf-prompt', '');
   prompt.hidden = true;
@@ -112,7 +141,9 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
   bag.on(soundBtn, 'click', () => sound.toggle());
   bag.add(() => sound.dispose());
 
-  bottom.append(hint, objective, prompt, buttons);
+  const notes = el('div', 'tf-hud-notes');
+  notes.append(pending, hint);
+  bottom.append(notes, objective, prompt, buttons);
   hud.append(titleBox, topRight, bottom);
   layer.append(hud);
   bag.add(() => hud.remove());
@@ -128,14 +159,21 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
         root.style.setProperty('--on-accent', readableOn(accent));
       }
       hud.hidden = false;
-      hintText.textContent = controlsHint(coarse());
-      hint.hidden = false;
-      if (hintTimer !== undefined) clearTimeout(hintTimer);
-      hintTimer = setTimeout(hideHint, HINT_MS);
+      if (!hintDone && hint.hidden) {
+        hintText.replaceChildren();
+        for (const part of controlsParts(coarse())) {
+          const pair = el('span', 'tf-control');
+          pair.append(el('kbd', 'tf-kbd', part.key), ' ', part.label);
+          hintText.append(pair);
+        }
+        hint.hidden = false;
+      }
     },
     hide() {
       hud.hidden = true;
       hideHint();
+      hintDone = false;
+      pending.hidden = true;
       sound.close();
     },
     setClock(hour, day) {
@@ -153,6 +191,10 @@ export function createHud(layer: HTMLElement, root: HTMLElement): HudView {
     setPrompt(label) {
       prompt.hidden = label === null || label === '';
       prompt.textContent = label === null ? '' : promptLabel(label, coarse());
+    },
+    setPending(text) {
+      pending.hidden = text === null || text === '';
+      pendingText.textContent = text ?? '';
     },
     setHandlers(next) {
       handlers = next;

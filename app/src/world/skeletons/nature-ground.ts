@@ -1,9 +1,10 @@
 // What lies on the ground: dead wood, single boulders and crystal clusters. Heights are in footprint units.
-// Tones: wall2 wood and stone, accent moss, glass crystal, roof bracket fungus,
-// glow only when the glow dial is above 0.
+// Tones: wall2 wood and stone, accent moss on wood, roof bracket fungus and the moss or snow cap of a stone,
+// glass crystal, glow only when the glow dial is above 0.
 import type { PartTone } from '../spec';
 import { arch, box, C, clamp, cone, dome, lerp, N, num, pyr, skel, sph, str, int, wedge } from './util';
 import { blade, fin, GOLD, ORIGIN, Parts, polar, outward, TAU } from './nature-util';
+import type { P2 } from './nature-util';
 
 const rad = (deg: number): number => (deg * Math.PI) / 180;
 
@@ -150,12 +151,12 @@ export const deadwood = skel(
 );
 
 export const boulder = skel(
-  'boulder', 'nature', 'One large stone, rounded or faceted, low or standing, with rubble at its foot.',
+  'boulder', 'nature', 'One large stone or block of ice, rounded, weathered or split into sloping faces, with rubble at its foot.',
   ['erratic boulder', 'standing stone', 'meteorite', 'ice block', 'termite mound', 'sea stack'],
   [
     N('height', 0.3, 3, 0.8, 'height'),
     N('width', 0.4, 1.2, 0.9, 'width'),
-    N('angular', 0, 1, 0.4, '0 rounded, 1 sharp facets'),
+    N('angular', 0, 1, 0.4, '0 rounded, 0.5 weathered, 1 fractured faces'),
     N('scatter', 0, 1, 0.4, 'rubble at the foot'),
     N('split', 0, 1, 0, 'cleft into two'),
     N('moss', 0, 1, 0.2, 'moss or snow cap'),
@@ -177,8 +178,8 @@ export const boulder = skel(
     const shift = cleft ? W * 0.14 : 0;
     const o = polar(ORIGIN, a0, -shift);
     const w = cleft ? W * 0.72 : W;
-    let capY = H * 0.82;
-    let capW = w * 0.5;
+    /** The tallest broken face, which is where a cap of moss or snow lies. */
+    let crest: { from: P2; a: number; reach: number; thick: number; h: number } | undefined;
 
     if (ang < 0.35) {
       // Rounded: one mass swollen by smaller lobes of differing size.
@@ -189,48 +190,65 @@ export const boulder = skel(
       }
       const s = polar(o, a0 + 2, w * 0.14);
       out.add(sph(s.x, s.z, H * 0.3, w * 0.5, w * 0.45, H * 0.6, 'wall2', { rot: rng.range(0, 180) }));
-    } else if (ang < 0.7) {
-      // Worn block: a rounded core with the corners of flat faces just breaking through it.
-      out.add(sph(o.x, o.z, 0, w * 0.85, w * 0.74, H * 0.96, 'wall2', { rot: r0 }));
-      out.add(box(o.x, o.z, 0, w * 0.56, w * 0.48, H * 0.72, 'wall2', { rot: r0 + 20 }));
-      const c = polar(o, a0 + 1, w * 0.12);
-      out.add(box(c.x, c.z, 0, w * 0.44, w * 0.4, H * 0.5, 'wall2', { rot: r0 + 58 }));
-      const l = polar(o, a0 + 3.4, w * 0.2);
-      out.add(sph(l.x, l.z, 0, w * 0.5, w * 0.42, H * rng.range(0.4, 0.6), 'wall2', { rot: rng.range(0, 180) }));
-      out.add(fin(polar(o, a0 + 5, w * 0.15), a0 + 5, 0, w * 0.34, w * 0.4, H * 0.45, 'wall2'));
-      capY = H * 0.86;
     } else {
-      // Faceted: a low block and a taller one turned against it, each with a sloped top, and slabs leaning on the foot.
-      const c = polar(o, a0 + 1, w * 0.1);
-      out.add(box(o.x, o.z, 0, w * 0.8, w * 0.62, H * 0.5, 'wall2', { rot: r0 }));
-      out.add(wedge(o.x, o.z, H * 0.5, w * 0.8, w * 0.62, Math.max(0.05, H * 0.26), 'wall2', { rot: r0 + (rng.chance(0.5) ? 180 : 0) }));
-      out.add(box(c.x, c.z, 0, w * 0.5, w * 0.46, H * 0.7, 'wall2', { rot: r0 + 38 }));
-      out.add(wedge(c.x, c.z, H * 0.7, w * 0.5, w * 0.46, Math.max(0.05, H * 0.3), 'wall2', { rot: r0 + 38 + 180 * rng.int(0, 1) }));
-      out.add(fin(polar(o, a0 + 3, w * 0.2), a0 + 3, 0, w * 0.4, w * 0.45, H * 0.45, 'wall2'));
-      out.add(fin(polar(o, a0 + 5.2, w * 0.2), a0 + 5.2, 0, w * 0.34, w * 0.3, H * 0.6, 'wall2'));
-      capY = H * 0.55;
-      capW = w * 0.4;
+      // Weathered or fractured: faces that slope away from a high point, no two turned the same way or
+      // standing the same height. There is no flat top and no upright block anywhere in it.
+      const sharp = ang >= 0.7;
+      const faces = sharp ? 4 : 3;
+      const back = w * (sharp ? 0.14 : 0.06);
+      for (let j = 0; j < faces; j++) {
+        const a = a0 + (j * TAU) / faces + rng.range(-0.35, 0.35);
+        const from = polar(o, a, -back);
+        const reach = Math.min(w * rng.range(0.5, 0.62), 0.47 + back);
+        const thick = w * (sharp ? rng.range(0.36, 0.55) : rng.range(0.45, 0.62));
+        const h = H * ([1, 0.78, 0.6, 0.42][j] ?? 0.5) * (j === 0 ? 1 : rng.range(0.9, 1));
+        out.add(fin(from, a, 0, reach, thick, h, 'wall2'));
+        if (j === 0) crest = { from, a, reach, thick, h };
+      }
+      if (sharp) {
+        // A squat mass closes the gaps low down, and a thin slab has slid off and leans on the foot.
+        out.add(sph(o.x, o.z, 0, w * 0.7, w * 0.6, H * 0.45, 'wall2', { rot: r0 }));
+        const la = a0 + 0.9;
+        out.add(fin(polar(o, la, w * 0.2), la, 0, w * 0.3, Math.max(0.03, w * 0.1), H * rng.range(0.5, 0.75), 'wall2'));
+      } else {
+        // A rounded core swells between the faces, with a shoulder on one side.
+        out.add(sph(o.x, o.z, 0, w * 0.8, w * 0.7, H * lerp(0.95, 0.72, (ang - 0.35) / 0.35), 'wall2', { rot: r0 }));
+        const l = polar(o, a0 + 3.4, w * 0.22);
+        out.add(sph(l.x, l.z, 0, w * 0.5, w * 0.42, H * rng.range(0.4, 0.6), 'wall2', { rot: rng.range(0, 180) }));
+      }
     }
     if (cleft) {
-      const c = polar(ORIGIN, a0, Math.min(0.48, shift + W * 0.24 + split * 0.05));
+      const r = Math.min(0.4, shift + W * 0.24 + split * 0.05);
+      const c = polar(ORIGIN, a0, r);
       const hw = W * 0.4;
       const hh = H * rng.range(0.6, 0.85);
       if (ang < 0.5) out.add(sph(c.x, c.z, 0, hw, hw * 1.3, hh, 'wall2', { rot: outward(a0) }));
-      else out.add(box(c.x, c.z, 0, hw * 0.8, hw * 1.2, hh, 'wall2', { rot: outward(a0) }), wedge(c.x, c.z, hh, hw * 0.8, hw * 1.2, Math.max(0.05, hh * 0.2), 'wall2', { rot: outward(a0) }));
+      else {
+        // The smaller half stands tall at the cleft and slopes away from it.
+        out.add(fin(polar(ORIGIN, a0, r - hw * 0.3), a0, 0, hw * 0.6, hw * 1.2, hh, 'wall2'));
+        out.add(sph(c.x, c.z, 0, hw * 0.7, hw, hh * 0.5, 'wall2', { rot: outward(a0) }));
+      }
     }
     const stones = Math.round(scatter * 5);
     for (let i = 0; i < stones; i++) {
       const c = polar(ORIGIN, a0 + 0.7 + i * GOLD, Math.min(0.48, W * rng.range(0.45, 0.58)));
       const s = W * rng.range(0.12, 0.22);
-      const maker = ang < 0.35 ? sph : i % 2 === 0 ? box : pyr;
-      out.add(maker(c.x, c.z, 0, s, s * rng.range(0.7, 1), Math.max(0.05, s * rng.range(0.5, 0.9)), 'wall2', { rot: rng.range(0, 90) }));
+      const maker = ang < 0.35 ? sph : i % 2 === 0 ? wedge : pyr;
+      out.add(maker(c.x, c.z, 0, s, s * rng.range(0.7, 1), Math.max(0.05, s * rng.range(0.5, 0.9)), 'wall2', { rot: rng.range(0, 180) }));
     }
     out.add(sph(0, Math.min(0.44, W * 0.5), 0, 0.09, 0.08, 0.05, 'wall2', { rot: rng.range(0, 180), repeat: 3, gap: W * 0.27 }));
     if (moss > 0.1) {
-      out.extra(dome(o.x, o.z, capY, capW * lerp(0.7, 1.3, moss), capW * lerp(0.6, 1.1, moss), Math.max(0.05, H * 0.08 + 0.03), 'accent', { rot: r0 }));
+      if (crest) {
+        // The cap lies on the upper part of the tallest face, a little proud of it on every side.
+        const f = lerp(0.3, 0.6, moss);
+        out.extra(fin(polar(crest.from, crest.a, -0.012), crest.a, crest.h * (1 - f) + 0.02, crest.reach * f + 0.012, crest.thick * 1.04, crest.h * f, 'roof'));
+      } else {
+        const capW = w * 0.5;
+        out.extra(dome(o.x, o.z, H * 0.82, capW * lerp(0.7, 1.3, moss), capW * lerp(0.6, 1.1, moss), Math.max(0.05, H * 0.08 + 0.03), 'roof', { rot: r0 }));
+      }
       if (moss > 0.6) {
         const c = polar(o, a0 + 4, w * 0.36);
-        out.extra(sph(c.x, c.z, 0, w * 0.36, w * 0.3, Math.max(0.05, H * 0.22), 'accent'));
+        out.extra(sph(c.x, c.z, 0, w * 0.36, w * 0.3, Math.max(0.05, H * 0.22), 'roof'));
       }
     }
     if (glow > 0) {

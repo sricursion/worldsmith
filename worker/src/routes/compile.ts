@@ -9,6 +9,7 @@
 //                               haze, ambience, music) and time.startHour
 //              look {...}       style (with surfaces), site, blueprints, props, landmarks, buildings (with blueprint ids)
 //              spec {...}       the merged WorldSpec
+//              stage {stage, fallback, why}   one per look/story stage that fell back to the stock result (ignored by the client)
 //              error {error, reason?}
 import { anthropicEvents, anthropicFetch, SONNET, type MessagesBody } from '../lib/anthropic';
 import type { Env } from '../lib/env';
@@ -132,33 +133,44 @@ async function runOutline(run: Run, prompt: string, seed: number): Promise<{ ok:
   return { ok: false, reason: last };
 }
 
+/** Tells a watcher (the live scripts) that a stage was replaced by the stock result and why. */
+async function noteFallback(run: Run, stage: 'look' | 'story', why: string): Promise<void> {
+  await run.sse.send('stage', { stage, fallback: true, why });
+}
+
 async function runLook(run: Run, prompt: string, seed: number, outline: Outline): Promise<LookResult> {
-  const fallback = (): LookResult => mockLook(prompt, seed, outline.theme, outline);
+  const fallback = async (why: string): Promise<LookResult> => {
+    await noteFallback(run, 'look', why);
+    return mockLook(prompt, seed, outline.theme, outline);
+  };
   const r = await streamStage(run, {
     model: SONNET, max_tokens: 6000, thinking: { type: 'between_tools' }, output_config: { effort: 'high' },
     system: cached(lookSystemPrompt()), messages: [{ role: 'user', content: lookUserMessage(prompt, seed, outline) }],
   }, LOOK_MS);
-  if (!r.ok) return fallback();
+  if (!r.ok) return fallback(r.reason);
   const base = FIXTURES[outline.theme].style ?? BASE[outline.theme];
   const look = coerceLook(parseLooseJson(r.text), outline, base, prompt);
   if (!look) {
     console.warn('compile look unreadable', r.stop, r.text.length);
-    return fallback();
+    return fallback('unreadable');
   }
   return look;
 }
 
 async function runStory(run: Run, prompt: string, seed: number, outline: Outline): Promise<StoryResult> {
-  const fallback = (): StoryResult => mockStory(outline.theme, outline);
+  const fallback = async (why: string): Promise<StoryResult> => {
+    await noteFallback(run, 'story', why);
+    return mockStory(outline.theme, outline);
+  };
   const r = await streamStage(run, {
     model: SONNET, max_tokens: 7000, thinking: { type: 'between_tools' }, output_config: { effort: 'high' },
     system: cached(storySystemPrompt()), messages: [{ role: 'user', content: storyUserMessage(prompt, seed, outline) }],
   }, STORY_MS);
-  if (!r.ok) return fallback();
+  if (!r.ok) return fallback(r.reason);
   const story = coerceStory(parseLooseJson(r.text), outline);
   if (!story) {
     console.warn('compile story unreadable', r.stop, r.text.length);
-    return fallback();
+    return fallback('unreadable');
   }
   return story;
 }

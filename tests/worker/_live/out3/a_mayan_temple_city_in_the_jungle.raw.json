@@ -1,0 +1,1124 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a Mayan temple city in the jungle",
+ "title": "City of the Jaguar Sun",
+ "tagline": "Stone stairs climb above the endless canopy",
+ "theme": "medieval",
+ "era": "Late Classic Maya",
+ "palette": {
+  "ground": "#3f4a30",
+  "accent": "#8a4a32",
+  "sky": "dawn",
+  "fog": 0.5
+ },
+ "time": {
+  "startHour": 6.5,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "grand_pyramid",
+   "role": "church",
+   "label": "Temple of the Jaguar Sun",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "jaguar_pyramid"
+  },
+  {
+   "id": "sky_temple",
+   "role": "church",
+   "label": "Temple of Sky",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "sky_comb_temple"
+  },
+  {
+   "id": "ball_court",
+   "role": "plaza",
+   "label": "Ball Court",
+   "size": "medium",
+   "blueprint": "ball_court_sunk"
+  },
+  {
+   "id": "stela_plaza",
+   "role": "plaza",
+   "label": "Plaza of Stelae",
+   "size": "medium",
+   "blueprint": "stela_row"
+  },
+  {
+   "id": "palace",
+   "role": "townhall",
+   "label": "Palace of Lords",
+   "size": "medium",
+   "blueprint": "vaulted_palace"
+  },
+  {
+   "id": "caretaker_camp",
+   "role": "house",
+   "label": "Caretaker Camp",
+   "size": "small",
+   "keyBuilding": true,
+   "blueprint": "caretaker_hut"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "itzel",
+   "name": "Itzel",
+   "role": "site guide",
+   "persona": "Brisk and dry, she has walked these terraces since childhood and has no patience for tourists or tomb robbers. She wants the dawn ritual back before the roots take the stair for good.",
+   "knowledge": [
+    "The glyph stair at the Temple of the Jaguar Sun went silent after the last rains split its lower steps.",
+    "Xoc reads the stelae at dawn, but he has not climbed the stair in a year.",
+    "The jaguar hunts the ball court edge at first light; keep to the sacbe road."
+   ],
+   "secrets": [
+    "She once sold a carved flint from the palace to a trader for cacao beans and has regretted it since."
+   ],
+   "home": "caretaker_camp",
+   "work": "stela_plaza",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "caretaker_camp",
+     "activity": "eat"
+    },
+    {
+     "hour": 7,
+     "place": "stela_plaza",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "street",
+     "activity": "wander"
+    },
+    {
+     "hour": 20,
+     "place": "caretaker_camp",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "xoc",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.4,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 1.1
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "balam",
+   "name": "Balam",
+   "role": "stone cleaner",
+   "persona": "Slow-spoken and stubborn, he scrapes moss and root from the pyramid steps with a bone chisel. He trusts stone more than people and answers questions with one word when he can.",
+   "knowledge": [
+    "Roots have buried the lowest glyph block of the stair; it must be dug free to be read.",
+    "A chultun behind the Temple of the Jaguar Sun holds a cleaning adze and a coil of rope.",
+    "The pyramid faces the dawn; the ritual was timed to the first light on the stair."
+   ],
+   "secrets": [
+    "He pried a glyph block loose last season to clean behind it and could not set it back; he hid it under the sky temple stair."
+   ],
+   "home": "caretaker_camp",
+   "work": "grand_pyramid",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "caretaker_camp",
+     "activity": "eat"
+    },
+    {
+     "hour": 6,
+     "place": "grand_pyramid",
+     "activity": "work"
+    },
+    {
+     "hour": 14,
+     "place": "caretaker_camp",
+     "activity": "rest"
+    },
+    {
+     "hour": 19,
+     "place": "caretaker_camp",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "itzel",
+     "stance": "neutral"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.2,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.6
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "xoc",
+   "name": "Xoc",
+   "role": "glyph reader",
+   "persona": "A thin, anxious scholar who counts the tzolkin days on his fingers and speaks in long, fretful sentences. He fears the silence of the stair means a calendar has been lost, and he blames himself.",
+   "knowledge": [
+    "The stair text names the ahau who dedicated it and gives the date the dawn ritual must be sung.",
+    "Kukulkan is invoked in the final line; without that block the sequence cannot be completed aloud.",
+    "The Plaza of Stelae records the same dedication in a shorter form, but its lowest stela is worn smooth."
+   ],
+   "secrets": [
+    "He misread the date on the stair two years ago and told the caretakers the wrong day for the ritual."
+   ],
+   "home": "palace",
+   "work": "stela_plaza",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "palace",
+     "activity": "rest"
+    },
+    {
+     "hour": 6,
+     "place": "stela_plaza",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "palace",
+     "activity": "eat"
+    },
+    {
+     "hour": 21,
+     "place": "palace",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "itzel",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.1,
+    "rate": 1.2
+   },
+   "mood": "afraid"
+  }
+ ],
+ "items": [
+  {
+   "id": "cleaning_adze",
+   "name": "Bone Adze",
+   "description": "A short adze of deer bone and chert, worn smooth by years of root-cutting.",
+   "holder": "grand_pyramid"
+  },
+  {
+   "id": "glyph_block",
+   "name": "Loose Glyph Block",
+   "description": "A palm-thick limestone block carved with the final glyphs of the stair, caked in clay.",
+   "holder": "sky_temple"
+  },
+  {
+   "id": "macaw_feather",
+   "name": "Scarlet Macaw Feather",
+   "description": "A long red tail feather dropped by the flock; ritual dress needs it.",
+   "holder": "ball_court"
+  }
+ ],
+ "quest": {
+  "id": "quiet_stair",
+  "title": "The Quiet Stair",
+  "hook": "Mist sits on the Temple of the Jaguar Sun and the glyph stair no longer speaks. The dawn ritual has not been sung in a season, and the caretakers say roots have buried what must be read. They will take help from a stranger with steady hands.",
+  "giver": "itzel",
+  "steps": [
+   {
+    "id": "s1_talk",
+    "kind": "talk",
+    "target": "itzel",
+    "requires": [],
+    "objective": "Hear Itzel out at the Plaza of Stelae.",
+    "beat": "Itzel says the stair fell quiet after the rains and sends you to Balam, who knows the stone."
+   },
+   {
+    "id": "s2_adze",
+    "kind": "fetch",
+    "target": "cleaning_adze",
+    "requires": [
+     "s1_talk"
+    ],
+    "objective": "Take the bone adze from the Temple of the Jaguar Sun.",
+    "beat": "Balam grunts at the adze and says roots grip the lowest step; dig there and keep clear of the jaguar's trail.",
+    "item": "cleaning_adze",
+    "reveals": [
+     "balam:0"
+    ]
+   },
+   {
+    "id": "s3_block",
+    "kind": "fetch",
+    "target": "glyph_block",
+    "requires": [
+     "s2_adze"
+    ],
+    "objective": "Recover the hidden glyph block under the Temple of Sky.",
+    "beat": "Under the sky temple stair, wedged in a crack, lies the missing block. Macaws scream overhead as you pry it free.",
+    "item": "glyph_block"
+   },
+   {
+    "id": "s4_visit",
+    "kind": "visit",
+    "target": "ball_court",
+    "requires": [
+     "s3_block"
+    ],
+    "objective": "Cross the Ball Court to find a macaw feather the flock dropped.",
+    "beat": "The macaws have left red feathers along the sloped walls. The jaguar's tracks are fresh in the mud."
+   },
+   {
+    "id": "s5_xoc",
+    "kind": "talk",
+    "target": "xoc",
+    "requires": [
+     "s3_block"
+    ],
+    "objective": "Show the block to Xoc in the Palace of Lords.",
+    "beat": "Xoc reads it with shaking hands and admits he gave the wrong ritual date. He asks whether the stair should be restored or the error buried.",
+    "reveals": [
+     "xoc:0"
+    ]
+   },
+   {
+    "id": "s6_choose",
+    "kind": "choose",
+    "target": "xoc",
+    "requires": [
+     "s5_xoc",
+     "s4_visit"
+    ],
+    "objective": "Decide how the dawn ritual will be restored.",
+    "beat": "Set the block in the stair and sing the true date, or leave Xoc's mistake unspoken and keep the old sequence.",
+    "choices": [
+     {
+      "label": "Restore the true date and name Xoc's error",
+      "unlocks": [
+       "s7_true"
+      ]
+     },
+     {
+      "label": "Keep the old sequence and say nothing",
+      "unlocks": [
+       "s7_quiet"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s7_true",
+    "kind": "deliver",
+    "target": "balam",
+    "requires": [
+     "s6_choose"
+    ],
+    "objective": "Deliver the glyph block to Balam to set in the stair.",
+    "beat": "Balam seats the block and the stair reads whole again. At dawn Itzel sings the true date, and Xoc bows his head.",
+    "item": "glyph_block"
+   },
+   {
+    "id": "s7_quiet",
+    "kind": "confront",
+    "target": "itzel",
+    "requires": [
+     "s6_choose"
+    ],
+    "objective": "Tell Itzel the stair stays as it is.",
+    "beat": "Itzel studies you and says nothing. The ritual is sung to the old date and the stair holds its silence."
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s7_true",
+    "label": "The stair is whole and the true date is sung at dawn.",
+    "tone": "good"
+   },
+   {
+    "stepId": "s7_quiet",
+    "label": "The old date stands and the stair keeps its error.",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r_no_climb",
+   "text": "Nobody climbs the Temple of the Jaguar Sun after the evening hour.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 19,
+    "toHour": 5,
+    "exemptRoles": [
+     "stone cleaner"
+    ]
+   },
+   "source": "world"
+  },
+  {
+   "id": "r_no_fire",
+   "text": "No open fire near the stelae; moss and carved stone must stay dry and unburned.",
+   "effect": {
+    "type": "ban",
+    "what": "open fire",
+    "where": "stela_plaza",
+    "enforcer": "itzel"
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "ahau",
+  "cacao beans",
+  "tzolkin",
+  "sacbe road",
+  "chultun",
+  "Kukulkan"
+ ],
+ "style": {
+  "name": "Misted Limestone Jungle",
+  "wall": "#a9a592",
+  "wall2": "#8a8775",
+  "roof": "#5f5c50",
+  "trim": "#b8b4a0",
+  "accent": "#8a4a32",
+  "dark": "#2a2c26",
+  "glass": "#2f3a38",
+  "glow": "#ffb86a",
+  "ground": "#3f4a30",
+  "road": "#6b5d46",
+  "variety": 0.2,
+  "foliage": "#325a2d",
+  "bark": "#5a4a3a",
+  "surfaces": {
+   "wall": "stone",
+   "wall2": "moss",
+   "roof": "stone",
+   "trim": "stone",
+   "ground": "moss",
+   "road": "dirt",
+   "wear": 0.75,
+   "wet": 0.3
+  }
+ },
+ "site": {
+  "pattern": "ring",
+  "wild": 0.8,
+  "paths": "track",
+  "spacing": 12
+ },
+ "mood": {
+  "weather": "mist",
+  "intensity": 0.5,
+  "grade": "verdant",
+  "haze": 0.7,
+  "ambience": [
+   "birds",
+   "leaves",
+   "frogs",
+   "wind"
+  ],
+  "music": "low wooden flute"
+ },
+ "terrain": {
+  "relief": "rolling",
+  "ruggedness": 0.35,
+  "water": "pond",
+  "waterAmount": 0.08,
+  "horizon": "unbroken jungle canopy in mist",
+  "settled": 0.3
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "howlers",
+   "name": "howler monkeys",
+   "family": "biped",
+   "dials": {
+    "posture": 0.7,
+    "limbs": 0.6
+   },
+   "size": 0.8,
+   "count": 5,
+   "behaviour": "roam",
+   "haunt": "wild",
+   "body": "#3a2a20",
+   "accent": "#5a4030",
+   "glow": "#000000",
+   "note": "Their roars shake the dawn canopy."
+  },
+  {
+   "id": "macaws",
+   "name": "scarlet macaws",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.7,
+    "tail": 0.9
+   },
+   "size": 0.8,
+   "count": 8,
+   "behaviour": "flock",
+   "haunt": "sky",
+   "body": "#c0463a",
+   "accent": "#3573b0",
+   "glow": "#000000",
+   "note": "Red flashes between the temple roof combs."
+  },
+  {
+   "id": "jaguar",
+   "name": "jaguar",
+   "family": "quadruped",
+   "dials": {
+    "bulk": 0.7,
+    "legs": 0.3,
+    "pattern": "spots"
+   },
+   "size": 1.6,
+   "count": 1,
+   "behaviour": "stalk",
+   "haunt": "wild",
+   "body": "#c8963c",
+   "accent": "#2a2018",
+   "glow": "#000000",
+   "note": "Watching from the ruined stairs, unhurried."
+  },
+  {
+   "id": "tapir",
+   "name": "Baird's tapir",
+   "family": "quadruped",
+   "dials": {
+    "snout": 0.8,
+    "bulk": 0.7
+   },
+   "size": 2,
+   "count": 2,
+   "behaviour": "graze",
+   "haunt": "wild",
+   "body": "#5a4a40",
+   "accent": "#8a7a68",
+   "glow": "#000000",
+   "note": "Snuffles at the edge of the pond."
+  }
+ ],
+ "folk": {
+  "name": "Maya caretakers",
+  "height": 1.58,
+  "bulk": 0.4,
+  "head": 1,
+  "features": [
+   "hat",
+   "pack"
+  ],
+  "skin": [
+   "#a4693f",
+   "#8c5a35"
+  ],
+  "cloth": [
+   "#e8dcc0",
+   "#b0533e",
+   "#3f6b5a"
+  ],
+  "trim": [
+   "#d4ab40",
+   "#2d6e6a"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "jaguar_pyramid",
+   "summary": "vine-draped limestone stepped pyramid, 38 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.34,
+     "h": 5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.08,
+     "y": 30,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 7,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.2,
+     "y": 30,
+     "w": 0.07,
+     "d": 0.04,
+     "h": 3.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.14,
+     "h": 30,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 16,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "tiers",
+   "dials": {
+    "levels": 7,
+    "shrink": 0.8,
+    "flare": 0.05,
+    "top": "flat",
+    "ruin": 0.35
+   }
+  },
+  {
+   "id": "sky_comb_temple",
+   "summary": "narrow limestone temple pyramid, 28 m, roof comb",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.05,
+     "y": 0,
+     "w": 0.95,
+     "d": 0.9,
+     "h": 8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.05,
+     "y": 8,
+     "w": 0.7,
+     "d": 0.7,
+     "h": 7,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.05,
+     "y": 15,
+     "w": 0.5,
+     "d": 0.55,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.08,
+     "y": 21,
+     "w": 0.34,
+     "d": 0.4,
+     "h": 4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.1,
+     "y": 25,
+     "w": 0.3,
+     "d": 0.1,
+     "h": 5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "stair",
+   "dials": {
+    "type": "steps",
+    "rise": 14,
+    "flights": 1,
+    "width": 0.35,
+    "under": "solid",
+    "rails": 0,
+    "landing": 0.3,
+    "top": "gate",
+    "ruin": 0.4
+   }
+  },
+  {
+   "id": "ball_court_sunk",
+   "summary": "sunken court between sloped walls, 8 m",
+   "parts": [
+    {
+     "shape": "wedge",
+     "x": -0.38,
+     "z": 0,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.9,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.38,
+     "z": 0,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.9,
+     "h": 6,
+     "rot": 180,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.38,
+     "z": 0,
+     "y": 5,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.15,
+     "d": 0.9,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "pit",
+   "dials": {
+    "shape": "square",
+    "radius": 0.9,
+    "rim": 2.5,
+    "tiers": 2,
+    "fill": "dark",
+    "posts": 0,
+    "postHeight": 1,
+    "centre": "none",
+    "ruin": 0.5
+   }
+  },
+  {
+   "id": "stela_row",
+   "summary": "mossy carved stelae in a ring, 4 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.3,
+     "w": 0.12,
+     "d": 0.05,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3.7,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "colonnade",
+   "dials": {
+    "plan": "ring",
+    "count": 8,
+    "height": 4,
+    "girth": 0.07,
+    "shaft": "slab",
+    "top": "none",
+    "broken": 0.25,
+    "steps": 1,
+    "ruin": 0.2
+   }
+  },
+  {
+   "id": "vaulted_palace",
+   "summary": "long limestone palace, corbel vaults, 7 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 1,
+     "d": 0.9,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.46,
+     "y": 5.4,
+     "w": 1,
+     "d": 0.08,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.5,
+     "y": 1.2,
+     "w": 0.12,
+     "d": 0.04,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 5,
+     "gap": 0.18
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 6.6,
+     "w": 0.95,
+     "d": 0.85,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.5,
+     "z": 0,
+     "y": 2.2,
+     "w": 0.1,
+     "d": 0.8,
+     "h": 2,
+     "rot": 90,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "flat",
+    "overhang": 0.08,
+    "front": "arcade",
+    "rhythm": 5,
+    "chimney": 0,
+    "taper": 0.1,
+    "ruin": 0.3
+   }
+  },
+  {
+   "id": "caretaker_hut",
+   "summary": "palm-thatched caretaker hut and cookfire, 3.5 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0.5,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.5,
+     "z": 0.5,
+     "y": 0.4,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.5,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.4,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.2,
+     "z": 0.5,
+     "y": 1.8,
+     "w": 0.3,
+     "d": 0.03,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 1,
+    "roof": "hip",
+    "overhang": 0.3,
+    "front": "porch",
+    "rhythm": 2,
+    "chimney": 0,
+    "taper": 0,
+    "ruin": 0
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "ceiba_emergent",
+   "size": 13,
+   "parts": [],
+   "weight": 3,
+   "family": "broadleaf",
+   "dials": {
+    "height": 2.6,
+    "trunk": 0.4,
+    "girth": 0.3,
+    "limbs": 4,
+    "spread": 0.9,
+    "crown": "flat",
+    "buttress": 0.8,
+    "hang": 0.6,
+    "lean": 0.05
+   }
+  },
+  {
+   "kind": "jungle_palm",
+   "size": 5,
+   "parts": [],
+   "weight": 4,
+   "family": "palm",
+   "dials": {
+    "height": 2.4,
+    "girth": 0.1,
+    "curve": 0.2,
+    "crown": 1.1,
+    "fronds": 7,
+    "arch": 0.7,
+    "skirt": 0.3
+   }
+  },
+  {
+   "kind": "understory_fern",
+   "size": 1.6,
+   "parts": [],
+   "weight": 5,
+   "family": "tree",
+   "dials": {
+    "trunk": 0.2,
+    "crown": "fern",
+    "crownSize": 0.7,
+    "lean": 0.1
+   }
+  },
+  {
+   "kind": "hanging_liana",
+   "size": 2.5,
+   "parts": [],
+   "weight": 3,
+   "family": "vine",
+   "dials": {
+    "support": "bough",
+    "length": 4,
+    "strands": 6,
+    "sag": 0.4,
+    "leaves": 0.6,
+    "flowers": 0.1
+   }
+  },
+  {
+   "kind": "fallen_trunk",
+   "size": 3,
+   "parts": [],
+   "weight": 2,
+   "family": "deadwood",
+   "dials": {
+    "form": "log",
+    "size": 1.2,
+    "girth": 0.3,
+    "branches": 2,
+    "moss": 0.8
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "jaguar_stela",
+   "prompt": "A tall weathered limestone stela carved in relief with a seated Maya ruler and a jaguar pelt headdress, glyph columns down one side, moss and lichen in the grooves, a squat round altar stone at its foot, realistic proportions, weathered",
+   "place": "stela_plaza",
+   "height": 4
+  }
+ ]
+}

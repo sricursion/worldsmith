@@ -1,0 +1,1452 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a Moroccan bazaar",
+ "title": "Souk of Lanterns",
+ "tagline": "Haggle, wander, and follow the scent of saffron",
+ "theme": "medieval",
+ "era": "Present-day medina",
+ "palette": {
+  "ground": "#a68a66",
+  "accent": "#3f6b5c",
+  "sky": "dusk",
+  "fog": 0.2
+ },
+ "time": {
+  "startHour": 17.5,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "minaret",
+   "role": "church",
+   "label": "Koutoubia Minaret",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "koutoubia"
+  },
+  {
+   "id": "spice_souk",
+   "role": "market",
+   "label": "Spice Souk",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "spice_alley"
+  },
+  {
+   "id": "tannery",
+   "role": "workshop",
+   "label": "Tannery Terraces",
+   "size": "medium",
+   "blueprint": "tannery_court"
+  },
+  {
+   "id": "fountain_plaza",
+   "role": "plaza",
+   "label": "Place of Storytellers",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "spice_alley"
+  },
+  {
+   "id": "carpet_hall",
+   "role": "shop",
+   "label": "Carpet Hall",
+   "size": "medium",
+   "blueprint": "arched_hall"
+  },
+  {
+   "id": "tea_house",
+   "role": "cafe",
+   "label": "Rooftop Tea House",
+   "size": "small",
+   "blueprint": "rooftop_house"
+  },
+  {
+   "id": "lamp_maker",
+   "role": "workshop",
+   "label": "Lantern Maker",
+   "size": "small",
+   "blueprint": "arched_hall"
+  },
+  {
+   "id": "riad",
+   "role": "inn",
+   "label": "Riad Zahra",
+   "size": "medium",
+   "blueprint": "rooftop_house"
+  },
+  {
+   "id": "gate",
+   "role": "house",
+   "label": "Bab Doukkala",
+   "size": "medium",
+   "blueprint": "horseshoe_gate"
+  },
+  {
+   "id": "hammam",
+   "role": "house",
+   "label": "Old Hammam",
+   "size": "medium",
+   "blueprint": "rooftop_house"
+  },
+  {
+   "id": "clock_tower",
+   "role": "command",
+   "label": "Water Clock Tower",
+   "size": "medium",
+   "blueprint": "clock_tower"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "omar",
+   "name": "Omar",
+   "role": "spice merchant",
+   "persona": "Sharp-eyed and quick with a price, he counts every dirham twice. He talks fast and answers questions with offers.",
+   "knowledge": [
+    "Cumin is cheap this week; saffron is not, and he will say why.",
+    "Youssef pays him in saffron-scented favors, never coin.",
+    "A buyer in a green cloak asked about brass lamps three days ago."
+   ],
+   "secrets": [
+    "He sold the green-cloaked buyer a map of Youssef's back door for twenty dirhams."
+   ],
+   "home": "spice_souk",
+   "work": "spice_souk",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "spice_souk",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "tea_house",
+     "activity": "eat"
+    },
+    {
+     "hour": 15,
+     "place": "spice_souk",
+     "activity": "trade"
+    },
+    {
+     "hour": 21,
+     "place": "spice_souk",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "youssef",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "rogue_hooded",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.4,
+     "idle": 0,
+     "flee": -0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 1.1,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "lalla",
+   "name": "Lalla",
+   "role": "carpet seller",
+   "persona": "Dry-humored and unhurried, she has outlasted three husbands and a hundred hagglers. She trusts nobody who has not bought a rug.",
+   "knowledge": [
+    "Brass and wool do not mix; a lamp hidden in rugs would leave dents in the weave.",
+    "Samir's boy delivered a heavy bundle to her hall two nights ago, then left fast.",
+    "Khadija has been short of guests since the festival rumors began."
+   ],
+   "secrets": [
+    "She stores the bundle in her back room because Samir owes her for dye, and she asked no questions."
+   ],
+   "home": "carpet_hall",
+   "work": "carpet_hall",
+   "schedule": [
+    {
+     "hour": 8,
+     "place": "carpet_hall",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "fountain_plaza",
+     "activity": "eat"
+    },
+    {
+     "hour": 14,
+     "place": "carpet_hall",
+     "activity": "trade"
+    },
+    {
+     "hour": 20,
+     "place": "carpet_hall",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "samir",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": -0.1,
+     "idle": 0,
+     "flee": 0,
+     "investigate": -0.3,
+     "follow_player": 0,
+     "work": 0.6
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "youssef",
+   "name": "Youssef",
+   "role": "lamp maker",
+   "persona": "Soft-spoken and proud, his hands are scarred from forty years of brass. He says the lamp carried baraka and will not call it stolen aloud.",
+   "knowledge": [
+    "The missing lamp was pierced with a star pattern he cut over nine nights.",
+    "He locked the stall himself but found the shutter latch unbent, as if opened from inside.",
+    "Brahim sat near his stall the evening before it vanished."
+   ],
+   "secrets": [
+    "He quarreled with Hassan over a rooftop sale of the lamp and fears it was Hassan's doing."
+   ],
+   "home": "lamp_maker",
+   "work": "lamp_maker",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "lamp_maker",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "lamp_maker",
+     "activity": "eat"
+    },
+    {
+     "hour": 17,
+     "place": "street",
+     "activity": "wander"
+    },
+    {
+     "hour": 21,
+     "place": "lamp_maker",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "hassan",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.3,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.5,
+     "follow_player": 0,
+     "work": 0.2
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 0.8
+   },
+   "mood": "grieving"
+  },
+  {
+   "id": "hassan",
+   "name": "Hassan",
+   "role": "tea host",
+   "persona": "Genial and loud, he knows everyone's business and sells it by the glass. He is fond of Youssef and ashamed of what he did.",
+   "knowledge": [
+    "From the terrace he sees every rooftop and the lane behind the lamp stall.",
+    "A figure crossed the roofs at dusk two nights ago carrying something wrapped.",
+    "Mint is free for anyone who brings him a good story."
+   ],
+   "secrets": [
+    "He offered to buy the lamp for a client and was refused, then pointed the thief toward the stall in anger."
+   ],
+   "home": "tea_house",
+   "work": "tea_house",
+   "schedule": [
+    {
+     "hour": 9,
+     "place": "tea_house",
+     "activity": "work"
+    },
+    {
+     "hour": 14,
+     "place": "tea_house",
+     "activity": "trade"
+    },
+    {
+     "hour": 18,
+     "place": "fountain_plaza",
+     "activity": "drink"
+    },
+    {
+     "hour": 23,
+     "place": "tea_house",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "youssef",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 1.2,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.6,
+     "idle": 0.2,
+     "flee": 0.1,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1.1
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "khadija",
+   "name": "Khadija",
+   "role": "riad keeper",
+   "persona": "Dignified and exact, she runs her house like a small court. She guards her guests' privacy as fiercely as her zellige.",
+   "knowledge": [
+    "A stranger in a green cloak lodged here and paid in advance for a week.",
+    "He asked which merchants kept guard dogs and which kept none.",
+    "He left before dawn the morning the lamp vanished, with one heavy bag."
+   ],
+   "secrets": [
+    "She knows the buyer is a dealer who sells to collectors and has used her riad before."
+   ],
+   "home": "riad",
+   "work": "riad",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "riad",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "riad",
+     "activity": "eat"
+    },
+    {
+     "hour": 16,
+     "place": "hammam",
+     "activity": "rest"
+    },
+    {
+     "hour": 22,
+     "place": "riad",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "lalla",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.1,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.1,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "brahim",
+   "name": "Brahim",
+   "role": "storyteller",
+   "persona": "A theatrical old man who answers questions with parables. Under the show he is observant and lonely.",
+   "knowledge": [
+    "He saw Samir's boy run past the plaza with a bundle at dusk.",
+    "The lamp's star pattern appears in an old tale of a thief who loved light.",
+    "Crowds gather at dusk; a thief hides best in a listening crowd."
+   ],
+   "secrets": [
+    "He took coins from the dealer to keep the crowd turned away from the lamp lane that evening."
+   ],
+   "home": "fountain_plaza",
+   "work": "fountain_plaza",
+   "schedule": [
+    {
+     "hour": 10,
+     "place": "fountain_plaza",
+     "activity": "rest"
+    },
+    {
+     "hour": 16,
+     "place": "fountain_plaza",
+     "activity": "work"
+    },
+    {
+     "hour": 20,
+     "place": "tea_house",
+     "activity": "drink"
+    },
+    {
+     "hour": 23,
+     "place": "fountain_plaza",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "hassan",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.7,
+     "idle": 0.3,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.2
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 1
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "samir",
+   "name": "Samir",
+   "role": "tanner",
+   "persona": "Gruff and stained to the elbows, he trusts hides more than people. He is poor, proud and quick to anger when pressed.",
+   "knowledge": [
+    "The dye vats stink so badly no one comes near after dark.",
+    "He lets his nephew sleep on the rooftop racks to watch for thieves.",
+    "Lalla lets him pay in leather when coin runs short."
+   ],
+   "secrets": [
+    "His nephew carried the lamp for the dealer; Samir took a share and has not slept since."
+   ],
+   "home": "tannery",
+   "work": "tannery",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "tannery",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "tannery",
+     "activity": "eat"
+    },
+    {
+     "hour": 17,
+     "place": "carpet_hall",
+     "activity": "trade"
+    },
+    {
+     "hour": 21,
+     "place": "tannery",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "lalla",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 1.1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": -0.3,
+     "idle": 0,
+     "flee": 0.3,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.6
+    }
+   },
+   "voice": {
+    "pitch": 0.6,
+    "rate": 0.9
+   },
+   "mood": "angry"
+  }
+ ],
+ "items": [
+  {
+   "id": "green_thread",
+   "name": "Green Cloak Thread",
+   "description": "A strand of green wool caught on the shutter latch of the lamp stall.",
+   "holder": "lamp_maker"
+  },
+  {
+   "id": "star_lamp",
+   "name": "Star Lamp",
+   "description": "Youssef's finest brass lamp, pierced with a nine-night star pattern.",
+   "holder": "carpet_hall"
+  },
+  {
+   "id": "dealer_note",
+   "name": "Dealer's Note",
+   "description": "A folded paper naming a price in dirhams and a buyer far across the Atlas.",
+   "holder": "riad"
+  }
+ ],
+ "quest": {
+  "id": "lost_lantern",
+  "title": "The Lamp Before Festival Eve",
+  "hook": "Youssef's finest brass lamp, cut over nine nights, vanished before festival eve and no merchant will say a word. Everyone in the souk knows something, but they will speak only to a stranger with no stall to protect. Find the lamp before the lanterns are lit.",
+  "giver": "youssef",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "youssef",
+    "requires": [],
+    "objective": "Hear Youssef describe the missing lamp.",
+    "beat": "Youssef shows you the empty hook, the star pattern drawn in chalk, and the unbent latch. He wants it back more than justice.",
+    "reveals": [
+     "youssef:0"
+    ]
+   },
+   {
+    "id": "s2",
+    "kind": "fetch",
+    "target": "green_thread",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Take the green thread from the lamp stall latch.",
+    "beat": "The thread is fine wool, dyed deep green, the kind worn by buyers from beyond the mountains.",
+    "item": "green_thread"
+   },
+   {
+    "id": "s3",
+    "kind": "talk",
+    "target": "khadija",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Ask Khadija about the green-cloaked stranger.",
+    "beat": "Khadija admits the man lodged at her riad, paid in advance and left before dawn with a heavy bag.",
+    "reveals": [
+     "khadija:0"
+    ]
+   },
+   {
+    "id": "s4",
+    "kind": "visit",
+    "target": "tannery",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Climb to the Tannery Terraces and look at the rooftop racks.",
+    "beat": "Doves scatter from the leather racks. Samir's nephew has been sleeping up here and the bundle's mark is in the dust."
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "samir",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Decide how to deal with Samir.",
+    "beat": "Samir stands among the vats, hands shaking. He knows what you found.",
+    "choices": [
+     {
+      "label": "Press him hard and name his nephew",
+      "unlocks": [
+       "s6a"
+      ]
+     },
+     {
+      "label": "Offer him a way out if he talks",
+      "unlocks": [
+       "s6b"
+      ]
+     }
+    ],
+    "reveals": [
+     "samir:0"
+    ]
+   },
+   {
+    "id": "s6a",
+    "kind": "confront",
+    "target": "lalla",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Confront Lalla and demand the bundle in her back room.",
+    "beat": "Lalla yields the lamp with a cold glare. Samir loses his credit and his friends in the souk."
+   },
+   {
+    "id": "s6b",
+    "kind": "fetch",
+    "target": "star_lamp",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Collect the star lamp quietly from Lalla's hall.",
+    "beat": "Lalla hands it over without a word, glad to be rid of it. Samir's nephew is sent away, not shamed.",
+    "item": "star_lamp"
+   },
+   {
+    "id": "s7",
+    "kind": "deliver",
+    "target": "youssef",
+    "requires": [
+     "s6b"
+    ],
+    "objective": "Return the star lamp to Youssef.",
+    "beat": "Youssef lights it and the star pattern spills across the stall. He says nothing to Hassan and everything to you.",
+    "item": "star_lamp"
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s7",
+    "label": "The lamp returns quietly and the souk keeps its peace.",
+    "tone": "good"
+   },
+   {
+    "stepId": "s6a",
+    "label": "The lamp is recovered but Samir is ruined and the souk turns cold.",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "No open flame inside the Spice Souk; the pyramids of spice burn like tinder.",
+   "effect": {
+    "type": "ban",
+    "what": "open flame",
+    "where": "spice_souk",
+    "enforcer": "omar"
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Lantern stalls are watched until the festival lanterns are lit; strangers are eyed.",
+   "effect": {
+    "type": "custom",
+    "summary": "Merchants guard their stock until festival eve and distrust unknown buyers."
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "dirham",
+  "souk",
+  "riad",
+  "zellige",
+  "baraka",
+  "medina"
+ ],
+ "style": {
+  "name": "Marrakech Ochre Dusk",
+  "wall": "#b07758",
+  "wall2": "#c4a27c",
+  "roof": "#6e5a48",
+  "trim": "#d2c2a4",
+  "accent": "#3f6b5c",
+  "dark": "#2b2420",
+  "glass": "#2f3a40",
+  "glow": "#ffb347",
+  "ground": "#a68a66",
+  "road": "#9a8062",
+  "variety": 0.2,
+  "foliage": "#6b7a45",
+  "bark": "#5e4a3a",
+  "surfaces": {
+   "wall": "adobe",
+   "wall2": "plaster",
+   "roof": "canvas",
+   "trim": "plaster",
+   "ground": "dirt",
+   "road": "gravel",
+   "wear": 0.7,
+   "wet": 0
+  }
+ },
+ "site": {
+  "pattern": "grid",
+  "wild": 0.03,
+  "paths": "road",
+  "spacing": 3
+ },
+ "mood": {
+  "weather": "dust",
+  "intensity": 0.2,
+  "grade": "golden",
+  "haze": 0.6,
+  "ambience": [
+   "crowd",
+   "birds",
+   "wind",
+   "machinery"
+  ],
+  "music": "gnawa guimbri, hand drums"
+ },
+ "terrain": {
+  "relief": "flat",
+  "ruggedness": 0.05,
+  "water": "none",
+  "waterAmount": 0,
+  "horizon": "ochre rooftops and Atlas haze",
+  "settled": 0.9
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "cats",
+   "name": "souk cats",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.4,
+    "tail": 0.8
+   },
+   "size": 0.4,
+   "count": 5,
+   "behaviour": "roam",
+   "haunt": "spice_souk",
+   "body": "#b58a5a",
+   "accent": "#e0d2b8",
+   "glow": "#000000",
+   "note": "Weaves between baskets, eyeing the fish stall."
+  },
+  {
+   "id": "doves",
+   "name": "rooftop doves",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.5
+   },
+   "size": 0.3,
+   "count": 10,
+   "behaviour": "circle",
+   "haunt": "sky",
+   "body": "#a9a39a",
+   "accent": "#d9d4c9",
+   "glow": "#000000",
+   "note": "Wheel above the minaret at call to prayer."
+  },
+  {
+   "id": "donkey",
+   "name": "laden donkey",
+   "family": "quadruped",
+   "dials": {
+    "ears": 0.9,
+    "bulk": 0.6
+   },
+   "size": 1.3,
+   "count": 2,
+   "behaviour": "patrol",
+   "haunt": "wild",
+   "body": "#7a6a5a",
+   "accent": "#4a3c30",
+   "glow": "#000000",
+   "note": "Plods through alleys under bundled goods."
+  },
+  {
+   "id": "storks",
+   "name": "minaret storks",
+   "family": "bird",
+   "dials": {
+    "neck": 0.8,
+    "legs": 0.9,
+    "beak": 0.9
+   },
+   "size": 1,
+   "count": 2,
+   "behaviour": "perch",
+   "haunt": "minaret",
+   "body": "#e8e2d6",
+   "accent": "#2b2b2b",
+   "glow": "#000000",
+   "note": "Nest on the minaret's crumbling crown."
+  }
+ ],
+ "folk": {
+  "name": "Moroccan merchants",
+  "height": 1.7,
+  "bulk": 0.45,
+  "head": 1,
+  "features": [
+   "hood",
+   "cloak"
+  ],
+  "skin": [
+   "#a67c5b",
+   "#8d6446",
+   "#c19a73"
+  ],
+  "cloth": [
+   "#2f4f6e",
+   "#b5773f",
+   "#d8c9a8"
+  ],
+  "trim": [
+   "#8a2b2b",
+   "#c9a73c"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "koutoubia",
+   "summary": "sandstone minaret 40 m, green tile band, lantern top",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 16,
+     "w": 1.05,
+     "d": 1.05,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.46,
+     "y": 6,
+     "w": 0.12,
+     "d": 0.03,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 3,
+     "gap": 0.3
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 29,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 30,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 24,
+    "section": "square",
+    "taper": 0.12,
+    "bands": 3,
+    "top": "lantern",
+    "flare": 0.1
+   }
+  },
+  {
+   "id": "clock_tower",
+   "summary": "square brick water clock tower, 22 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 12,
+     "w": 0.35,
+     "d": 0.05,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0.5,
+     "y": 13.5,
+     "w": 0.28,
+     "d": 0.04,
+     "h": 0.28,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 20,
+     "w": 1.1,
+     "d": 1.1,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 22,
+     "w": 0.1,
+     "d": 0.02,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 20,
+    "section": "square",
+    "taper": 0.1,
+    "bands": 2,
+    "top": "platform",
+    "flare": 0.05
+   }
+  },
+  {
+   "id": "spice_alley",
+   "summary": "covered souk alley under canvas, 5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": -0.35,
+     "z": 0,
+     "y": 0,
+     "w": 0.25,
+     "d": 0.5,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0.2,
+     "z": 0.25,
+     "y": 0.9,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 5,
+     "gap": 0.15
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3,
+     "y": 3.5,
+     "w": 1.1,
+     "d": 0.4,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0.35,
+     "y": 3,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "canopy",
+   "dials": {
+    "posts": 8,
+    "roof": "shed",
+    "counter": 0.6
+   }
+  },
+  {
+   "id": "tannery_court",
+   "summary": "open vat terraces with rack tower, 15 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": -0.3,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.14,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 3,
+     "gap": 0.22
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.4,
+     "y": 10,
+     "w": 0.8,
+     "d": 0.1,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.4,
+     "z": -0.1,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.5,
+     "h": 14,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 4,
+     "w": 0.08,
+     "d": 0.02,
+     "h": 1,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "tiers",
+   "dials": {
+    "levels": 4,
+    "shrink": 0.8,
+    "flare": 0.15,
+    "top": "flat"
+   }
+  },
+  {
+   "id": "arched_hall",
+   "summary": "arched shop hall draped in rugs, 6 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 1,
+     "w": 0.8,
+     "d": 0.04,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 1,
+     "w": 0.15,
+     "d": 0.03,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.25
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 5,
+     "w": 0.6,
+     "d": 0.1,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "flat",
+    "overhang": 0.1,
+    "front": "arcade",
+    "rhythm": 4,
+    "chimney": 0,
+    "taper": 0
+   }
+  },
+  {
+   "id": "rooftop_house",
+   "summary": "flat-roofed terrace house with awning, 10 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 9.6,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3,
+     "y": 9,
+     "w": 0.6,
+     "d": 0.3,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 3,
+     "w": 0.1,
+     "d": 0.02,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.35,
+     "z": -0.35,
+     "y": 9.6,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 3,
+    "roof": "flat",
+    "overhang": 0.05,
+    "front": "awning",
+    "rhythm": 3,
+    "chimney": 0,
+    "taper": 0.05
+   }
+  },
+  {
+   "id": "horseshoe_gate",
+   "summary": "horseshoe arch gate in ochre wall, 9 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": -0.45,
+     "z": 0,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.5,
+     "h": 10,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.45,
+     "z": 0,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.5,
+     "h": 10,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 8.5,
+     "w": 1.1,
+     "d": 0.4,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 7,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.4
+    }
+   ],
+   "doorX": 0,
+   "family": "arch",
+   "dials": {
+    "span": 0.45,
+    "thickness": 0.18,
+    "lintel": "round",
+    "towers": 2
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "date_palm",
+   "size": 5,
+   "parts": [],
+   "weight": 2,
+   "family": "palm",
+   "dials": {
+    "height": 2.8,
+    "girth": 0.1,
+    "curve": 0.2,
+    "crown": 1,
+    "fronds": 7,
+    "arch": 0.6,
+    "skirt": 0.4,
+    "fruit": 0.3
+   }
+  },
+  {
+   "kind": "orange_tree",
+   "size": 5,
+   "parts": [],
+   "weight": 2,
+   "family": "broadleaf",
+   "dials": {
+    "height": 1.4,
+    "trunk": 0.3,
+    "girth": 0.15,
+    "limbs": 3,
+    "spread": 0.8,
+    "crown": "round",
+    "bloom": 0.4
+   }
+  },
+  {
+   "kind": "brass_lantern_post",
+   "size": 2.2,
+   "parts": [],
+   "weight": 3,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 2.5,
+    "arms": 1
+   }
+  },
+  {
+   "kind": "goods_crates",
+   "size": 1.2,
+   "parts": [],
+   "weight": 4,
+   "family": "container",
+   "dials": {
+    "form": "crate",
+    "count": 3,
+    "height": 0.6
+   }
+  },
+  {
+   "kind": "clay_urns",
+   "size": 1,
+   "parts": [],
+   "weight": 3,
+   "family": "container",
+   "dials": {
+    "form": "urn",
+    "count": 2,
+    "height": 0.8
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "tiled_fountain",
+   "prompt": "a round Moroccan zellige tile fountain basin with a carved stone pedestal and bronze spout, eight-pointed star mosaic in green, blue and ochre, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 3
+  }
+ ]
+}

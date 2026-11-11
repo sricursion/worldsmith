@@ -1,0 +1,1369 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a candy kingdom",
+ "title": "Kingdom of Sweets",
+ "tagline": "Everything here is edible, and the crown is melting.",
+ "theme": "medieval",
+ "era": "Storybook age",
+ "palette": {
+  "ground": "#6a6a46",
+  "accent": "#9a5c5c",
+  "sky": "dusk",
+  "fog": 0.15
+ },
+ "time": {
+  "startHour": 17.5,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "candy_castle",
+   "role": "townhall",
+   "label": "Spun Sugar Castle",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "sugar_keep"
+  },
+  {
+   "id": "bakery_tower",
+   "role": "workshop",
+   "label": "Cinnamon Bakery Tower",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "candy_cane_tower"
+  },
+  {
+   "id": "gumdrop_cottage",
+   "role": "house",
+   "label": "Gumdrop Cottages",
+   "size": "small",
+   "blueprint": "gumdrop_house"
+  },
+  {
+   "id": "lollipop_market",
+   "role": "market",
+   "label": "Lollipop Market",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "lollipop_canopy"
+  },
+  {
+   "id": "fudge_inn",
+   "role": "inn",
+   "label": "Fudge Inn",
+   "size": "medium",
+   "blueprint": "fudge_block"
+  },
+  {
+   "id": "wafer_mill",
+   "role": "workshop",
+   "label": "Wafer Mill",
+   "size": "medium",
+   "blueprint": "wafer_mill_form"
+  },
+  {
+   "id": "marzipan_chapel",
+   "role": "church",
+   "label": "Marzipan Chapel",
+   "size": "medium",
+   "blueprint": "marzipan_spire_chapel"
+  },
+  {
+   "id": "toffee_bridge",
+   "role": "plaza",
+   "label": "Toffee Bridge Square",
+   "size": "medium",
+   "blueprint": "toffee_arch"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "pip",
+   "name": "Pip",
+   "role": "royal baker",
+   "persona": "Pip is a flour-dusted perfectionist who has baked the crown glaze for thirty years. Afraid the softening crown will be blamed on his glaze, he talks fast and checks every oven twice.",
+   "knowledge": [
+    "The crown glaze is hard sugar, but the dusk sun has made it sag.",
+    "Cold-mint is the only thing that sets sugar without cooking it.",
+    "The old spring runs under Cocoa Falls, past the toffee bridge."
+   ],
+   "secrets": [
+    "Pip changed the glaze recipe last month to save sugar, and he thinks that is why the crown is failing."
+   ],
+   "home": "bakery_tower",
+   "work": "bakery_tower",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "bakery_tower",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "lollipop_market",
+     "activity": "eat"
+    },
+    {
+     "hour": 14,
+     "place": "bakery_tower",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "bakery_tower",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "mabel",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.2,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.6
+    }
+   },
+   "voice": {
+    "pitch": 1.3,
+    "rate": 1.25
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "mabel",
+   "name": "Mabel",
+   "role": "market seller",
+   "persona": "Mabel sells sprinkles and gossip in equal measure under her big lollipop canopy. She hears everything and trades it for candy-coins.",
+   "knowledge": [
+    "Strangers pay double for sprinkles at dusk, so she holds her stock till then.",
+    "A stranger came down Caramel Row at sunrise carrying a cold, frosted jar.",
+    "The geese on Toffee Bridge Square honk at anyone carrying mint."
+   ],
+   "secrets": [
+    "Mabel sold the frosted jar to the stranger and knows the way to the spring."
+   ],
+   "home": "lollipop_market",
+   "work": "lollipop_market",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "lollipop_market",
+     "activity": "trade"
+    },
+    {
+     "hour": 13,
+     "place": "fudge_inn",
+     "activity": "eat"
+    },
+    {
+     "hour": 15,
+     "place": "lollipop_market",
+     "activity": "trade"
+    },
+    {
+     "hour": 20,
+     "place": "lollipop_market",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tansy",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.6,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.5,
+    "rate": 1.1
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "crumb",
+   "name": "Crumb",
+   "role": "castle guard",
+   "persona": "Crumb is a stiff, literal guard who takes the crown's safety as a personal oath. He suspects every sweet-tooth with a bag of being a thief.",
+   "knowledge": [
+    "The crown sits in the castle's high chamber, and the sun reaches it from the west window.",
+    "Only a crown-bearer's seal lets anyone through the castle gate after dusk.",
+    "Marshmallow geese roost on the toffee bridge and warn of strangers."
+   ],
+   "secrets": [
+    "Crumb left the west window shutters open on purpose to air the chamber, and that is when the crown began to soften."
+   ],
+   "home": "candy_castle",
+   "work": "candy_castle",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "candy_castle",
+     "activity": "guard"
+    },
+    {
+     "hour": 12,
+     "place": "street",
+     "activity": "patrol"
+    },
+    {
+     "hour": 15,
+     "place": "candy_castle",
+     "activity": "guard"
+    },
+    {
+     "hour": 22,
+     "place": "candy_castle",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "pip",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": -0.3,
+     "flee": -0.6,
+     "investigate": 0.5,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.85
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "tansy",
+   "name": "Tansy",
+   "role": "innkeeper",
+   "persona": "Tansy runs the Fudge Inn with a wooden spoon and a long memory for debts. She is warm to guests who pay and sharp to those who do not.",
+   "knowledge": [
+    "Cold-mint grows only where Cocoa Falls spray the stones.",
+    "Jory the mill hand drinks his wages and knows the river's moods.",
+    "The inn's cellar stays cold, and a block of ice-sugar keeps there."
+   ],
+   "secrets": [
+    "Tansy hides a sealed crate of cold-mint leaf in the cellar and is selling it to the highest bidder."
+   ],
+   "home": "fudge_inn",
+   "work": "fudge_inn",
+   "schedule": [
+    {
+     "hour": 8,
+     "place": "fudge_inn",
+     "activity": "work"
+    },
+    {
+     "hour": 14,
+     "place": "lollipop_market",
+     "activity": "trade"
+    },
+    {
+     "hour": 17,
+     "place": "fudge_inn",
+     "activity": "work"
+    },
+    {
+     "hour": 23,
+     "place": "fudge_inn",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "jory",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.4,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "jory",
+   "name": "Jory",
+   "role": "mill hand",
+   "persona": "Jory is a slow, sticky-fingered mill hand who lives by the licorice waterwheel and the river. He mumbles, owes Tansy money, and knows the water better than anyone.",
+   "knowledge": [
+    "The river runs from Cocoa Falls through the toffee bridge to the wafer mill.",
+    "The spring is cold enough to frost the stones, and it lies upstream of the mill.",
+    "The geese leave tracks of mint-white feathers wherever the spring is near."
+   ],
+   "secrets": [
+    "Jory has already found the spring and is afraid to tell, since he owes Tansy and the crate in her cellar came from him."
+   ],
+   "home": "wafer_mill",
+   "work": "wafer_mill",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "wafer_mill",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "wafer_mill",
+     "activity": "eat"
+    },
+    {
+     "hour": 18,
+     "place": "fudge_inn",
+     "activity": "drink"
+    },
+    {
+     "hour": 23,
+     "place": "wafer_mill",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tansy",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1.2,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.4,
+     "flee": 0.3,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.2
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 0.8
+   },
+   "mood": "drunk"
+  }
+ ],
+ "items": [
+  {
+   "id": "frosted_jar",
+   "name": "Frosted Jar",
+   "description": "A glass jar rimed with frost, cold even at dusk. It holds a sprig of mint.",
+   "holder": "lollipop_market"
+  },
+  {
+   "id": "mint_leaf",
+   "name": "Cold-Mint Leaf",
+   "description": "A pale green leaf that numbs the fingers and sets sugar hard.",
+   "holder": "fudge_inn"
+  },
+  {
+   "id": "goose_feather",
+   "name": "Marshmallow Feather",
+   "description": "A white feather dusted with mint frost, dropped where the geese gather.",
+   "holder": "toffee_bridge"
+  },
+  {
+   "id": "crown_glaze",
+   "name": "Pip's Crown Glaze",
+   "description": "A jar of royal glaze, mixed to the old recipe and meant to set with mint.",
+   "holder": "pip"
+  }
+ ],
+ "quest": {
+  "id": "cold_mint_spring",
+  "title": "The Softening Crown",
+  "hook": "The royal sugar crown is sagging in the dusk sun, and when it melts the kingdom loses its king. Pip the baker swears only cold-mint from the old spring can set it, but the spring is dissolving too. A stranger could find it first, if the stranger can sift truth from gossip in a town that sells everything.",
+  "giver": "pip",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "pip",
+    "requires": [],
+    "objective": "Hear Pip's plea about the crown.",
+    "beat": "Pip wrings flour from his hands and begs you to find cold-mint before the crown slumps for good."
+   },
+   {
+    "id": "s2",
+    "kind": "fetch",
+    "target": "frosted_jar",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Take the Frosted Jar from the Lollipop Market stall.",
+    "beat": "Mabel's jar is cold to the touch, a sign mint grew near its source.",
+    "item": "frosted_jar",
+    "reveals": [
+     "mabel:0"
+    ]
+   },
+   {
+    "id": "s3",
+    "kind": "visit",
+    "target": "toffee_bridge",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Follow the geese to Toffee Bridge Square.",
+    "beat": "The marshmallow geese flock honking on the square, shedding frosted feathers toward the river."
+   },
+   {
+    "id": "s4",
+    "kind": "choose",
+    "target": "jory",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Decide how to deal with Jory, who knows the spring.",
+    "beat": "Jory admits he found the spring and fears Tansy's debt. You can press him or protect him.",
+    "choices": [
+     {
+      "label": "Press Jory to lead you to the spring now",
+      "unlocks": [
+       "s5a"
+      ]
+     },
+     {
+      "label": "Pay Jory's debt to Tansy and earn his trust",
+      "unlocks": [
+       "s5b"
+      ]
+     }
+    ],
+    "reveals": [
+     "jory:0",
+     "tansy:0"
+    ]
+   },
+   {
+    "id": "s5a",
+    "kind": "visit",
+    "target": "wafer_mill",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Reach the mill and the spring beyond it by force of will.",
+    "beat": "Jory leads you sullenly upstream past the licorice wheel to a pool rimed in frost. The mint is thin and bitter, but it is there."
+   },
+   {
+    "id": "s5b",
+    "kind": "deliver",
+    "target": "pip",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Bring Pip the Cold-Mint Leaf bought clean from Tansy.",
+    "beat": "With the debt settled, Jory and Tansy part the mint freely. Pip sets the crown with trembling hands.",
+    "item": "mint_leaf"
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s5b",
+    "label": "The crown sets hard and the debts are paid. Everyone profits a little.",
+    "tone": "good"
+   },
+   {
+    "stepId": "s5a",
+    "label": "You find the spring by pressure, and Jory loses his nerve and his friend.",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "No open flame may burn within the castle walls after dusk.",
+   "effect": {
+    "type": "ban",
+    "what": "open flame",
+    "where": "candy_castle",
+    "enforcer": "crumb"
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Sprinkles cost double at the Lollipop Market from dusk.",
+   "effect": {
+    "type": "price",
+    "item": "sprinkle",
+    "multiplier": 2
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "sprinkle",
+  "gummies",
+  "candy-coin",
+  "Caramel Row",
+  "sweet-tooth",
+  "Cocoa Falls"
+ ],
+ "style": {
+  "name": "Dusk Sugarwork",
+  "wall": "#b8a898",
+  "wall2": "#8a6a52",
+  "roof": "#6e5448",
+  "trim": "#cfc4b4",
+  "accent": "#9a5c5c",
+  "dark": "#2f2724",
+  "glass": "#4f5a66",
+  "glow": "#ffd9a0",
+  "ground": "#6a6a46",
+  "road": "#8a7a64",
+  "variety": 0.2,
+  "foliage": "#566a3a",
+  "bark": "#5a4636",
+  "surfaces": {
+   "wall": "plaster",
+   "wall2": "timber",
+   "roof": "tile",
+   "trim": "stone",
+   "ground": "grass",
+   "road": "gravel",
+   "wear": 0.5,
+   "wet": 0.1
+  }
+ },
+ "site": {
+  "pattern": "ring",
+  "wild": 0.2,
+  "paths": "road",
+  "spacing": 6
+ },
+ "mood": {
+  "weather": "clear",
+  "intensity": 0,
+  "grade": "golden",
+  "haze": 0.5,
+  "ambience": [
+   "birds",
+   "water",
+   "wind",
+   "crowd"
+  ],
+  "music": "warm celesta"
+ },
+ "terrain": {
+  "relief": "rolling",
+  "ruggedness": 0.35,
+  "water": "river",
+  "waterAmount": 0.2,
+  "horizon": "rock-candy peaks in pink haze",
+  "settled": 0.6
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "sugar_bees",
+   "name": "sugar bees",
+   "family": "swarm",
+   "dials": {
+    "units": 18,
+    "wings": 0.7,
+    "long": 0.4,
+    "hover": 0.5
+   },
+   "size": 0.2,
+   "count": 18,
+   "behaviour": "flock",
+   "haunt": "sky",
+   "body": "#e8c860",
+   "accent": "#8a5a30",
+   "glow": "#000000",
+   "note": "Honey-glazed bees drifting between the lollipops."
+  },
+  {
+   "id": "gummy_deer",
+   "name": "gummy deer",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.6,
+    "neck": 0.6,
+    "horns": "antlers",
+    "bulk": 0.4
+   },
+   "size": 1.6,
+   "count": 4,
+   "behaviour": "graze",
+   "haunt": "wild",
+   "body": "#d85a68",
+   "accent": "#f0a0a8",
+   "glow": "#000000",
+   "note": "Translucent red gummy deer, wobbling as they graze."
+  },
+  {
+   "id": "marshmallow_geese",
+   "name": "marshmallow geese",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.5,
+    "neck": 0.6,
+    "bulk": 0.7
+   },
+   "size": 0.8,
+   "count": 6,
+   "behaviour": "flock",
+   "haunt": "plaza",
+   "body": "#f4ece4",
+   "accent": "#f0b8c8",
+   "glow": "#000000",
+   "note": "Plump white geese, soft as marshmallows, honking politely."
+  }
+ ],
+ "folk": {
+  "name": "gingerbread folk",
+  "height": 1.4,
+  "bulk": 0.5,
+  "head": 1.2,
+  "features": [
+   "hat",
+   "cloak"
+  ],
+  "skin": [
+   "#c89a64",
+   "#d8b078"
+  ],
+  "cloth": [
+   "#e8a0b4",
+   "#a8d8c8",
+   "#f0e0a0"
+  ],
+  "trim": [
+   "#ffffff",
+   "#c85a78"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "sugar_keep",
+   "summary": "pale sugar-glass castle, spires to 32 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": -0.4,
+     "z": 0.35,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.14,
+     "h": 18,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.4,
+     "z": 0.35,
+     "y": 18,
+     "w": 0.16,
+     "d": 0.16,
+     "h": 8,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.4,
+     "z": 0.35,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.14,
+     "h": 16,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.4,
+     "z": 0.35,
+     "y": 16,
+     "w": 0.16,
+     "d": 0.16,
+     "h": 9,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 22,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 10,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 6,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 4,
+     "gap": 0.1
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 22,
+    "section": "square",
+    "taper": 0.25,
+    "bands": 3,
+    "top": "crown",
+    "flare": 0.15
+   }
+  },
+  {
+   "id": "candy_cane_tower",
+   "summary": "striped candy-cane bakery tower, 22 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.15,
+     "y": 10,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.4,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.18,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.4,
+     "z": 0.1,
+     "y": 6,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 5,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.12
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 12,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.12
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 22,
+    "section": "round",
+    "taper": 0.1,
+    "bands": 5,
+    "top": "cone",
+    "flare": 0.1
+   }
+  },
+  {
+   "id": "gumdrop_house",
+   "summary": "gingerbread cottage, gumdrop roof, 5 m",
+   "parts": [
+    {
+     "shape": "sphere",
+     "x": -0.3,
+     "z": 0.3,
+     "y": 3.2,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 3,
+     "gap": 0.3
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 1,
+     "w": 0.4,
+     "d": 0.02,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.25,
+     "z": 0.5,
+     "y": 1.2,
+     "w": 0.1,
+     "d": 0.02,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 1,
+    "roof": "hip",
+    "overhang": 0.2,
+    "front": "stoop",
+    "rhythm": 2,
+    "chimney": 1,
+    "taper": 0
+   }
+  },
+  {
+   "id": "lollipop_canopy",
+   "summary": "open stalls under lollipop canopies, 7 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": -0.35,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 3,
+     "gap": 0.35
+    },
+    {
+     "shape": "ring",
+     "x": -0.35,
+     "z": 0.1,
+     "y": 5.4,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 3,
+     "gap": 0.35
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.35,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.1,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0.3,
+     "y": 2.4,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "canopy",
+   "dials": {
+    "posts": 6,
+    "roof": "dome",
+    "counter": 0.6
+   }
+  },
+  {
+   "id": "fudge_block",
+   "summary": "two-storey fudge block, icing eaves, 7 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.1,
+     "y": 6.4,
+     "w": 1,
+     "d": 0.12,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.4,
+     "w": 0.05,
+     "d": 0.02,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.2
+    },
+    {
+     "shape": "box",
+     "x": 0.38,
+     "z": 0.4,
+     "y": 5,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0.1,
+     "w": 0.6,
+     "d": 0.1,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "gable",
+    "overhang": 0.25,
+    "front": "porch",
+    "rhythm": 4,
+    "chimney": 2,
+    "taper": 0.05
+   }
+  },
+  {
+   "id": "wafer_mill_form",
+   "summary": "wafer-plank mill with licorice wheel, 9 m",
+   "parts": [
+    {
+     "shape": "ring",
+     "x": 0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.1,
+     "h": 5,
+     "rot": 90,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.5,
+     "z": 0,
+     "y": 2.5,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.2,
+     "rot": 90,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.4,
+     "w": 0.05,
+     "d": 0.02,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.3
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": -0.4,
+     "y": 6,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "shed",
+    "overhang": 0.1,
+    "front": "plain",
+    "rhythm": 3,
+    "chimney": 1,
+    "taper": 0
+   }
+  },
+  {
+   "id": "marzipan_spire_chapel",
+   "summary": "white marzipan chapel, rock-candy spire 18 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.7,
+     "d": 0.8,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0.2,
+     "y": 6,
+     "w": 0.76,
+     "d": 0.86,
+     "h": 3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.04,
+     "h": 3.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0.5,
+     "y": 4,
+     "w": 0.16,
+     "d": 0.02,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 1.2,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "spire",
+   "dials": {
+    "count": 1,
+    "height": 18,
+    "lean": 0,
+    "sharpness": 0.6,
+    "variance": 0.2
+   }
+  },
+  {
+   "id": "toffee_arch",
+   "summary": "amber toffee arch bridge, 6 m rise",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.4,
+     "w": 1,
+     "d": 0.3,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.45,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.9
+    }
+   ],
+   "doorX": 0,
+   "family": "bridge",
+   "dials": {
+    "type": "arch",
+    "rise": 6,
+    "deck": 0.3,
+    "piers": 2,
+    "towers": 0,
+    "rails": "posts",
+    "under": "water",
+    "lamps": 4
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "licorice_oak",
+   "size": 8,
+   "parts": [],
+   "weight": 3,
+   "family": "broadleaf",
+   "dials": {
+    "height": 1.9,
+    "trunk": 0.4,
+    "girth": 0.3,
+    "limbs": 4,
+    "spread": 0.8,
+    "crown": "round",
+    "buttress": 0.3,
+    "hang": 0.1,
+    "lean": 0.1,
+    "bloom": 0.2,
+    "glow": 0
+   }
+  },
+  {
+   "kind": "mint_shrub",
+   "size": 2,
+   "parts": [],
+   "weight": 5,
+   "family": "shrub",
+   "dials": {
+    "form": "mound",
+    "height": 0.7,
+    "spread": 0.9,
+    "stems": 5,
+    "density": 0.8,
+    "berries": 0.4,
+    "glow": 0
+   }
+  },
+  {
+   "kind": "cocoa_reeds",
+   "size": 1.6,
+   "parts": [],
+   "weight": 4,
+   "family": "grassclump",
+   "dials": {
+    "form": "reeds",
+    "height": 1.6,
+    "spread": 0.6,
+    "count": 9,
+    "lean": 0.3,
+    "heads": "cattail",
+    "glow": 0
+   }
+  },
+  {
+   "kind": "rock_candy_boulder",
+   "size": 3,
+   "parts": [],
+   "weight": 2,
+   "family": "boulder",
+   "dials": {
+    "height": 1.4,
+    "width": 0.9,
+    "angular": 0.8,
+    "scatter": 0.4,
+    "split": 0.2,
+    "moss": 0.1,
+    "glow": 0
+   }
+  },
+  {
+   "kind": "toffee_lamp",
+   "size": 2,
+   "parts": [
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 0.95,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 3,
+    "arms": 1
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "sugar_crown_statue",
+   "prompt": "a weathered stone plinth bearing a drooping rose-sugar crown on a cushion, slightly melted, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 3
+  }
+ ]
+}

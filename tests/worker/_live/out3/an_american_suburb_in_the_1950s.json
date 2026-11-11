@@ -1,0 +1,2788 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "an American suburb in the 1950s",
+ "title": "Maple Court, 1957",
+ "tagline": "Everyone here smiles a little too carefully",
+ "theme": "modern",
+ "era": "1950s postwar America",
+ "palette": {
+  "ground": "#5f6e45",
+  "accent": "#6f8f8a",
+  "sky": "dusk",
+  "fog": 0.15
+ },
+ "time": {
+  "startHour": 18,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "ranch_a",
+   "role": "house",
+   "label": "Number 12",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "ranch_low"
+  },
+  {
+   "id": "ranch_b",
+   "role": "house",
+   "label": "Number 14",
+   "size": "medium",
+   "blueprint": "split_level"
+  },
+  {
+   "id": "ranch_c",
+   "role": "house",
+   "label": "Number 16",
+   "size": "medium",
+   "blueprint": "ranch_low"
+  },
+  {
+   "id": "ranch_d",
+   "role": "house",
+   "label": "Number 18",
+   "size": "medium",
+   "blueprint": "cape_cod"
+  },
+  {
+   "id": "corner_shop",
+   "role": "general_store",
+   "label": "Hendry's Corner Shop",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "corner_store"
+  },
+  {
+   "id": "soda_fountain",
+   "role": "cafe",
+   "label": "Maple Soda Fountain",
+   "size": "small",
+   "blueprint": "diner"
+  },
+  {
+   "id": "church",
+   "role": "church",
+   "label": "First Methodist",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "church_steeple"
+  },
+  {
+   "id": "water_tower",
+   "role": "command",
+   "label": "Maple Court Water Tower",
+   "size": "large",
+   "blueprint": "water_tower"
+  },
+  {
+   "id": "garage",
+   "role": "garage",
+   "label": "Delmar's Garage",
+   "size": "small",
+   "blueprint": "cinder_garage"
+  },
+  {
+   "id": "school",
+   "role": "school",
+   "label": "Eisenhower Elementary",
+   "size": "large",
+   "blueprint": "split_level"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "dot",
+   "name": "Dot Callahan",
+   "role": "housewife",
+   "persona": "Bright-voiced and curious about everyone's business. She hides her nerves behind casseroles and gossip.",
+   "knowledge": [
+    "The lights at Number 20 have burned every night since the moving van left.",
+    "The van had no company name, only a plain gray door.",
+    "Mr. Hendry delivered a grocery order to Number 20 and got no answer."
+   ],
+   "secrets": [
+    "She left a pie on the porch of Number 20, and it was gone by morning but the plate never came back."
+   ],
+   "home": "ranch_a",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "ranch_a",
+     "activity": "eat"
+    },
+    {
+     "hour": 10,
+     "place": "street",
+     "activity": "wander"
+    },
+    {
+     "hour": 15,
+     "place": "corner_shop",
+     "activity": "trade"
+    },
+    {
+     "hour": 21,
+     "place": "ranch_a",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "walt",
+     "stance": "family"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1.2,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.6,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.4,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "walt",
+   "name": "Walt Callahan",
+   "role": "insurance man",
+   "persona": "Tidy, careful, and tired of being asked questions he can't answer. He believes in rules because rules keep a street calm.",
+   "knowledge": [
+    "A policy was written for Number 20 by mail, and the signature was neat.",
+    "Civil defense drills this year made everybody jumpy.",
+    "Plenty of men on Maple Court never talk about the war or their jobs."
+   ],
+   "secrets": [
+    "The Number 20 policy lists a government office as the employer, and he was told not to mention it."
+   ],
+   "home": "ranch_a",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "ranch_a",
+     "activity": "eat"
+    },
+    {
+     "hour": 9,
+     "place": "street",
+     "activity": "work"
+    },
+    {
+     "hour": 17,
+     "place": "soda_fountain",
+     "activity": "rest"
+    },
+    {
+     "hour": 22,
+     "place": "ranch_a",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "dot",
+     "stance": "family"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "mr_hendry",
+   "name": "Mr. Hendry",
+   "role": "shopkeeper",
+   "persona": "Brisk and proud of his stock. He counts every nickel and notices every odd order.",
+   "knowledge": [
+    "Number 20 orders coffee, cigarettes and light bulbs, a dozen bulbs at a time.",
+    "The orders are paid in new bills, always exact change.",
+    "Delmar fixed a delivery bike for the house and kept a gas can that was left behind."
+   ],
+   "secrets": [
+    "He peeked in the Number 20 order box and saw a radio part wrapped in a Pentagon memo envelope."
+   ],
+   "home": "corner_shop",
+   "work": "corner_shop",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "corner_shop",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "soda_fountain",
+     "activity": "eat"
+    },
+    {
+     "hour": 13,
+     "place": "corner_shop",
+     "activity": "trade"
+    },
+    {
+     "hour": 20,
+     "place": "corner_shop",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "delmar",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.2,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.6
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1.1
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "rev_cole",
+   "name": "Reverend Cole",
+   "role": "minister",
+   "persona": "Gentle and slow to judge, with a dry streak. He says a stranger deserves a welcome before a verdict.",
+   "knowledge": [
+    "The new neighbour has not come to service, but a note and an offering envelope arrived anonymously.",
+    "Folks are talking about him more than about the sermon.",
+    "He prays for the street each dusk and watches the lights from the steeple door."
+   ],
+   "secrets": [
+    "The man at Number 20 came to the church at midnight once and asked for the bell rope to be left untied."
+   ],
+   "home": "church",
+   "work": "church",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "church",
+     "activity": "pray"
+    },
+    {
+     "hour": 10,
+     "place": "church",
+     "activity": "work"
+    },
+    {
+     "hour": 16,
+     "place": "street",
+     "activity": "wander"
+    },
+    {
+     "hour": 21,
+     "place": "church",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "dot",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0.3,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "delmar",
+   "name": "Delmar",
+   "role": "mechanic",
+   "persona": "Gruff, oil-stained and plain-spoken. He trusts engines more than people and says so.",
+   "knowledge": [
+    "A black sedan with no plates idled at the pump one night and took on exactly five gallons.",
+    "The driver paid in cash and left a toolbox with a taped label.",
+    "The water tower hums oddly after midnight, like a generator."
+   ],
+   "secrets": [
+    "He pried open the toolbox and found a dial radio and a hand-drawn map of Maple Court's water tower."
+   ],
+   "home": "garage",
+   "work": "garage",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "garage",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "soda_fountain",
+     "activity": "eat"
+    },
+    {
+     "hour": 13,
+     "place": "garage",
+     "activity": "work"
+    },
+    {
+     "hour": 19,
+     "place": "garage",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "mr_hendry",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.2,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.7
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "peggy",
+   "name": "Peggy Lund",
+   "role": "soda jerk",
+   "persona": "Quick-witted and chatty, with a swell sense of who sits where and why. She flirts with the truth and gives it up for a good story.",
+   "knowledge": [
+    "Walt drinks a cherry cola alone every afternoon and watches the street.",
+    "The Number 20 man called ahead for a malt, then never showed.",
+    "Kids dare each other to knock on Number 20's door and run."
+   ],
+   "secrets": [
+    "A man in a gray suit left a quarter tip and a note under a saucer reading 'Watch the antenna at Number 16.'"
+   ],
+   "home": "soda_fountain",
+   "work": "soda_fountain",
+   "schedule": [
+    {
+     "hour": 10,
+     "place": "soda_fountain",
+     "activity": "work"
+    },
+    {
+     "hour": 14,
+     "place": "soda_fountain",
+     "activity": "trade"
+    },
+    {
+     "hour": 18,
+     "place": "plaza",
+     "activity": "wander"
+    },
+    {
+     "hour": 22,
+     "place": "soda_fountain",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "walt",
+     "stance": "neutral"
+    }
+   ],
+   "appearance": {
+    "base": "rogue_hooded",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.7,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.5,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.5,
+    "rate": 1.3
+   },
+   "mood": "cheerful"
+  }
+ ],
+ "items": [
+  {
+   "id": "pie_plate",
+   "name": "Dot's Pie Plate",
+   "description": "A blue-rimmed plate with a smear of cherry. Initials DC on the bottom.",
+   "holder": "ranch_d"
+  },
+  {
+   "id": "toolbox",
+   "name": "Taped Toolbox",
+   "description": "Dented steel box, taped label reading 'MC-20'. Heavy for its size.",
+   "holder": "garage"
+  },
+  {
+   "id": "order_slip",
+   "name": "Number 20 Order Slip",
+   "description": "A grocery slip for coffee, bulbs and one coil of copper wire, in tidy block letters.",
+   "holder": "corner_shop"
+  },
+  {
+   "id": "bell_rope_note",
+   "name": "Church Note",
+   "description": "An unsigned note on cheap stationery: 'Leave the rope. Someone may need to ring.'",
+   "holder": "church"
+  }
+ ],
+ "quest": {
+  "id": "number_twenty",
+  "title": "The Light at Number 20",
+  "hook": "Maple Court is quiet, lawns clipped, antennas aimed at the same three channels. But Number 20 has a new tenant nobody has met, and its lights burn all night. Neighbours whisper over fences and nobody knocks. You are new enough here to ask what the rest won't.",
+  "giver": "dot",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "dot",
+    "requires": [],
+    "objective": "Hear Dot out about the new neighbour at Number 20.",
+    "beat": "Dot lowers her voice over the fence and begs someone to find out who he is.",
+    "reveals": [
+     "dot:0"
+    ]
+   },
+   {
+    "id": "s2",
+    "kind": "fetch",
+    "target": "order_slip",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Pick up the Number 20 order slip at Hendry's Corner Shop.",
+    "beat": "The slip lists a dozen bulbs and copper wire. Nobody lights a house like that without a reason.",
+    "item": "order_slip"
+   },
+   {
+    "id": "s3",
+    "kind": "visit",
+    "target": "garage",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Visit Delmar's Garage and ask about the black sedan.",
+    "beat": "Delmar wipes his hands and says the sedan paid cash and left a toolbox behind.",
+    "reveals": [
+     "delmar:0"
+    ]
+   },
+   {
+    "id": "s4",
+    "kind": "fetch",
+    "target": "toolbox",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Take the taped toolbox from the garage.",
+    "beat": "Inside is a dial radio and a hand-drawn map of the water tower.",
+    "item": "toolbox"
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "walt",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Decide what to do with the toolbox and the map.",
+    "beat": "Walt wants it quietly handed to the authorities. Dot wants a knock on the door.",
+    "choices": [
+     {
+      "label": "Bring the toolbox to Walt and the authorities",
+      "unlocks": [
+       "s6a"
+      ]
+     },
+     {
+      "label": "Knock on Number 20 and return it yourself",
+      "unlocks": [
+       "s6b"
+      ]
+     }
+    ],
+    "reveals": [
+     "walt:0"
+    ]
+   },
+   {
+    "id": "s6a",
+    "kind": "deliver",
+    "target": "walt",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Deliver the toolbox to Walt.",
+    "beat": "Walt takes it gravely. By morning a gray sedan is parked at Number 20 and the lights go dark.",
+    "item": "toolbox"
+   },
+   {
+    "id": "s6b",
+    "kind": "deliver",
+    "target": "rev_cole",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Give the toolbox to Reverend Cole to return in person.",
+    "beat": "The Reverend carries it to Number 20 at dusk. The door opens and a tired man thanks him, and the lights burn on.",
+    "item": "toolbox"
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6a",
+    "label": "The street is quiet again, and nobody ever learns his name.",
+    "tone": "bitter"
+   },
+   {
+    "stepId": "s6b",
+    "label": "The new neighbour comes to Sunday service and sits in the back pew.",
+    "tone": "good"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "Children must be off the street by dark and indoors for civil defense hour.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 21,
+    "toHour": 6,
+    "exemptRoles": [
+     "minister",
+     "mechanic"
+    ]
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Nobody trespasses at Number 20 or the water tower after dusk.",
+   "effect": {
+    "type": "ban",
+    "what": "trespass",
+    "where": "water_tower",
+    "enforcer": "walt"
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "swell",
+  "gee whiz",
+  "soda jerk",
+  "civil defense",
+  "Cold War",
+  "Levittown"
+ ],
+ "style": {
+  "name": "Maple Court Dusk",
+  "wall": "#b8b0a0",
+  "wall2": "#8f6a58",
+  "roof": "#4a4745",
+  "trim": "#d2cdc1",
+  "accent": "#6f8f8a",
+  "dark": "#2a2826",
+  "glass": "#3a4650",
+  "glow": "#ffd9a0",
+  "ground": "#5f6e45",
+  "road": "#3b3c3e",
+  "variety": 0.2,
+  "surfaces": {
+   "wall": "plaster",
+   "wall2": "brick",
+   "roof": "shingle",
+   "trim": "timber",
+   "ground": "grass",
+   "road": "asphalt",
+   "wear": 0.45,
+   "wet": 0
+  },
+  "foliage": "#4f6a3a",
+  "bark": "#5a4a3a"
+ },
+ "site": {
+  "pattern": "street",
+  "wild": 0.2,
+  "paths": "road",
+  "spacing": 9
+ },
+ "mood": {
+  "weather": "clear",
+  "intensity": 0,
+  "grade": "golden",
+  "haze": 0.35,
+  "ambience": [
+   "birds",
+   "crickets",
+   "leaves",
+   "machinery"
+  ],
+  "music": "soft crooning radio"
+ },
+ "terrain": {
+  "relief": "flat",
+  "ruggedness": 0.05,
+  "water": "none",
+  "waterAmount": 0,
+  "horizon": "tree-lined streets and TV antennas",
+  "settled": 0.6
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "sparrows",
+   "name": "house sparrows",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.4
+   },
+   "size": 0.2,
+   "count": 8,
+   "behaviour": "flock",
+   "haunt": "sky",
+   "body": "#8a7556",
+   "accent": "#5a4a38",
+   "glow": "#000000",
+   "note": "Chirping along the telephone wires."
+  },
+  {
+   "id": "tabby",
+   "name": "neighbourhood tabby",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.3,
+    "tail": 0.8
+   },
+   "size": 0.5,
+   "count": 1,
+   "behaviour": "roam",
+   "haunt": "plaza",
+   "body": "#a88a5a",
+   "accent": "#6a5238",
+   "glow": "#000000",
+   "note": "Watches you from a porch rail."
+  },
+  {
+   "id": "beagle",
+   "name": "backyard beagle",
+   "family": "quadruped",
+   "dials": {
+    "ears": 0.8,
+    "snout": 0.5
+   },
+   "size": 0.6,
+   "count": 1,
+   "behaviour": "patrol",
+   "haunt": "ranch_c",
+   "body": "#b89a6a",
+   "accent": "#e8dcc0",
+   "glow": "#000000",
+   "note": "Barks once, then loses interest."
+  }
+ ],
+ "folk": {
+  "name": "suburban neighbours",
+  "height": 1.72,
+  "bulk": 0.45,
+  "head": 1,
+  "features": [
+   "hat"
+  ],
+  "skin": [
+   "#e8c4a0",
+   "#d9a882",
+   "#b98760"
+  ],
+  "cloth": [
+   "#7a9a8c",
+   "#c9b98a",
+   "#a86a5a"
+  ],
+  "trim": [
+   "#5a4632",
+   "#8a7a5a"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "ranch_low",
+   "summary": "low ranch house, picture window, carport, 4 m ridge",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 0.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.34
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2.75,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 1,
+     "d": 0.8600000000000001,
+     "h": 1.9,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.1,
+     "y": 3,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.47000000000000003,
+     "y": 2.6,
+     "w": 0.5,
+     "d": 0.28,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.035,
+     "d": 0.035,
+     "h": 2.65,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.42
+    },
+    {
+     "shape": "box",
+     "x": -0.5,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.35,
+     "d": 0.5,
+     "h": 2.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.5,
+     "z": 0.1,
+     "y": 2.6,
+     "w": 0.4,
+     "d": 0.55,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.1,
+     "z": 0.5,
+     "y": 0.8,
+     "w": 0.3,
+     "d": 0.03,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.1,
+     "z": 0.5,
+     "y": 0.8,
+     "w": 0.3,
+     "d": 0.02,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0.3
+  },
+  {
+   "id": "split_level",
+   "summary": "pastel split-level with brick chimney, 8 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 0.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 4,
+     "gap": 0.17
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.768,
+     "d": 0.6336,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.32180000000000003,
+     "y": 3.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 4,
+     "gap": 0.1632
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 5.75,
+     "w": 0.7987200000000001,
+     "d": 0.6589440000000001,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.918,
+     "d": 0.7836000000000001,
+     "h": 1.9,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.1,
+     "y": 6,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.56
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.4,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.14,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.35,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.35,
+     "d": 0.5,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0.35,
+     "z": 0.1,
+     "y": 2.2,
+     "w": 0.4,
+     "d": 0.55,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.1,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.2
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": -0.45,
+     "y": 6.2,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": -0.15
+  },
+  {
+   "id": "cape_cod",
+   "summary": "cape cod house, picket fence, dormers, 7.5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 0.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.34
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 3.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 3,
+     "gap": 0.22666666666666668
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 5.75,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.9,
+     "d": 0.76,
+     "h": 1.9,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.1,
+     "y": 6,
+     "w": 0.07,
+     "d": 0.07,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": -0.15,
+     "z": 0.15,
+     "y": 5.2,
+     "w": 0.12,
+     "d": 0.14,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0.15,
+     "z": 0.15,
+     "y": 5.2,
+     "w": 0.12,
+     "d": 0.14,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.03,
+     "h": 1,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.2,
+     "z": 0.5,
+     "y": 1,
+     "w": 0.05,
+     "d": 0.02,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.4
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "corner_store",
+   "summary": "brick storefront, striped awning, 6 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 0.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 4,
+     "gap": 0.17
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 3.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 4,
+     "gap": 0.17
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 5.75,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.8500000000000001,
+     "d": 0.7100000000000001,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0.45,
+     "y": 2.4,
+     "w": 0.26,
+     "d": 0.8,
+     "h": 0.45,
+     "rot": 90,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.3,
+     "w": 0.9,
+     "d": 0.1,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0.4,
+     "w": 0.6,
+     "d": 0.02,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.3,
+     "y": 6,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": -0.25
+  },
+  {
+   "id": "diner",
+   "summary": "chrome diner, neon sign, flat roof, 5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.98,
+     "d": 0.8,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.3,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 3,
+     "gap": 0.45
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 3,
+     "gap": 0.45
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2.8,
+     "w": 1.1,
+     "d": 0.9,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.28,
+     "y": 0.12,
+     "w": 0.5599999999999999,
+     "d": 0.14,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.28,
+     "y": 1.02,
+     "w": 0.12,
+     "d": 0.1,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 3,
+     "gap": 0.13999999999999999
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.7,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.36,
+     "y": 0.6,
+     "w": 0.8,
+     "d": 0.02,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.36,
+     "y": 0.7,
+     "w": 0.7,
+     "d": 0.02,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.4,
+     "z": 0.3,
+     "y": 3.2,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "church_steeple",
+   "summary": "white clapboard church, steeple 22 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.8,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.08950000000000001,
+     "d": 0.08950000000000001,
+     "h": 12.100000000000001,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 12.100000000000001,
+     "w": 0.085025,
+     "d": 0.085025,
+     "h": 9.9,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 22,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.7,
+     "d": 0.6,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0.1,
+     "y": 6,
+     "w": 0.75,
+     "d": 0.65,
+     "h": 3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 12,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.03,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.25,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.02,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.5
+    }
+   ],
+   "doorX": -0.15
+  },
+  {
+   "id": "water_tower",
+   "summary": "riveted steel water tower, 28 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.3555,
+     "d": 0.3555,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.3465,
+     "d": 0.3465,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 12,
+     "w": 0.33749999999999997,
+     "d": 0.33749999999999997,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 18,
+     "w": 0.32849999999999996,
+     "d": 0.32849999999999996,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 5.88,
+     "w": 0.38808000000000004,
+     "d": 0.38808000000000004,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 11.88,
+     "w": 0.378,
+     "d": 0.378,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 17.88,
+     "w": 0.36791999999999997,
+     "d": 0.36791999999999997,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.4176,
+     "d": 0.4176,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.432,
+     "d": 0.432,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.17775,
+     "y": 1,
+     "w": 0.05,
+     "d": 0.03,
+     "h": 3,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.11497499999999998,
+     "y": 24,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.22994999999999996
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.11497499999999998,
+     "y": 24,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.22994999999999996
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 26,
+     "w": 0.42705,
+     "d": 0.42705,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 28.4,
+     "w": 0.4598999999999999,
+     "d": 0.4598999999999999,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 28,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.4,
+     "y": 0,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 24,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 4,
+     "gap": 0.35
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.1,
+     "y": 28.5,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "cinder_garage",
+   "summary": "cinder-block garage, gas pump, oil sign, 12 m sign mast",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.053000000000000005,
+     "d": 0.053000000000000005,
+     "h": 12,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 11.040000000000001,
+     "w": 0.5,
+     "d": 0.03,
+     "h": 0.14,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 10.74,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.45
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 12,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.12,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 2.3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.12,
+     "y": 2.3,
+     "w": 0.34,
+     "d": 0.34,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.276,
+     "y": 0,
+     "w": 0.09,
+     "d": 0.02,
+     "h": 2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.1,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.85,
+     "d": 0.55,
+     "h": 3.4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.02,
+     "h": 2.6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.25,
+     "z": 0.4,
+     "y": 3.4,
+     "w": 0.3,
+     "d": 0.05,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  }
+ ],
+ "props": [
+  {
+   "kind": "maple_tree",
+   "size": 9,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 0.4146666666666667,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.4146666666666667,
+     "w": 0.16,
+     "d": 0.16,
+     "h": 0.4146666666666667,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.8293333333333334,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 0.4146666666666667,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 1.1600000000000001,
+     "w": 0.7200000000000001,
+     "d": 0.6809300875710325,
+     "h": 0.84,
+     "rot": 130.41556944139302,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.15147920517820612,
+     "z": 0.12187850379118874,
+     "y": 1.0012032927010488,
+     "w": 0.5910012984126807,
+     "d": 0.5814368704401396,
+     "h": 0.533544923553709,
+     "rot": 94.441790683195,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.12461315807699146,
+     "z": -0.26556839577743646,
+     "y": 1.2125120069537685,
+     "w": 0.5732323953434826,
+     "d": 0.49520157448630303,
+     "h": 0.5407357315672562,
+     "rot": 18.578940080478787,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.1614143172313358,
+     "z": -0.16354559606996613,
+     "y": 0.9015893923849798,
+     "w": 0.46175448594987395,
+     "d": 0.42316154915297877,
+     "h": 0.453276932593435,
+     "rot": 116.10746731515974,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.09948760265506948,
+     "z": 0.18028083547812623,
+     "y": 0.856514759402089,
+     "w": 0.405537813872099,
+     "d": 0.37995159828152325,
+     "h": 0.4675872287037782,
+     "rot": 112.0325374044478,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.34,
+     "d": 0.34,
+     "h": 0.26,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.12071899688708548,
+     "z": -0.2572693834093916,
+     "y": 0.94356,
+     "w": 0.16501013193489053,
+     "d": 0.054,
+     "h": 0.5379040139075368,
+     "rot": 64.86253325826152,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.15637011981785656,
+     "z": -0.15843479619277967,
+     "y": 0.6839999999999999,
+     "w": 0.12925479391333647,
+     "d": 0.07200000000000001,
+     "h": 0.43517878476995975,
+     "rot": 134.6242258612191,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.09637861507209856,
+     "z": 0.1746470593694348,
+     "y": 0.6226800000000001,
+     "w": 0.11582442229078152,
+     "d": 0.07200000000000001,
+     "h": 0.4676695188041776,
+     "rot": -118.89201826670921,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.1467454800163872,
+     "z": 0.1180698005477141,
+     "y": 0.7831199999999999,
+     "w": 0.10936296116444283,
+     "d": 0.07200000000000001,
+     "h": 0.4361665854020976,
+     "rot": -38.819773485469625,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.06053036896175092,
+     "z": -0.061329598526237296,
+     "y": 0.6839999999999999,
+     "w": 0.252339725217782,
+     "d": 0.08,
+     "h": 0.08,
+     "rot": 134.6242258612191,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.037307850995651044,
+     "z": 0.06760531330429731,
+     "y": 0.6226800000000001,
+     "w": 0.23443256305437532,
+     "d": 0.08,
+     "h": 0.08,
+     "rot": -118.89201826670921,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.056804701941827296,
+     "z": 0.045704438921695775,
+     "y": 0.7831199999999999,
+     "w": 0.22581728155259045,
+     "d": 0.08,
+     "h": 0.08,
+     "rot": -38.819773485469625,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.046729934278871794,
+     "z": -0.09958814841653867,
+     "y": 0.94356,
+     "w": 0.2800135092465207,
+     "d": 0.06,
+     "h": 0.06,
+     "rot": 64.86253325826152,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 4,
+   "nature": "plant"
+  },
+  {
+   "kind": "hedge_shrub",
+   "size": 1.6,
+   "parts": [
+    {
+     "shape": "sphere",
+     "x": 0.22860957031343465,
+     "z": -0.008701886082598517,
+     "y": 0.03134928132675122,
+     "w": 0.519174328442663,
+     "d": 0.4532334004779034,
+     "h": 0.5906320875456782,
+     "rot": 129.18918716255575,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.05283590903395245,
+     "z": 0.2307324753576202,
+     "y": 0.029290426770877093,
+     "w": 0.4377961321794196,
+     "d": 0.4289537097310161,
+     "h": 0.5703781911043094,
+     "rot": 27.341889683157206,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.11149558858945968,
+     "z": -0.06962313665942965,
+     "y": 0,
+     "w": 0.0876321793589741,
+     "d": 0.036000000000000004,
+     "h": 0.3724347697093617,
+     "rot": 148.01738806128515,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 0.08399999999999999,
+     "w": 0.45,
+     "d": 0.38847894157748675,
+     "h": 0.595,
+     "rot": 157.17213481664658,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.13379470630735163,
+     "z": -0.08354776399131558,
+     "y": 0.0223460861825617,
+     "w": 0.43534929532546085,
+     "d": 0.39433149645527454,
+     "h": 0.53259438272106,
+     "rot": 92.35787873156369,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.059154877913559355,
+     "z": -0.16511836169244865,
+     "y": 0.02179213004973717,
+     "w": 0.45984689486974395,
+     "d": 0.38388807603271746,
+     "h": 0.49249143509579585,
+     "rot": 154.6416658256203,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.1322367843626114,
+     "z": 0.08232220465296819,
+     "y": 0.029646621907688672,
+     "w": 0.44576732815881265,
+     "d": 0.35787775502133523,
+     "h": 0.5442248630606614,
+     "rot": 173.93315082415938,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.27,
+     "d": 0.24300000000000002,
+     "h": 0.13999999999999999,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.19050797526119553,
+     "z": -0.007251571735498764,
+     "y": 0,
+     "w": 0.12709729244560006,
+     "d": 0.036000000000000004,
+     "h": 0.5224880221125204,
+     "rot": 2.1798770578369044,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.04402992419496038,
+     "z": 0.19227706279801682,
+     "y": 0,
+     "w": 0.1315026034433395,
+     "d": 0.036000000000000004,
+     "h": 0.4881737795146182,
+     "rot": -77.10209574589061,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.11019732030217617,
+     "z": 0.06860183721080682,
+     "y": 0,
+     "w": 0.08653749725595117,
+     "d": 0.036000000000000004,
+     "h": 0.49411036512814455,
+     "rot": -148.0962353099228,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.0492957315946328,
+     "z": -0.1375986347437072,
+     "y": 0,
+     "w": 0.09744161428324878,
+     "d": 0.036000000000000004,
+     "h": 0.3632021674956195,
+     "rot": 70.28956025790632,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 4,
+   "nature": "plant"
+  },
+  {
+   "kind": "lawn_grass",
+   "size": 0.9,
+   "parts": [
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.18000000000000002,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.012023345346984687,
+     "z": -0.026577835100758434,
+     "y": 0,
+     "w": 0.03967430985346437,
+     "d": 0.024,
+     "h": 0.4,
+     "rot": 65.65884028561413,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.07247254173432488,
+     "z": 0.0039323143167455665,
+     "y": 0,
+     "w": 0.040113726768642666,
+     "d": 0.024,
+     "h": 0.31412507975474,
+     "rot": -176.89421271590527,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0.035623912776038616,
+     "z": -0.03637566639829533,
+     "y": 0,
+     "w": 0.038400000000000004,
+     "d": 0.024,
+     "h": 0.31551377503201367,
+     "rot": 45.59820828387774,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": -0.04987058093126955,
+     "z": -0.02805055661430673,
+     "y": 0,
+     "w": 0.038400000000000004,
+     "d": 0.024,
+     "h": 0.3151686718221754,
+     "rot": 150.64368228518003,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.012613939264589598,
+     "z": 0.038475791573427426,
+     "y": 0,
+     "w": 0.02942026575654745,
+     "d": 0.024,
+     "h": 0.3722376363817603,
+     "rot": -71.84873871460297,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.02597327019351517,
+     "z": 0.037973544852934034,
+     "y": 0,
+     "w": 0.028396697245538234,
+     "d": 0.024,
+     "h": 0.3723774954210967,
+     "rot": -124.37147571525406,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.03688299089073962,
+     "z": 0.030281623344825155,
+     "y": 0,
+     "w": 0.043207589149475104,
+     "d": 0.024,
+     "h": 0.20822976576164365,
+     "rot": -39.38663371568805,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": -0.00789824360368395,
+     "z": -0.055350891180834035,
+     "y": 0,
+     "w": 0.038400000000000004,
+     "d": 0.024,
+     "h": 0.21737460102885964,
+     "rot": 98.12094528452894,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.06455773204449602,
+     "z": -0.015065943221133273,
+     "y": 0,
+     "w": 0.032298858683556315,
+     "d": 0.024,
+     "h": 0.24662859276868404,
+     "rot": 13.136103284963042,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 3,
+   "nature": "plant"
+  },
+  {
+   "kind": "street_lamp",
+   "size": 2,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2.9,
+     "w": 0.5,
+     "d": 0.04,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 2.7199999999999998,
+     "w": 0.15,
+     "d": 0.15,
+     "h": 0.18,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2
+  },
+  {
+   "kind": "mailbox",
+   "size": 0.8,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.96,
+     "d": 0.7,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.446,
+     "w": 0.515,
+     "d": 0.515,
+     "h": 0.108,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.9500000000000001,
+     "w": 0.525,
+     "d": 0.525,
+     "h": 0.09000000000000001,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.8,
+     "w": 0.6,
+     "d": 0.3,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "fire_hydrant",
+   "prompt": "A squat cast-iron fire hydrant with chained caps, chipped red paint over rust, a dented bonnet and a worn stencilled collar, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 2
+  }
+ ]
+}

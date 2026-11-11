@@ -91,8 +91,9 @@ interface PointLayer extends LayerBase {
 
 interface StreakLayer extends LayerBase {
   type: 'streaks';
-  /** Streak length in metres and width in metres. */
-  length: number;
+  /** Exposure time in seconds: a drop is drawn as the path it covers in this long, whatever the frame rate. */
+  shutter: number;
+  /** Width in metres. */
   width: number;
   opacity: number;
 }
@@ -121,8 +122,22 @@ const POINT_DEFAULTS = {
   blink: [0, 0], twinkle: 0, additive: false, tinted: 'none',
 } as const;
 
+/** A sixtieth of a second: rain at 11.5 m/s leaves a mark about 19 cm long, a drop and not a wire. */
+export const RAIN_SHUTTER = 1 / 60;
+/** A streak is never longer than this share of its distance from the eye, so one falling past the lens stays a drop. */
+export const STREAK_MAX_ANGLE = 0.075;
+
+/**
+ * Length in metres of a streak: the path covered while the shutter is open, capped by the angle it may
+ * subtend. It depends on speed, shutter and distance only; the frame time never enters it.
+ */
+export function streakLength(speed: number, shutter: number, distance: number, vary = 0.5): number {
+  const len = Math.max(0, speed) * Math.max(0, shutter) * (0.75 + 0.5 * Math.min(1, Math.max(0, vary)));
+  return Math.min(len, Math.max(0, distance) * STREAK_MAX_ANGLE);
+}
+
 const RAIN: StreakLayer = {
-  type: 'streaks', count: 11000, size: [30, 18, 30], vel: [0, -11.5, 0], wind: 1, share: 1, grounded: false, length: 0.62, width: 0.011, opacity: 0.5,
+  type: 'streaks', count: 11000, size: [30, 18, 30], vel: [0, -11.5, 0], wind: 1, share: 1, grounded: false, shutter: RAIN_SHUTTER, width: 0.011, opacity: 0.62,
 };
 const RAIN_SPLASH: SplashLayer = {
   type: 'splashes', count: 520, size: [22, 1, 22], vel: [0, 0, 0], wind: 0, share: 1, grounded: true, radius: 0.13, rate: 2.6, opacity: 0.55,
@@ -136,7 +151,7 @@ export const WEATHER_LAYERS: Record<WeatherKind, readonly LayerSpec[]> = {
   clear: [],
   rain: [RAIN, RAIN_SPLASH],
   storm: [
-    { ...RAIN, count: 16000, vel: [0, -14.5, 0], wind: 1.6, length: 0.85, opacity: 0.55 },
+    { ...RAIN, count: 16000, vel: [0, -14.5, 0], wind: 1.6, shutter: RAIN_SHUTTER * 1.15, opacity: 0.66 },
     { ...RAIN_SPLASH, count: 800, rate: 3.4 },
     { ...LOW_MIST, count: 30, vel: [1.6, 0, 0.5], wind: 0.9, height: [3, 7], opacity: 0.14, share: 0.8 },
   ],
@@ -153,7 +168,8 @@ export const WEATHER_LAYERS: Record<WeatherKind, readonly LayerSpec[]> = {
       ...POINT_DEFAULTS, count: 5200, size: [22, 9, 22], vel: [0.25, 0.03, 0.1], wind: 0.6, vary: [0.2, 0.05, 0.2], sway: [0.25, 0.5, 0.18],
       diameter: [0.006, 0.016], colorA: '#ffe6bd', colorB: '#f2c890', scatter: 5, opacity: 0.55, twinkle: 0.6, additive: true, tinted: 'dust',
     },
-    { ...LOW_MIST, count: 34, vel: [1.1, 0, 0.4], wind: 0.8, width: [16, 34], height: [2.5, 6], opacity: 0.13, tinted: 'dust', share: 0.9 },
+    // Blown dust comes in puffs about as tall as they are wide: a long flat bank reads as a streak across the view.
+    { ...LOW_MIST, count: 46, vel: [1.1, 0, 0.4], wind: 0.8, width: [9, 18], height: [4, 8.5], opacity: 0.12, tinted: 'dust', share: 0.9 },
   ],
   ash: [
     {
@@ -341,7 +357,7 @@ const STREAK_VERTEX = /* glsl */ `
   attribute vec4 aRand;
   uniform float uTime;
   uniform vec3 uVel;
-  uniform float uLength;
+  uniform float uShutter;
   uniform float uWidth;
   uniform float uScale;
   uniform float uOpacity;
@@ -368,7 +384,8 @@ const STREAK_VERTEX = /* glsl */ `
     // Never thinner than a pixel and a quarter: a widened streak is dimmed by as much.
     float width = max(uWidth, 1.25 * dist / uScale);
     float thin = uWidth / width;
-    float len = uLength * (0.6 + 0.8 * aRand.z);
+    // The mark a drop leaves is its speed times the shutter, and never more than a small angle seen from the eye.
+    float len = min(length(uVel) * uShutter * (0.75 + 0.5 * aRand.z), dist * ${STREAK_MAX_ANGLE.toFixed(3)});
     vec3 pos = world - axis * (position.y * len) + side * (position.x * width);
     vec4 mv = viewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mv;
@@ -393,7 +410,8 @@ const STREAK_FRAGMENT = /* glsl */ `
   void main() {
     if (vDepth > sceneDepth()) discard;
     float across = 1.0 - abs(vQuad.x) * 2.0;
-    float along = smoothstep(0.0, 0.12, vQuad.y) * (1.0 - smoothstep(0.35, 1.0, vQuad.y));
+    // Bright at the head, thinning out behind it: a drop with a short tail.
+    float along = smoothstep(0.0, 0.2, vQuad.y) * (1.0 - smoothstep(0.25, 1.0, vQuad.y));
     gl_FragColor = vec4(vColor.rgb, vColor.a * across * along);
   }
 `;
@@ -660,7 +678,7 @@ function buildLayer(kind: WeatherKind, index: number, spec: LayerSpec, q: Qualit
     geometry = quadGeometry(STREAK_POSITIONS, count, salt);
     Object.assign(uniforms, {
       uVel: { value: new Vector3(...spec.vel) },
-      uLength: { value: spec.length },
+      uShutter: { value: spec.shutter },
       uWidth: { value: spec.width },
       uOpacity: { value: spec.opacity },
     });

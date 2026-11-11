@@ -32,7 +32,7 @@ import type { Rect } from './layout';
 import { backdropKinds, propFoot, propProfile } from './props';
 import { InstanceWindow, windowMesh } from './scatter';
 import type { WindowLayer } from './scatter';
-import { fbm, hash2, outsideDistance, smoothstep } from './terrain';
+import { bankTint, fbm, hash2, outsideDistance, patchTint, reliefTint, smoothstep } from './terrain';
 import type { Land, LandWater, Quality } from './terrain';
 import { waterLook, waterMaterial } from './water';
 import type { WaterKind, WaterLook } from './water';
@@ -248,6 +248,7 @@ export function createEndless(inp: EndlessInput): Endless {
   const placeSolids = new Float32Array(PLACE_SPAN * PLACE_SPAN * PLACE_SOLIDS * 3);
   let placeSolidN = 0;
   const W = N + 3;
+  const tint: [number, number, number] = [1, 1, 1];
   const hs = new Float64Array(W * W);
   const VERTS = (N + 1) * (N + 1) + 4 * (N + 1);
   const horizonF = clamp(5200 / (inp.horizon.outer + 220), 3, 12);
@@ -386,10 +387,16 @@ export function createEndless(inp: EndlessInput): Endless {
         // The same blotches and drift the place's ground carries, so the two read as one surface.
         let k = 0.83 + 0.2 * fbm(x / 31, z / 31, seed + 41, 3) + (fineTint ? 0.14 * fbm(x / 6.5, z / 6.5, seed + 43, 2) : 0.07);
         const drift = fbm(x / 52, z / 52, seed + 47, 2) - 0.5;
+        if (fineTint) k *= patchTint(x, z, seed);
         if (!land.shaped && y > 0) k *= 0.9 + 0.2 * smoothstep(0, 1, fbm(x / 70, z / 70, seed + 59, 2));
-        ca[v * 3] = k * (1 + 0.07 * drift); ca[v * 3 + 1] = k; ca[v * 3 + 2] = k * (1 - 0.09 * drift);
+        const shore = sea && !sunk ? (seaSheet ? 1 : waterInside(sea.body, x, z)) : -1e9;
+        // The same shading by shape the place's ground has: dark damp hollows and banks, pale crests.
+        if (shore > -5 && sea) k *= 1 + (bankTint(y - sea.level) - 1) * smoothstep(-5, -2, shore);
+        const h0 = hs[c] as number;
+        reliefTint(((hs[c + 1] as number) + (hs[c - 1] as number) + (hs[c + W] as number) + (hs[c - W] as number) - 4 * h0) / (s * s), Math.hypot(hx, hz), tint);
+        ca[v * 3] = k * (1 + 0.07 * drift) * tint[0]; ca[v * 3 + 1] = k * tint[1]; ca[v * 3 + 2] = k * (1 - 0.09 * drift) * tint[2];
         if (da && sea) {
-          const d = sunk ? -1 : seaSheet || waterInside(sea.body, x, z) > -1.5 ? clamp(sea.level - y, -0.5, 40) : -1;
+          const d = sunk ? -1 : shore > -1.5 ? clamp(sea.level - y, -0.5, 40) : -1;
           da[v] = d;
           if (d > 0) wet = true;
         }
@@ -771,18 +778,30 @@ export function createEndless(inp: EndlessInput): Endless {
         const z0 = cz * VEG_CHUNK;
         if (far(x0 + VEG_CHUNK / 2, z0 + VEG_CHUNK / 2) + VEG_CHUNK * Math.SQRT1_2 <= inp.clear) return;
         const rng = makeRng(seed, `far-life|${cx}|${cz}`);
-        // Growth comes in stands: some chunks thick, some nearly bare.
-        const thick = clamp(0.15 + 1.9 * (fbm(cx * 0.31, cz * 0.31, seed + 211, 2) - 0.28), 0.06, 1.25);
-        const count = Math.round(perChunk * fill * thick);
+        // Growth comes in stands that pay no heed to chunk lines. Two slow fields are read at the spot itself:
+        // one says where the tall growth gathers into groves and leaves clearings, the other where the low
+        // things (rocks, scrub) lie in fields. A few loners stand anywhere, and crests are left bare.
+        const count = Math.round(perChunk * fill * 1.25);
         let ns = 0;
         for (let n = 0; n < count; n++) {
           const x = x0 + rng.next() * VEG_CHUNK;
           const z = z0 + rng.next() * VEG_CHUNK;
           const ki = pickIndex(weights, rng);
           const k = kinds[ki] as Kind;
-          const s = rng.range(0.8, 1.3) * (k.tall && rng.chance(0.15) ? 1.5 : 1);
+          let s = rng.range(0.8, 1.3) * (k.tall && rng.chance(0.15) ? 1.5 : 1);
           const yaw = rng.range(0, Math.PI * 2);
-          if (far(x, z) < inp.clear || wetAt(x, z)) continue;
+          const u = rng.next();
+          if (far(x, z) < inp.clear) continue;
+          const grove = fbm(x / 85, z / 85, seed + 211, 3);
+          const stand = k.tall
+            ? smoothstep(0.42, 0.6, grove)
+            : Math.max(0.35 * smoothstep(0.4, 0.58, grove), smoothstep(0.5, 0.66, fbm(x / 60 + 31, z / 60, seed + 223, 3)));
+          const dens = 0.04 + 0.96 * stand;
+          if (u >= dens || wetAt(x, z)) continue;
+          const crest = H(x, z) - (H(x + 7, z) + H(x - 7, z) + H(x, z + 7) + H(x, z - 7)) / 4;
+          if (crest > 0.5 && u >= dens * (k.tall ? 0.2 : 0.6)) continue;
+          // Tall growth is at its tallest in the heart of a grove and stunted at its edge.
+          if (k.tall) s *= 0.8 + 0.45 * smoothstep(0.45, 0.7, grove);
           const y = surfaceAt(x, z) - 0.12 * s;
           let ok = true;
           const l0 = first[ki] as number;

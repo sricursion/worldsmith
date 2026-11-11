@@ -17,6 +17,7 @@ import {
   Quaternion,
   Scene,
   ShaderMaterial,
+  Vector2,
   Vector3,
 } from 'three';
 import type { WebGLRenderer, WebGLRenderTarget } from 'three';
@@ -700,6 +701,69 @@ export function skyLookFor(preset: SkyPreset, hour: number, groundLuminance?: nu
   return look;
 }
 
+const castScratch = new Color();
+
+/** Moves a colour towards the hue of `cast` by `share`, keeping its own brightness. */
+function leanTo(c: Color, cast: Color, share: number): void {
+  const l = luminanceOf(c);
+  castScratch.copy(cast).multiplyScalar(l / Math.max(0.02, luminanceOf(cast)));
+  // A deep blue or red has almost no brightness of its own: scaled up it would run away, so each channel is held.
+  castScratch.setRGB(Math.min(castScratch.r, 3.5 * l), Math.min(castScratch.g, 3.5 * l), Math.min(castScratch.b, 3.5 * l));
+  c.lerp(castScratch, Math.min(1, Math.max(0, share)));
+}
+
+/**
+ * Leans a sky towards a hue: the light of a second sun, or of a giant planet that fills a share of the sky.
+ * The horizon takes the whole `amount` (0..1), the zenith less, and the haze layer covers more of the blue
+ * scattering under it so the cast shows. The fog is taken again from the result, so it still equals the
+ * horizon the player sees. An amount of 0 leaves the look exactly as it was.
+ */
+export function castSkyLook(look: SkyLook, preset: SkyPreset, hour: number, cast: Color, amount: number): void {
+  const k = Number.isFinite(amount) ? Math.min(1, Math.max(0, amount)) : 0;
+  if (k <= 0) return;
+  leanTo(look.hazeTopColor, cast, 0.7 * k);
+  leanTo(look.hazeHorizonColor, cast, k);
+  look.hazeTopAlpha = MathUtils.lerp(look.hazeTopAlpha, 1, 0.75 * k);
+  look.hazeHorizonAlpha = MathUtils.lerp(look.hazeHorizonAlpha, 1, 0.75 * k);
+  const sun = sunFromHour(hour);
+  const sample = horizonSample(sun.azimuthDeg);
+  const f = hazeMix(look, skyRadiance(SKY_PRESETS[preset], sun.direction, sample), sample[1]);
+  look.fog.setRGB(f[0], f[1], f[2]);
+}
+
+export interface CloudForm {
+  /** Size of the cloud masses, as a multiple of the sky's own. */
+  size: number;
+  /** How solid the clouds are, as a multiple of the sky's own. */
+  density: number;
+  /** 0..1: how low the layer hangs. */
+  elevation: number;
+  /** 1 for round clouds; above 1 they are drawn out into bands. */
+  stretch: number;
+}
+
+/** The Sky shader's own cloud scale and density, which a form multiplies. */
+const CLOUD_SCALE = 0.0002;
+const CLOUD_DENSITY = 0.4;
+/** The line of three's Sky shader that scales the cloud pattern; the stretch is multiplied in there. */
+export const CLOUD_UV_MARKER = 'cloudUV *= cloudScale;';
+
+/**
+ * Uniform values for the cloud layer of one world. The form says what kind of cloud the weather makes; the
+ * seed makes it this world's: a little larger or smaller, higher or lower, and banded along one axis or the other.
+ */
+export function cloudLookFor(form: CloudForm, seed: number): { scale: number; density: number; elevation: number; stretchX: number; stretchZ: number } {
+  const rng = makeRng(Number.isFinite(seed) ? seed >>> 0 : 0, 'clouds');
+  const lim = (v: number, lo: number, hi: number, d: number): number => (Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
+  const size = lim(form.size, 0.3, 3, 1) * rng.range(0.78, 1.3);
+  const density = lim(form.density, 0.2, 3, 1) * rng.range(0.85, 1.2);
+  const elevation = lim(lim(form.elevation, 0, 1, 0.5) + rng.range(-0.1, 0.1), 0.1, 0.9, 0.5);
+  // Stretching one way and squeezing the other by the same factor keeps the cover the same.
+  const s = Math.sqrt(lim(form.stretch, 1, 6, 1));
+  const alongX = rng.chance(0.5);
+  return { scale: CLOUD_SCALE / size, density: CLOUD_DENSITY * density, elevation, stretchX: alongX ? 1 / s : s, stretchZ: alongX ? s : 1 / s };
+}
+
 // ---- Rig ---------------------------------------------------------------------------------------
 
 /** Share of the shadow box half-width the box is pushed ahead of the focus, along the camera heading. */
@@ -725,6 +789,7 @@ const HAZE_DECLARATIONS = `
   uniform float hazeTopAlpha;
   uniform float hazeHorizonAlpha;
   uniform float hazeNight;
+  uniform vec2 cloudStretch;
 `;
 const HAZE_MIX = `
   float hazeT = smoothstep( 0.0, 0.6, direction.y );
@@ -772,12 +837,14 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
     hazeTopAlpha: { value: 0 },
     hazeHorizonAlpha: { value: 0 },
     hazeNight: { value: 0 },
+    cloudStretch: { value: new Vector2(1, 1) },
   };
   sky.material.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, hazeUniforms);
     shader.fragmentShader = shader.fragmentShader
       .replace('void main() {', HAZE_DECLARATIONS + 'void main() {')
-      .replace(HAZE_MARKER, HAZE_MIX + HAZE_MARKER);
+      .replace(HAZE_MARKER, HAZE_MIX + HAZE_MARKER)
+      .replace(CLOUD_UV_MARKER, 'cloudUV *= cloudScale * cloudStretch;');
   };
   sky.material.needsUpdate = true;
 
@@ -946,6 +1013,7 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
   let daylightOut = 1;
   let seenKeyDim = AIR.keyDim;
   let seenRigMoon = AIR.rigMoon;
+  let seenSkyRev = AIR.skyRev;
   const rimColor = new Color();
   const hemiColor = new Color();
   const bounceBase = new Color();
@@ -1041,6 +1109,10 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
     const look = skyLookFor(preset, hour, groundLuminance);
     sunDirOut.set(...key.direction);
     daylightOut = rig.daylight;
+    seenSkyRev = AIR.skyRev;
+    // A second sun or a giant planet colours the day far more than it colours the night.
+    const cast = AIR.skyCastMix * (0.4 + 0.6 * rig.daylight);
+    castSkyLook(look, preset, hour, AIR.skyCast, cast);
     if (seenKeyDim < 1) {
       // A dimmed sun (an eclipse) takes the sky down with it, though less far: the air still scatters.
       const lost = rig.daylight * (1 - seenKeyDim);
@@ -1064,6 +1136,12 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
     set('mieCoefficient', p.mieCoefficient);
     set('mieDirectionalG', p.mieDirectionalG);
     set('cloudCoverage', p.cloudCoverage);
+    // Under a strange sun the clouds are strange too: drawn out into long bands.
+    const clouds = cloudLookFor({ ...AIR.cloudForm, stretch: AIR.cloudForm.stretch * (1 + 3 * AIR.skyCastMix) }, AIR.skySeed);
+    set('cloudScale', clouds.scale);
+    set('cloudDensity', clouds.density);
+    set('cloudElevation', clouds.elevation);
+    hazeUniforms.cloudStretch.value.set(clouds.stretchX, clouds.stretchZ);
     const sunPos = u['sunPosition'];
     // The sun disc and the scattering follow the key light, so the shadows agree with the sun the player sees.
     if (sunPos !== undefined) (sunPos.value as Vector3).set(...key.direction);
@@ -1079,6 +1157,8 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
     lightDir.set(...rig.keyDirection);
     light.intensity = rig.keyIntensity;
     light.color.copy(rig.keyColor);
+    // Two suns light the ground between them: the key takes a share of the cast, at the brightness it had.
+    if (cast > 0 && rig.sunUp) leanTo(light.color, AIR.skyCast, 0.3 * cast);
     fillColor.copy(rig.fillColor);
     playerFill.intensity = rig.fillCandela;
     placeLight();
@@ -1206,8 +1286,9 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
       const t = sky.material.uniforms['time'];
       if (t !== undefined) t.value = ((t.value as number) + dt) % 36000;
       // A sky feature (an eclipse, a drawn moon) changed what the rig should do.
-      if (AIR.keyDim !== seenKeyDim || AIR.rigMoon !== seenRigMoon) {
-        if (AIR.keyDim !== seenKeyDim) envStep = -1; // the sky got darker or lighter: the reflections follow
+      if (AIR.keyDim !== seenKeyDim || AIR.rigMoon !== seenRigMoon || AIR.skyRev !== seenSkyRev) {
+        // The sky got darker, lighter or another colour, or its clouds changed: the reflections follow.
+        if (AIR.keyDim !== seenKeyDim || AIR.skyRev !== seenSkyRev) envStep = -1;
         apply();
       }
     },
@@ -1236,6 +1317,8 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
       const tint = new Color(hex.startsWith('#') ? hex : `#${hex}`);
       groundDay.copy(HEMI_GROUND_DAY).lerp(tint, 0.65);
       groundTint.copy(tint);
+      // The air pass tints the low haze with it.
+      AIR.groundColor.copy(tint);
       groundLuminance = 0.2126 * tint.r + 0.7152 * tint.g + 0.0722 * tint.b;
       apply();
     },
@@ -1248,6 +1331,7 @@ export function createSky(scene: Scene, renderer: WebGLRenderer, options: { cine
       for (const lamp of pool) lamp.dispose();
       PRACTICAL_GLOW.pos.fill(0);
       PRACTICAL_GLOW.col.fill(0);
+      AIR.groundColor.setRGB(1, 1, 1);
       PRACTICAL_GLOW.gain = 0;
       AIR.exposure = 0.5;
       rim.dispose();

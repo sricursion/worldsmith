@@ -49,7 +49,7 @@ describe('prompts', () => {
   it('look prompt carries the skeleton principle, the catalogue and the part vocabulary', () => {
     const s = lookSystemPrompt();
     for (const w of ['SKELETON', 'dials', 'same family', 'tree', 'repeat', 'glow', 'doorX', 'GROUNDED REALISM', 'METRES', 'taller than 12 m', 'cave mouth', 'NO plants']) expect(s).toContain(w);
-    expect(s.length).toBeLessThan(30000);
+    expect(s.length).toBeLessThan(34000);
     expect(lookSystemPrompt()).toBe(s);
   });
 

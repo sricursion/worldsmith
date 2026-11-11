@@ -1,0 +1,1240 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "an Edo-period Japanese village in autumn",
+ "title": "Maple Harvest Village",
+ "tagline": "Rice dries, leaves fall, the shrine bell tolls",
+ "theme": "medieval",
+ "era": "Edo period",
+ "palette": {
+  "ground": "#6a5a3a",
+  "accent": "#8a3f30",
+  "sky": "dusk",
+  "fog": 0.3
+ },
+ "time": {
+  "startHour": 17.5,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "shrine",
+   "role": "church",
+   "label": "Inari Shrine",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "shrine_hall"
+  },
+  {
+   "id": "headman_house",
+   "role": "house",
+   "label": "Headman's House",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "headman_farmhouse"
+  },
+  {
+   "id": "watchtower",
+   "role": "command",
+   "label": "Fire Watch Tower",
+   "size": "small",
+   "blueprint": "fire_watchtower"
+  },
+  {
+   "id": "rice_barn",
+   "role": "warehouse",
+   "label": "Rice Storehouse",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "stilt_granary"
+  },
+  {
+   "id": "farmhouse_a",
+   "role": "house",
+   "label": "Sato Farmhouse",
+   "size": "small",
+   "blueprint": "persimmon_cottage"
+  },
+  {
+   "id": "tea_house",
+   "role": "tavern",
+   "label": "Roadside Tea House",
+   "size": "small",
+   "blueprint": "open_tea_house"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "gonzo",
+   "name": "Gonzo",
+   "role": "village headman",
+   "persona": "Heavy-set and proud, he counts every koku twice and trusts no one with the festival. He fears losing face more than losing the bell.",
+   "knowledge": [
+    "The bell went missing the night after the rice was weighed.",
+    "The tower bell and the shrine bell were cast by the same founder.",
+    "Outsiders passing through at tsukimi are watched by the tea house."
+   ],
+   "secrets": [
+    "He sold the shrine's spare ofuda fund to cover a tax shortfall and fears the thief knows."
+   ],
+   "home": "headman_house",
+   "work": "headman_house",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "headman_house",
+     "activity": "eat"
+    },
+    {
+     "hour": 9,
+     "place": "street",
+     "activity": "patrol"
+    },
+    {
+     "hour": 14,
+     "place": "headman_house",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "headman_house",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "shinto_priest",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.3,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.2,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "oharu",
+   "name": "Oharu",
+   "role": "tea house keeper",
+   "persona": "Sharp-eyed and sharp-tongued, she hears every rumour over the tea and sells the useful ones. She likes strangers who pay in mon and ask plainly.",
+   "knowledge": [
+    "A pedlar with a heavy pack left before dawn the day the bell vanished.",
+    "Kenji drinks here more than a rice farmer should.",
+    "Mud on the stilts of the rice barn was fresh the morning after."
+   ],
+   "secrets": [
+    "The thief paid her to keep quiet and she has spent the coins."
+   ],
+   "home": "tea_house",
+   "work": "tea_house",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "tea_house",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "tea_house",
+     "activity": "trade"
+    },
+    {
+     "hour": 18,
+     "place": "tea_house",
+     "activity": "trade"
+    },
+    {
+     "hour": 22,
+     "place": "tea_house",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "kenji",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0.1,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.3,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "kenji",
+   "name": "Kenji",
+   "role": "rice farmer",
+   "persona": "Weathered and worried, he works the terraces from dawn and speaks in short, tired sentences. He owes the headman more rice than he can grow.",
+   "knowledge": [
+    "His ox was restless the night of the theft, as if someone passed the terrace.",
+    "Footprints led from the rice barn toward the river path.",
+    "The watchman rings the bell for fire and has not been right since it went."
+   ],
+   "secrets": [
+    "He lent the thief his cart for a few mon and never asked why."
+   ],
+   "home": "farmhouse_a",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "farmhouse_a",
+     "activity": "eat"
+    },
+    {
+     "hour": 7,
+     "place": "street",
+     "activity": "work"
+    },
+    {
+     "hour": 17,
+     "place": "tea_house",
+     "activity": "drink"
+    },
+    {
+     "hour": 20,
+     "place": "farmhouse_a",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "gonzo",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 0.8
+   },
+   "mood": "afraid"
+  },
+  {
+   "id": "shinto_priest",
+   "name": "Tadashi",
+   "role": "shrine priest",
+   "persona": "Quiet and exact, he speaks of kamisama as of a neighbour who is owed courtesy. He grieves the bell and is slow to blame.",
+   "knowledge": [
+    "The bell was blessed with an ofuda sealed inside its rim.",
+    "The thief entered by the torii side, not the road.",
+    "A strip of torn cloth was caught on the shrine hall step."
+   ],
+   "secrets": [
+    "He saw a figure at dusk and said nothing, fearing it was a spirit and not a man."
+   ],
+   "home": "shrine",
+   "work": "shrine",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "shrine",
+     "activity": "pray"
+    },
+    {
+     "hour": 10,
+     "place": "shrine",
+     "activity": "work"
+    },
+    {
+     "hour": 16,
+     "place": "shrine",
+     "activity": "pray"
+    },
+    {
+     "hour": 21,
+     "place": "shrine",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "gonzo",
+     "stance": "neutral"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.2,
+     "flee": 0,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 0.75
+   },
+   "mood": "grieving"
+  },
+  {
+   "id": "watchman",
+   "name": "Heizo",
+   "role": "fire watchman",
+   "persona": "Gruff old oyaji who watches the valley from the tower and trusts only what he sees. He is ashamed he saw nothing the night the bell went.",
+   "knowledge": [
+    "He keeps a log of lanterns seen on the river path at night.",
+    "Crows gather on the tower when something is dead or hidden.",
+    "A lantern moved from the barn toward the shrine after the second bell."
+   ],
+   "secrets": [
+    "He dozed off on watch that night and fears being dismissed."
+   ],
+   "home": "watchtower",
+   "work": "watchtower",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "watchtower",
+     "activity": "guard"
+    },
+    {
+     "hour": 12,
+     "place": "tea_house",
+     "activity": "eat"
+    },
+    {
+     "hour": 15,
+     "place": "watchtower",
+     "activity": "patrol"
+    },
+    {
+     "hour": 23,
+     "place": "watchtower",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "oharu",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.4,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 0.6,
+    "rate": 0.85
+   },
+   "mood": "tense"
+  }
+ ],
+ "items": [
+  {
+   "id": "torn_cloth",
+   "name": "Torn Indigo Cloth",
+   "description": "A strip of travel-stained indigo cloth snagged on the shrine step.",
+   "holder": "shrine"
+  },
+  {
+   "id": "watch_log",
+   "name": "Watchman's Lantern Log",
+   "description": "A tally of lanterns seen on the river path, one marked the stolen night.",
+   "holder": "watchtower"
+  },
+  {
+   "id": "crow_feather",
+   "name": "Jungle Crow Feather",
+   "description": "A black feather dropped where the crows gather, smelling of bronze polish.",
+   "holder": "watchtower"
+  },
+  {
+   "id": "barn_mud",
+   "name": "Mud-Caked Straw Sandal",
+   "description": "A lost sandal found under the granary stilts, river clay on its sole.",
+   "holder": "rice_barn"
+  }
+ ],
+ "quest": {
+  "id": "stolen_bell",
+  "title": "The Bell of Maple Harvest",
+  "hook": "The Inari shrine bell was stolen days before the harvest festival, and the village is turning on itself. Headman Gonzo cannot ask his own neighbours the hard questions, so he wants a stranger the thief will not recognise to find the truth before the maples fall.",
+  "giver": "gonzo",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "gonzo",
+    "requires": [],
+    "objective": "Hear the headman's trouble.",
+    "beat": "Gonzo lays out the theft and asks you to look where villagers will not."
+   },
+   {
+    "id": "s2",
+    "kind": "visit",
+    "target": "shrine",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Inspect the shrine where the bell hung.",
+    "beat": "Tadashi shows you the empty frame and the step where cloth was torn.",
+    "reveals": [
+     "shinto_priest:0"
+    ]
+   },
+   {
+    "id": "s3",
+    "kind": "fetch",
+    "target": "torn_cloth",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Take the torn indigo cloth from the shrine step.",
+    "beat": "The cloth is travel-dyed, not village work.",
+    "item": "torn_cloth"
+   },
+   {
+    "id": "s4",
+    "kind": "visit",
+    "target": "watchtower",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Climb the tower where crows are mobbing the rail.",
+    "beat": "Five crows squabble over the rail while Heizo admits what he half saw.",
+    "reveals": [
+     "watchman:0"
+    ]
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "oharu",
+    "requires": [
+     "s3",
+     "s4"
+    ],
+    "objective": "Decide how to press Oharu at the tea house.",
+    "beat": "She knows more than she says, and the pedlar's coin is in her sleeve.",
+    "choices": [
+     {
+      "label": "Pay her in mon for the name",
+      "unlocks": [
+       "s6a"
+      ]
+     },
+     {
+      "label": "Threaten to tell the headman she took hush money",
+      "unlocks": [
+       "s6b"
+      ]
+     }
+    ],
+    "reveals": [
+     "oharu:0"
+    ]
+   },
+   {
+    "id": "s6a",
+    "kind": "confront",
+    "target": "kenji",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Confront Kenji quietly about the cart.",
+    "beat": "Kenji breaks and names the pedlar, begging you not to shame him.",
+    "reveals": [
+     "kenji:0"
+    ]
+   },
+   {
+    "id": "s6b",
+    "kind": "confront",
+    "target": "gonzo",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Bring the evidence to Gonzo and name the guilty.",
+    "beat": "Gonzo hears you out, then reveals his own debt to the thief's trade.",
+    "reveals": [
+     "gonzo:0"
+    ]
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6a",
+    "label": "The bell is returned in secret and the festival rings true.",
+    "tone": "good"
+   },
+   {
+    "stepId": "s6b",
+    "label": "The thief is named but the village is split by the scandal.",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "Strangers keep off the terraces after dusk while the harvest is guarded.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 19,
+    "toHour": 5,
+    "exemptRoles": [
+     "village headman",
+     "fire watchman"
+    ]
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "No one carries fire near the rice storehouse.",
+   "effect": {
+    "type": "ban",
+    "what": "open flame",
+    "where": "rice_barn",
+    "enforcer": "watchman"
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "koku",
+  "mon",
+  "tsukimi",
+  "oyaji",
+  "kamisama",
+  "ofuda"
+ ],
+ "style": {
+  "name": "Autumn Edo village in mist",
+  "wall": "#8a7a62",
+  "wall2": "#5e4d3c",
+  "roof": "#8a7a55",
+  "trim": "#4a3d30",
+  "accent": "#8a3f30",
+  "dark": "#2a221c",
+  "glass": "#3a3f40",
+  "glow": "#ffb36b",
+  "ground": "#6a5a3a",
+  "road": "#7a6a50",
+  "variety": 0.2,
+  "foliage": "#a87154",
+  "bark": "#4a3c30",
+  "surfaces": {
+   "wall": "paper_screen",
+   "wall2": "timber",
+   "roof": "thatch",
+   "trim": "timber",
+   "ground": "grass",
+   "road": "dirt",
+   "wear": 0.65,
+   "wet": 0.3
+  }
+ },
+ "site": {
+  "pattern": "terraces",
+  "wild": 0.45,
+  "paths": "track",
+  "spacing": 8
+ },
+ "mood": {
+  "weather": "mist",
+  "intensity": 0.3,
+  "grade": "golden",
+  "haze": 0.5,
+  "ambience": [
+   "birds",
+   "water",
+   "wind",
+   "leaves"
+  ],
+  "music": "slow shakuhachi flute"
+ },
+ "terrain": {
+  "relief": "terraced",
+  "ruggedness": 0.4,
+  "water": "river",
+  "waterAmount": 0.12,
+  "horizon": "maple-red mountains in autumn mist",
+  "settled": 0.4
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "crows",
+   "name": "jungle crows",
+   "family": "bird",
+   "dials": {},
+   "size": 0.5,
+   "count": 5,
+   "behaviour": "perch",
+   "haunt": "watchtower",
+   "body": "#1f1f24",
+   "accent": "#3a3a42",
+   "glow": "#000000",
+   "note": "They watch the drying rice with interest."
+  },
+  {
+   "id": "dragonflies",
+   "name": "red dragonflies",
+   "family": "swarm",
+   "dials": {},
+   "size": 0.2,
+   "count": 18,
+   "behaviour": "flock",
+   "haunt": "wild",
+   "body": "#a84732",
+   "accent": "#d9a05a",
+   "glow": "#000000",
+   "note": "Autumn's red darters hover over the paddies."
+  },
+  {
+   "id": "ox",
+   "name": "farm ox",
+   "family": "quadruped",
+   "dials": {},
+   "size": 2,
+   "count": 1,
+   "behaviour": "graze",
+   "haunt": "farmhouse_a",
+   "body": "#5c4630",
+   "accent": "#3d2e20",
+   "glow": "#000000",
+   "note": "Chews slowly, tethered near the harvest."
+  }
+ ],
+ "folk": {
+  "name": "Edo villagers",
+  "height": 1.58,
+  "bulk": 0.35,
+  "head": 1,
+  "features": [
+   "hat",
+   "pack"
+  ],
+  "skin": [
+   "#d9b48f",
+   "#c9a07a"
+  ],
+  "cloth": [
+   "#3d4f6b",
+   "#6b5a3d",
+   "#7a8a8f"
+  ],
+  "trim": [
+   "#b5483a",
+   "#d8c9a0"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "shrine_hall",
+   "summary": "vermilion-trimmed wooden shrine hall, ridge 6 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.15,
+     "y": 0,
+     "w": 0.7,
+     "d": 0.5,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.44,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.05,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.44,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.6
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.2,
+     "w": 0.8,
+     "d": 0.05,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.28,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.03,
+     "z": 0.5,
+     "y": 1.7,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.2
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 1,
+    "roof": "hip",
+    "overhang": 0.28,
+    "front": "stoop",
+    "rhythm": 0,
+    "chimney": 0,
+    "taper": 0
+   }
+  },
+  {
+   "id": "headman_farmhouse",
+   "summary": "large thatched farmhouse, long eaves, ridge 8 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.7,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.2,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 3,
+     "gap": 0.3
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.5,
+     "w": 0.6,
+     "d": 0.04,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.5,
+     "y": 2.3,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    },
+    {
+     "shape": "box",
+     "x": 0.35,
+     "z": -0.2,
+     "y": 6,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "gable",
+    "overhang": 0.3,
+    "front": "porch",
+    "rhythm": 4,
+    "chimney": 1,
+    "taper": 0.1
+   }
+  },
+  {
+   "id": "fire_watchtower",
+   "summary": "timber fire-watch tower with bell, 12 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 10,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 10.1,
+     "w": 0.8,
+     "d": 0.8,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 11,
+     "w": 1,
+     "d": 1,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 10.2,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.5,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 10,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 10,
+    "section": "square",
+    "taper": 0.3,
+    "bands": 2,
+    "top": "platform",
+    "flare": 0.15
+   }
+  },
+  {
+   "id": "stilt_granary",
+   "summary": "raised plank granary on stilts, 5 m",
+   "parts": [
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0,
+     "y": 3.6,
+     "w": 1,
+     "d": 0.9,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 1.8,
+     "w": 0.9,
+     "d": 0.04,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 1.5,
+     "w": 1,
+     "d": 1,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "stilts",
+   "dials": {
+    "legHeight": 1.8,
+    "legs": 6,
+    "hut": 0.8,
+    "access": "ladder"
+   }
+  },
+  {
+   "id": "persimmon_cottage",
+   "summary": "small thatched farmhouse, persimmons drying, 5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.2,
+     "w": 0.7,
+     "d": 0.04,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.3,
+     "z": 0.5,
+     "y": 1.7,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 5,
+     "gap": 0.15
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.6
+    },
+    {
+     "shape": "box",
+     "x": -0.2,
+     "z": 0.5,
+     "y": 1.4,
+     "w": 0.1,
+     "d": 0.04,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 1,
+    "roof": "gable",
+    "overhang": 0.2,
+    "front": "stoop",
+    "rhythm": 2,
+    "chimney": 0,
+    "taper": 0
+   }
+  },
+  {
+   "id": "open_tea_house",
+   "summary": "open-fronted wooden tea house on posts, 5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 1,
+     "d": 0.8,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.4,
+     "y": 0.5,
+     "w": 0.8,
+     "d": 0.04,
+     "h": 2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3,
+     "y": 2,
+     "w": 0.5,
+     "d": 0.1,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.3,
+     "z": 0.45,
+     "y": 2.2,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "canopy",
+   "dials": {
+    "posts": 6,
+    "roof": "gable",
+    "counter": 0.6
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "maple_tree",
+   "size": 8,
+   "parts": [],
+   "weight": 5,
+   "family": "broadleaf",
+   "dials": {
+    "height": 1.9,
+    "trunk": 0.3,
+    "girth": 0.18,
+    "limbs": 4,
+    "spread": 0.8,
+    "crown": "round",
+    "buttress": 0.1,
+    "hang": 0,
+    "lean": 0.05,
+    "bloom": 0.6,
+    "glow": 0
+   }
+  },
+  {
+   "kind": "pampas_clump",
+   "size": 1.4,
+   "parts": [],
+   "weight": 4,
+   "family": "grassclump",
+   "dials": {
+    "form": "blades",
+    "height": 0.9,
+    "spread": 0.6,
+    "count": 9,
+    "lean": 0.4,
+    "heads": "plume",
+    "glow": 0
+   }
+  },
+  {
+   "kind": "persimmon_tree",
+   "size": 5,
+   "parts": [],
+   "weight": 3,
+   "family": "broadleaf",
+   "dials": {
+    "height": 1.2,
+    "trunk": 0.4,
+    "girth": 0.14,
+    "limbs": 3,
+    "spread": 0.7,
+    "crown": "flat",
+    "buttress": 0,
+    "hang": 0,
+    "lean": 0.1,
+    "bloom": 0.9,
+    "glow": 0
+   }
+  },
+  {
+   "kind": "stone_lantern",
+   "size": 1.2,
+   "parts": [],
+   "weight": 2,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 1.2,
+    "arms": 0
+   }
+  },
+  {
+   "kind": "moss_boulder",
+   "size": 2.2,
+   "parts": [],
+   "weight": 2,
+   "family": "boulder",
+   "dials": {
+    "height": 0.7,
+    "width": 0.9,
+    "angular": 0.2,
+    "scatter": 0.3,
+    "split": 0,
+    "moss": 0.7,
+    "glow": 0
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "vermilion_torii",
+   "prompt": "A weathered vermilion wooden torii gate with black-capped lintel and two round pillars, flaked paint over grey timber, realistic proportions, weathered",
+   "place": "shrine",
+   "height": 5
+  }
+ ]
+}

@@ -1,0 +1,3239 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a cyberpunk alley market",
+ "title": "Gutterlight Bazaar",
+ "tagline": "Everything sells here, even your name.",
+ "theme": "scifi",
+ "era": "Near-future megacity",
+ "palette": {
+  "ground": "#3b3c3e",
+  "accent": "#7a3b34",
+  "sky": "night",
+  "fog": 0.35
+ },
+ "time": {
+  "startHour": 22,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "noodle_stall",
+   "role": "cafe",
+   "label": "Steam Dragon Noodles",
+   "size": "small",
+   "keyBuilding": true,
+   "blueprint": "noodle_stall"
+  },
+  {
+   "id": "chop_shop",
+   "role": "workshop",
+   "label": "Splice Garage",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "chop_garage"
+  },
+  {
+   "id": "data_den",
+   "role": "shop",
+   "label": "Black Cache",
+   "size": "small",
+   "keyBuilding": true,
+   "blueprint": "hole_shop"
+  },
+  {
+   "id": "pharma",
+   "role": "doctor",
+   "label": "Back-Door Clinic",
+   "size": "small",
+   "blueprint": "hole_shop"
+  },
+  {
+   "id": "scrap_yard",
+   "role": "warehouse",
+   "label": "Salvage Row",
+   "size": "medium",
+   "blueprint": "yard_stack"
+  },
+  {
+   "id": "arcade",
+   "role": "shop",
+   "label": "Ghost Arcade",
+   "size": "medium",
+   "blueprint": "hole_shop"
+  },
+  {
+   "id": "hotel_pod",
+   "role": "hotel",
+   "label": "Capsule Stack",
+   "size": "medium",
+   "blueprint": "pod_stack"
+  },
+  {
+   "id": "tower_a",
+   "role": "apartment",
+   "label": "Helix Residences",
+   "size": "large",
+   "blueprint": "helix_tower"
+  },
+  {
+   "id": "relay_mast",
+   "role": "command",
+   "label": "Signal Mast",
+   "size": "medium",
+   "blueprint": "signal_mast"
+  },
+  {
+   "id": "billboard_tower",
+   "role": "office",
+   "label": "Kiroku Billboard",
+   "size": "large",
+   "blueprint": "corp_billboard"
+  },
+  {
+   "id": "tea_house",
+   "role": "tavern",
+   "label": "Lantern Tea House",
+   "size": "small",
+   "blueprint": "noodle_stall"
+  },
+  {
+   "id": "plaza_core",
+   "role": "plaza",
+   "label": "Crossing",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "chop_garage"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "mika",
+   "name": "Mika",
+   "role": "noodle cook",
+   "persona": "Fast-talking cook who hears everything over the steam. Feeds runners on credit and expects favors back.",
+   "knowledge": [
+    "Juno ran through here at ten past nine, no pack on her back.",
+    "Vex pays double for any chip with a corpo seal.",
+    "Rook stitches runners up at night and asks nothing."
+   ],
+   "secrets": [
+    "Mika found a sealed case lid in the noodle vats and sold it to Old Sen."
+   ],
+   "home": "noodle_stall",
+   "work": "noodle_stall",
+   "schedule": [
+    {
+     "hour": 2,
+     "place": "noodle_stall",
+     "activity": "sleep"
+    },
+    {
+     "hour": 6,
+     "place": "noodle_stall",
+     "activity": "work"
+    },
+    {
+     "hour": 15,
+     "place": "plaza_core",
+     "activity": "trade"
+    },
+    {
+     "hour": 19,
+     "place": "noodle_stall",
+     "activity": "work"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "juno",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.4,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "rook",
+   "name": "Rook",
+   "role": "street ripper",
+   "persona": "Flat-voiced ripper who talks while cutting. Trusts nobody who still has all their original parts.",
+   "knowledge": [
+    "A runner came in bleeding at nine and left a chip behind.",
+    "Tamsin's implants glitch and Rook cleans up after them.",
+    "Whoever carries the case is already marked."
+   ],
+   "secrets": [
+    "Rook cut a tracker out of Juno and it is still in a dish on the shelf."
+   ],
+   "home": "pharma",
+   "work": "pharma",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "pharma",
+     "activity": "sleep"
+    },
+    {
+     "hour": 14,
+     "place": "pharma",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "tea_house",
+     "activity": "drink"
+    },
+    {
+     "hour": 23,
+     "place": "pharma",
+     "activity": "work"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tamsin",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": -0.3,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "vex",
+   "name": "Vex",
+   "role": "data broker",
+   "persona": "Smiling broker who sells facts by the byte. Never says anything she can't invoice.",
+   "knowledge": [
+    "A corpo bounty went up at nine for one sealed case.",
+    "The case holds a key, not creds.",
+    "The Signal Mast is relaying the bounty across the sprawl."
+   ],
+   "secrets": [
+    "Vex already holds the case's decryption half and is waiting for someone to bring the rest."
+   ],
+   "home": "data_den",
+   "work": "data_den",
+   "schedule": [
+    {
+     "hour": 0,
+     "place": "data_den",
+     "activity": "work"
+    },
+    {
+     "hour": 8,
+     "place": "data_den",
+     "activity": "sleep"
+    },
+    {
+     "hour": 13,
+     "place": "data_den",
+     "activity": "work"
+    },
+    {
+     "hour": 20,
+     "place": "plaza_core",
+     "activity": "trade"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "old_sen",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "rogue_hooded",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 1.1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.3,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.4,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 1
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "old_sen",
+   "name": "Old Sen",
+   "role": "scrap dealer",
+   "persona": "Gruff scavenger who weighs everything twice. Remembers every crate and every debt.",
+   "knowledge": [
+    "Anything that falls off a runner ends up in Salvage Row by dawn.",
+    "Tamsin buys busted decks by the kilo.",
+    "Dax rents pods to people who don't want to be found."
+   ],
+   "secrets": [
+    "Old Sen has the sealed case under a crate stack and cannot crack it."
+   ],
+   "home": "scrap_yard",
+   "work": "scrap_yard",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "scrap_yard",
+     "activity": "work"
+    },
+    {
+     "hour": 16,
+     "place": "plaza_core",
+     "activity": "trade"
+    },
+    {
+     "hour": 20,
+     "place": "tea_house",
+     "activity": "drink"
+    },
+    {
+     "hour": 23,
+     "place": "scrap_yard",
+     "activity": "guard"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "mika",
+     "stance": "debtor"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.2,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.8
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "juno",
+   "name": "Juno",
+   "role": "courier",
+   "persona": "Jittery runner who talks while moving. Lost the case and is terrified to say so.",
+   "knowledge": [
+    "She dropped the case dodging a drone near the crossing.",
+    "Three corpo runners have been tailing her since nine.",
+    "The case was sealed with her own handprint."
+   ],
+   "secrets": [
+    "Juno was paid to lose the case on purpose and hates herself for it."
+   ],
+   "home": "plaza_core",
+   "work": "street",
+   "schedule": [
+    {
+     "hour": 8,
+     "place": "plaza_core",
+     "activity": "sleep"
+    },
+    {
+     "hour": 14,
+     "place": "street",
+     "activity": "work"
+    },
+    {
+     "hour": 19,
+     "place": "noodle_stall",
+     "activity": "eat"
+    },
+    {
+     "hour": 22,
+     "place": "street",
+     "activity": "wander"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "mika",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0.6,
+     "investigate": 0,
+     "follow_player": 0.2,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.5,
+    "rate": 1.3
+   },
+   "mood": "afraid"
+  },
+  {
+   "id": "tamsin",
+   "name": "Tamsin",
+   "role": "chop-shop tech",
+   "persona": "Greasy-handed tech who loves hardware more than people. Grins at risk and hates being told no.",
+   "knowledge": [
+    "Hacked decks bring good creds but burn out fast.",
+    "Rook botches half the grafts Tamsin starts.",
+    "Chrome rats chew the cables behind the garage."
+   ],
+   "secrets": [
+    "Tamsin has a client who pays to keep the case sealed and unopened."
+   ],
+   "home": "chop_shop",
+   "work": "chop_shop",
+   "schedule": [
+    {
+     "hour": 0,
+     "place": "chop_shop",
+     "activity": "work"
+    },
+    {
+     "hour": 7,
+     "place": "chop_shop",
+     "activity": "sleep"
+    },
+    {
+     "hour": 13,
+     "place": "chop_shop",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "arcade",
+     "activity": "wander"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "rook",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1.2,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 1.1
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "dax",
+   "name": "Dax",
+   "role": "pod keeper",
+   "persona": "Soft-spoken keeper who counts guests like inventory. Sells quiet and keeps the books clean.",
+   "knowledge": [
+    "A corpo runner took pod 4 and hasn't left.",
+    "Pods lock from the inside after midnight.",
+    "Juno slept here twice this week, paid in chips."
+   ],
+   "secrets": [
+    "Dax is hiding a corpo runner in pod 4 and is paid to say nothing."
+   ],
+   "home": "hotel_pod",
+   "work": "hotel_pod",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "hotel_pod",
+     "activity": "work"
+    },
+    {
+     "hour": 14,
+     "place": "hotel_pod",
+     "activity": "guard"
+    },
+    {
+     "hour": 20,
+     "place": "tea_house",
+     "activity": "drink"
+    },
+    {
+     "hour": 22,
+     "place": "hotel_pod",
+     "activity": "guard"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "juno",
+     "stance": "neutral"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.9,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.3,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 0.9
+   },
+   "mood": "calm"
+  }
+ ],
+ "items": [
+  {
+   "id": "sealed_case",
+   "name": "Sealed Case",
+   "description": "Matte black case with a handprint lock and a corpo seal.",
+   "holder": "scrap_yard"
+  },
+  {
+   "id": "tracker_chip",
+   "name": "Tracker Chip",
+   "description": "Bloody chip cut from a runner's arm, still pinging.",
+   "holder": "pharma"
+  },
+  {
+   "id": "case_lid",
+   "name": "Cracked Case Lid",
+   "description": "Torn lid stamped with a corpo seal and noodle grease.",
+   "holder": "noodle_stall"
+  },
+  {
+   "id": "shed_feather",
+   "name": "Chrome Feather",
+   "description": "Metal feather dropped by an augmented pigeon.",
+   "holder": "plaza_core"
+  }
+ ],
+ "quest": {
+  "id": "lost_case",
+  "title": "Gutterlight: The Lost Case",
+  "hook": "A courier dropped a sealed case somewhere in the Bazaar and now every broker, ripper and corpo hound is hunting it. Find it first and you eat for a year, or you end up in a gutter with your chips cut out.",
+  "giver": "juno",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "juno",
+    "requires": [],
+    "objective": "Hear Juno out at the crossing.",
+    "beat": "Juno admits she dropped the case near the crossing while a drone chased her. She begs you to find it before the corpos do.",
+    "reveals": [
+     "juno:0"
+    ]
+   },
+   {
+    "id": "s2",
+    "kind": "visit",
+    "target": "noodle_stall",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Check Steam Dragon Noodles for what Juno left behind.",
+    "beat": "Mika steams noodles over a torn lid with a corpo seal. Pigeons peck at the scraps outside."
+   },
+   {
+    "id": "s3",
+    "kind": "fetch",
+    "target": "case_lid",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Take the cracked lid from Mika.",
+    "beat": "Mika hands it over and says Old Sen paid for the rest.",
+    "item": "case_lid",
+    "reveals": [
+     "mika:0"
+    ]
+   },
+   {
+    "id": "s4",
+    "kind": "talk",
+    "target": "old_sen",
+    "requires": [
+     "s3"
+    ],
+    "objective": "Press Old Sen in Salvage Row about the case.",
+    "beat": "Old Sen admits the case is under his crates and he can't crack it. Vex has the other half of the key.",
+    "reveals": [
+     "old_sen:0"
+    ]
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "old_sen",
+    "requires": [
+     "s4"
+    ],
+    "objective": "Decide who gets the case.",
+    "beat": "Old Sen will sell the case to you. Juno, Vex and the corpos will all pay or kill for it.",
+    "choices": [
+     {
+      "label": "Return it to Juno",
+      "unlocks": [
+       "s6a"
+      ]
+     },
+     {
+      "label": "Sell it to Vex",
+      "unlocks": [
+       "s6b"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s6a",
+    "kind": "deliver",
+    "target": "juno",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Hand the case back to Juno.",
+    "beat": "Juno takes it and runs, shaking. The corpo hounds lose the trail for now.",
+    "item": "sealed_case"
+   },
+   {
+    "id": "s6b",
+    "kind": "deliver",
+    "target": "vex",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Sell the case to Vex at Black Cache.",
+    "beat": "Vex pays in creds and locks the case in a deck. By dawn the bounty is gone and so is Juno.",
+    "item": "sealed_case"
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6a",
+    "label": "Juno lives, you walk away poor and clean.",
+    "tone": "good"
+   },
+   {
+    "stepId": "s6b",
+    "label": "You get rich and Juno vanishes into the sprawl.",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "Corpo bounty hunters sweep the sprawl after midnight. Stay off the street.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 0,
+    "toHour": 4,
+    "exemptRoles": [
+     "courier",
+     "street ripper"
+    ]
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Salvage Row sells nothing to strangers without creds up front.",
+   "effect": {
+    "type": "price",
+    "item": "sealed_case",
+    "multiplier": 2
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "creds",
+  "chip",
+  "ripper",
+  "glitch",
+  "corpo",
+  "sprawl"
+ ],
+ "style": {
+  "name": "Gutterlight Bazaar night mist",
+  "wall": "#7d7f80",
+  "wall2": "#4f4d4a",
+  "roof": "#3a3b3d",
+  "trim": "#5f5a54",
+  "accent": "#7a3b34",
+  "dark": "#16181b",
+  "glass": "#1f2a33",
+  "glow": "#ffb347",
+  "ground": "#3b3c3e",
+  "road": "#2f3033",
+  "variety": 0.2,
+  "surfaces": {
+   "wall": "concrete",
+   "wall2": "corrugated",
+   "roof": "corrugated",
+   "trim": "metal_panel",
+   "ground": "concrete",
+   "road": "asphalt",
+   "wear": 0.7,
+   "wet": 0.3
+  },
+  "foliage": "#3f4a36",
+  "bark": "#4a4238"
+ },
+ "site": {
+  "pattern": "street",
+  "wild": 0.03,
+  "paths": "road",
+  "spacing": 3
+ },
+ "mood": {
+  "weather": "mist",
+  "intensity": 0.3,
+  "grade": "neon_noir",
+  "haze": 0.6,
+  "ambience": [
+   "crowd",
+   "neon",
+   "machinery",
+   "wind"
+  ],
+  "music": "low synth drone"
+ },
+ "terrain": {
+  "relief": "flat",
+  "ruggedness": 0.05,
+  "water": "none",
+  "waterAmount": 0,
+  "horizon": "glass towers with lit windows",
+  "settled": 0.9
+ },
+ "skyFeatures": [
+  {
+   "kind": "orbital_ring",
+   "size": 0.3,
+   "color": "#8fa3b8"
+  }
+ ],
+ "creatures": [
+  {
+   "id": "pigeons",
+   "name": "augmented pigeons",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.5
+   },
+   "size": 0.3,
+   "count": 8,
+   "behaviour": "flock",
+   "haunt": "plaza",
+   "body": "#6a6f78",
+   "accent": "#4a4f58",
+   "glow": "#3fc8d9",
+   "note": "Cheap cyber-eyes glint in their heads."
+  },
+  {
+   "id": "drones",
+   "name": "courier drones",
+   "family": "floater",
+   "dials": {
+    "shape": "orb",
+    "tentacles": 0,
+    "hover": 0.8
+   },
+   "size": 0.5,
+   "count": 3,
+   "behaviour": "patrol",
+   "haunt": "sky",
+   "body": "#3a3f48",
+   "accent": "#d94f8c",
+   "glow": "#e0b040",
+   "note": "Humming boxes carrying parcels overhead."
+  },
+  {
+   "id": "rats",
+   "name": "chrome rats",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.2,
+    "tail": 0.8
+   },
+   "size": 0.3,
+   "count": 5,
+   "behaviour": "roam",
+   "haunt": "wild",
+   "body": "#4a4a50",
+   "accent": "#8a9098",
+   "glow": "#d94f8c",
+   "note": "One gleaming eye scans for scraps."
+  }
+ ],
+ "folk": {
+  "name": "alley vendors and runners",
+  "height": 1.7,
+  "bulk": 0.4,
+  "head": 1,
+  "features": [
+   "hood",
+   "pack",
+   "visor"
+  ],
+  "skin": [
+   "#c8a07a",
+   "#8a6048",
+   "#e0bfa0"
+  ],
+  "cloth": [
+   "#2c3340",
+   "#4a3a55",
+   "#5a5f4a"
+  ],
+  "trim": [
+   "#d94f8c",
+   "#41c8d9",
+   "#e0b143"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "noodle_stall",
+   "summary": "cramped steel-and-canvas noodle counter, 3.5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.98,
+     "d": 0.8,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.3,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.9
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.9
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0,
+     "y": 2.8,
+     "w": 1.1,
+     "d": 0.9,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.28,
+     "y": 0.12,
+     "w": 0.6400000000000001,
+     "d": 0.14,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.28,
+     "y": 1.02,
+     "w": 0.12,
+     "d": 0.1,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 3,
+     "gap": 0.16000000000000003
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.25,
+     "z": -0.1,
+     "y": 0,
+     "w": 0.22,
+     "d": 0.22,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.2,
+     "z": -0.1,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.05,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3,
+     "y": 2.7,
+     "w": 0.12,
+     "d": 0.06,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "chop_garage",
+   "summary": "tarp-roofed garage with antenna stack, 16 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.3555,
+     "d": 0.3555,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 4,
+     "w": 0.3465,
+     "d": 0.3465,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 8,
+     "w": 0.33749999999999997,
+     "d": 0.33749999999999997,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 12,
+     "w": 0.32849999999999996,
+     "d": 0.32849999999999996,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 5.213333333333333,
+     "w": 0.38808000000000004,
+     "d": 0.38808000000000004,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 10.546666666666667,
+     "w": 0.378,
+     "d": 0.378,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.4176,
+     "d": 0.4176,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.432,
+     "d": 0.432,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.17775,
+     "y": 1,
+     "w": 0.05,
+     "d": 0.03,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 16,
+     "w": 0.6241499999999999,
+     "d": 0.6241499999999999,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.29564999999999997,
+     "y": 16.3,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 6,
+     "gap": 0.11168999999999998
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 16.3,
+     "w": 0.29564999999999997,
+     "d": 0.29564999999999997,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.1,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 3.2,
+     "w": 0.9,
+     "d": 0.05,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3,
+     "z": 0,
+     "y": 16,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.04,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 4,
+     "gap": 0.2
+    },
+    {
+     "shape": "box",
+     "x": 0.45,
+     "z": 0,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.5,
+     "h": 10,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "hole_shop",
+   "summary": "narrow concrete hole-in-wall shopfront, 4 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 0.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.34
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2.75,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.9,
+     "d": 0.76,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0.45,
+     "y": 2.4,
+     "w": 0.26,
+     "d": 0.8,
+     "h": 0.45,
+     "rot": 90,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.5,
+     "w": 0.7,
+     "d": 0.05,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.6,
+     "d": 0.03,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3,
+     "z": -0.2,
+     "y": 3.2,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "yard_stack",
+   "summary": "stacked scavenged crates under tarp, 6 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.98,
+     "d": 0.86,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.02,
+     "d": 0.6400000000000001,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.9400000000000001
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.2,
+     "y": 0.31,
+     "w": 0.2162,
+     "d": 0.36800000000000005,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 4,
+     "gap": 0.23
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.2,
+     "y": 0.31,
+     "w": 0.2162,
+     "d": 0.36800000000000005,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 4,
+     "gap": 0.23
+    },
+    {
+     "shape": "box",
+     "x": -0.006966763809316791,
+     "z": -0.2,
+     "y": 1.51,
+     "w": 0.2162,
+     "d": 0.36800000000000005,
+     "h": 1.2,
+     "rot": 0.9872667181771249,
+     "tone": "wall2",
+     "repeat": 4,
+     "gap": 0.23
+    },
+    {
+     "shape": "box",
+     "x": 0.008389883447807283,
+     "z": 0.2,
+     "y": 1.51,
+     "w": 0.2162,
+     "d": 0.36800000000000005,
+     "h": 1.2,
+     "rot": 1.2984647790435702,
+     "tone": "accent",
+     "repeat": 4,
+     "gap": 0.23
+    },
+    {
+     "shape": "box",
+     "x": -0.00044916870277561175,
+     "z": -0.2,
+     "y": 2.71,
+     "w": 0.2162,
+     "d": 0.36800000000000005,
+     "h": 1.2,
+     "rot": -0.46778468205593526,
+     "tone": "accent",
+     "repeat": 4,
+     "gap": 0.23
+    },
+    {
+     "shape": "box",
+     "x": 0.002027297612554394,
+     "z": 0.2,
+     "y": 2.71,
+     "w": 0.2162,
+     "d": 0.36800000000000005,
+     "h": 1.2,
+     "rot": 0.9266358485911041,
+     "tone": "wall2",
+     "repeat": 4,
+     "gap": 0.23
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3.91,
+     "w": 0.9462000000000002,
+     "d": 0.808,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.396,
+     "y": 2.95,
+     "w": 0.9462000000000002,
+     "d": 0.02,
+     "h": 0.96,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.46510000000000007,
+     "z": 0,
+     "y": 3.334,
+     "w": 0.02,
+     "d": 0.808,
+     "h": 0.576,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.1,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.4,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 1.5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 1.2,
+     "w": 0.5,
+     "d": 0.04,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "pod_stack",
+   "summary": "six-high capsule stack in steel frame, 14 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.45,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.23,
+     "y": 1,
+     "w": 0.375,
+     "d": 0.03,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.01944016274216424,
+     "z": 0.0373255297075957,
+     "y": 2.8,
+     "w": 0.47200813710821193,
+     "d": 0.4803068611747586,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.01944016274216424,
+     "z": 0.282478960294975,
+     "y": 3.8,
+     "w": 0.35400610283115896,
+     "d": 0.03,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.0003911601748014977,
+     "z": -0.013670411696657545,
+     "y": 5.6,
+     "w": 0.48044199125992504,
+     "d": 0.5073880056066661,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.0003911601748014977,
+     "z": 0.2450235911066755,
+     "y": 6.6,
+     "w": 0.36033149344494375,
+     "d": 0.03,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.01856373629100334,
+     "z": -0.04727543620392681,
+     "y": 8.399999999999999,
+     "w": 0.4673028320303167,
+     "d": 0.5270493823174879,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.01856373629100334,
+     "z": 0.22124925495481712,
+     "y": 9.399999999999999,
+     "w": 0.3504771240227375,
+     "d": 0.03,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.037968232645926685,
+     "z": 0.08642353691160679,
+     "y": 5.6,
+     "w": 0.45439535807991016,
+     "d": 0.4725217997457841,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.037968232645926685,
+     "z": 0.3276844367844989,
+     "y": 6.6,
+     "w": 0.34079651855993265,
+     "d": 0.03,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.02059808626740615,
+     "z": 0.061775256497785445,
+     "y": 8.399999999999999,
+     "w": 0.4141119608461164,
+     "d": 0.4526680214473806,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.02059808626740615,
+     "z": 0.29310926722147573,
+     "y": 9.399999999999999,
+     "w": 0.3105839706345873,
+     "d": 0.03,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.95,
+     "d": 0.04,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0.3,
+     "w": 0.12,
+     "d": 0.04,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 6,
+     "gap": 0.14
+    },
+    {
+     "shape": "box",
+     "x": -0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.9,
+     "h": 14,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.05,
+     "d": 0.9,
+     "h": 14,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0.8,
+     "w": 0.6,
+     "d": 0.04,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "helix_tower",
+   "summary": "glass residential tower, 24 m shaft with 40 m spire",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.3465,
+     "d": 0.3465,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 6,
+     "w": 0.31949999999999995,
+     "d": 0.31949999999999995,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 12,
+     "w": 0.2925,
+     "d": 0.2925,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 18,
+     "w": 0.2655,
+     "d": 0.2655,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 4.68,
+     "w": 0.38808000000000004,
+     "d": 0.38808000000000004,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 9.48,
+     "w": 0.35784,
+     "d": 0.35784,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 14.280000000000001,
+     "w": 0.3276,
+     "d": 0.3276,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 19.08,
+     "w": 0.29736000000000007,
+     "d": 0.29736000000000007,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.44639999999999996,
+     "d": 0.44639999999999996,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.432,
+     "d": 0.432,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.17325,
+     "y": 1,
+     "w": 0.05,
+     "d": 0.03,
+     "h": 3,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.13275,
+     "d": 0.13275,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 24.5,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 7.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 16,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.03,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 8,
+     "gap": 0.1
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 12,
+     "w": 1.1,
+     "d": 1.1,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.4,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.15,
+     "d": 0.3,
+     "h": 10,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "signal_mast",
+   "summary": "rusted lattice antenna mast with beacons, 27 m",
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.5,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.08,
+     "y": 0,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 14.850000000000001,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.16
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.08,
+     "y": 0,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 14.850000000000001,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.16
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 14.750000000000002,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.035,
+     "y": 14.850000000000001,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 12.149999999999999,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.07
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.035,
+     "y": 14.850000000000001,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 12.149999999999999,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.07
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 7.425000000000001,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 20.925,
+     "w": 0.09000000000000001,
+     "d": 0.09000000000000001,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 26.9,
+     "w": 0.09000000000000001,
+     "d": 0.09000000000000001,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 24.84,
+     "w": 0.6,
+     "d": 0.09000000000000001,
+     "h": 0.14,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 24.14,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.552
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 19.98,
+     "w": 0.528,
+     "d": 0.09000000000000001,
+     "h": 0.14,
+     "rot": 90,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 19.28,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 90,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.48576
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 15.120000000000001,
+     "w": 0.45599999999999996,
+     "d": 0.09000000000000001,
+     "h": 0.14,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 14.420000000000002,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.41952
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 27,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.13775,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.025,
+     "h": 5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.13775,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.025,
+     "h": 5,
+     "rot": 180,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0.13775,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.025,
+     "h": 5,
+     "rot": 90,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": -0.13775,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.025,
+     "h": 5,
+     "rot": -90,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.12,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 2.3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.12,
+     "y": 2.3,
+     "w": 0.34,
+     "d": 0.34,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.276,
+     "y": 0,
+     "w": 0.09,
+     "d": 0.02,
+     "h": 2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.2,
+     "h": 2.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 27,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.3
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3,
+     "z": 0,
+     "y": 15.260000000000002,
+     "w": 0.15,
+     "d": 0.15,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "corp_billboard",
+   "summary": "corporate slab tower with holo-ad, 24 m + 12 m crown",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.28,
+     "h": 28,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8500000000000001,
+     "d": 0.33,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 28,
+     "w": 0.8150000000000001,
+     "d": 0.29500000000000004,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.169,
+     "y": 0,
+     "w": 0.08,
+     "d": 0.02,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 4.416666666666667,
+     "w": 0.8200000000000001,
+     "d": 0.30000000000000004,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 9.083333333333334,
+     "w": 0.8200000000000001,
+     "d": 0.30000000000000004,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 13.75,
+     "w": 0.8200000000000001,
+     "d": 0.30000000000000004,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 18.416666666666668,
+     "w": 0.8200000000000001,
+     "d": 0.30000000000000004,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 23.083333333333332,
+     "w": 0.8200000000000001,
+     "d": 0.30000000000000004,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.14400000000000002,
+     "y": 9.799999999999999,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 10,
+     "gap": 0.0688
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.14400000000000002,
+     "y": 18.199999999999996,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 10,
+     "gap": 0.0688
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 28,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 30,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0.4,
+     "w": 0.8,
+     "d": 0.04,
+     "h": 10,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 10.4,
+     "w": 0.7,
+     "d": 0.1,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.35,
+     "z": 0,
+     "y": 28,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.7,
+     "d": 0.05,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  }
+ ],
+ "props": [
+  {
+   "kind": "street_lamp",
+   "size": 2,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2.9,
+     "w": 0.5,
+     "d": 0.04,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 2.7199999999999998,
+     "w": 0.15,
+     "d": 0.15,
+     "h": 0.18,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 4
+  },
+  {
+   "kind": "scrap_crates",
+   "size": 1.5,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.96,
+     "d": 0.7,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.44,
+     "d": 0.44,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.402,
+     "w": 0.4532,
+     "d": 0.4532,
+     "h": 0.096,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.8500000000000001,
+     "w": 0.462,
+     "d": 0.462,
+     "h": 0.08000000000000002,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.44,
+     "d": 0.44,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.402,
+     "w": 0.4532,
+     "d": 0.4532,
+     "h": 0.096,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.8500000000000001,
+     "w": 0.462,
+     "d": 0.462,
+     "h": 0.08000000000000002,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.6000000000000001,
+     "w": 0.42,
+     "d": 0.42,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.9520000000000002,
+     "w": 0.4326,
+     "d": 0.4326,
+     "h": 0.096,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 1.4000000000000001,
+     "w": 0.441,
+     "d": 0.441,
+     "h": 0.08000000000000002,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 4
+  },
+  {
+   "kind": "oil_drums",
+   "size": 1,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.96,
+     "d": 0.7,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.44,
+     "d": 0.44,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.92,
+     "w": 0.396,
+     "d": 0.396,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.23000000000000004,
+     "w": 0.44880000000000003,
+     "d": 0.44880000000000003,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.25,
+     "z": 0,
+     "y": 0.68,
+     "w": 0.44880000000000003,
+     "d": 0.44880000000000003,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.05,
+     "w": 0.44,
+     "d": 0.44,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.92,
+     "w": 0.396,
+     "d": 0.396,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.23000000000000004,
+     "w": 0.44880000000000003,
+     "d": 0.44880000000000003,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.25,
+     "z": 0,
+     "y": 0.68,
+     "w": 0.44880000000000003,
+     "d": 0.44880000000000003,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.675,
+     "w": 0.42,
+     "d": 0.42,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 1.5450000000000002,
+     "w": 0.378,
+     "d": 0.378,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 0.8550000000000001,
+     "w": 0.4284,
+     "d": 0.4284,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 1.3050000000000002,
+     "w": 0.4284,
+     "d": 0.4284,
+     "h": 0.08,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 3
+  },
+  {
+   "kind": "planter_shrub",
+   "size": 1.5,
+   "parts": [
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.765,
+     "d": 0.7636027567049023,
+     "h": 0.7200000000000001,
+     "rot": 123.54998582974076,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.014848420308220043,
+     "z": -0.0021270670770896266,
+     "y": 0.36000000000000004,
+     "w": 0.80325,
+     "d": 0.73899,
+     "h": 0.05,
+     "rot": 40,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.008113259758871337,
+     "z": -0.012616458143436255,
+     "y": 0.18000000000000002,
+     "w": 0.6956349055898503,
+     "d": 0.6399841131426623,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.004244986519104907,
+     "z": 0.0143868026139451,
+     "y": 0.54,
+     "w": 0.6956349055898503,
+     "d": 0.6399841131426623,
+     "h": 0.05,
+     "rot": 80,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.010861626502189001,
+     "z": -0.016890283339525285,
+     "y": 0.67936663033732,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 0.23013384567573666,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.05825479301718593,
+     "z": 0.015352149836010734,
+     "y": 0.6742589095562735,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 0.221414146643132,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.24870050311388825,
+     "z": -0.0793626197586833,
+     "y": 0.5493455362547962,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 0.2163632230237126,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.06978462213431864,
+     "z": 0.16671500004538542,
+     "y": 0.6244575093506481,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 0.18112024148181083,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.04756725958872,
+     "z": -0.1322759588579188,
+     "y": 0.6475276705867765,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 0.16592939509078863,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.20053197725522212,
+     "z": -0.09263355162776367,
+     "y": 0.5928907748532369,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 0.1561546385139227,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.1497399230815788,
+     "z": 0.26136313968707475,
+     "y": 0.48457331193118774,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 0.14388243209570648,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.0888756817488985,
+     "z": 0.04671753667233547,
+     "y": 0.6638159027735628,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 0.10637982212752105,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2,
+   "nature": "plant"
+  },
+  {
+   "kind": "stall_cart",
+   "size": 2,
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.24499999999999997,
+     "w": 0.8,
+     "d": 0.5,
+     "h": 0.13999999999999999,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": -0.24,
+     "y": 0,
+     "w": 0.28,
+     "d": 0.04,
+     "h": 0.48999999999999994,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.48
+    },
+    {
+     "shape": "sphere",
+     "x": 0,
+     "z": 0.24,
+     "y": 0,
+     "w": 0.28,
+     "d": 0.04,
+     "h": 0.48999999999999994,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 2,
+     "gap": 0.48
+    },
+    {
+     "shape": "box",
+     "x": 0.48000000000000004,
+     "z": 0,
+     "y": 0.27999999999999997,
+     "w": 0.2,
+     "d": 0.04,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.1,
+     "z": 0,
+     "y": 0.385,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "holo_dragon",
+   "prompt": "A rusted steel sculpture of a coiled dragon with a hollow ribcage, built from scrap pipes and plating, corroded and scorched, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 6
+  }
+ ]
+}

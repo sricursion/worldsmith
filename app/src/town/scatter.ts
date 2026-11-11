@@ -134,6 +134,112 @@ function acquireTexture(flowers: boolean, size: number): THREE.DataTexture {
   return e.tex;
 }
 
+/**
+ * RGBA texels for a mark on the ground: a white blot with a ragged, broken edge and a mottled middle, clear
+ * at the border of the square. The instance colour makes it a bare patch, a damp stain, a scorch or a drift,
+ * and a long thin instance of it reads as a crack or a streak.
+ */
+export function markTexels(size: number, seed: number): Uint8Array {
+  const data = new Uint8Array(size * size * 4).fill(255);
+  for (let py = 0; py < size; py++) {
+    for (let px = 0; px < size; px++) {
+      const u = ((px + 0.5) / size) * 2 - 1;
+      const v = ((py + 0.5) / size) * 2 - 1;
+      const r = Math.hypot(u, v);
+      const rim = 0.62 + 0.6 * (fbm(u * 2.2 + 5, v * 2.2, seed, 3) - 0.5);
+      const body = r >= 0.96 ? 0 : smoothstep(rim, rim * 0.55, r) * (0.5 + 0.5 * smoothstep(0.3, 0.6, fbm(u * 6, v * 6, seed + 3, 2)));
+      data[(py * size + px) * 4 + 3] = Math.round(body * 200);
+    }
+  }
+  return data;
+}
+
+function acquireMarkTexture(): THREE.DataTexture {
+  const key = 'marks|64';
+  let e = textures.get(key);
+  if (!e) {
+    const tex = new THREE.DataTexture(markTexels(64, 7), 64, 64, THREE.RGBAFormat);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.generateMipmaps = true;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.needsUpdate = true;
+    tex.name = key;
+    e = { tex, refs: 0 };
+    textures.set(key, e);
+  }
+  e.refs++;
+  return e.tex;
+}
+
+/** What marks a kind of ground carries: their colours, how many are thin streaks, and whether they lie drifted by the wind. */
+export interface MarkPlan { colours: THREE.Color[]; streak: number; drift: boolean }
+
+/**
+ * Marks by ground kind, every colour worked from the world's own ground colour (and its accents, on ground
+ * that is not of this earth), so purple soil gets purple-black scorches and pale purple dust, not brown ones.
+ */
+export function markPlan(ground: SurfaceKind, groundHex: string, accents: readonly string[]): MarkPlan {
+  const g = new THREE.Color(groundHex);
+  const dark = g.clone().multiplyScalar(0.55);
+  const pale = g.clone().lerp(new THREE.Color('#ffffff'), 0.24);
+  switch (ground) {
+    // Bare earth showing through, damp patches, sun-dried grass.
+    case 'grass': case 'moss': return { colours: [g.clone().lerp(new THREE.Color('#6b5238'), 0.65), dark, g.clone().lerp(new THREE.Color('#b8a25a'), 0.4)], streak: 0, drift: false };
+    // Damp and dried-out patches, drying cracks.
+    case 'dirt': case 'mud': case 'gravel': return { colours: [dark, pale, dark], streak: 0.25, drift: false };
+    // Wind-laid ripples of finer, paler sand with darker lee sides.
+    case 'sand': return { colours: [pale, pale, g.clone().multiplyScalar(0.78)], streak: 0.1, drift: true };
+    // Blue shadowed drifts, scoured dark ice, cracks.
+    case 'snow': case 'ice': return { colours: [g.clone().lerp(new THREE.Color('#8fa6c4'), 0.45), g.clone().lerp(new THREE.Color('#566473'), 0.5), pale], streak: ground === 'ice' ? 0.35 : 0.08, drift: true };
+    // Scorches, settled dust, and mineral stains in the world's accent colours.
+    case 'regolith': case 'ash': return {
+      colours: [g.clone().multiplyScalar(0.4), pale, ...accents.slice(0, 2).map((h) => g.clone().lerp(new THREE.Color(h), 0.42))], streak: 0.12, drift: false,
+    };
+    // Paving: oil and damp stains, patched repairs, cracks.
+    default: return { colours: [g.clone().multiplyScalar(0.45), g.clone().multiplyScalar(0.7), pale], streak: 0.3, drift: false };
+  }
+}
+
+const markDraw = { yaw: 0, sx: 1, sz: 1 };
+/** Draws the size and heading of one mark into `markDraw`. */
+function markShape(rng: Rng, plan: MarkPlan): void {
+  if (rng.next() < plan.streak) {
+    markDraw.sx = rng.range(1.2, 3.4); markDraw.sz = rng.range(0.1, 0.24); markDraw.yaw = rng.range(0, Math.PI);
+    return;
+  }
+  const s = 0.5 + 2.1 * rng.next() ** 2;
+  if (plan.drift) {
+    // Drifts lie along the shared wind.
+    markDraw.sx = s * rng.range(1.8, 2.8); markDraw.sz = s * rng.range(0.6, 0.9); markDraw.yaw = -0.594 + rng.range(-0.35, 0.35);
+  } else {
+    markDraw.sx = s * rng.range(0.8, 1.5); markDraw.sz = s * rng.range(0.7, 1.2); markDraw.yaw = rng.range(0, Math.PI * 2);
+  }
+}
+
+/** One square lying just clear of the ground, facing up: the lift is in the geometry so an instance still stands at ground height. */
+function markGeometry(): THREE.BufferGeometry {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute([-0.5, 0.03, -0.5, 0.5, 0.03, -0.5, 0.5, 0.03, 0.5, -0.5, 0.03, 0.5], 3));
+  g.setAttribute('normal', new THREE.Float32BufferAttribute([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0], 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 1, 0, 1, 1, 0, 1], 2));
+  g.setIndex([0, 2, 1, 0, 3, 2]);
+  return g;
+}
+
+/** On wet ground the marks shine: the dark ones then read as standing damp and shallow puddles. */
+function markMaterial(wet: number): THREE.MeshStandardMaterial {
+  const m = new THREE.MeshStandardMaterial({
+    map: acquireMarkTexture(), transparent: true, depthWrite: false, roughness: 1 - 0.8 * clamp(Number.isFinite(wet) ? wet : 0, 0, 1),
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+  });
+  patch(m, 0);
+  return m;
+}
+
+/** Share of the scatter budget spent on ground marks; the other layers split what is left. */
+const MARK_SHARE = 0.05;
+
 function releaseTexture(tex: THREE.Texture): void {
   const e = textures.get(tex.name);
   if (!e || e.tex !== tex) return;
@@ -285,6 +391,8 @@ export interface ScatterInput {
 export interface ScatterSet {
   group: THREE.Group;
   counts: Record<ScatterLayer, number>;
+  /** Flat marks on the ground (patches, stains, cracks, drifts): counted in `total`, taken out of the same budget. */
+  marks: number;
   total: number;
   /** Instances currently handed to the GPU, over all layers. */
   visible(): number;
@@ -445,10 +553,12 @@ export function buildScatter(inp: ScatterInput): ScatterSet {
     }
   };
 
-  const wantFlowers = Math.round(budget * mixOf.flowers);
-  const wantStones = Math.round(budget * mixOf.stones);
-  const wantDebris = Math.round(budget * mixOf.debris);
-  const wantTufts = budget - wantFlowers - wantStones - wantDebris;
+  const wantMarks = Math.round(budget * MARK_SHARE);
+  const rest = budget - wantMarks;
+  const wantFlowers = Math.round(rest * mixOf.flowers);
+  const wantStones = Math.round(rest * mixOf.stones);
+  const wantDebris = Math.round(rest * mixOf.debris);
+  const wantTufts = rest - wantFlowers - wantStones - wantDebris;
   const tuftBase = tuftColour(inp.ground, inp.groundHex);
   const ground = new THREE.Color(inp.groundHex);
 
@@ -505,6 +615,36 @@ export function buildScatter(inp: ScatterInput): ScatterSet {
     else { const s = kind === 'leaf' ? rng.range(0.07, 0.15) : rng.range(0.12, 0.3); add(debris, x, z, rng.range(0, 6.28), 0, s, s, s * rng.range(0.7, 1.1), c); }
   });
 
+  // Marks lie on open ground off the roads, in loose groups, each tipped to the slope it lies on.
+  const marks = draft(wantMarks);
+  const plan = markPlan(inp.ground, inp.groundHex, inp.accents);
+  const H = inp.heightAt;
+  fill(marks, wantMarks, 'marks', (x, z) => {
+    if (probe.inside || probe.road < 0.4 || probe.door < 1.2) return 0;
+    return (0.08 + 0.92 * smoothstep(0.42, 0.68, fbm(x / 13 + 17, z / 13, seed + 113, 3))) * edge(x, z);
+  }, (x, z, rng) => {
+    markShape(rng, plan);
+    jitter(rng.pick(plan.colours), rng, 0.04, 0.01, colour);
+    if (inp.waterDepthAt && inp.waterDepthAt(x, z) > 0.08) return;
+    let tx = 0;
+    let tz = 0;
+    if (H) {
+      const gx = (H(x + 0.6, z) - H(x - 0.6, z)) / 1.2;
+      const gz = (H(x, z + 0.6) - H(x, z - 0.6)) / 1.2;
+      if (Math.hypot(gx, gz) > 0.45) return;
+      const cs = Math.cos(markDraw.yaw);
+      const sn = Math.sin(markDraw.yaw);
+      tz = Math.atan(gx * cs - gz * sn);
+      tx = -Math.atan(gx * sn + gz * cs);
+    }
+    euler.set(tx, markDraw.yaw, tz, 'YXZ');
+    mat4.compose(posV.set(x, H ? H(x, z) : 0, z), quat.setFromEuler(euler), sclV.set(markDraw.sx, 1, markDraw.sz));
+    mat4.toArray(marks.m, marks.n * 16);
+    marks.c[marks.n * 3] = colour.r; marks.c[marks.n * 3 + 1] = colour.g; marks.c[marks.n * 3 + 2] = colour.b;
+    marks.key[marks.n] = chunkKey(x, z);
+    marks.n++;
+  });
+
   // Meshes
   const group = new THREE.Group();
   group.name = 'scatter';
@@ -518,13 +658,15 @@ export function buildScatter(inp: ScatterInput): ScatterSet {
   patch(stoneMat, 0);
   patch(debrisMat, 0);
   const cross = crossedQuads(quality === 2 ? 3 : 2, quality === 0 ? 1 : 2);
-  const geos = [cross, stoneGeometry(17), debrisGeometry(kind)];
-  const mats = [tuftMat, flowerMat, stoneMat, debrisMat];
+  const markMat = markMaterial(inp.wet);
+  const geos = [cross, stoneGeometry(17), debrisGeometry(kind), markGeometry()];
+  const mats = [tuftMat, flowerMat, stoneMat, debrisMat, markMat];
   const layers: Layer[] = [
     sortIntoLayer(tufts, cross, tuftMat, 'scatter:tufts'),
     sortIntoLayer(flowers, cross, flowerMat, 'scatter:flowers'),
     sortIntoLayer(stones, geos[1] as THREE.BufferGeometry, stoneMat, 'scatter:stones'),
     sortIntoLayer(debris, geos[2] as THREE.BufferGeometry, debrisMat, 'scatter:debris'),
+    sortIntoLayer(marks, geos[3] as THREE.BufferGeometry, markMat, 'scatter:marks'),
   ];
   for (const l of layers) group.add(l.mesh);
 
@@ -534,8 +676,9 @@ export function buildScatter(inp: ScatterInput): ScatterSet {
   const set: ScatterSet = {
     group,
     counts: { tufts: tufts.n, flowers: flowers.n, stones: stones.n, debris: debris.n },
-    total: tufts.n + flowers.n + stones.n + debris.n,
-    visible: () => layers.reduce((n, l) => n + l.mesh.count, 0),
+    marks: marks.n,
+    total: tufts.n + flowers.n + stones.n + debris.n + marks.n,
+    visible:() => layers.reduce((n, l) => n + l.mesh.count, 0),
     update(focus: THREE.Vector3): void {
       const fx = Math.floor(focus.x / CELL);
       const fz = Math.floor(focus.z / CELL);
@@ -796,7 +939,9 @@ export function buildScatterField(inp: ScatterFieldInput): ScatterField {
   const b = layout.bounds;
   const area = (b.maxX - b.minX + 2 * MARGIN) * (b.maxZ - b.minZ + 2 * MARGIN);
   const perChunk = (n: number): number => Math.max(0, Math.min(700, Math.ceil((n / Math.max(1, area)) * FIELD_CHUNK * FIELD_CHUNK * (mixOf.paved ? 0.4 : 0.8))));
-  const caps = [perChunk(inp.placed.tufts), perChunk(inp.placed.flowers), perChunk(inp.placed.stones), perChunk(inp.placed.debris)] as const;
+  // Marks are not reported by layer: the place gave them a fixed share of what it placed, and so does the far land.
+  const placedMarks = ((inp.placed.tufts + inp.placed.flowers + inp.placed.stones + inp.placed.debris) * MARK_SHARE) / (1 - MARK_SHARE);
+  const caps = [perChunk(inp.placed.tufts), perChunk(inp.placed.flowers), perChunk(inp.placed.stones), perChunk(inp.placed.debris), perChunk(placedMarks)] as const;
 
   const group = new THREE.Group();
   group.name = 'scatter-far';
@@ -811,10 +956,11 @@ export function buildScatterField(inp: ScatterFieldInput): ScatterField {
   patch(stoneMat, 0);
   patch(debrisMat, 0);
   const cross = crossedQuads(quality === 2 ? 3 : 2, quality === 0 ? 1 : 2);
-  const geos = [cross, stoneGeometry(17), debrisGeometry(kind)];
-  const mats = [tuftMat, flowerMat, stoneMat, debrisMat];
+  const geos = [cross, stoneGeometry(17), debrisGeometry(kind), markGeometry()];
+  const mats = [tuftMat, flowerMat, stoneMat, debrisMat, markMaterial(inp.wet)];
+  const plan = markPlan(inp.ground, inp.groundHex, inp.accents);
   const slots = FIELD_SPAN * FIELD_SPAN;
-  const names = ['tufts', 'flowers', 'stones', 'debris'];
+  const names = ['tufts', 'flowers', 'stones', 'debris', 'marks'];
   const layers: WindowLayer[] = caps.map((cap, i) => ({
     cap,
     mesh: windowMesh(i < 2 ? cross : (geos[i - 1] as THREE.BufferGeometry), mats[i] as THREE.Material, slots * cap, `scatter-far:${names[i]}`, true),
@@ -839,6 +985,9 @@ export function buildScatterField(inp: ScatterFieldInput): ScatterField {
   const dry = (x: number, z: number): boolean => outsideDistance(b, x, z) > MARGIN && !(inp.waterDepthAt && inp.waterDepthAt(x, z) > 0.08);
   // The place's own scatter thins to 0.45 of itself at its margin: the far scatter starts there and fills out.
   const ease = (x: number, z: number): number => 0.55 + 0.45 * smoothstep(MARGIN, MARGIN + 40, outsideDistance(b, x, z));
+  // Slow fields over the far land: meadows against thin ground, rock fields against stretches with hardly a stone.
+  const meadow = (x: number, z: number): number => 0.25 + 0.75 * smoothstep(0.38, 0.6, fbm(x / 70 + 13, z / 70, seed + 127, 2));
+  const rocky = (x: number, z: number): number => 0.15 + 1.1 * smoothstep(0.42, 0.66, fbm(x / 55, z / 55 + 7, seed + 131, 2));
 
   const window = new InstanceWindow(FIELD_CHUNK, FIELD_SPAN, layers, (cx, cz, win) => {
     const rng = makeRng(seed, `far-scatter|${cx}|${cz}`);
@@ -854,7 +1003,7 @@ export function buildScatterField(inp: ScatterFieldInput): ScatterField {
       const h = rng.range(0.26, 0.62) * (0.8 + 0.5 * wild);
       const yaw = rng.range(0, Math.PI);
       jitter(tuftBase, rng, 0.07, 0.025, colour);
-      if (rng.next() < patchy * ease(x, z) && dry(x, z)) win.put(0, x, inp.heightAt(x, z), z, yaw, 0, 0, w, h, w, colour);
+      if (rng.next() < patchy * meadow(x, z) * ease(x, z) && dry(x, z)) win.put(0, x, inp.heightAt(x, z), z, yaw, 0, 0, w, h, w, colour);
     }
     for (let k = 0; k < caps[1]; k++) {
       const x = x0 + rng.next() * FIELD_CHUNK;
@@ -876,7 +1025,21 @@ export function buildScatterField(inp: ScatterFieldInput): ScatterField {
       const sx = s * rng.range(0.8, 1.4);
       const sy = s * rng.range(0.7, 1.1);
       jitter(stoneBase, rng, 0.08, 0.015, colour);
-      if (rng.next() < dens * ease(x, z) && dry(x, z)) win.put(2, x, inp.heightAt(x, z), z, yaw, tilt, tilt * 0.6, sx, sy, s, colour);
+      if (rng.next() < dens * rocky(x, z) * ease(x, z) && dry(x, z)) win.put(2, x, inp.heightAt(x, z), z, yaw, tilt, tilt * 0.6, sx, sy, s, colour);
+    }
+    for (let k = 0; k < caps[4]; k++) {
+      const x = x0 + rng.next() * FIELD_CHUNK;
+      const z = z0 + rng.next() * FIELD_CHUNK;
+      markShape(rng, plan);
+      jitter(rng.pick(plan.colours), rng, 0.04, 0.01, colour);
+      const dens = 0.08 + 0.92 * smoothstep(0.42, 0.68, fbm(x / 13 + 17, z / 13, seed + 113, 3));
+      if (!(rng.next() < dens * ease(x, z) && dry(x, z))) continue;
+      const gx = (inp.heightAt(x + 0.6, z) - inp.heightAt(x - 0.6, z)) / 1.2;
+      const gz = (inp.heightAt(x, z + 0.6) - inp.heightAt(x, z - 0.6)) / 1.2;
+      if (Math.hypot(gx, gz) > 0.45) continue;
+      const cs = Math.cos(markDraw.yaw);
+      const sn = Math.sin(markDraw.yaw);
+      win.put(4, x, inp.heightAt(x, z), z, markDraw.yaw, -Math.atan(gx * sn + gz * cs), Math.atan(gx * cs - gz * sn), markDraw.sx, 1, markDraw.sz, colour);
     }
     for (let k = 0; k < caps[3]; k++) {
       const x = x0 + rng.next() * FIELD_CHUNK;
@@ -897,7 +1060,7 @@ export function buildScatterField(inp: ScatterFieldInput): ScatterField {
 
   // Cards sit out any pass that draws with its own material (see buildScatter).
   layers.forEach((l, i) => {
-    if (i >= 2) return;
+    if (i === 2 || i === 3) return;
     let held = -1;
     l.mesh.onBeforeRender = (_renderer, _scene, _camera, _geometry, material) => {
       if (material !== l.mesh.material) { held = l.mesh.count; l.mesh.count = 0; }

@@ -1,7 +1,7 @@
 // Plants that are not trees: succulents, fungi, shrubs, grasses and vines. Heights are in footprint units.
 // Tones: wall2 stem and bark, accent living green, roof caps, trim flowers, fruit, gills and heads,
 // dark spines, glow only when the glow dial is above 0.
-import type { PartTone } from '../spec';
+import type { BlueprintPart, PartTone } from '../spec';
 import { box, C, clamp, cone, cyl, dome, lerp, N, num, pyr, ring, skel, sph, str, int, wedge } from './util';
 import { blade, fin, GOLD, lobes, ORIGIN, Parts, polar, outward, spare, stem, TAU } from './nature-util';
 import type { P2 } from './nature-util';
@@ -261,10 +261,10 @@ export const fungus = skel(
 );
 
 export const shrub = skel(
-  'shrub', 'nature', 'Low woody plant on several stems: leafy mound, upright bush, bare twigs or a tangled ball.',
-  ['bush', 'sagebrush', 'heather', 'tumbleweed', 'thornbush', 'coral bush'],
+  'shrub', 'nature', 'Low woody plant on several stems: leafy mound, upright bush, bare twigs, a bristling tangle or a crown of fern fronds.',
+  ['bush', 'sagebrush', 'heather', 'tumbleweed', 'thornbush', 'fern', 'bracken'],
   [
-    C('form', ['mound', 'upright', 'tangle'], 'mound', 'habit'),
+    C('form', ['mound', 'upright', 'tangle', 'fern'], 'mound', 'habit'),
     N('height', 0.2, 1.6, 0.6, 'height'),
     N('spread', 0.3, 1.2, 0.8, 'width'),
     N('stems', 2, 7, 4, 'stems'),
@@ -287,24 +287,52 @@ export const shrub = skel(
     const budTone = (i: number): PartTone => (glow > 0 && (berries <= 0.1 || i % 2 === 0) ? 'glow' : 'trim');
 
     if (form === 'tangle') {
-      // A rough ball bound by hoops, bristling with twig ends.
+      // A loose ball of wiry growth: lumps of unequal size, bristling with twigs that lean out of it.
       const tone: PartTone = dens < 0.4 ? 'wall2' : 'accent';
-      const bw = S * 0.85;
-      const bh = H * 0.9;
-      out.add(sph(0, 0, 0, bw, bw * rng.range(0.85, 1), bh, tone, { rot: rng.range(0, 180) }));
-      for (let j = 0; j < 3; j++) {
-        const f = 0.25 + 0.25 * j;
-        const w = bw * Math.sqrt(1 - Math.pow(2 * f - 1, 2)) * 1.05;
-        const c = polar(ORIGIN, a0 + j * 2, 0.015);
-        out.add(ring(c.x, c.z, bh * f, w, w * 0.92, 0.05, dens > 0.6 ? 'accent' : 'wall2', { rot: j * 40 }));
+      const bw = S * 0.8;
+      const bh = H * 0.85;
+      out.add(sph(0, 0, 0, bw, bw * rng.range(0.82, 0.96), bh, tone, { rot: rng.range(0, 180) }));
+      for (let j = 0; j < 2; j++) {
+        const c = polar(ORIGIN, a0 + 1 + j * 2.6, bw * 0.24);
+        const w = bw * rng.range(0.45, 0.6);
+        out.add(sph(c.x, c.z, j === 0 ? 0 : bh * 0.3, w, w * rng.range(0.8, 1), Math.max(0.05, bh * rng.range(0.5, 0.68)), tone, { rot: rng.range(0, 180) }));
       }
       for (let j = 0; j < n * 2; j++) {
-        const f = (j + 0.5) / (n * 2);
-        const c = polar(ORIGIN, a0 + j * GOLD, bw * 0.42 * f);
-        const top = bh * (0.5 + 0.5 * Math.sqrt(1 - f * f * 0.9));
-        out.add(cone(c.x, c.z, top - 0.04, 0.03, 0.03, Math.max(0.06, H * rng.range(0.12, 0.3)), 'wall2'));
+        const a = a0 + j * GOLD;
+        if (j % 2 === 0) {
+          const y = bh * rng.range(0.2, 0.55);
+          out.add(blade(polar(ORIGIN, a, bw * 0.3), a, y, Math.min(0.2, bw * rng.range(0.22, 0.36)), 0.03, Math.max(0.06, H * rng.range(0.2, 0.4)), 'wall2'));
+        } else {
+          const f = (j + 0.5) / (n * 2);
+          const c = polar(ORIGIN, a, bw * 0.42 * f);
+          const top = bh * (0.5 + 0.5 * Math.sqrt(1 - f * f * 0.9));
+          out.add(cone(c.x, c.z, top - 0.04, 0.03, 0.03, Math.max(0.06, H * rng.range(0.12, 0.3)), 'wall2'));
+        }
       }
-      if (budded) for (let j = 0; j < 2; j++) out.extra(sph(0, 0, bh * (0.35 + 0.25 * j), s, s, s, budTone(j), { rot: j * 70 + 20, repeat: 2, gap: bw * (0.92 - 0.1 * j) }));
+      if (budded) for (let j = 0; j < 2; j++) out.extra(sph(0, 0, bh * (0.35 + 0.25 * j), s, s, s, budTone(j), { rot: j * 70 + 20, repeat: 2, gap: bw * (0.8 - 0.1 * j) }));
+      return out.list;
+    }
+
+    if (form === 'fern') {
+      // A crown of fronds: the young ones stand and lean out, the older ones arch over and come down at the tip.
+      const thick = clamp(S * lerp(0.03, 0.13, dens), 0.03, 0.12);
+      out.add(cone(0, 0, 0, S * 0.22, S * 0.2, Math.max(0.05, H * 0.25), 'wall2'));
+      const k = n * 2;
+      for (let i = 0; i < k; i++) {
+        const a = a0 + (i * TAU) / k + rng.range(-0.2, 0.2);
+        if (i % 2 === 0) {
+          const len = Math.min(0.5, S * 0.5) * rng.range(0.8, 1);
+          const c = polar(ORIGIN, a, len / 2 - 0.01);
+          out.add(dome(c.x, c.z, 0, len, thick, Math.max(0.05, H * rng.range(0.45, 0.7)), i % 4 === 0 ? 'accent' : 'roof', { rot: outward(a) }));
+        } else out.add(blade(polar(ORIGIN, a, 0.02), a, 0, Math.min(0.4, S * 0.3) * rng.range(0.7, 1), thick * 0.8, H * rng.range(0.75, 1), 'accent'));
+      }
+      // Croziers still rolled up at the heart.
+      for (let j = 0; j < 2; j++) {
+        const c = polar(ORIGIN, a0 + j * 2.4, S * 0.06);
+        const top = H * rng.range(0.4, 0.6);
+        out.extra(cyl(c.x, c.z, 0, 0.03, 0.03, top, 'accent'));
+        out.extra(sph(c.x, c.z, Math.max(0, top - 0.02), s, s, s, budded ? budTone(j) : 'accent'));
+      }
       return out.list;
     }
 
@@ -452,13 +480,13 @@ export const grassclump = skel(
 );
 
 export const vine = skel(
-  'vine', 'nature', 'Strands that hang from a bough, climb a post, fall down a rock face or rise free.',
+  'vine', 'nature', 'Hanging curtain of uneven strands, a swag between two snags, a climber on a trunk or rock face, or strands that rise free.',
   ['liana curtain', 'ivy fall', 'hanging moss', 'cables', 'kelp strands', 'wisteria'],
   [
-    C('support', ['bough', 'post', 'rock', 'free'], 'bough', 'what carries the strands'),
+    C('support', ['curtain', 'swag', 'post', 'rock', 'free'], 'curtain', 'what carries the strands'),
     N('length', 0.4, 5, 1.6, 'height of the hang or climb'),
     N('strands', 2, 10, 5, 'strands'),
-    N('sag', 0, 1, 0.4, '0 level curtain, 1 long in the middle'),
+    N('sag', 0, 1, 0.4, '0 level hem, 1 long in the middle; deeper swag'),
     N('leaves', 0, 1, 0.6, 'leaf cover; 0 bare cable'),
     N('flowers', 0, 1, 0, 'flowers'),
     N('glow', 0, 1, 0, 'glowing buds'),
@@ -472,59 +500,117 @@ export const vine = skel(
     const flowers = num(d, 'flowers');
     const glow = num(d, 'glow');
     const out = new Parts();
-    const strandTone: PartTone = leaves > 0.15 ? 'accent' : 'wall2';
+    const leafy = leaves > 0.15;
+    const strandTone: PartTone = leafy ? 'accent' : 'wall2';
     const budTone: PartTone = glow > 0 ? 'glow' : 'trim';
     const budded = flowers > 0.1 || glow > 0;
     const a0 = rng.range(0, TAU);
 
-    /** Groups of strands hung from `top` along x at depth z: the middle group long, the outer ones shorter with sag. */
-    const curtain = (z: number, top: number, halfSpan: number, cx = 0): void => {
-      const nC = Math.max(1, Math.round(n * 0.4));
-      const nS = Math.floor((n - nC) / 2);
-      const groups: { x: number; k: number; span: number; len: number }[] = [
-        { x: cx, k: nC, span: halfSpan * 0.7, len: top * 0.9 },
-      ];
-      if (nS > 0) {
-        const len = top * 0.9 * (1 - 0.65 * sag) * rng.range(0.85, 1);
-        groups.push({ x: cx - halfSpan * 0.72, k: nS, span: halfSpan * 0.4, len }, { x: cx + halfSpan * 0.72, k: nS, span: halfSpan * 0.4, len: len * rng.range(0.75, 1) });
+    /** Something overhead that strands hang from: where it is, the height of its underside, how wide it is. */
+    interface Hold { x: number; z: number; y: number; w: number }
+    /**
+     * Hangs `count` strands under the holds between x0 and x1. No two are the same length; as sag rises the
+     * ones at the ends of the run are cut shorter. Buds and leaf tufts go on last, so strands are never what is dropped.
+     */
+    const hang = (holds: Hold[], count: number, x0: number, x1: number, reach: number): void => {
+      const buds: BlueprintPart[] = [];
+      const tufts: BlueprintPart[] = [];
+      const lw = clamp(0.05 + leaves * 0.07, 0.05, 0.12);
+      for (let i = 0; i < count; i++) {
+        const t = (i + 0.5) / count;
+        const x = lerp(x0, x1, t) + rng.range(-0.012, 0.012);
+        const hold = holds.reduce((b, h) => (Math.abs(h.x - x) < Math.abs(b.x - x) ? h : b));
+        if (hold.y < 0.2) continue;
+        const sx = clamp(x, hold.x - hold.w * 0.45, hold.x + hold.w * 0.45);
+        const len = clamp(reach * (1 - 0.7 * sag * Math.abs(2 * t - 1)) * rng.range(0.45, 1), 0.1, hold.y);
+        const y = hold.y - len;
+        const z = hold.z + (i % 2 === 0 ? 0.012 : -0.012);
+        out.add(box(sx, z, y, 0.025, 0.025, len, strandTone));
+        if (budded && (i % 2 === 0 || flowers > 0.5 || glow > 0.5)) buds.push(sph(sx, z, Math.max(0, y - 0.03), 0.06, 0.06, 0.07, budTone));
+        if (leafy && (i % 2 === 0 || leaves > 0.55)) {
+          tufts.push(sph(sx, z, y + len * rng.range(0.25, 0.7), lw, lw * 0.7, Math.max(0.05, len * 0.18), 'accent', { rot: rng.range(0, 180) }));
+        }
       }
-      groups.forEach((gr, gi) => {
-        const len = Math.max(0.1, gr.len);
-        const o = { repeat: gr.k, gap: gr.k > 1 ? gr.span / (gr.k - 1) : 0 };
-        const zz = z + (gi === 0 ? 0 : 0.015);
-        out.add(box(gr.x, zz, top - len, 0.025, 0.025, len, strandTone, o));
-        const lw = clamp(0.05 + leaves * 0.07, 0.05, 0.12);
-        if (leaves > 0.15) out.extra(sph(gr.x, zz, top - len * 0.4, lw, lw * 0.7, Math.max(0.05, len * 0.16), 'accent', o));
-        if (leaves > 0.55) out.extra(sph(gr.x, zz, top - len * 0.82, lw * 0.8, lw * 0.6, Math.max(0.05, len * 0.12), 'accent', o));
-        if (budded && (gi === 0 || flowers > 0.5)) out.extra(sph(gr.x, zz, Math.max(0, top - len - 0.03), 0.06, 0.06, 0.07, budTone, o));
-      });
+      buds.slice(0, 4).forEach((p) => out.extra(p));
+      tufts.forEach((p) => out.extra(p));
     };
 
-    if (support === 'bough') {
-      // A dead trunk holds one long limb out to the side; the strands hang from its underside.
-      const th = clamp(0.05 + L * 0.012, 0.06, 0.1);
-      const tg = clamp(0.09 + L * 0.015, 0.1, 0.16);
-      const base: P2 = { x: -0.4, z: 0 };
-      const st = stem(base, L * 1.25, tg, tg * 0.6, 0.06, 0, 3, 'wall2');
-      out.add(cone(base.x, base.z, 0, tg * 2, tg * 1.8, Math.max(0.05, tg * 1.3), 'wall2'), ...st.parts);
-      const crownAt = st.at(L * 1.25);
-      out.add(wedge(crownAt.x, crownAt.z, L * 1.25, tg * 0.5, tg * 0.4, Math.max(0.05, L * 0.1), 'wall2', { rot: rng.range(0, 360) }));
-      out.add(box(0.06, 0.01, L, 0.9, th, th, 'wall2'));
-      out.add(blade({ x: 0.4, z: 0.01 }, 0, L, 0.1, th * 0.8, Math.max(0.05, L * rng.range(0.15, 0.3)), 'wall2'));
-      out.add(blade(st.at(L * 0.8), Math.PI + rng.range(-0.6, 0.6), L * 0.8, 0.1, th * 0.8, Math.max(0.05, L * 0.3), 'wall2'));
-      if (leaves > 0.3) out.extra(sph(rng.range(0, 0.25), 0.01, L + th * 0.5, 0.34, 0.14, Math.max(0.05, th * 1.4), 'accent'));
-      curtain(0.01, L, 0.3, 0.1);
+    if (support === 'curtain') {
+      // No post and no beam: a ragged mat of growth overhead, carried by lianas that reach the ground at its ends.
+      const nm = n > 6 ? 4 : 3;
+      const step = 0.64 / (nm - 1);
+      const holds: Hold[] = [];
+      for (let j = 0; j < nm; j++) {
+        const w = step * rng.range(1.3, 1.6);
+        const x = -0.32 + j * step + rng.range(-0.02, 0.02);
+        const z = rng.range(-0.04, 0.04);
+        const y = L + rng.range(-0.04, 0.04);
+        const h = clamp(L * rng.range(0.1, 0.2), 0.08, 0.45) * (leafy ? 1 : 0.6);
+        holds.push({ x, z, y, w });
+        out.add(sph(x, z, y, w, w * rng.range(0.5, 0.7), h, strandTone, { rot: rng.range(-20, 20) }));
+        if (j === 0 || j === nm - 1) {
+          const lx = x + (j === 0 ? 1 : -1) * rng.range(0, w * 0.2);
+          out.add(cyl(lx, z, 0, 0.04, 0.04, y + h * 0.5, 'wall2'));
+        }
+      }
+      hang(holds, n, -0.38, 0.38, L);
+      return out.list;
+    }
+
+    if (support === 'swag') {
+      // Two dead snags of unequal height with the growth slung between them, dipping deep, and strands off its underside.
+      const g = clamp(0.07 + L * 0.015, 0.08, 0.14);
+      const flip = rng.chance(0.5) ? 1 : -1;
+      const hs = [L, L * rng.range(0.6, 0.85)];
+      const xs = [-0.4 * flip, 0.4 * flip];
+      hs.forEach((h, j) => {
+        const base: P2 = { x: xs[j] ?? 0, z: rng.range(-0.03, 0.03) };
+        const st = stem(base, h, g, g * 0.6, 0.04, rng.range(0, TAU), 2, 'wall2');
+        out.add(cone(base.x, base.z, 0, g * 1.9, g * 1.7, Math.max(0.05, g * 1.2), 'wall2'), ...st.parts);
+        const top = st.at(h);
+        out.add(wedge(top.x, top.z, h, g * 0.5, g * 0.4, Math.max(0.05, h * 0.08), 'wall2', { rot: rng.range(0, 360) }));
+      });
+      const m = 6;
+      const dip = Math.max(0.15, L * lerp(0.25, 0.6, sag));
+      const line = (t: number): number => Math.max(0.12, lerp(hs[0] ?? L, hs[1] ?? L, t) * 0.95 - dip * 4 * t * (1 - t));
+      const th = clamp(0.05 + leaves * 0.06, 0.05, 0.11);
+      const holds: Hold[] = [];
+      for (let i = 0; i < m; i++) {
+        const e0 = line(i / m);
+        const e1 = line((i + 1) / m);
+        const y = Math.min(e0, e1) - th / 2;
+        const x = lerp(xs[0] ?? 0, xs[1] ?? 0, (i + 0.5) / m);
+        const w = (0.8 / m) * 1.45;
+        out.add(sph(x, 0, y, w, th * 1.3, Math.abs(e0 - e1) + th, strandTone));
+        holds.push({ x, z: 0, y, w });
+      }
+      hang(holds, Math.min(n, 7), -0.3, 0.3, L * 0.6);
+      if (leafy) {
+        hs.forEach((h, j) => out.extra(sph(xs[j] ?? 0, 0.02, h * rng.range(0.3, 0.6), g * 2, g * 1.6, Math.max(0.05, h * 0.2), 'accent', { rot: rng.range(0, 180) })));
+      }
       return out.list;
     }
 
     if (support === 'rock') {
-      // A slab of rock with growth massed along its top and spilling down the face.
+      // A slab of rock with growth massed in lumps along its top, a mat climbing its face and strands spilling down it.
       const depth = 0.34;
+      const face = -0.12 + depth / 2;
       out.add(box(0, -0.12, 0, 0.9, depth, L, 'wall2'), sph(-0.3, -0.1, 0, 0.5, 0.42, Math.max(0.05, L * 0.45), 'wall2'));
       out.add(box(0.12, -0.16, 0, 0.7, depth, L * rng.range(0.7, 0.9), 'wall2', { rot: rng.range(-16, -8) }), fin({ x: 0.3, z: -0.1 }, 0, 0, 0.2, 0.3, L * 0.5, 'wall2'));
       out.add(wedge(0.2, -0.14, L, 0.45, depth * 0.8, Math.max(0.05, L * 0.1), 'wall2', { rot: 180 }));
-      if (leaves > 0.15) out.add(dome(0, -0.02, L, 0.86, 0.5, Math.max(0.05, 0.06 + leaves * 0.1), 'accent'));
-      curtain(-0.12 + depth / 2 + 0.01, L, 0.36);
+      const holds: Hold[] = [];
+      for (let j = 0; j < 3; j++) {
+        const x = -0.3 + j * 0.3 + rng.range(-0.03, 0.03);
+        const w = rng.range(0.34, 0.44);
+        const h = Math.max(0.06, (0.06 + leaves * 0.12) * rng.range(0.8, 1.2));
+        out.add(dome(x, face - 0.04, L, w, 0.3, h, strandTone, { rot: rng.range(-12, 12) }));
+        holds.push({ x, z: face + 0.02, y: L, w });
+      }
+      hang(holds, n, -0.36, 0.36, L);
+      for (let j = 0; j < Math.round(leaves * 3); j++) {
+        const y = L * rng.range(0.15, 0.65);
+        out.extra(sph(rng.range(-0.34, 0.34), face + 0.01, y, rng.range(0.18, 0.3), 0.06, Math.max(0.08, L * rng.range(0.15, 0.3)), 'accent'));
+      }
       return out.list;
     }
 
@@ -572,4 +658,3 @@ export const vine = skel(
     return out.list;
   },
 );
-

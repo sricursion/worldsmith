@@ -375,12 +375,21 @@ export const AIR = {
   exposure: 0.5,
   /** Unit vector towards the moon the night key shines from, at any hour. */
   moonDir: new Vector3(-0.4, 0.5, -0.5).normalize(),
+  /** The land's own colour (linear), as the sky rig was told it; white until a world gives one. The low air leans to it. */
+  groundColor: new Color(1, 1, 1),
 
   // ---- written by the sky features
   /** Multiplier on the sun's key light and on the sky it lights; an eclipse lowers it. */
   keyDim: 1,
   /** False while a sky feature draws the moon, so the rig keeps its own disc hidden. */
   rigMoon: true,
+  /** Hue the sky leans to under a second sun or a giant planet, and how far, 0..1. 0 is a natural sky. */
+  skyCast: new Color(1, 1, 1),
+  skyCastMix: 0,
+  /** Seed of the world, for whatever in the sky differs from one world to the next. */
+  skySeed: 0,
+  /** Bumped by whoever changes the cast, the seed or the cloud form, so the sky rig knows to look again. */
+  skyRev: 0,
 
   // ---- written by the player
   /** True while a conversation is framed: the top tier pulls focus to `focus`. */
@@ -416,6 +425,11 @@ export const AIR = {
   shaftGain: 1,
   /** 0..1: how much lamp light the air itself catches (fog, mist, rain). */
   halo: 0.2,
+  /**
+   * Shape of the cloud layer: size of the masses and how solid they are (multipliers on the sky's own),
+   * how low the layer hangs (0..1) and how far the clouds are drawn out into bands (1 is round).
+   */
+  cloudForm: { size: 1, density: 1, elevation: 0.5, stretch: 1 },
 };
 
 /** How many of the nearest lit lamps are handed to shaders that draw their glow. */
@@ -444,6 +458,8 @@ export function resetAirMods(): void {
   AIR.exposureMul = 1;
   AIR.shaftGain = 1;
   AIR.halo = 0.2;
+  Object.assign(AIR.cloudForm, { size: 1, density: 1, elevation: 0.5, stretch: 1 });
+  AIR.skyRev++;
 }
 
 /** Strength of the lamp halos in the air pass, from the lamp level, the haze and how much the air holds. */
@@ -515,6 +531,33 @@ export function nightFogGain(haze: number, daylight: number): number {
   const h = Number.isFinite(haze) ? clamp01(haze) : 0;
   const d = Number.isFinite(daylight) ? clamp01(daylight) : 1;
   return 1 + NIGHT_FOG_LIFT * h * (1 - d);
+}
+
+/** How far the air near the ground leans to the land's hue, in clear air and at full haze. */
+export const GROUND_HAZE = [0.22, 0.5] as const;
+/** How much paler than the fog the band at the horizon is, in clear air and at full haze. */
+export const HORIZON_BAND = [0.06, 0.2] as const;
+
+/**
+ * Colour the fog is multiplied by where it lies low: the hue of the ground at the brightness of white, pulled
+ * towards white by `1 - strength`. Red sand gives a rust haze, snow a clean one, and a grey or unknown ground
+ * none at all. It never changes how bright the fog is, only its hue.
+ */
+export function groundHazeTint(ground: { r: number; g: number; b: number }, haze: number, out: Color): Color {
+  const lum = 0.2126 * ground.r + 0.7152 * ground.g + 0.0722 * ground.b;
+  if (!(lum > 1e-4)) return out.setRGB(1, 1, 1);
+  const h = Number.isFinite(haze) ? clamp01(haze) : 0;
+  const k = GROUND_HAZE[0] + (GROUND_HAZE[1] - GROUND_HAZE[0]) * h;
+  // A very dark, saturated ground would give a wild hue once scaled up: each channel is held within reach of white.
+  const ch = (v: number): number => 1 + (Math.min(1.8, Math.max(0.35, v / lum)) - 1) * k;
+  out.setRGB(ch(ground.r), ch(ground.g), ch(ground.b));
+  return out.multiplyScalar(1 / Math.max(0.5, 0.2126 * out.r + 0.7152 * out.g + 0.0722 * out.b));
+}
+
+/** Strength of the pale band at the horizon for a haze of 0..1. */
+export function horizonBandFor(haze: number): number {
+  const h = Number.isFinite(haze) ? clamp01(haze) : 0;
+  return HORIZON_BAND[0] + (HORIZON_BAND[1] - HORIZON_BAND[0]) * h;
 }
 
 /** Optical depth of the height fog along a ray, as the air pass computes it. `dirY` is the ray's vertical direction cosine. */
@@ -636,6 +679,8 @@ const AIR_FRAGMENT = /* glsl */ `
   uniform float uShaft;
   uniform vec3 uFogWarm;
   uniform vec3 uFogCool;
+  uniform vec3 uFogLow;     // hue of the ground, for the air that lies on it
+  uniform float uBand;      // how much paler the fog is at the horizon
   uniform vec4 uLampPos[${LAMP_COUNT}];
   uniform vec3 uLampCol[${LAMP_COUNT}];
   uniform float uHalo;
@@ -698,12 +743,21 @@ const AIR_FRAGMENT = /* glsl */ `
     float trans = exp(-uFogDensity * (layer + flo));
     // The air is warm looking towards the key and cool looking away from it.
     vec3 fogCol = uFogColor * mix(uFogCool, uFogWarm, smoothstep(-0.7, 0.9, dot(dir, uSunDir)));
+    // The air that lies on the land carries the land: low rays lean to the ground's hue, most over the first
+    // few hundred metres, and the sky's own colour takes over higher up and further off.
+    float low = 1.0 - smoothstep(-0.04, 0.28, dir.y);
+    float lowReach = sky ? 0.6 : mix(1.0, 0.6, smoothstep(80.0, 900.0, dist));
+    fogCol *= mix(vec3(1.0), uFogLow, low * lowReach);
+    // Looking level, the eye goes through the most air: a paler band sits on the horizon and far shapes sink into it.
+    fogCol *= 1.0 + uBand * exp(-abs(dir.y) * 14.0);
     fogCol += uSunColor * (uSunGlow * (0.3 * pow(toSun, 4.0) + 0.7 * pow(toSun, 28.0)));
     fogCol += FLASH_COLOR * (uFlash * 0.3);
     if (!sky) {
       // Aerial perspective: distance takes the colour out of a surface before it takes the surface.
       float veil = 1.0 - trans * trans * trans;
       col = mix(col, vec3(dot(col, LUMA)), 0.6 * veil);
+      // A far ridge also loses its contrast against the band it stands in, so ranges read one behind the other.
+      trans *= 1.0 - 0.35 * veil * smoothstep(250.0, 1500.0, dist) * (1.0 - smoothstep(0.0, 0.35, dir.y));
     }
     col = mix(fogCol, col, trans);
 
@@ -1034,6 +1088,8 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
       uShaft: { value: 0 },
       uFogWarm: { value: new Color(1, 1, 1) },
       uFogCool: { value: new Color(1, 1, 1) },
+      uFogLow: { value: new Color(1, 1, 1) },
+      uBand: { value: 0 },
       uLampPos: { value: LAMP_GLOW.pos },
       uLampCol: { value: LAMP_GLOW.col },
       uHalo: { value: 0 },
@@ -1175,7 +1231,8 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
   const cloud = air['uCloud']?.value as number[];
   const fogWarm = air['uFogWarm']?.value as Color;
   const fogCool = air['uFogCool']?.value as Color;
-  const foc = focusMaterial.uniforms;
+  const fogLow = air['uFogLow']?.value as Color;
+  const foc =focusMaterial.uniforms;
   const viewSun = new Vector3();
   const tint = new Color();
 
@@ -1220,6 +1277,8 @@ export function createPostPipeline(renderer: WebGLRenderer, scene: Scene, camera
     // Dimming two channels to make a warm cast would darken the horizon on the key side: put the level back.
     fogWarm.multiplyScalar(1 / Math.max(0.5, 0.2126 * fogWarm.r + 0.7152 * fogWarm.g + 0.0722 * fogWarm.b));
     fogCool.setRGB(1 + (FOG_COOL[0] - 1) * side, 1 + (FOG_COOL[1] - 1) * side, 1 + (FOG_COOL[2] - 1) * side);
+    groundHazeTint(AIR.groundColor, haze, fogLow);
+    setNumber(air, 'uBand', horizonBandFor(haze));
     setNumber(air, 'uKey', Math.max(0.3, AIR.keyLevel));
     setNumber(air, 'uFlash', AIR.flash);
     setNumber(air, 'uFrame', frame);

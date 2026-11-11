@@ -24,6 +24,11 @@ import {
 } from './surfaces';
 import type { Quality, SurfaceId, SurfaceRequest } from './surfaces';
 import { projectWorldUV } from './surfaces/uv';
+import { boxGeometry, contactShade, contactsOf, growthOf, organicGeometry, partSeed, roundSegments, shapeGeometries, solidOf } from './part-geometry';
+import type { BoxDetail, Solid, V3 } from './part-geometry';
+
+export { boxGeometry, shapeGeometries } from './part-geometry';
+export type { BoxDetail } from './part-geometry';
 
 export interface BlueprintEnv {
   batch: GeoBatch; mats: MaterialCache; rng: Rng;
@@ -83,183 +88,6 @@ export function expandBlueprintParts(parts: readonly BlueprintPart[]): Blueprint
   return expandParts(parts.filter((p) => [p.x, p.z, p.y, p.w, p.d, p.h, p.rot, p.repeat, p.gap].every(Number.isFinite)));
 }
 
-type V3 = readonly [number, number, number];
-type Tri = readonly [V3, V3, V3];
-
-function fromTris(tris: readonly Tri[]): THREE.BufferGeometry {
-  const pos = new Float32Array(tris.length * 9);
-  tris.forEach((t, i) => {
-    t.forEach((v, j) => {
-      pos[i * 9 + j * 3] = v[0];
-      pos[i * 9 + j * 3 + 1] = v[1];
-      pos[i * 9 + j * 3 + 2] = v[2];
-    });
-  });
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  return g;
-}
-
-/** Scales a unit geometry (xz footprint 1, base at y = 0 after `lift`) to metres and drops its base on y = 0. */
-function sized(g: THREE.BufferGeometry, sx: number, sy: number, sz: number, lift: number): THREE.BufferGeometry {
-  g.scale(sx, sy, sz);
-  if (lift !== 0) g.translate(0, lift, 0);
-  return g;
-}
-
-function gable(w: number, h: number, d: number): THREE.BufferGeometry {
-  const a = [-w / 2, 0, -d / 2] as const;
-  const b = [w / 2, 0, -d / 2] as const;
-  const c = [w / 2, 0, d / 2] as const;
-  const dd = [-w / 2, 0, d / 2] as const;
-  const e = [-w / 2, h, 0] as const;
-  const f = [w / 2, h, 0] as const;
-  return fromTris([[a, b, c], [a, c, dd], [a, dd, e], [b, f, c], [dd, c, f], [dd, f, e], [b, a, e], [b, e, f]]);
-}
-
-function wedge(w: number, h: number, d: number): THREE.BufferGeometry {
-  const a = [-w / 2, 0, -d / 2] as const;
-  const b = [w / 2, 0, -d / 2] as const;
-  const c = [w / 2, 0, d / 2] as const;
-  const dd = [-w / 2, 0, d / 2] as const;
-  const e = [w / 2, h, -d / 2] as const;
-  const f = [w / 2, h, d / 2] as const;
-  return fromTris([[a, b, c], [a, c, dd], [b, e, f], [b, f, c], [a, e, b], [dd, c, f], [a, dd, f], [a, f, e]]);
-}
-
-export interface BoxDetail {
-  /** Width of the 45 degree bevel on every edge, metres; 0 for sharp edges. */
-  chamfer: number;
-  /** Height above the base at which the side faces are split, so vertex colour can grade near the ground; 0 for none. */
-  split: number;
-}
-
-const PLAIN_BOX: BoxDetail = { chamfer: 0, split: 0 };
-
-/**
- * A box with its base on y = 0, optionally bevelled on all twelve edges (one flat facet per edge, a
- * triangle per corner) and with its sides split at a height. Triangles are wound outward.
- */
-export function boxGeometry(w: number, h: number, d: number, detail: BoxDetail = PLAIN_BOX): THREE.BufferGeometry {
-  const c = Math.max(0, Math.min(detail.chamfer, Math.min(w, h, d) * 0.3));
-  const x1 = w / 2;
-  const z1 = d / 2;
-  const ya = c;
-  const yb = h - c;
-  // The outline of the sides seen from above, and the inset outline of the top and bottom faces.
-  const ring: (readonly [number, number])[] = [
-    [x1, -z1 + c], [x1, z1 - c], [x1 - c, z1], [-x1 + c, z1], [-x1, z1 - c], [-x1, -z1 + c], [-x1 + c, -z1], [x1 - c, -z1],
-  ];
-  const cap: (readonly [number, number])[] = [[x1 - c, -z1 + c], [x1 - c, z1 - c], [-x1 + c, z1 - c], [-x1 + c, -z1 + c]];
-  const levels = [ya];
-  if (detail.split > ya + 0.05 && detail.split < yb - 0.05) levels.push(detail.split);
-  levels.push(yb);
-  const tris: Tri[] = [];
-  const mid = h / 2;
-  const tri = (a: V3, b: V3, e: V3): void => {
-    const ux = b[0] - a[0];
-    const uy = b[1] - a[1];
-    const uz = b[2] - a[2];
-    const vx = e[0] - a[0];
-    const vy = e[1] - a[1];
-    const vz = e[2] - a[2];
-    const nx = uy * vz - uz * vy;
-    const ny = uz * vx - ux * vz;
-    const nz = ux * vy - uy * vx;
-    if (nx * nx + ny * ny + nz * nz < 1e-14) return;
-    // The box is convex, so a face is wound outward when its normal points away from the centre.
-    const out = nx * (a[0] + b[0] + e[0]) + ny * (a[1] + b[1] + e[1] - 3 * mid) + nz * (a[2] + b[2] + e[2]);
-    tris.push(out >= 0 ? [a, b, e] : [a, e, b]);
-  };
-  const quad = (a: V3, b: V3, e: V3, f: V3): void => {
-    tri(a, b, e);
-    tri(a, e, f);
-  };
-  const at = (p: readonly [number, number] | undefined, y: number): V3 => [p ? p[0] : 0, y, p ? p[1] : 0];
-  for (let i = 0; i < 8; i++) {
-    const p = ring[i];
-    const q = ring[(i + 1) % 8];
-    for (let l = 0; l + 1 < levels.length; l++) {
-      const lo = levels[l] as number;
-      const hi = levels[l + 1] as number;
-      quad(at(p, lo), at(q, lo), at(q, hi), at(p, hi));
-    }
-    if (c > 0) {
-      // Faces (even i) meet the caps along an edge; bevels (odd i) meet them at a corner.
-      const k = i >> 1;
-      const e0 = cap[i % 2 === 0 ? k : (k + 1) % 4];
-      const e1 = cap[(k + 1) % 4];
-      quad(at(p, yb), at(q, yb), at(e1, h), at(e0, h));
-      quad(at(p, ya), at(q, ya), at(e1, 0), at(e0, 0));
-    }
-  }
-  quad(at(cap[0], h), at(cap[1], h), at(cap[2], h), at(cap[3], h));
-  quad(at(cap[0], 0), at(cap[1], 0), at(cap[2], 0), at(cap[3], 0));
-  const g = fromTris(tris);
-  // Distance from every vertex to the left, right, bottom and top edge of the face it belongs to. On the
-  // six faces these are true distances (they interpolate exactly); a bevel facet is an edge, so all zero.
-  const wearing = new Float32Array(tris.length * 12);
-  const ax = x1 - c;
-  const az = z1 - c;
-  tris.forEach((t, i) => {
-    const [a, b, e] = t;
-    const nx = (b[1] - a[1]) * (e[2] - a[2]) - (b[2] - a[2]) * (e[1] - a[1]);
-    const ny = (b[2] - a[2]) * (e[0] - a[0]) - (b[0] - a[0]) * (e[2] - a[2]);
-    const nz = (b[0] - a[0]) * (e[1] - a[1]) - (b[1] - a[1]) * (e[0] - a[0]);
-    const len = Math.hypot(nx, ny, nz);
-    const face = Math.abs(nx) > 0.99 * len ? 0 : Math.abs(ny) > 0.99 * len ? 1 : Math.abs(nz) > 0.99 * len ? 2 : -1;
-    if (face < 0) return;
-    t.forEach((v, j) => {
-      const o = i * 12 + j * 4;
-      // Across the face: z on the x sides, x elsewhere. Up the face: height on the sides, z on the caps.
-      const across = face === 0 ? v[2] : v[0];
-      const halfAcross = face === 0 ? az : ax;
-      wearing[o] = across + halfAcross;
-      wearing[o + 1] = halfAcross - across;
-      wearing[o + 2] = face === 1 ? v[2] + az : v[1] - ya;
-      wearing[o + 3] = face === 1 ? az - v[2] : yb - v[1];
-    });
-  });
-  g.setAttribute(WEARING, new THREE.BufferAttribute(wearing, 4));
-  return g;
-}
-
-/**
- * Geometry for one part, sized in metres, base at y = 0, centred on x/z. Arch is two pieces.
- * `segments` sets how many sides round shapes get; `box` bevels and splits box parts.
- */
-export function shapeGeometries(shape: PartShape, w: number, h: number, d: number, segments = 10, box: BoxDetail = PLAIN_BOX): THREE.BufferGeometry[] {
-  const list: THREE.BufferGeometry[] = [];
-  const n = Math.max(6, Math.round(segments));
-  switch (shape) {
-    case 'box': list.push(boxGeometry(w, h, d, box)); break;
-    case 'cylinder': list.push(sized(new THREE.CylinderGeometry(0.5, 0.5, 1, n), w, h, d, h / 2)); break;
-    case 'cone': list.push(sized(new THREE.ConeGeometry(0.5, 1, n), w, h, d, h / 2)); break;
-    case 'pyramid': list.push(sized(new THREE.ConeGeometry(Math.SQRT1_2, 1, 4).rotateY(Math.PI / 4), w, h, d, h / 2)); break;
-    case 'gable': list.push(gable(w, h, d)); break;
-    case 'wedge': list.push(wedge(w, h, d)); break;
-    case 'dome': list.push(sized(new THREE.SphereGeometry(0.5, n, Math.max(4, n >> 1), 0, Math.PI * 2, 0, Math.PI / 2), w, h * 2, d, 0)); break;
-    case 'sphere': list.push(sized(new THREE.SphereGeometry(0.5, n, Math.max(6, (n * 3) >> 2)), w, h, d, h / 2)); break;
-    case 'arch': {
-      const ry = Math.min(w / 2, h / 2);
-      const bodyH = h - ry;
-      list.push(boxGeometry(w, bodyH, d));
-      const top = new THREE.CylinderGeometry(1, 1, 1, n).rotateX(Math.PI / 2);
-      list.push(sized(top, w / 2, ry, d, bodyH));
-      break;
-    }
-    case 'ring': {
-      // Unit torus with a thin tube; x and z scale to the footprint, y scales so the tube is t thick.
-      const t = Math.max(0.01, Math.min(h / 2, Math.min(w, d) / 4));
-      const tr = Math.min(0.5, t / (Math.min(w, d) / 2));
-      const g = new THREE.TorusGeometry(1, tr, 6, Math.max(12, n + 2)).rotateX(Math.PI / 2);
-      list.push(sized(g, w / 2 / (1 + tr), t / tr, d / 2 / (1 + tr), t));
-      break;
-    }
-  }
-  return list;
-}
-
 /** Shapes whose curved faces keep the smooth normals they were built with. */
 const SMOOTH: ReadonlySet<PartShape> = new Set<PartShape>(['cylinder', 'cone', 'dome', 'sphere', 'ring']);
 
@@ -286,6 +114,8 @@ interface ToneLook {
   grime: boolean;
   /** Whether parts of this tone differ a little from one another in value and warmth. */
   vary: boolean;
+  /** How readily a standing mass of this tone leans in toward its top, 0..1: laid stone and earth do, boards and sheet do not. */
+  batter: number;
 }
 /**
  * Beyond the spec's tones: `accentSmall` is the fresher paint a small accent may carry (a sign board, a
@@ -405,13 +235,15 @@ function palette(mats: MaterialCache, look: Look, shifts: { wall: number; wall2:
   const plan = tonePlan(look);
   const surf = (key: PlanKey, tint: number): ToneLook => {
     const e = plan[key];
-    return { material: getSurface(e.kind, e.hex, surfaceOpts(look, e.roof)), tile: surfaceScale(e.kind), grain: GRAIN[e.kind], tint, grime: !e.roof, vary: true };
+    const fam = surfaceFamily(e.kind);
+    const batter = e.roof ? 0 : fam === 'masonry' || fam === 'mineral' ? 1 : e.kind === 'adobe' ? 0.8 : 0;
+    return { material: getSurface(e.kind, e.hex, surfaceOpts(look, e.roof)), tile: surfaceScale(e.kind), grain: GRAIN[e.kind], tint, grime: !e.roof, vary: true, batter };
   };
   const glow = safeHex(look.style.glow, '#ffd27a');
   // A light source shows its emitted colour only. With a bright base colour as well, sun or lamp light on
   // top of the emission clips the part to white and the hue is lost.
   const unlit = `#${new THREE.Color(glow).multiplyScalar(0.12).getHexString()}`;
-  const lamp = (intensity: number): ToneLook => ({ material: mats.get(unlit, { emissive: glow, emissiveIntensity: intensity, roughness: 0.6 }), tile: 1, tint: 1, grime: false, vary: false });
+  const lamp = (intensity: number): ToneLook => ({ material: mats.get(unlit, { emissive: glow, emissiveIntensity: intensity, roughness: 0.6 }), tile: 1, tint: 1, grime: false, vary: false, batter: 0 });
   return {
     wall: surf('wall', driftFactor(plan.wall.hex, shifts.wall)),
     wall2: surf('wall2', driftFactor(plan.wall2.hex, shifts.wall2)),
@@ -426,13 +258,13 @@ function palette(mats: MaterialCache, look: Look, shifts: { wall: number; wall2:
     glass: look.nature
       ? {
           material: getSurface('crystal', blend(safeHex(look.style.accentRaw ?? look.style.accent, '#8a4034'), safeHex(look.style.glass, '#6f9bb8'), 0.35), surfaceOpts(look, false)),
-          tile: surfaceScale('crystal'), tint: 1, grime: false, vary: true,
+          tile: surfaceScale('crystal'), tint: 1, grime: false, vary: true, batter: 0,
         }
-      : { material: glassMaterial(safeHex(look.style.glass, '#6f9bb8'), glow), tile: GLASS_SCALE, tint: 1, grime: false, vary: false },
+      : { material: glassMaterial(safeHex(look.style.glass, '#6f9bb8'), glow), tile: GLASS_SCALE, tint: 1, grime: false, vary: false, batter: 0 },
     glow: lamp(1.05),
     glowBig: lamp(0.28),
-    // Glass too large to be a window pane is a sheet of it: dark and glossy, with no lit rooms drawn across it.
-    glassBig: { material: mats.get(`#${new THREE.Color(safeHex(look.style.glass, '#6f9bb8')).multiplyScalar(0.5).getHexString()}`, { roughness: 0.08, metalness: 0.85 }), tile: 1, tint: 1, grime: false, vary: false },
+    // Glass that is no window pane (too large, or a cone, a ball, a prism) is plain glass: dark and glossy, with no lit rooms drawn across it.
+    glassBig: { material: mats.get(`#${new THREE.Color(safeHex(look.style.glass, '#6f9bb8')).multiplyScalar(0.5).getHexString()}`, { roughness: 0.08, metalness: 0.85 }), tile: 1, tint: 1, grime: false, vary: false, batter: 0 },
   };
 }
 
@@ -442,7 +274,7 @@ function palette(mats: MaterialCache, look: Look, shifts: { wall: number; wall2:
  * geometry or vertex by vertex: the faces of a reveal, the back of a room.
  */
 function paint(
-  g: THREE.BufferGeometry, tone: ToneLook, wear: number, wet: number, kr: number, kg: number, kb: number, shade: readonly number[] | number = 1,
+  g: THREE.BufferGeometry, tone: ToneLook, wear: number, wet: number, kr: number, kg: number, kb: number, shade: ArrayLike<number> | number = 1,
 ): void {
   const pos = g.getAttribute('position');
   const col = new Float32Array(pos.count * 3);
@@ -672,19 +504,25 @@ function cutOpening(o: Opening, A: number, H: number, out: CutSoups): void {
 
 /**
  * A box (base on y = 0, centred on x/z) with openings cut into its side faces. Each face is laid as
- * panels around its openings on the lines their edges make, so no boolean is needed; `split` adds a
- * line at that height for the dirt grading. Edge distances for the wear shader are true on the faces.
+ * panels around its openings on the lines their edges make, so no boolean is needed; `lines` adds a
+ * line at each of those heights for the dirt grading and the shade under an overhang. With `chamfer`
+ * the four upright corners and the top edge are bevelled as on a plain box (the foot stays square: it
+ * stands on something, and doorways reach it). Edge distances for the wear shader are true on the faces.
  */
-function cutWall(pw: number, ph: number, pd: number, cuts: readonly Opening[], split: number): CutSoups {
+function cutWall(pw: number, ph: number, pd: number, cuts: readonly Opening[], lines: readonly number[], chamfer = 0): CutSoups {
   const out: CutSoups = { wall: new Soup(), frames: new Map(), dark: new Soup(), glass: new Soup() };
+  const c = Math.max(0, Math.min(chamfer, Math.min(pw, ph, pd) * 0.3));
+  const top = ph - c;
   for (const f of FACES) {
     const A = f < 2 ? pw : pd;
     const T = f < 2 ? pd : pw;
+    const e0 = -A / 2 + c;
+    const e1 = A / 2 - c;
     // An opening is kept only where it fits this box as it is actually built.
-    const ops = cuts.filter((o) => o.face === f && o.u0 > -A / 2 + 0.02 && o.u1 < A / 2 - 0.02 && o.v0 >= 0 && o.v1 < ph - 0.02 && o.depth < T - 0.02 && o.u1 - o.u0 > 0.1 && o.v1 - o.v0 > 0.1);
+    const ops = cuts.filter((o) => o.face === f && o.u0 > e0 + 0.02 && o.u1 < e1 - 0.02 && o.v0 >= 0 && o.v1 < top - 0.02 && o.depth < T - 0.02 && o.u1 - o.u0 > 0.1 && o.v1 - o.v0 > 0.1);
     const local: CutSoups = { wall: new Soup(), frames: new Map(), dark: new Soup(), glass: new Soup() };
-    const us = cutLines(-A / 2, A / 2, ops.flatMap((o) => [o.u0, o.u1]));
-    const vs = cutLines(0, ph, ops.flatMap((o) => [o.v0, o.v1]).concat(split > 0.05 && split < ph - 0.05 ? [split] : []));
+    const us = cutLines(e0, e1, ops.flatMap((o) => [o.u0, o.u1]));
+    const vs = cutLines(0, top, ops.flatMap((o) => [o.v0, o.v1]).concat(lines.filter((v) => v > 0.05 && v < top - 0.05)));
     for (let i = 0; i + 1 < us.length; i++) {
       const ua = us[i] as number;
       const ub = us[i + 1] as number;
@@ -699,7 +537,20 @@ function cutWall(pw: number, ph: number, pd: number, cuts: readonly Opening[], s
     }
     for (const o of ops) cutOpening(o, A, ph, local);
     const m = faceMatrix(f, pw, pd);
-    out.wall.take(local.wall, m, (x, y, z) => (z > -1e-6 ? [x + A / 2, A / 2 - x, y, ph - y] : FAR));
+    out.wall.take(local.wall, m, (x, y, z) => (z > -1e-6 ? [x - e0, e1 - x, y, top - y] : FAR));
+    if (c > 0) {
+      // The bevel down this face's right-hand corner, the one along its top, and the facet where they meet.
+      const edge = new Soup();
+      for (let j = 0; j + 1 < vs.length; j++) {
+        const va = vs[j] as number;
+        const vb = vs[j + 1] as number;
+        edge.quad([e1, va, 0], [A / 2, va, -c], [A / 2, vb, -c], [e1, vb, 0], [1, 0, 1]);
+      }
+      for (let i = 0; i + 1 < us.length; i++) edge.quad([us[i] as number, top, 0], [us[i + 1] as number, top, 0], [us[i + 1] as number, ph, -c], [us[i] as number, ph, -c], [0, 1, 1]);
+      edge.tri([e1, top, 0], [A / 2, top, -c], [e1, ph, -c], [1, 1, 1]);
+      // A bevel is an edge all along: no distance to either side, its true height on the wall.
+      out.wall.take(edge, m, (_x, y) => [0, 0, y, Math.max(0, top - y)]);
+    }
     out.dark.take(local.dark, m);
     out.glass.take(local.glass, m);
     for (const [tone, s] of local.frames) {
@@ -714,8 +565,11 @@ function cutWall(pw: number, ph: number, pd: number, cuts: readonly Opening[], s
   const caps = new Soup();
   const x = pw / 2;
   const z = pd / 2;
-  caps.quad([-x, ph, -z], [x, ph, -z], [x, ph, z], [-x, ph, z], PY);
-  caps.quad([-x, 0, -z], [x, 0, -z], [x, 0, z], [-x, 0, z], NY);
+  caps.quad([-x + c, ph, -z + c], [x - c, ph, -z + c], [x - c, ph, z - c], [-x + c, ph, z - c], PY);
+  caps.quad([-x + c, 0, -z], [x - c, 0, -z], [x - c, 0, z], [-x + c, 0, z], NY);
+  if (c > 0) {
+    for (const sx of [-1, 1]) caps.quad([sx * (x - c), 0, -z + c], [sx * x, 0, -z + c], [sx * x, 0, z - c], [sx * (x - c), 0, z - c], NY);
+  }
   out.wall.take(caps, IDENTITY);
   return out;
 }
@@ -866,7 +720,7 @@ function depthOf(d: Dressed): Depth {
   return { hidden: new Set(d.hidden), cuts, roofs: new Map(d.roofs.map((r) => [r.part, r])) };
 }
 
-interface Finish { value: number; warm: number; turned: boolean; shade?: readonly number[] | number; keepUv?: boolean }
+interface Finish { value: number; warm: number; turned: boolean; shade?: ArrayLike<number> | number; keepUv?: boolean }
 type Finisher = (g: THREE.BufferGeometry, tone: ToneLook, f: Finish) => void;
 
 /** The last steps every piece of a building goes through: UVs in metres, vertex colour, placing, batching. */
@@ -887,55 +741,83 @@ function finisher(batch: GeoBatch, base: THREE.Matrix4, look: Look, uOff: number
   };
 }
 
+/** Glass in one of these shapes can be a window; in any other it is a piece of plain glass. */
+const WINDOW_SHAPES: ReadonlySet<PartShape> = new Set<PartShape>(['box', 'arch']);
+
 /**
  * Adds already-expanded parts. `fw`/`fd` are the footprint in metres; `hScale` scales y and h (props).
  * `vary` draws each part's small shift of value and warmth; the first part keeps the tone exactly.
  * With `depth`, hidden parts are skipped, walls with openings are built around them and sloping roofs
- * are laid as slabs. Returns the height of the tallest of the first `count` parts (the authored ones).
+ * are laid as slabs. Parts of a plant or a mineral take grown and weathered shapes (see part-geometry.ts),
+ * and every part is shaded where another overhangs it or carries it. Returns the height of the tallest
+ * of the first `count` parts (the authored ones).
  */
 function emit(
   parts: readonly BlueprintPart[], count: number, pal: Palette, batch: GeoBatch, base: THREE.Matrix4,
   fw: number, fd: number, hScale: number, look: Look, uOff: number, vary: Rng | null, depth: Depth | null = null,
 ): number {
   let top = 0;
-  const segments = look.quality === 0 ? 10 : 16;
   const finish = finisher(batch, base, look, uOff);
+  const sizes = parts.map((p) => ({
+    pw: clamp(p.w, 0.002, 1.4) * fw, pd: clamp(p.d, 0.002, 1.4) * fd, ph: clamp(p.h, 0.02, 30) * hScale,
+    py: clamp(p.y, 0, 30) * hScale, px: clamp(p.x, -0.7, 0.7) * fw, pz: clamp(p.z, -0.7, 0.7) * fd,
+  }));
+  // Every part as a box in this frame, for the shade one casts on another. A roof laid as a slab reaches past its part.
+  const solids: (Solid | null)[] = parts.map((p, i) => {
+    if (depth?.hidden.has(i)) return null;
+    const s = sizes[i] as (typeof sizes)[number];
+    const eave = depth?.roofs.get(i);
+    return solidOf(s.px, s.pz, s.py, s.pw, s.ph, s.pd, p.rot, p.tone !== 'glass' && p.tone !== 'glow', eave ? eave.out * 0.8 : 0);
+  });
+  const e = base.elements;
   parts.forEach((p, index) => {
-    const pw = clamp(p.w, 0.002, 1.4) * fw;
-    const pd = clamp(p.d, 0.002, 1.4) * fd;
-    const ph = clamp(p.h, 0.02, 30) * hScale;
-    const py = clamp(p.y, 0, 30) * hScale;
-    const px = clamp(p.x, -0.7, 0.7) * fw;
-    const pz = clamp(p.z, -0.7, 0.7) * fd;
+    const { pw, pd, ph, py, px, pz } = sizes[index] as (typeof sizes)[number];
     if (index < count) top = Math.max(top, py + ph);
     // A narrow, natural range: under five percent in value, a trace warmer or cooler.
     const value = vary && index > 0 ? 1 + (vary.next() - 0.5) * 0.09 : 1;
     const warm = vary && index > 0 ? (vary.next() - 0.5) * 0.035 : 0;
-    if (depth?.hidden.has(index)) return;
+    const own = solids[index];
+    if (!own) return;
     local.multiplyMatrices(tmpA.makeTranslation(px, py, pz), tmpB.makeRotationY(p.rot * DEG));
-    // Paint is only fresh, and light only a lamp, on something small.
+    // Paint is only fresh, and light only a lamp, on something small. Glass is a window only as a pane or
+    // an arch (or a drum wide enough to be a glazed room), and only while it is no bigger than a window.
     const face = Math.max(pw * ph, pd * ph, pw * pd);
-    const tone = p.tone === 'accent' && face <= SMALL_FACE ? pal.accentSmall : p.tone === 'glow' && face > LAMP_FACE ? pal.glowBig : p.tone === 'glass' && face > SHEET_FACE && !look.nature ? pal.glassBig : pal[p.tone] ?? pal.wall;
+    const pane = WINDOW_SHAPES.has(p.shape) || (p.shape === 'cylinder' && Math.min(pw, pd) >= 1.5);
+    const tone = p.tone === 'accent' && face <= SMALL_FACE ? pal.accentSmall : p.tone === 'glow' && face > LAMP_FACE ? pal.glowBig
+      : p.tone === 'glass' && (face > SHEET_FACE || !pane) && !look.nature ? pal.glassBig : pal[p.tone] ?? pal.wall;
+    const contact = contactsOf(solids, index);
     const thin = Math.min(pw, ph, pd);
+    const cuts = p.shape === 'box' ? depth?.cuts.get(index) : undefined;
+    // A wall that stands under an overhang gets a line where that shade runs out, so it stays up under the eaves.
+    const hood = contact ? contact.over.reduce((m, o) => (o.y0 > py + ph - 0.1 ? Math.max(m, o.reach) : m), 0) : 0;
+    const band = hood > 0 && ph > hood + 0.7 ? ph - hood : 0;
+    // Masonry that stands on the ground with nothing set into it leans in a little as it rises: a
+    // foundation, a pier, a buttress, a chimney stack.
+    const massive = tone === pal.base || (depth !== null && ph >= 1.2 * Math.max(pw, pd));
     const box: BoxDetail = {
       chamfer: look.quality === 2 && thin > 0.3 ? Math.min(0.035, thin * 0.1) : 0,
       split: tone.grime && ph > 2.4 && py < 1.2 ? 1.5 - py : 0,
+      band,
+      batter: tone.batter > 0 && !cuts && !look.nature && massive && py < 0.05 && ph >= 0.6 && thin >= 0.5 ? tone.batter * Math.min(0.05, ph * 0.012) : 0,
     };
     // Wood runs along the member: a post takes the grain up, a beam takes it along, whatever the texture's own lay.
     const across = Math.max(pw, pd);
     const long = ph > 2.5 * across ? 'v' : across > 2.5 * ph && Math.min(pw, pd) < 0.5 ? 'u' : null;
     const turn = tone.grain !== undefined && long !== null && tone.grain !== long;
-    const plain: Finish = { value, warm, turned: false };
     const put = (s: Soup, to: ToneLook, wearing = false): void => {
       if (s.count === 0) return;
       const g = s.geometry({ wearing });
       g.applyMatrix4(local);
-      finish(g, to, { value, warm, turned: false, shade: s.shade });
+      finish(g, to, { value, warm, turned: false, shade: contactShade(g, own, contact, s.shade) });
+    };
+    /** Moves a finished piece into the frame of the whole and hands it on with the shade its neighbours cast on it. */
+    const place = (g: THREE.BufferGeometry, to: ToneLook, turned: boolean, shade: ArrayLike<number> | number = 1): void => {
+      g.applyMatrix4(local);
+      finish(g, to, { value, warm, turned, shade: contactShade(g, own, contact, shade) });
     };
 
-    const cuts = depth?.cuts.get(index);
-    if (cuts && p.shape === 'box') {
-      const cut = cutWall(pw, ph, pd, cuts, box.split);
+    if (cuts) {
+      const cut = cutWall(pw, ph, pd, cuts, [box.split, band], box.chamfer);
       put(cut.wall, tone, true);
       put(cut.dark, pal.dark);
       for (const [frameTone, s] of cut.frames) put(s, pal[frameTone]);
@@ -946,6 +828,8 @@ function emit(
       }
       return;
     }
+    // A round shape is as many-sided as its girth asks: a long thin frond is a small thing, whatever its length.
+    const segments = roundSegments(Math.sqrt(pw * pd), look.quality);
     const shell = depth?.roofs.get(index);
     if (shell && p.tone === 'roof' && (p.shape === 'gable' || p.shape === 'wedge')) {
       // The part keeps its upright ends as wall and its base as a soffit; its slopes become slabs.
@@ -954,7 +838,7 @@ function emit(
         g.applyMatrix4(local);
         const { slopes, upright, under } = splitUpright(g);
         slopes.dispose();
-        finish(upright, pal.wall, plain);
+        finish(upright, pal.wall, { value, warm, turned: false });
         finish(under, pal[shell.soffit], { value, warm, turned: false, shade: 0.8 });
       }
       const slab = roofShell(p.shape, pw, ph, pd, shell);
@@ -963,16 +847,24 @@ function emit(
       put(slab.cap, pal[shell.capTone]);
       return;
     }
+    const growth = look.nature ? growthOf(look.nature, p.shape, p.tone, pw, ph, pd) : null;
+    if (growth) {
+      // Only wood spreads into roots where it leaves the ground; a green stalk rises straight out of it.
+      const rooted = py < 0.02 * hScale && (growth !== 'stem' || p.tone === 'wall' || p.tone === 'wall2' || p.tone === 'dark');
+      const grown = organicGeometry(growth, p.shape, pw, ph, pd, partSeed(look.seed, e[12] as number, e[14] as number, index), look.quality, rooted);
+      place(grown.geometry, tone, turn, grown.shade);
+      return;
+    }
     for (const raw of shapeGeometries(p.shape, pw, ph, pd, segments, box)) {
       const g = unindexed(raw, SMOOTH.has(p.shape) || (p.shape === 'arch' && raw.getAttribute('normal') !== undefined));
-      g.applyMatrix4(local);
       if (p.tone === 'roof' && (p.shape === 'gable' || p.shape === 'wedge')) {
+        g.applyMatrix4(local);
         const { slopes, upright, under } = splitUpright(g);
-        finish(slopes, tone, plain);
-        finish(under, tone, plain);
-        finish(upright, pal.wall, plain);
+        finish(slopes, tone, { value, warm, turned: false });
+        finish(under, tone, { value, warm, turned: false });
+        finish(upright, pal.wall, { value, warm, turned: false });
       } else {
-        finish(g, tone, { value, warm, turned: turn });
+        place(g, tone, turn);
       }
     }
   });

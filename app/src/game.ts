@@ -26,6 +26,7 @@ import { createFigure, disposeBodyCache } from './engine/bodies';
 import { loadHumans, createHuman } from './engine/humans';
 import { createCreatures } from './engine/creatures';
 import { createSkyFeatures } from './engine/skyfeatures';
+import { AIR } from './engine/post';
 import { hash32 } from './world/rng';
 import { buildNav, type NavWorld, type NavAgent } from './engine/nav';
 import { createPlayer, type Player } from './engine/player';
@@ -256,7 +257,7 @@ export class Game {
       // Start the heavy loads now so the town appears the moment the spec lands.
       const kitPromise = this.ensureKit(theme);
       const charPromise = loadHumans().then(() => undefined);
-      ui.showCompiling('Thinking about your town…');
+      ui.startBuild(prompt);
 
       // The town is shown as soon as its look arrives; the cast and quest follow a few seconds later.
       let outline: unknown = null;
@@ -264,14 +265,15 @@ export class Game {
       const result = await api.compile(prompt, seed, (partial) => { if (!this.town) ui.showCompiling('Writing the world…', partial); }, ctl.signal, {
         onOutline: (o) => {
           outline = o;
-          ui.showCompiling('Designing the buildings…');
+          ui.buildStage('outline', o);
         },
         onLook: (look) => {
+          ui.buildStage('look');
           const early = lookSpec(outline, look, prompt, seed);
           if (!early || ctl.signal.aborted) return;
           preview = Promise.all([kitPromise, charPromise])
             .then(() => (ctl.signal.aborted ? undefined : this.playSpec(early)))
-            .then(() => { if (!ctl.signal.aborted) ui.toast('Walk around. The people and their story are still arriving.'); })
+            .then(() => { if (!ctl.signal.aborted) ui.setStoryPending(true); })
             .catch((err: unknown) => console.warn('preview failed:', err instanceof Error ? err.message : String(err)));
         },
       });
@@ -279,7 +281,7 @@ export class Game {
       if (preview) await preview;
       let spec: WorldSpec;
       if (!result.ok) {
-        ui.toast(`${friendlyError(result.error)}. Showing a saved world instead.`, 'warn');
+        ui.showFallback(friendlyError(result.error), () => void this.buildFromPrompt(prompt));
         spec = { ...FIXTURES[theme], prompt, seed };
       } else {
         const coerced = coerceSpec(result.spec);
@@ -287,14 +289,14 @@ export class Game {
         if (!v.ok) {
           console.warn('invalid world:', explainInvalid(coerced));
           if (this.town) return; // keep the preview town rather than swapping to an unrelated one
-          ui.toast('The world came back malformed; showing a saved world instead.', 'warn');
+          ui.showFallback('The world came back malformed', () => void this.buildFromPrompt(prompt));
           spec = { ...FIXTURES[theme], prompt, seed };
         } else {
           spec = v.value;
         }
       }
       spec = normalizeSpec({ ...spec, prompt, seed });
-      if (!this.town) ui.showCompiling('Laying out streets…');
+      if (!this.town) ui.buildStage('land');
       await Promise.all([kitPromise, charPromise]);
       if (ctl.signal.aborted) return;
       await this.playSpec(spec);
@@ -302,7 +304,10 @@ export class Game {
       if (ctl.signal.aborted) return;
       this.failBuild(err);
     } finally {
-      if (this.compiling === ctl) this.compiling = null;
+      if (this.compiling === ctl) {
+        this.compiling = null;
+        ui.setStoryPending(false);
+      }
     }
   }
 
@@ -382,6 +387,8 @@ export class Game {
       const skyFeatures = (spec.skyFeatures?.length ?? 0) > 0
         ? createSkyFeatures(viewport.scene, spec.skyFeatures, { sunDir: () => skyRig.sunDirection?.() ?? fallbackSun, daylight: () => skyRig.daylight?.() ?? 1, seed: spec.seed })
         : null;
+      // A world with no sky features still gets its own cloud forms.
+      if (!skyFeatures) { AIR.skySeed = spec.seed; AIR.skyRev++; }
       this.town = {
         spec, state, layout, objects, nav, player, npcs, rng, life, lightRemovers, creatures, skyFeatures,
         elapsed: 0, nextTickAt: 2, tickInFlight: false, dialogue: null, dialogueNpc: null, handle: null, verified,

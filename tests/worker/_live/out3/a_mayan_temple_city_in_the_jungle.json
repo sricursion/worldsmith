@@ -1,0 +1,3024 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a Mayan temple city in the jungle",
+ "title": "City of the Jaguar Sun",
+ "tagline": "Stone stairs climb above the endless canopy",
+ "theme": "medieval",
+ "era": "Late Classic Maya",
+ "palette": {
+  "ground": "#3f4a30",
+  "accent": "#8a4a32",
+  "sky": "dawn",
+  "fog": 0.5
+ },
+ "time": {
+  "startHour": 6.5,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "grand_pyramid",
+   "role": "church",
+   "label": "Temple of the Jaguar Sun",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "jaguar_pyramid"
+  },
+  {
+   "id": "sky_temple",
+   "role": "church",
+   "label": "Temple of Sky",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "sky_comb_temple"
+  },
+  {
+   "id": "ball_court",
+   "role": "plaza",
+   "label": "Ball Court",
+   "size": "medium",
+   "blueprint": "ball_court_sunk"
+  },
+  {
+   "id": "stela_plaza",
+   "role": "plaza",
+   "label": "Plaza of Stelae",
+   "size": "medium",
+   "blueprint": "stela_row"
+  },
+  {
+   "id": "palace",
+   "role": "townhall",
+   "label": "Palace of Lords",
+   "size": "medium",
+   "blueprint": "vaulted_palace"
+  },
+  {
+   "id": "caretaker_camp",
+   "role": "house",
+   "label": "Caretaker Camp",
+   "size": "small",
+   "keyBuilding": true,
+   "blueprint": "caretaker_hut"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "itzel",
+   "name": "Itzel",
+   "role": "site guide",
+   "persona": "Brisk and dry, she has walked these terraces since childhood and has no patience for tourists or tomb robbers. She wants the dawn ritual back before the roots take the stair for good.",
+   "knowledge": [
+    "The glyph stair at the Temple of the Jaguar Sun went silent after the last rains split its lower steps.",
+    "Xoc reads the stelae at dawn, but he has not climbed the stair in a year.",
+    "The jaguar hunts the ball court edge at first light; keep to the sacbe road."
+   ],
+   "secrets": [
+    "She once sold a carved flint from the palace to a trader for cacao beans and has regretted it since."
+   ],
+   "home": "caretaker_camp",
+   "work": "stela_plaza",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "caretaker_camp",
+     "activity": "eat"
+    },
+    {
+     "hour": 7,
+     "place": "stela_plaza",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "street",
+     "activity": "wander"
+    },
+    {
+     "hour": 20,
+     "place": "caretaker_camp",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "xoc",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.4,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.3
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 1.1
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "balam",
+   "name": "Balam",
+   "role": "stone cleaner",
+   "persona": "Slow-spoken and stubborn, he scrapes moss and root from the pyramid steps with a bone chisel. He trusts stone more than people and answers questions with one word when he can.",
+   "knowledge": [
+    "Roots have buried the lowest glyph block of the stair; it must be dug free to be read.",
+    "A chultun behind the Temple of the Jaguar Sun holds a cleaning adze and a coil of rope.",
+    "The pyramid faces the dawn; the ritual was timed to the first light on the stair."
+   ],
+   "secrets": [
+    "He pried a glyph block loose last season to clean behind it and could not set it back; he hid it under the sky temple stair."
+   ],
+   "home": "caretaker_camp",
+   "work": "grand_pyramid",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "caretaker_camp",
+     "activity": "eat"
+    },
+    {
+     "hour": 6,
+     "place": "grand_pyramid",
+     "activity": "work"
+    },
+    {
+     "hour": 14,
+     "place": "caretaker_camp",
+     "activity": "rest"
+    },
+    {
+     "hour": 19,
+     "place": "caretaker_camp",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "itzel",
+     "stance": "neutral"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.2,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.6
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.8
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "xoc",
+   "name": "Xoc",
+   "role": "glyph reader",
+   "persona": "A thin, anxious scholar who counts the tzolkin days on his fingers and speaks in long, fretful sentences. He fears the silence of the stair means a calendar has been lost, and he blames himself.",
+   "knowledge": [
+    "The stair text names the ahau who dedicated it and gives the date the dawn ritual must be sung.",
+    "Kukulkan is invoked in the final line; without that block the sequence cannot be completed aloud.",
+    "The Plaza of Stelae records the same dedication in a shorter form, but its lowest stela is worn smooth."
+   ],
+   "secrets": [
+    "He misread the date on the stair two years ago and told the caretakers the wrong day for the ritual."
+   ],
+   "home": "palace",
+   "work": "stela_plaza",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "palace",
+     "activity": "rest"
+    },
+    {
+     "hour": 6,
+     "place": "stela_plaza",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "palace",
+     "activity": "eat"
+    },
+    {
+     "hour": 21,
+     "place": "palace",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "itzel",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.1,
+    "rate": 1.2
+   },
+   "mood": "afraid"
+  }
+ ],
+ "items": [
+  {
+   "id": "cleaning_adze",
+   "name": "Bone Adze",
+   "description": "A short adze of deer bone and chert, worn smooth by years of root-cutting.",
+   "holder": "grand_pyramid"
+  },
+  {
+   "id": "glyph_block",
+   "name": "Loose Glyph Block",
+   "description": "A palm-thick limestone block carved with the final glyphs of the stair, caked in clay.",
+   "holder": "sky_temple"
+  },
+  {
+   "id": "macaw_feather",
+   "name": "Scarlet Macaw Feather",
+   "description": "A long red tail feather dropped by the flock; ritual dress needs it.",
+   "holder": "ball_court"
+  }
+ ],
+ "quest": {
+  "id": "quiet_stair",
+  "title": "The Quiet Stair",
+  "hook": "Mist sits on the Temple of the Jaguar Sun and the glyph stair no longer speaks. The dawn ritual has not been sung in a season, and the caretakers say roots have buried what must be read. They will take help from a stranger with steady hands.",
+  "giver": "itzel",
+  "steps": [
+   {
+    "id": "s1_talk",
+    "kind": "talk",
+    "target": "itzel",
+    "requires": [],
+    "objective": "Hear Itzel out at the Plaza of Stelae.",
+    "beat": "Itzel says the stair fell quiet after the rains and sends you to Balam, who knows the stone."
+   },
+   {
+    "id": "s2_adze",
+    "kind": "fetch",
+    "target": "cleaning_adze",
+    "requires": [
+     "s1_talk"
+    ],
+    "objective": "Take the bone adze from the Temple of the Jaguar Sun.",
+    "beat": "Balam grunts at the adze and says roots grip the lowest step; dig there and keep clear of the jaguar's trail.",
+    "item": "cleaning_adze",
+    "reveals": [
+     "balam:0"
+    ]
+   },
+   {
+    "id": "s3_block",
+    "kind": "fetch",
+    "target": "glyph_block",
+    "requires": [
+     "s2_adze"
+    ],
+    "objective": "Recover the hidden glyph block under the Temple of Sky.",
+    "beat": "Under the sky temple stair, wedged in a crack, lies the missing block. Macaws scream overhead as you pry it free.",
+    "item": "glyph_block"
+   },
+   {
+    "id": "s4_visit",
+    "kind": "visit",
+    "target": "ball_court",
+    "requires": [
+     "s3_block"
+    ],
+    "objective": "Cross the Ball Court to find a macaw feather the flock dropped.",
+    "beat": "The macaws have left red feathers along the sloped walls. The jaguar's tracks are fresh in the mud."
+   },
+   {
+    "id": "s5_xoc",
+    "kind": "talk",
+    "target": "xoc",
+    "requires": [
+     "s3_block"
+    ],
+    "objective": "Show the block to Xoc in the Palace of Lords.",
+    "beat": "Xoc reads it with shaking hands and admits he gave the wrong ritual date. He asks whether the stair should be restored or the error buried.",
+    "reveals": [
+     "xoc:0"
+    ]
+   },
+   {
+    "id": "s6_choose",
+    "kind": "choose",
+    "target": "xoc",
+    "requires": [
+     "s5_xoc",
+     "s4_visit"
+    ],
+    "objective": "Decide how the dawn ritual will be restored.",
+    "beat": "Set the block in the stair and sing the true date, or leave Xoc's mistake unspoken and keep the old sequence.",
+    "choices": [
+     {
+      "label": "Restore the true date and name Xoc's error",
+      "unlocks": [
+       "s7_true"
+      ]
+     },
+     {
+      "label": "Keep the old sequence and say nothing",
+      "unlocks": [
+       "s7_quiet"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s7_true",
+    "kind": "deliver",
+    "target": "balam",
+    "requires": [
+     "s6_choose"
+    ],
+    "objective": "Deliver the glyph block to Balam to set in the stair.",
+    "beat": "Balam seats the block and the stair reads whole again. At dawn Itzel sings the true date, and Xoc bows his head.",
+    "item": "glyph_block"
+   },
+   {
+    "id": "s7_quiet",
+    "kind": "confront",
+    "target": "itzel",
+    "requires": [
+     "s6_choose"
+    ],
+    "objective": "Tell Itzel the stair stays as it is.",
+    "beat": "Itzel studies you and says nothing. The ritual is sung to the old date and the stair holds its silence."
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s7_true",
+    "label": "The stair is whole and the true date is sung at dawn.",
+    "tone": "good"
+   },
+   {
+    "stepId": "s7_quiet",
+    "label": "The old date stands and the stair keeps its error.",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r_no_climb",
+   "text": "Nobody climbs the Temple of the Jaguar Sun after the evening hour.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 19,
+    "toHour": 5,
+    "exemptRoles": [
+     "stone cleaner"
+    ]
+   },
+   "source": "world"
+  },
+  {
+   "id": "r_no_fire",
+   "text": "No open fire near the stelae; moss and carved stone must stay dry and unburned.",
+   "effect": {
+    "type": "ban",
+    "what": "open fire",
+    "where": "stela_plaza",
+    "enforcer": "itzel"
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "ahau",
+  "cacao beans",
+  "tzolkin",
+  "sacbe road",
+  "chultun",
+  "Kukulkan"
+ ],
+ "style": {
+  "name": "Misted Limestone Jungle",
+  "wall": "#a9a592",
+  "wall2": "#8a8775",
+  "roof": "#5f5c50",
+  "trim": "#b8b4a0",
+  "accent": "#8a4a32",
+  "dark": "#2a2c26",
+  "glass": "#2f3a38",
+  "glow": "#ffb86a",
+  "ground": "#3f4a30",
+  "road": "#6b5d46",
+  "variety": 0.2,
+  "surfaces": {
+   "wall": "stone",
+   "wall2": "moss",
+   "roof": "stone",
+   "trim": "stone",
+   "ground": "moss",
+   "road": "dirt",
+   "wear": 0.75,
+   "wet": 0.3
+  },
+  "foliage": "#325a2d",
+  "bark": "#5a4a3a"
+ },
+ "site": {
+  "pattern": "ring",
+  "wild": 0.8,
+  "paths": "track",
+  "spacing": 12
+ },
+ "mood": {
+  "weather": "mist",
+  "intensity": 0.5,
+  "grade": "verdant",
+  "haze": 0.7,
+  "ambience": [
+   "birds",
+   "leaves",
+   "frogs",
+   "wind"
+  ],
+  "music": "low wooden flute"
+ },
+ "terrain": {
+  "relief": "rolling",
+  "ruggedness": 0.35,
+  "water": "pond",
+  "waterAmount": 0.08,
+  "horizon": "unbroken jungle canopy in mist",
+  "settled": 0.3
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "howlers",
+   "name": "howler monkeys",
+   "family": "biped",
+   "dials": {
+    "posture": 0.7,
+    "limbs": 0.6
+   },
+   "size": 0.8,
+   "count": 5,
+   "behaviour": "roam",
+   "haunt": "wild",
+   "body": "#3a2a20",
+   "accent": "#5a4030",
+   "glow": "#000000",
+   "note": "Their roars shake the dawn canopy."
+  },
+  {
+   "id": "macaws",
+   "name": "scarlet macaws",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.7,
+    "tail": 0.9
+   },
+   "size": 0.8,
+   "count": 8,
+   "behaviour": "flock",
+   "haunt": "sky",
+   "body": "#c0463a",
+   "accent": "#3573b0",
+   "glow": "#000000",
+   "note": "Red flashes between the temple roof combs."
+  },
+  {
+   "id": "jaguar",
+   "name": "jaguar",
+   "family": "quadruped",
+   "dials": {
+    "bulk": 0.7,
+    "legs": 0.3,
+    "pattern": "spots"
+   },
+   "size": 1.6,
+   "count": 1,
+   "behaviour": "stalk",
+   "haunt": "wild",
+   "body": "#c8963c",
+   "accent": "#2a2018",
+   "glow": "#000000",
+   "note": "Watching from the ruined stairs, unhurried."
+  },
+  {
+   "id": "tapir",
+   "name": "Baird's tapir",
+   "family": "quadruped",
+   "dials": {
+    "snout": 0.8,
+    "bulk": 0.7
+   },
+   "size": 2,
+   "count": 2,
+   "behaviour": "graze",
+   "haunt": "wild",
+   "body": "#5a4a40",
+   "accent": "#8a7a68",
+   "glow": "#000000",
+   "note": "Snuffles at the edge of the pond."
+  }
+ ],
+ "folk": {
+  "name": "Maya caretakers",
+  "height": 1.58,
+  "bulk": 0.4,
+  "head": 1,
+  "features": [
+   "hat",
+   "pack"
+  ],
+  "skin": [
+   "#a4693f",
+   "#8c5a35"
+  ],
+  "cloth": [
+   "#e8dcc0",
+   "#b0533e",
+   "#3f6b5a"
+  ],
+  "trim": [
+   "#d4ab40",
+   "#2d6e6a"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "jaguar_pyramid",
+   "summary": "vine-draped limestone stepped pyramid, 38 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8640000000000001,
+     "d": 0.7344,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.4,
+     "w": 0.8,
+     "d": 0.68,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 3.1999999999999997,
+     "w": 0.9,
+     "d": 0.765,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3.8,
+     "w": 0.6400000000000001,
+     "d": 0.544,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 6.6,
+     "w": 0.7200000000000002,
+     "d": 0.6120000000000001,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 7.199999999999999,
+     "w": 0.5120000000000001,
+     "d": 0.4352000000000001,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 10,
+     "w": 0.5760000000000002,
+     "d": 0.48960000000000015,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 10.6,
+     "w": 0.40960000000000013,
+     "d": 0.3481600000000001,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 13.399999999999999,
+     "w": 0.46080000000000015,
+     "d": 0.39168000000000014,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 14,
+     "w": 0.3276800000000001,
+     "d": 0.27852800000000005,
+     "h": 2.8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 16.8,
+     "w": 0.3686400000000001,
+     "d": 0.31334400000000007,
+     "h": 1.3,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 17.4,
+     "w": 0.2621440000000001,
+     "d": 0.2228224000000001,
+     "h": 0.8153640295162354,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.45,
+     "z": 0.33616494918465617,
+     "y": 0,
+     "w": 0.10586784984916449,
+     "d": 0.06775473238667473,
+     "h": 0.4806999768142123,
+     "rot": 68.45587003743276,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.45,
+     "z": -0.32079848459511995,
+     "y": 0,
+     "w": 0.054994812700897455,
+     "d": 0.05410968026844785,
+     "h": 0.5715089517412707,
+     "rot": 57.36674937419593,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.34,
+     "h": 5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.08,
+     "y": 30,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 7,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.2,
+     "y": 30,
+     "w": 0.07,
+     "d": 0.04,
+     "h": 3.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.14,
+     "h": 30,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 16,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "sky_comb_temple",
+   "summary": "narrow limestone temple pyramid, 28 m, roof comb",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 1,
+     "d": 0.43,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.17500000000000002,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.05,
+     "d": 0.33599999999999997,
+     "h": 1.75,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.125,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.05,
+     "d": 0.33599999999999997,
+     "h": 3.5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.07500000000000001,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.05,
+     "d": 0.33599999999999997,
+     "h": 5.25,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.024999999999999994,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.05,
+     "d": 0.33599999999999997,
+     "h": 7,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.024999999999999994,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.05,
+     "d": 0.33599999999999997,
+     "h": 8.75,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.07500000000000001,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.05,
+     "d": 0.33599999999999997,
+     "h": 10.5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.125,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.05,
+     "d": 0.33599999999999997,
+     "h": 12.25,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.175,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.05,
+     "d": 0.33599999999999997,
+     "h": 12.776802222429684,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.35,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.3,
+     "d": 0.33599999999999997,
+     "h": 11.956439399107174,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.45,
+     "z": -0.05555365018546582,
+     "y": 0,
+     "w": 0.09464162055402994,
+     "d": 0.08523832918144764,
+     "h": 0.27745150836766697,
+     "rot": 32.470098892226815,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.44352537067607045,
+     "z": 0.265,
+     "y": 0,
+     "w": 0.09171583211049439,
+     "d": 0.06479247676907107,
+     "h": 0.5139998745219783,
+     "rot": 61.72573890304193,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.45,
+     "z": 0.16627821910893545,
+     "y": 0,
+     "w": 0.1060984835959971,
+     "d": 0.07852916942210869,
+     "h": 0.5594195393670817,
+     "rot": 66.09987186966464,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.05,
+     "y": 0,
+     "w": 0.95,
+     "d": 0.9,
+     "h": 8,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.05,
+     "y": 8,
+     "w": 0.7,
+     "d": 0.7,
+     "h": 7,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.05,
+     "y": 15,
+     "w": 0.5,
+     "d": 0.55,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.08,
+     "y": 21,
+     "w": 0.34,
+     "d": 0.4,
+     "h": 4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.1,
+     "y": 25,
+     "w": 0.3,
+     "d": 0.1,
+     "h": 5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "ball_court_sunk",
+   "summary": "sunken court between sloped walls, 8 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.96,
+     "d": 0.96,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.07,
+     "d": 0.76,
+     "h": 1.25,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 2,
+     "gap": 0.69
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.345,
+     "y": 0.31,
+     "w": 0.62,
+     "d": 0.07,
+     "h": 1.25,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.345,
+     "y": 0.31,
+     "w": 0.2,
+     "d": 0.07,
+     "h": 1.25,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 2,
+     "gap": 0.42000000000000004
+    },
+    {
+     "shape": "box",
+     "x": -0.41500000000000004,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.07,
+     "d": 0.9,
+     "h": 1.7544073009994463,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.41500000000000004,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.07,
+     "d": 0.9,
+     "h": 1.571835702928831,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.315,
+     "z": -0.41500000000000004,
+     "y": 0.31,
+     "w": 0.13,
+     "d": 0.07,
+     "h": 1.7544073009994463,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.125,
+     "z": -0.41500000000000004,
+     "y": 0.31,
+     "w": 0.25,
+     "d": 0.07,
+     "h": 1.6223677575174371,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.125,
+     "z": -0.41500000000000004,
+     "y": 0.31,
+     "w": 0.25,
+     "d": 0.07,
+     "h": 1.335547510088014,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.315,
+     "z": -0.41500000000000004,
+     "y": 0.31,
+     "w": 0.13,
+     "d": 0.07,
+     "h": 1.571835702928831,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.245,
+     "z": 0.41500000000000004,
+     "y": 0.31,
+     "w": 0.27,
+     "d": 0.07,
+     "h": 1.6223677575174371,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.245,
+     "z": 0.41500000000000004,
+     "y": 0.31,
+     "w": 0.27,
+     "d": 0.07,
+     "h": 1.335547510088014,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.31,
+     "w": 0.62,
+     "d": 0.62,
+     "h": 0.12,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.24240695513784882,
+     "z": 0.4,
+     "y": 0,
+     "w": 0.1252261950261891,
+     "d": 0.07997843039920555,
+     "h": 0.6869021615595556,
+     "rot": 71.84178322087973,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.45,
+     "z": 0.4,
+     "y": 0,
+     "w": 0.1275948340818286,
+     "d": 0.056146446708589794,
+     "h": 0.39815339595079424,
+     "rot": 64.14494762197137,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.45,
+     "z": -0.31798910133540625,
+     "y": 0,
+     "w": 0.07261582251638174,
+     "d": 0.085030859161634,
+     "h": 0.7823235371848569,
+     "rot": 74.26326781511307,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.38,
+     "z": 0,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.9,
+     "h": 6,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.38,
+     "z": 0,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.9,
+     "h": 6,
+     "rot": 180,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.38,
+     "z": 0,
+     "y": 5,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.15,
+     "d": 0.9,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "stela_row",
+   "summary": "mossy carved stelae in a ring, 4 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 1,
+     "d": 1,
+     "h": 0.31,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.1607270415933377,
+     "z": 0.3880294036547404,
+     "y": 0.31,
+     "w": 0.11900000000000001,
+     "d": 0.049,
+     "h": 3.6556616860693083,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.1607270415933377,
+     "z": 0.3880294036547404,
+     "y": 0.31,
+     "w": 0.11900000000000001,
+     "d": 0.049,
+     "h": 3.2140895180200455,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3880294036547404,
+     "z": 0.16072704159333773,
+     "y": 0.31,
+     "w": 0.11900000000000001,
+     "d": 0.049,
+     "h": 3.277530945560825,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3880294036547404,
+     "z": 0.16072704159333773,
+     "y": 0.31,
+     "w": 0.11900000000000001,
+     "d": 0.049,
+     "h": 3.551246456502913,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3880294036547404,
+     "z": -0.16072704159333767,
+     "y": 0.31,
+     "w": 0.11900000000000001,
+     "d": 0.049,
+     "h": 3.277530945560825,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3880294036547404,
+     "z": -0.16072704159333767,
+     "y": 0.31,
+     "w": 0.11900000000000001,
+     "d": 0.049,
+     "h": 3.551246456502913,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.16072704159333775,
+     "z": -0.3880294036547404,
+     "y": 0.31,
+     "w": 0.11900000000000001,
+     "d": 0.049,
+     "h": 3.6556616860693083,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.16072704159333775,
+     "z": -0.3880294036547404,
+     "y": 0.31,
+     "w": 0.11900000000000001,
+     "d": 0.049,
+     "h": 3.2140895180200455,
+     "rot": -0.26169302174821496,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.16418910283595323,
+     "z": 0.1502167999637313,
+     "y": 0.31,
+     "w": 0.1428,
+     "d": 0.1428,
+     "h": 0.26160766570828853,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.06693059372715654,
+     "z": -0.24076399431307802,
+     "y": 0.31,
+     "w": 0.1428,
+     "d": 0.1428,
+     "h": 0.3578676943201572,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.45,
+     "z": 0.025878938380628824,
+     "y": 0,
+     "w": 0.10286316633224488,
+     "d": 0.05278943566372618,
+     "h": 0.45989126128144564,
+     "rot": 0.7338239718228579,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.45,
+     "z": -0.12353367963805795,
+     "y": 0,
+     "w": 0.0634784653969109,
+     "d": 0.07831072045955807,
+     "h": 0.4118955273379106,
+     "rot": 34.18413419974968,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0.3,
+     "w": 0.12,
+     "d": 0.05,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 1.2,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "vaulted_palace",
+   "summary": "long limestone palace, corbel vaults, 7 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 0.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 4,
+     "gap": 0.17
+    },
+    {
+     "shape": "box",
+     "x": -0.317,
+     "z": 0,
+     "y": 3,
+     "w": 0.134,
+     "d": 0.6336,
+     "h": 2.661326388764545,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.125,
+     "z": 0,
+     "y": 3,
+     "w": 0.25,
+     "d": 0.6336,
+     "h": 1.53759969864646,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.125,
+     "z": 0,
+     "y": 3,
+     "w": 0.25,
+     "d": 0.6336,
+     "h": 2.6367477608589684,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.317,
+     "z": 0,
+     "y": 3,
+     "w": 0.134,
+     "d": 0.6336,
+     "h": 2.519838132919162,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.48,
+     "y": 2.7,
+     "w": 0.84,
+     "d": 0.3,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.035,
+     "d": 0.035,
+     "h": 2.75,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 4,
+     "gap": 0.22
+    },
+    {
+     "shape": "box",
+     "x": -0.45,
+     "z": -0.30694670846858063,
+     "y": 0,
+     "w": 0.06150778887793422,
+     "d": 0.05751797307748348,
+     "h": 0.603406157353893,
+     "rot": 64.0618522837758,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.45,
+     "z": -0.061484307331568566,
+     "y": 0,
+     "w": 0.10036687517538667,
+     "d": 0.06828561349539086,
+     "h": 0.4958970497176052,
+     "rot": 76.67057496495545,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 1,
+     "d": 0.9,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.46,
+     "y": 2.9000000000000004,
+     "w": 1,
+     "d": 0.08,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.04,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 5,
+     "gap": 0.18
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 5.661326388764545,
+     "w": 0.95,
+     "d": 0.85,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.5,
+     "z": 0,
+     "y": 2.2,
+     "w": 0.1,
+     "d": 0.8,
+     "h": 2,
+     "rot": 90,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  },
+  {
+   "id": "caretaker_hut",
+   "summary": "palm-thatched caretaker hut and cookfire, 3.5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.66,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.335,
+     "y": 0.9,
+     "w": 0.07,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 2,
+     "gap": 0.34
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 2.75,
+     "w": 0.8320000000000001,
+     "d": 0.6864,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "pyramid",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 1.1,
+     "d": 0.96,
+     "h": 1.9,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.47000000000000003,
+     "y": 2.6,
+     "w": 0.5,
+     "d": 0.28,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.035,
+     "d": 0.035,
+     "h": 2.65,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.42
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.5,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.5,
+     "z": 0.5,
+     "y": 0.4,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.5,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.4,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.2,
+     "z": 0.5,
+     "y": 1.8,
+     "w": 0.3,
+     "d": 0.03,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0
+  }
+ ],
+ "props": [
+  {
+   "kind": "ceiba_emergent",
+   "size": 13,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": -0.004681798870509966,
+     "z": -0.001755209200093143,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.8018666666666667,
+     "rot": -90,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.0013712671410208502,
+     "z": -0.0005140888723062659,
+     "y": 0.8018666666666667,
+     "w": 0.24,
+     "d": 0.24,
+     "h": 0.8018666666666667,
+     "rot": -90,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.004681798870509966,
+     "z": 0.001755209200093143,
+     "y": 1.6037333333333335,
+     "w": 0.18,
+     "d": 0.18,
+     "h": 0.8018666666666667,
+     "rot": -90,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.004681798870509966,
+     "z": 0.001755209200093143,
+     "y": 2.384,
+     "w": 1.035,
+     "d": 0.9315,
+     "h": 0.216,
+     "rot": -18.525992813520133,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.1901948754585041,
+     "z": -0.11716628567279799,
+     "y": 1.5347254651066846,
+     "w": 0.6717038999777287,
+     "d": 0.6045335099799559,
+     "h": 0.14777485799510032,
+     "rot": 44.01014626957476,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.06271190607470578,
+     "z": 0.2778596422617152,
+     "y": 2.042379685718544,
+     "w": 0.6120282885502093,
+     "d": 0.5508254596951884,
+     "h": 0.13464622348104605,
+     "rot": 17.413056786172092,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.19226888348432708,
+     "z": 0.12222199856323343,
+     "y": 1.7440134649142176,
+     "w": 0.566347803384997,
+     "d": 0.5097130230464973,
+     "h": 0.12459651674469935,
+     "rot": -37.73773573804647,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.08893086790529692,
+     "z": -0.21091531383870463,
+     "y": 1.5474125155011456,
+     "w": 0.535441351326881,
+     "d": 0.4818972161941929,
+     "h": 0.11779709729191382,
+     "rot": 13.895970359444618,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.004681798870509966,
+     "z": -0.001755209200093143,
+     "y": 0,
+     "w": 0.51,
+     "d": 0.51,
+     "h": 0.39,
+     "rot": -90,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.06488766861626863,
+     "z": -0.29718280332184793,
+     "y": 0,
+     "w": 0.452999867729377,
+     "d": 0.084,
+     "h": 0.6240000000000001,
+     "rot": -78.48129479214549,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.048456056699983215,
+     "z": 0.2589899456207281,
+     "y": 0,
+     "w": 0.382209235008806,
+     "d": 0.084,
+     "h": 0.6240000000000001,
+     "rot": 101.51870520785451,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.2541317336786254,
+     "z": -0.05449941501950992,
+     "y": 0,
+     "w": 0.3782665837551467,
+     "d": 0.084,
+     "h": 0.6240000000000001,
+     "rot": -168.4812947921455,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.2547567031808973,
+     "z": 0.04920813144637744,
+     "y": 0,
+     "w": 0.3604300925913267,
+     "d": 0.084,
+     "h": 0.6240000000000001,
+     "rot": 11.51870520785451,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.004681798870509966,
+     "z": 0.001755209200093143,
+     "y": 1.3569999737412515,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 1.0529200262587486,
+     "rot": 42.94775093905628,
+     "tone": "accent",
+     "repeat": 5,
+     "gap": 0.1656
+    },
+    {
+     "shape": "wedge",
+     "x": 0.060709306911714334,
+     "z": 0.26916046316377706,
+     "y": 1.422824,
+     "w": 0.16068074870668353,
+     "d": 0.108,
+     "h": 0.6195556857185439,
+     "rot": -77.03605146311236,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.1901948754585041,
+     "z": -0.11716628567279799,
+     "y": 0.7834554260162475,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 0.769003022049849,
+     "rot": -68.0616249376908,
+     "tone": "accent",
+     "repeat": 5,
+     "gap": 0.1074726239964366
+    },
+    {
+     "shape": "wedge",
+     "x": -0.18630333297359877,
+     "z": 0.11838649583087282,
+     "y": 1.244048,
+     "w": 0.1276590584735095,
+     "d": 0.108,
+     "h": 0.49996546491421756,
+     "rot": -147.26133529059484,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.0861946303814133,
+     "z": -0.20434027555850467,
+     "y": 1.0652720000000002,
+     "w": 0.12818998491347885,
+     "d": 0.108,
+     "h": 0.48214051550114534,
+     "rot": 112.59489914191329,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.18420843350226895,
+     "z": -0.11352090452278261,
+     "y": 1.1336,
+     "w": 0.12616226968416594,
+     "d": 0.108,
+     "h": 0.4011254651066847,
+     "rot": 31.338887351066518,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.022659922814876637,
+     "z": 0.10387606030295178,
+     "y": 1.422824,
+     "w": 0.334240998275578,
+     "d": 0.12,
+     "h": 0.12,
+     "rot": -77.03605146311236,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.03420611742762438,
+     "z": -0.07941454823470565,
+     "y": 1.0652720000000002,
+     "w": 0.29091997988463847,
+     "d": 0.12,
+     "h": 0.12,
+     "rot": 112.59489914191329,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.07295787326976066,
+     "z": 0.04551194391602111,
+     "y": 1.244048,
+     "w": 0.2902120779646793,
+     "d": 0.12,
+     "h": 0.12,
+     "rot": -147.26133529059484,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.070466036333801,
+     "z": -0.04425866267249066,
+     "y": 1.1336,
+     "w": 0.2882163595788879,
+     "d": 0.12,
+     "h": 0.12,
+     "rot": 31.338887351066518,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 3,
+   "nature": "plant"
+  },
+  {
+   "kind": "jungle_palm",
+   "size": 5,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0.01179626508414037,
+     "z": -0.025393860085947764,
+     "y": 0,
+     "w": 0.11499999999999999,
+     "d": 0.11499999999999999,
+     "h": 0.48,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.008847198813105278,
+     "z": -0.019045395064460822,
+     "y": 0.48,
+     "w": 0.1075,
+     "d": 0.1075,
+     "h": 0.48,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.0034550460504706153,
+     "z": -0.007437689418671695,
+     "y": 0.96,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 0.48,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.0035275327648210397,
+     "z": 0.007593731815919918,
+     "y": 1.44,
+     "w": 0.0925,
+     "d": 0.0925,
+     "h": 0.48,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.01179626508414037,
+     "z": 0.025393860085947764,
+     "y": 1.95,
+     "w": 0.196,
+     "d": 0.196,
+     "h": 0.41,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.08374150864649378,
+     "z": 0.21543777266581596,
+     "y": 2.4,
+     "w": 0.4654134690771811,
+     "d": 0.060500000000000005,
+     "h": 0.2382916961675168,
+     "rot": -63.31067411578382,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.2357474891473936,
+     "z": 0.03374687738795348,
+     "y": 2.36,
+     "w": 0.5353692891453393,
+     "d": 0.060500000000000005,
+     "h": 0.19187635322968966,
+     "rot": -1.932632541508402,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.17665003236913362,
+     "z": -0.09264212024237567,
+     "y": 2.4,
+     "w": 0.44550835868141153,
+     "d": 0.060500000000000005,
+     "h": 0.22810027964488275,
+     "rot": 144.3971795565152,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.12774434323161862,
+     "z": -0.17595614070622834,
+     "y": 2.36,
+     "w": 0.5299526678696275,
+     "d": 0.060500000000000005,
+     "h": 0.18993503616447455,
+     "rot": 55.27706845419209,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.2329030268130596,
+     "z": 0.05104023378624596,
+     "y": 2.09775,
+     "w": 0.4851783308573067,
+     "d": 0.04235,
+     "h": 0.27225,
+     "rot": 6.616223789326284,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.23710552057904485,
+     "z": 0.07692656286657922,
+     "y": 2.36,
+     "w": 0.502254821792245,
+     "d": 0.060500000000000005,
+     "h": 0.18000812813034062,
+     "rot": -167.11691612231306,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.15683127069707822,
+     "z": 0.14735310822742176,
+     "y": 2.09775,
+     "w": 0.4562177508510649,
+     "d": 0.04235,
+     "h": 0.27225,
+     "rot": 144.12380278954336,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.03153290639545161,
+     "z": -0.11590243709503048,
+     "y": 2.44,
+     "w": 0.3253361428722739,
+     "d": 0.060500000000000005,
+     "h": 0.24985815772590642,
+     "rot": 97.95177636866288,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.11200475522246034,
+     "z": -0.11756952740499632,
+     "y": 2.09775,
+     "w": 0.4182339106523432,
+     "d": 0.04235,
+     "h": 0.27225,
+     "rot": -130.89135521089077,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.036858932945528854,
+     "z": 0.16232105662391988,
+     "y": 2.44,
+     "w": 0.31840398324793207,
+     "d": 0.060500000000000005,
+     "h": 0.2445342591344119,
+     "rot": -100.37239988505401,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": -0.01179626508414037,
+     "z": 0.025393860085947764,
+     "y": 2.4,
+     "w": 0.08000000000000002,
+     "d": 0.08000000000000002,
+     "h": 0.4070000000000001,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0.01179626508414037,
+     "z": -0.025393860085947764,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 0.15000000000000002,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.01179626508414037,
+     "z": 0.025393860085947764,
+     "y": 2.2607999999999997,
+     "w": 0.08800000000000001,
+     "d": 0.08800000000000001,
+     "h": 0.08800000000000001,
+     "rot": 56.225641896016896,
+     "tone": "trim",
+     "repeat": 2,
+     "gap": 0.10519999999999999
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.01179626508414037,
+     "z": 0.025393860085947764,
+     "y": 1.92,
+     "w": 0.085,
+     "d": 0.085,
+     "h": 0.48,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.01179626508414037,
+     "z": 0.025393860085947764,
+     "y": 2.34,
+     "w": 0.13999999999999999,
+     "d": 0.13999999999999999,
+     "h": 0.16000000000000003,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.008847198813105278,
+     "z": -0.019045395064460822,
+     "y": 0.45499999999999996,
+     "w": 0.13975,
+     "d": 0.13975,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": 0.0034550460504706153,
+     "z": -0.007437689418671695,
+     "y": 0.9349999999999999,
+     "w": 0.13,
+     "d": 0.13,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "ring",
+     "x": -0.0035275327648210397,
+     "z": 0.007593731815919918,
+     "y": 1.415,
+     "w": 0.12025,
+     "d": 0.12025,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 4,
+   "nature": "plant"
+  },
+  {
+   "kind": "understory_fern",
+   "size": 1.6,
+   "parts": [
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.16,
+     "d": 0.16,
+     "h": 0.05,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.1962922934257132,
+     "z": -0.09171110230737375,
+     "y": 0.1,
+     "w": 0.4733201622115447,
+     "d": 0.061599999999999995,
+     "h": 0.2820988166780807,
+     "rot": 154.957217698754,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.1310247598373241,
+     "z": 0.15534707578296372,
+     "y": 0.1,
+     "w": 0.44644902088575056,
+     "d": 0.061599999999999995,
+     "h": 0.26608361644790735,
+     "rot": -49.85463112306542,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.2191755702920704,
+     "z": 0.0846789928174567,
+     "y": 0.060000000000000005,
+     "w": 0.5099296221241354,
+     "d": 0.061599999999999995,
+     "h": 0.21274263835018928,
+     "rot": -158.87584439439865,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.23247645146833804,
+     "z": 0.01958776079563228,
+     "y": 0.060000000000000005,
+     "w": 0.5066003894567489,
+     "d": 0.061599999999999995,
+     "h": 0.21135368248135566,
+     "rot": -4.816193025782525,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.1428812142843986,
+     "z": -0.1759216014328645,
+     "y": 0.060000000000000005,
+     "w": 0.49327012363970274,
+     "d": 0.061599999999999995,
+     "h": 0.20579229558248402,
+     "rot": 50.916949708369316,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.06071119473730447,
+     "z": -0.12655088339466247,
+     "y": 0.14,
+     "w": 0.3207203252662718,
+     "d": 0.061599999999999995,
+     "h": 0.286723970788047,
+     "rot": 115.62877722537019,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": -0.0057486952433830705,
+     "z": 0.1299157961913755,
+     "y": 0.14,
+     "w": 0.3000858442671597,
+     "d": 0.061599999999999995,
+     "h": 0.26827674477484076,
+     "rot": -92.53365074386011,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 5,
+   "nature": "plant"
+  },
+  {
+   "kind": "hanging_liana",
+   "size": 2.5,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": -0.4,
+     "z": 0,
+     "y": 0,
+     "w": 0.15,
+     "d": 0.15,
+     "h": 1.6666666666666667,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.3787867965644036,
+     "z": 0,
+     "y": 1.6666666666666667,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 1.6666666666666667,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.34,
+     "z": 0,
+     "y": 3.3333333333333335,
+     "w": 0.09,
+     "d": 0.09,
+     "h": 1.6666666666666667,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.06,
+     "z": 0.01,
+     "y": 4,
+     "w": 0.9,
+     "d": 0.098,
+     "h": 0.098,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.1,
+     "z": 0.01,
+     "y": 0.3999999999999999,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 3.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.21
+    },
+    {
+     "shape": "sphere",
+     "x": 0.1,
+     "z": 0.01,
+     "y": 2.5599999999999996,
+     "w": 0.092,
+     "d": 0.0644,
+     "h": 0.5760000000000001,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.21
+    },
+    {
+     "shape": "sphere",
+     "x": 0.16877263155765831,
+     "z": 0.01,
+     "y": 4.049,
+     "w": 0.34,
+     "d": 0.14,
+     "h": 0.1372,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.11599999999999999,
+     "z": 0.025,
+     "y": 1.6003323729437775,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 2.3996676270562225,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.12
+    },
+    {
+     "shape": "sphere",
+     "x": -0.11599999999999999,
+     "z": 0.025,
+     "y": 3.040132949177511,
+     "w": 0.092,
+     "d": 0.0644,
+     "h": 0.38394682032899563,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.12
+    },
+    {
+     "shape": "box",
+     "x": 0.316,
+     "z": 0.025,
+     "y": 1.8990023507400053,
+     "w": 0.025,
+     "d": 0.025,
+     "h": 2.1009976492599947,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.12
+    },
+    {
+     "shape": "sphere",
+     "x": 0.316,
+     "z": 0.025,
+     "y": 3.159600940296002,
+     "w": 0.092,
+     "d": 0.0644,
+     "h": 0.33615962388159915,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.12
+    },
+    {
+     "shape": "cone",
+     "x": -0.4,
+     "z": 0,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.27,
+     "h": 0.195,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.1,
+     "z": 0.01,
+     "y": 1.048,
+     "w": 0.0736,
+     "d": 0.0552,
+     "h": 0.432,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.21
+    },
+    {
+     "shape": "wedge",
+     "x": -0.4287558584719896,
+     "z": 0.0017586506406452622,
+     "y": 3.2,
+     "w": 0.1,
+     "d": 0.07840000000000001,
+     "h": 1.2,
+     "rot": -177.9843190537528,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.11599999999999999,
+     "z": 0.025,
+     "y": 2.032272545813898,
+     "w": 0.0736,
+     "d": 0.0552,
+     "h": 0.2879601152467467,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.12
+    },
+    {
+     "shape": "sphere",
+     "x": 0.316,
+     "z": 0.025,
+     "y": 2.2771819276068044,
+     "w": 0.0736,
+     "d": 0.0552,
+     "h": 0.25211971791119936,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 2,
+     "gap": 0.12
+    },
+    {
+     "shape": "wedge",
+     "x": 0.45,
+     "z": 0.01,
+     "y": 4,
+     "w": 0.1,
+     "d": 0.07840000000000001,
+     "h": 1.0120784423779696,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.34,
+     "z": 0,
+     "y": 5,
+     "w": 0.075,
+     "d": 0.06,
+     "h": 0.4,
+     "rot": 50.077665159478784,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 3,
+   "nature": "plant"
+  },
+  {
+   "kind": "fallen_trunk",
+   "size": 3,
+   "parts": [
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0,
+     "y": 0,
+     "w": 0.3,
+     "d": 1.2,
+     "h": 0.3,
+     "rot": 18.858134946785867,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.03878712519396222,
+     "z": 0.11355861446490045,
+     "y": 0.255,
+     "w": 0.27,
+     "d": 0.48,
+     "h": 0.05,
+     "rot": 18.858134946785867,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": -0.11636137558188667,
+     "z": -0.34067584339470136,
+     "y": 0.12,
+     "w": 0.27,
+     "d": 0.27,
+     "h": 0.22499999999999998,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0.3330811329339505,
+     "z": 0.1398461972433859,
+     "y": 0,
+     "w": 0.135,
+     "d": 0.6,
+     "h": 0.135,
+     "rot": 41.268983244663104,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.06957275348206969,
+     "z": -0.2139734375405582,
+     "y": 0.105,
+     "w": 0.18,
+     "d": 0.15,
+     "h": 0.05,
+     "rot": 18.858134946785867,
+     "tone": "roof",
+     "repeat": 2,
+     "gap": 0.01
+    },
+    {
+     "shape": "wedge",
+     "x": -0.18407296706425624,
+     "z": -0.5,
+     "y": 0.15,
+     "w": 0.3248493801243603,
+     "d": 0.09,
+     "h": 0.35,
+     "rot": 113.61731515266001,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.21694028119356185,
+     "z": 0.40749740657667916,
+     "y": 0.15,
+     "w": 0.2821072843763977,
+     "d": 0.09,
+     "h": 0.35,
+     "rot": -23.890263847557037,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "sphere",
+     "x": 0.34067584339470136,
+     "z": -0.11636137558188665,
+     "y": 0,
+     "w": 0.09,
+     "d": 0.07,
+     "h": 0.05,
+     "rot": -71.14186505321413,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.36
+    }
+   ],
+   "weight": 2,
+   "nature": "plant"
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "jaguar_stela",
+   "prompt": "A tall weathered limestone stela carved in relief with a seated Maya ruler and a jaguar pelt headdress, glyph columns down one side, moss and lichen in the grooves, a squat round altar stone at its foot, realistic proportions, weathered",
+   "place": "stela_plaza",
+   "height": 4
+  }
+ ]
+}

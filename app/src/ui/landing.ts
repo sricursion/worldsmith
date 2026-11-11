@@ -1,64 +1,138 @@
-// Landing card and the slim "compiling" bar that streams the model's partial JSON.
+// Landing card and the build panel that follows the build stream step by step.
 import { Bag, button, el, focusSoon } from './dom';
-import { tailLines } from './text';
+import {
+  BUILD, BUILD_STEPS, EXTRA_EXAMPLES, LANDING, liveLine, mergeExamples, peekField, stepStates,
+  type BuildStage,
+} from './text';
 
-const WINDOW_LINES = 4;
-const WINDOW_WIDTH = 96;
 const MAX_PROMPT = 600;
+const MAX_EXAMPLES = 6;
+
+export interface BuildInfo {
+  title?: string | undefined;
+  line?: string | undefined;
+}
 
 export interface LandingView {
   showLanding(examples: string[], onSubmit: (prompt: string) => void): void;
+  /** Plain status with no steps, or (during a build) fresh stream text for the live line. */
   showCompiling(status: string, partial?: string): void;
+  /** Opens the build panel for a prompt with every step still ahead. */
+  startBuild(prompt: string): void;
+  /** Marks a stage as arrived; the name and story line are shown as soon as they are known. */
+  buildStage(stage: BuildStage, info?: BuildInfo): void;
   hide(): void;
   dispose(): void;
 }
 
+/** Pulls a name and a story line out of an outline of unknown shape. */
+export function outlineInfo(outline: unknown): BuildInfo {
+  if (typeof outline !== 'object' || outline === null) return {};
+  const o = outline as Record<string, unknown>;
+  const text = (v: unknown): string | undefined => (typeof v === 'string' && v.trim() !== '' ? v.trim() : undefined);
+  return { title: text(o['title']), line: text(o['tagline']) };
+}
+
 export function createLanding(layer: HTMLElement): LandingView {
   const bag = new Bag();
+  const coarse = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
 
   const card = el('section', 'tf-landing tf-panel');
   card.hidden = true;
   card.setAttribute('aria-labelledby', 'tf-landing-title');
-  const title = el('h1', 'tf-landing-title', 'Worldsmith');
+  const title = el('h1', 'tf-landing-title', LANDING.title);
   title.id = 'tf-landing-title';
-  const promise = el('p', 'tf-promise', 'Describe a world. Walk in.');
-  const label = el('label', 'tf-sr-only', 'Describe your town');
+  const promise = el('p', 'tf-promise', LANDING.promise);
+  const label = el('label', 'tf-sr-only', LANDING.inputLabel);
   const input = el('textarea', 'tf-prompt-input');
   input.id = 'tf-prompt-input';
   label.htmlFor = input.id;
   input.rows = 3;
   input.maxLength = MAX_PROMPT;
-  input.placeholder = "A rain-soaked harbour at dawn, a dragon's lair, the first colony on Mars…";
+  input.placeholder = LANDING.placeholder;
   input.spellcheck = true;
+  input.setAttribute('enterkeyhint', 'go');
   const row = el('div', 'tf-landing-row');
-  const hint = el('span', 'tf-hint', 'Ctrl/Cmd + Enter to build');
-  const count = el('span', 'tf-hint tf-count', `0/${MAX_PROMPT}`);
-  const build = button('tf-btn tf-btn-primary', 'Build');
+  const hint = el('span', 'tf-hint', coarse ? LANDING.keysTouch : LANDING.keysDesktop);
+  const count = el('span', 'tf-hint tf-count');
+  count.hidden = true;
+  const build = button('tf-btn tf-btn-primary tf-btn-build', LANDING.build);
   row.append(hint, count, build);
-  const chipsLabel = el('p', 'tf-chips-label', 'Or try one');
+  const chipsLabel = el('p', 'tf-chips-label', LANDING.examples);
   const chips = el('div', 'tf-chips');
   card.append(title, promise, label, input, row, chipsLabel, chips);
 
-  const bar = el('section', 'tf-compiling tf-panel');
-  bar.hidden = true;
-  bar.setAttribute('aria-label', 'Building your world');
-  const status = el('p', 'tf-compiling-status');
-  status.setAttribute('role', 'status');
-  const stream = el('pre', 'tf-stream');
-  stream.setAttribute('aria-hidden', 'true');
-  const progress = el('div', 'tf-progress');
-  progress.setAttribute('aria-hidden', 'true');
-  progress.append(el('span', 'tf-progress-fill'));
-  const progressHint = el('p', 'tf-hint', 'Usually 10 to 20 seconds. The town appears behind this bar.');
-  bar.append(status, stream, progress, progressHint);
+  const panel = el('section', 'tf-build tf-panel');
+  panel.hidden = true;
+  panel.setAttribute('aria-label', BUILD.heading);
+  const kicker = el('p', 'tf-label', BUILD.heading);
+  const name = el('h2', 'tf-build-name');
+  const story = el('p', 'tf-build-story');
+  const steps = el('ol', 'tf-steps');
+  const stepNodes = new Map<BuildStage, { item: HTMLElement; state: HTMLElement }>();
+  for (const step of BUILD_STEPS) {
+    const item = el('li', 'tf-step');
+    const mark = el('span', 'tf-step-mark');
+    mark.setAttribute('aria-hidden', 'true');
+    const body = el('span', 'tf-step-body');
+    body.append(el('span', 'tf-step-label', step.label), el('span', 'tf-step-detail', step.detail));
+    const state = el('span', 'tf-sr-only');
+    item.append(mark, body, state);
+    steps.append(item);
+    stepNodes.set(step.id, { item, state });
+  }
+  const live = el('p', 'tf-build-live');
+  live.setAttribute('role', 'status');
+  const buildHint = el('p', 'tf-hint', BUILD.hint);
+  panel.append(kicker, name, story, steps, live, buildHint);
 
-  layer.append(card, bar);
+  layer.append(card, panel);
 
   let onSubmit: ((prompt: string) => void) | null = null;
   let submitted = false;
+  // Build panel state. `building` is false for a plain status such as opening a shared link.
+  let building = false;
+  let arrived = new Set<BuildStage>();
+  let named = false;
+  let storied = false;
+  let partialText = '';
+  let startedAt = 0;
+  let ticker: ReturnType<typeof setInterval> | undefined;
+
+  const stopTicker = (): void => {
+    if (ticker !== undefined) clearInterval(ticker);
+    ticker = undefined;
+  };
+  const renderLive = (): void => {
+    live.textContent = liveLine(partialText, (Date.now() - startedAt) / 1000);
+  };
+  const renderSteps = (): void => {
+    const states = stepStates(arrived);
+    for (const step of BUILD_STEPS) {
+      const node = stepNodes.get(step.id);
+      if (!node) continue;
+      const s = states[step.id];
+      node.item.dataset['state'] = s;
+      node.state.textContent = s === 'done' ? BUILD.stepDone : s === 'active' ? BUILD.stepActive : BUILD.stepWaiting;
+    }
+  };
+  const setName = (text: string | undefined): void => {
+    if (!text || named) return;
+    named = true;
+    name.textContent = text;
+    name.classList.remove('tf-build-name-pending');
+  };
+  const setStory = (text: string | undefined): void => {
+    if (!text || storied) return;
+    storied = true;
+    story.textContent = text;
+    story.classList.remove('tf-build-story-prompt');
+  };
 
   const sync = (): void => {
     build.disabled = submitted || input.value.trim() === '';
+    // The counter only matters near the limit; before that it is noise.
+    count.hidden = input.value.length < MAX_PROMPT * 0.8;
     count.textContent = `${input.value.length}/${MAX_PROMPT}`;
   };
   const submit = (): void => {
@@ -71,23 +145,27 @@ export function createLanding(layer: HTMLElement): LandingView {
 
   bag.on(input, 'input', sync);
   bag.on(input, 'keydown', (e) => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      submit();
-    }
+    // Enter builds; Shift+Enter keeps its usual meaning. Enter while composing (IME) is left alone.
+    if (e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
+    e.preventDefault();
+    submit();
   });
   bag.on(build, 'click', submit);
   bag.add(() => {
+    stopTicker();
     card.remove();
-    bar.remove();
+    panel.remove();
   });
 
   return {
     showLanding(examples, handler) {
       onSubmit = handler;
       submitted = false;
+      building = false;
+      stopTicker();
       chips.replaceChildren();
-      for (const text of examples) {
+      const list = mergeExamples(examples, EXTRA_EXAMPLES, MAX_EXAMPLES);
+      for (const text of list) {
         const chip = el('button', 'tf-chip', text);
         chip.type = 'button';
         chip.title = text;
@@ -98,25 +176,77 @@ export function createLanding(layer: HTMLElement): LandingView {
         });
         chips.append(chip); // removed with the chip element itself, no outside reference remains
       }
-      chipsLabel.hidden = examples.length === 0;
-      stream.textContent = '';
-      bar.hidden = true;
+      chipsLabel.hidden = list.length === 0;
+      panel.hidden = true;
       card.hidden = false;
       sync();
       focusSoon(input);
     },
-    showCompiling(text, partial) {
+    startBuild(prompt) {
+      building = true;
+      arrived = new Set();
+      named = false;
+      storied = false;
+      partialText = '';
+      startedAt = Date.now();
+      kicker.textContent = BUILD.heading;
+      name.textContent = BUILD.untitled;
+      name.classList.add('tf-build-name-pending');
+      story.textContent = prompt;
+      story.classList.add('tf-build-story-prompt');
+      story.hidden = false;
+      steps.hidden = false;
+      buildHint.hidden = false;
+      renderSteps();
+      renderLive();
+      stopTicker();
+      ticker = setInterval(renderLive, 1000);
       card.hidden = true;
-      bar.hidden = false;
-      status.textContent = text;
-      if (partial !== undefined) {
-        stream.textContent = tailLines(partial, WINDOW_LINES, WINDOW_WIDTH).join('\n');
-        stream.scrollTop = stream.scrollHeight;
+      panel.hidden = false;
+    },
+    buildStage(stage, info) {
+      if (!building) return;
+      // Stages arrive in stream order, so everything before this one has been received too. The land
+      // is built by the browser: when it starts without an early preview, the story is already in hand.
+      if (stage === 'land') for (const id of ['outline', 'look', 'story'] as const) arrived.add(id);
+      else {
+        for (const step of BUILD_STEPS) {
+          arrived.add(step.id);
+          if (step.id === stage) break;
+        }
       }
+      setName(info?.title);
+      setStory(info?.line);
+      renderSteps();
+    },
+    showCompiling(text, partial) {
+      if (building) {
+        if (partial !== undefined) {
+          partialText = partial;
+          if (!named) setName(peekField(partial, 'title') ?? undefined);
+          if (!storied) setStory(peekField(partial, 'tagline') ?? undefined);
+          renderLive();
+        }
+        card.hidden = true;
+        panel.hidden = false;
+        return;
+      }
+      stopTicker();
+      kicker.textContent = LANDING.title;
+      name.textContent = text;
+      name.classList.remove('tf-build-name-pending');
+      story.hidden = true;
+      steps.hidden = true;
+      buildHint.hidden = true;
+      live.textContent = '';
+      card.hidden = true;
+      panel.hidden = false;
     },
     hide() {
+      building = false;
+      stopTicker();
       card.hidden = true;
-      bar.hidden = true;
+      panel.hidden = true;
     },
     dispose() {
       bag.dispose();

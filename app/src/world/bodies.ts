@@ -165,10 +165,18 @@ export function rotateByQuat(v: V3, q: Quat): V3 {
 
 const OFF = new Set(['', 'none', 'no', 'false', 'off', '0']);
 
+/** Proportions that differ a little from one individual to the next. Switch-like dials are left alone. */
+const VARIED = new Set([
+  'legs', 'body', 'neck', 'head', 'snout', 'ears', 'tail', 'tailw', 'bulk', 'slope', 'shoulders', 'hips', 'limbs', 'arms', 'posture',
+  'wingspan', 'chord', 'girth', 'depth', 'pectoral', 'stance', 'wide', 'abdomen', 'length', 'beak', 'hair',
+]);
+const VARIATION = 0.045;
+
 /** Reads the model's dials forgivingly: numbers are 0..1, strings may be numbers, words or option names. */
 class Dials {
   private readonly features: Set<string>;
-  constructor(private readonly d: BodyDials) {
+  /** With a seed, each shape dial drifts by a few percent, the same way every time for that seed. */
+  constructor(private readonly d: BodyDials, private readonly seed: number | null = null) {
     const f = d['features'];
     this.features = new Set(typeof f === 'string' ? f.toLowerCase().split(/[^a-z_]+/).filter((s) => s.length > 0) : []);
   }
@@ -182,6 +190,12 @@ class Dials {
     return null;
   }
   n(k: string, def: number): number {
+    const v = this.plain(k, def);
+    // A dial at exactly 0 means "none of this" and stays there.
+    if (this.seed === null || v <= 0 || !VARIED.has(k)) return v;
+    return clamp(v + makeRng(this.seed, `vary|${k}`).range(-VARIATION, VARIATION), 0.01, 1);
+  }
+  private plain(k: string, def: number): number {
     const r = this.raw(k);
     if (r !== null) return clamp(r, 0, 1);
     const x = this.d[k];
@@ -269,6 +283,14 @@ class Rig {
       size: [r * 2, l, r * 2], taper: 0, tone, shade,
     });
   }
+  /**
+   * Hanging cloth: a cone with its point hidden up inside the body and a flat hem of half-widths rx, rz.
+   * Unlike a capsule it ends in a clean edge instead of a rounded bulb.
+   */
+  skirt(j: number, tip: V3, hemY: number, rx: number, rz: number, tone: BodyTone, shade = 1): void {
+    const l = Math.max(1e-4, tip[1] - hemY);
+    this.segs.push({ shape: 'cone', joint: j, pos: this.rel(j, [tip[0], hemY + l / 2, tip[2]]), quat: IDENT, size: [rx * 2, l, rz * 2], taper: 0, tone, shade });
+  }
   sheet(j: number, pts: V3[], tone: BodyTone = 'accent', shade = 1, shape: 'membrane' | 'fin' = 'membrane'): void {
     const lo: V3 = [Infinity, Infinity, Infinity];
     const hi: V3 = [-Infinity, -Infinity, -Infinity];
@@ -300,15 +322,29 @@ class Rig {
     return ids;
   }
   /** Two-bone leg with a foot. r: radii at hip, knee, ankle. The ankle sits footR above the sole. */
-  leg(name: string, parent: number, hip: V3, knee: V3, ankle: V3, r: V3, pair: number, side: -1 | 1, tones: [BodyTone, BodyTone, BodyTone] = ['body', 'body', 'dark'], toe = 1.2): void {
+  leg(name: string, parent: number, hip: V3, knee: V3, ankle: V3, r: V3, pair: number, side: -1 | 1, tones: [BodyTone, BodyTone, BodyTone] = ['body', 'body', 'dark'], toe = 1.2, shoeYaw: number | null = null): { hip: number; knee: number; foot: number } {
     const h = this.joint(`${name}_hip`, parent, hip, 'hip', side);
     const k = this.joint(`${name}_knee`, h, knee, 'knee', side);
     const f = this.joint(`${name}_foot`, k, ankle, 'foot', side);
     this.cap(h, hip, knee, r[0], r[1], tones[0], 0.96);
-    this.cap(k, knee, ankle, r[1], r[2], tones[1], 0.86);
+    // The shin's rounded top is a touch larger than the end of the thigh and swallows it, so the two
+    // meet in one clean line at the knee instead of two skins lying on top of each other.
+    this.cap(k, knee, ankle, r[1] * (tones[0] === tones[1] ? 1.07 : 1.12), r[2], tones[1], 0.86);
     const fr = ankle[1];
-    if (toe > 0) this.ell(f, [ankle[0], fr * 0.52, ankle[2] + fr * toe * 0.45], [Math.max(r[2] * 1.15, fr * 0.6), fr * 0.5, fr * toe], tones[2], 0.7);
+    if (toe > 0 && shoeYaw !== null) {
+      // A person's foot: a rounded heel under the ankle and a lower, wider forefoot, both flat on the
+      // ground and turned out by shoeYaw.
+      const w = Math.max(r[2] * 1.15, fr * 0.6);
+      const q: Quat = [0, Math.sin(shoeYaw / 2), 0, Math.cos(shoeYaw / 2)];
+      const put = (off: V3, rad: V3, shade: number): void => {
+        const c = add([ankle[0], 0, ankle[2]], rotateByQuat(off, q));
+        this.segs.push({ shape: 'ellipsoid', joint: f, pos: this.rel(f, c), quat: q, size: [rad[0] * 2, rad[1] * 2, rad[2] * 2], taper: 1, tone: tones[2], shade });
+      };
+      put([0, fr * 0.62, -fr * 0.2], [w * 0.92, fr * 0.62, fr * 0.7], 0.7);
+      put([0, fr * 0.42, fr * toe * 0.62], [w * 1.08, fr * 0.42, fr * toe * 0.72], 0.74);
+    } else if (toe > 0) this.ell(f, [ankle[0], fr * 0.52, ankle[2] + fr * toe * 0.45], [Math.max(r[2] * 1.15, fr * 0.6), fr * 0.5, fr * toe], tones[2], 0.7);
     this.legs.push({ hip: h, knee: k, foot: f, pair, side, footR: fr });
+    return { hip: h, knee: k, foot: f };
   }
 
   bounds(): { lo: V3; hi: V3 } {
@@ -454,8 +490,9 @@ function quadruped(d: Dials, g: Rig): void {
   const root = g.joint('pelvis', -1, ph, 'root');
   const chest = g.joint('chest', root, mid, 'spine');
   g.chains.push({ kind: 'spine', joints: [chest] });
-  g.cap(root, ph, mid, R * 0.95, R);
-  g.cap(chest, mid, pf, R, R * 1.02);
+  // Drawn in a little at the loin, so the ribcage and the rump read as two masses.
+  g.cap(root, ph, mid, R * 0.95, R * 0.82);
+  g.cap(chest, mid, pf, R * 0.82, R * 1.02);
   g.ell(chest, add(pf, [0, -R * 0.12, 0]), [R * 0.96, R * 1.14, R * 1.02]);
   g.ell(root, ph, [R * 0.98, R, R * 1.02]);
   g.clearance = Math.min(pf[1], ph[1]) - R * 1.05;
@@ -500,7 +537,9 @@ function quadruped(d: Dials, g: Rig): void {
       const lat = sprawl > 0.5;
       const ankle: V3 = lat ? [s * (hx + H * 1.5 * sprawl), fr, z + H * 0.1] : [s * hx, fr, z - (p === 1 ? H * 0.1 : 0)];
       const knee: V3 = lat ? [s * (hx + H * 0.8 * sprawl), fr + H * 1.05, z] : add(mix(hip, ankle, 0.5), [0, 0, (p === 0 ? -1 : 1) * H * 0.14]);
-      g.leg(`leg${p}${s > 0 ? 'l' : 'r'}`, p === 0 ? chest : root, hip, knee, ankle, r, p, s);
+      const made = g.leg(`leg${p}${s > 0 ? 'l' : 'r'}`, p === 0 ? chest : root, hip, knee, ankle, r, p, s);
+      // Shoulder and haunch: the muscle that joins a leg to the trunk, carried by the leg so it works in the walk.
+      if (!lat) g.ell(made.hip, add(hip, [-s * R * 0.08, -H * 0.06, p === 0 ? 0 : R * 0.1]), [r[0] * (p === 0 ? 1.55 : 1.2), Math.min(H * 0.3, R * 0.95), r[0] * (p === 0 ? 1.5 : 1.8)], 'body', 0.98);
     }
   }
   g.pattern = d.s('pattern', PATTERNS, sprawl > 0.5 ? 'scales' : 'plain');
@@ -508,7 +547,7 @@ function quadruped(d: Dials, g: Rig): void {
 
 type Outfit = 'bare' | 'tunic' | 'coat' | 'robe' | 'armor' | 'suit' | 'work';
 
-function biped(d: Dials, g: Rig, giant = false): void {
+function biped(d: Dials, g: Rig, rng: Rng, giant = false): void {
   const bulk = d.n('bulk', giant ? 0.85 : 0.4), sh = d.n('shoulders', giant ? 0.8 : 0.5), hp = d.n('hips', 0.5);
   const limb = d.n('limbs', 0.5), post = d.n('posture', giant ? 0.4 : 0.12);
   const hd = d.n('head', giant ? 0.2 : 0.5);
@@ -520,13 +559,26 @@ function biped(d: Dials, g: Rig, giant = false): void {
   const top: BodyTone = bare ? 'body' : 'cloth';
   const low: BodyTone = bare ? 'body' : outfit === 'suit' ? 'cloth' : 'cloth2';
   const fat = outfit === 'suit' ? 1.3 : 1;
+  // Cloth that hangs below the waist covers the hips, and a long coat or robe covers the thighs too.
+  const skirted = outfit === 'tunic' || outfit === 'work' || outfit === 'armor' || outfit === 'coat' || outfit === 'robe';
+  const long = outfit === 'coat' || outfit === 'robe';
+  // An unclothed body with a visor or an aerial is a machine: it gets dark joints and a chest panel.
+  const machine = bare && (d.on('visor') || d.on('antenna'));
+  // What sets one person apart from the next: which shoulder rides higher, how far each arm hangs from
+  // the body, the turn of the feet, the waistline, how the hair is worn and what is at the neck.
+  const tilt = rng.range(-0.006, 0.006);
+  const hang: [number, number] = [rng.range(0, 0.012), rng.range(0, 0.012)];
+  const toeOut = rng.range(0.1, 0.24);
+  const belly = rng.range(0, 0.1);
+  const style = rng.int(0, 3);
+  const whiskers = rng.chance(0.22), scarf = rng.chance(0.35), boots = rng.chance(0.6);
 
   const hipY = L(0.47, 0.59, limb);
   const headH = 0.1333 * clamp(hs, 0.4, 2.2);
   const trunk = 1 - hipY - headH;
   // Posture leans everything above the hips forward and down a little.
   const P = (x: number, y: number, z = 0): V3 => [x, y - (y - hipY) * post * post * 0.14, z + (y - hipY) * post * 0.55];
-  const sw = L(0.095, 0.155, sh) * (0.9 + bulk * 0.25);
+  const sw = L(0.084, 0.14, sh) * (0.9 + bulk * 0.25);
   const hw = L(0.04, 0.066, hp);
   const shY = hipY + trunk * 0.86, nkY = hipY + trunk * 0.93, chinY = 1 - headH;
 
@@ -541,12 +593,22 @@ function biped(d: Dials, g: Rig, giant = false): void {
   g.headHeight = headH;
   g.clearance = hipY * 0.8;
 
-  const wr = 0.058 + bulk * 0.055;
-  g.ell(root, [0, hipY + 0.035, 0], [hw + 0.052 + bulk * 0.035, 0.078, 0.062 + bulk * 0.05], low);
+  const wr = (0.058 + bulk * 0.055) * (1 + belly);
+  g.ell(root, [0, hipY + 0.035, 0], [(hw + 0.052 + bulk * 0.035) * (skirted ? 0.9 : 1), 0.078, 0.062 + bulk * 0.05], skirted ? top : low);
   g.cap(spine, P(0, hipY + 0.07), P(0, hipY + trunk * 0.55), wr * 1.02, wr * 1.08, top, 1, 0.74);
   g.ell(chest, P(0, hipY + trunk * 0.68, 0.006), [sw - 0.012, trunk * 0.25, 0.06 + bulk * 0.058], top);
-  g.cap(chest, P(-sw + 0.02, shY - 0.012), P(sw - 0.02, shY - 0.012), 0.04 + bulk * 0.022, 0.04 + bulk * 0.022, top);
+  // Shoulders slope from the base of the neck down to the arm rather than running straight across.
+  const yoke = 0.036 + bulk * 0.022;
+  for (const s of SIDES) g.cap(chest, P(s * 0.02, nkY - 0.014), P(s * (sw - 0.016), shY - 0.008 + s * tilt), yoke * 1.1, yoke * 0.82, top, 1, 0.92);
   g.cap(neck, P(0, nkY - 0.012), P(0, chinY + 0.014, 0.004), 0.029 + bulk * 0.014, 0.026 + bulk * 0.01, skin);
+  if (!bare && outfit !== 'suit' && outfit !== 'armor') {
+    // A collar where cloth meets the neck, and on some a neckerchief.
+    g.ell(chest, P(0, nkY - 0.006, 0.002), [0.043 + bulk * 0.016, 0.015, 0.041 + bulk * 0.016], top, 0.82);
+    if (scarf && !d.on('hood')) {
+      g.ell(chest, P(0, nkY - 0.012, 0.006), [0.05 + bulk * 0.016, 0.02, 0.05 + bulk * 0.016], 'cloth2', 1);
+      g.ell(chest, P(0, nkY - 0.034, 0.05 + bulk * 0.03), [0.016, 0.024, 0.012], 'cloth2', 0.9);
+    }
+  }
 
   // Head: skull, jaw line, nose, eyes, ears.
   const hc = P(0, 1 - headH / 2, 0.008);
@@ -559,7 +621,7 @@ function biped(d: Dials, g: Rig, giant = false): void {
       g.cap(head, add(hc, [0, -headH * 0.1, hdep * 0.6]), add(hc, [0, -headH * 0.18, hdep * 1.9]), hwid * 0.6, hwid * 0.4, skin, 0.95);
       g.ell(head, add(hc, [0, -headH * 0.14, hdep * 2.2]), [hwid * 0.2, hwid * 0.16, hwid * 0.14], 'dark', 0.6);
     } else if (!d.on('mask')) {
-      g.cone(head, add(hc, [0, -headH * 0.12, hdep * 0.82]), add(hc, [0, -headH * 0.02, hdep * 1.22]), hwid * 0.2, skin, 0.94);
+      g.ell(head, add(hc, [0, -headH * 0.07, hdep * 0.98]), [hwid * 0.17, headH * 0.1, hdep * 0.17], skin, 0.94);
     }
     for (const s of SIDES) g.ell(head, add(hc, [s * hwid * 0.42, headH * 0.06, hdep * 0.86]), [hwid * 0.16, headH * 0.045, hwid * 0.1], eyes, 0.45);
   }
@@ -581,6 +643,16 @@ function biped(d: Dials, g: Rig, giant = false): void {
   } else if (hair > 0.05) {
     g.ell(head, add(hc, [0, headH * 0.16, -hdep * 0.16]), [hwid * 1.06, headH * 0.4, hdep * 1.02], 'hair', 0.9);
     if (hair > 0.7) g.cap(head, add(hc, [0, 0, -hdep * 0.6]), P(0, shY - 0.03, -0.045), hwid * 0.9, hwid * 0.75, 'hair', 0.85, 0.55);
+    if (hat === null) {
+      // The same hair worn four ways: cropped, with a fringe, tied up behind, or swept to one side.
+      const side = tilt > 0 ? 1 : -1;
+      if (style === 1) g.ell(head, add(hc, [0, headH * 0.3, hdep * 0.5]), [hwid * 0.92, headH * 0.13, hdep * 0.5], 'hair', 0.86);
+      else if (style === 2) g.ell(head, add(hc, [0, headH * 0.34, -hdep * 1.1]), [hwid * 0.5, headH * 0.2, hdep * 0.42], 'hair', 0.82);
+      else if (style === 3) g.ell(head, add(hc, [side * hwid * 0.3, headH * 0.34, hdep * 0.1]), [hwid * 0.82, headH * 0.16, hdep * 0.9], 'hair', 0.86);
+    }
+  }
+  if (!bare && !helmet && hair > 0.3 && !d.on('mask') && !d.on('visor') && !d.on('snout') && d.on('beard', whiskers)) {
+    g.ell(head, add(hc, [0, -headH * 0.36, hdep * 0.4]), [hwid * 0.72, headH * 0.2, hdep * 0.6], 'hair', 0.84);
   }
   if (hat === 'brim') {
     g.ell(head, add(hc, [0, headH * 0.34, 0]), [hwid * 2.5, headH * 0.05, hdep * 2.3], 'trim', 0.85);
@@ -600,21 +672,29 @@ function biped(d: Dials, g: Rig, giant = false): void {
   }
 
   // Arms.
-  const ua = (0.028 + bulk * 0.03) * fat, fa = (0.024 + bulk * 0.022) * fat;
+  const ua = (0.025 + bulk * 0.028) * fat, fa = (0.0215 + bulk * 0.02) * fat;
   const sleeve: BodyTone = outfit === 'tunic' || outfit === 'work' ? skin : top;
   for (const s of SIDES) {
-    const sp = P(s * sw, shY);
-    const ep = add(sp, [s * 0.014, -0.172 * as, -0.006]);
-    const wp = add(ep, [s * 0.004, -0.15 * as, 0.012]);
+    const out = hang[s > 0 ? 0 : 1];
+    const sp = P(s * sw, shY + s * tilt);
+    const ep = add(sp, [s * (0.014 + out), -0.172 * as, -0.006]);
+    const wp = add(ep, [s * (0.004 + out * 0.6), -0.15 * as, 0.012]);
     const sj = g.joint(`shoulder_${s > 0 ? 'l' : 'r'}`, chest, sp, 'shoulder', s);
     const ej = g.joint(`elbow_${s > 0 ? 'l' : 'r'}`, sj, ep, 'elbow', s);
     const hj = g.joint(`hand_${s > 0 ? 'l' : 'r'}`, ej, wp, 'hand', s);
     g.arms.push({ shoulder: sj, elbow: ej, hand: hj, side: s });
-    g.cap(sj, sp, ep, ua * 1.12, ua * 0.92, top);
+    g.cap(sj, sp, ep, ua * 1.06, ua * 0.92, top);
     g.cap(ej, ep, wp, outfit === 'robe' ? fa * 1.5 : fa, outfit === 'robe' ? fa * 1.9 : fa * 0.78, sleeve, 0.97);
+    // A short sleeve ends in a hem above the bare forearm.
+    if (outfit === 'tunic' || outfit === 'work') g.ell(sj, add(ep, [0, 0.012, 0]), [ua * 1.04, 0.014, ua * 1.04], top, 0.84);
+    if (machine) g.ell(ej, ep, [ua * 1.05, ua * 1.05, ua * 1.05], 'dark', 0.7);
     g.ell(hj, add(wp, [0, -0.048 * as, 0.004]), [0.017 * fat + bulk * 0.008, 0.05 * as, 0.027 * fat + bulk * 0.008], outfit === 'suit' ? 'trim' : skin, 0.94);
+    // A thumb set forward of the palm gives the hand a front and a back.
+    const tb = add(wp, [-s * 0.004, -0.022 * as, 0.022 * fat]);
+    g.cap(hj, tb, add(tb, [-s * 0.006, -0.036 * as, 0.014]), (0.0085 + bulk * 0.003) * fat, (0.007 + bulk * 0.002) * fat, outfit === 'suit' ? 'trim' : skin, 0.9);
+    if (outfit === 'coat' || outfit === 'suit') g.ell(ej, add(wp, [0, 0.006, 0]), [fa * 0.98, 0.013, fa * 0.98], outfit === 'suit' ? 'trim' : 'cloth2', 0.85);
     if (outfit === 'armor' || d.on('armor')) {
-      g.ell(sj, add(sp, [s * 0.012, 0.012, 0]), [ua * 1.9, ua * 1.5, ua * 2], 'trim', 0.95);
+      g.ell(sj, add(sp, [s * 0.012, 0.012, 0]), [ua * 1.65, ua * 1.3, ua * 1.75], 'trim', 0.95);
       g.cap(ej, add(ep, [0, -0.03, 0]), add(wp, [0, 0.02, 0]), fa * 1.25, fa * 1.05, 'trim', 0.9);
     }
     if (d.on('wings')) {
@@ -635,20 +715,35 @@ function biped(d: Dials, g: Rig, giant = false): void {
   const kneeY = hipY * 0.535, ankY = 0.045;
   for (const s of SIDES) {
     const armoured = outfit === 'armor' || d.on('armor');
-    g.leg(`leg_${s > 0 ? 'l' : 'r'}`, root, [s * hw, hipY, 0], [s * hw * 0.98, kneeY, 0.014], [s * hw * 0.94, ankY, -0.012], [th, kn, an], 0, s, [low, armoured ? 'trim' : low, bare ? 'body' : 'dark'], 1.75);
+    const knee: V3 = [s * hw * 0.98, kneeY, 0.014], ankle: V3 = [s * hw * 0.94, ankY, -0.012];
+    const made = g.leg(`leg_${s > 0 ? 'l' : 'r'}`, root, [s * hw, hipY, 0], knee, ankle, [th, kn, an], 0, s, [long ? top : low, armoured ? 'trim' : low, bare ? 'body' : 'dark'], 1.75, s * toeOut);
+    if (machine) g.ell(made.knee, knee, [kn * 1.14, kn * 1.14, kn * 1.14], 'dark', 0.7);
+    // Boots come up over the trouser leg on some; the rest wear shoes.
+    if (boots && !bare && !armoured && outfit !== 'robe' && outfit !== 'suit') g.cap(made.knee, ankle, mix(ankle, knee, 0.42), an + 0.007, L(an, kn, 0.42) + 0.007, 'dark', 0.76);
   }
 
-  // Clothing shells and gear.
+  // Clothing shells and gear. Hems are cut wide enough to clear the thighs all the way up.
+  const hemR = hw + th + 0.03;
   if (outfit === 'tunic' || outfit === 'work' || outfit === 'armor') {
-    g.cap(root, [0, hipY + 0.07, 0], [0, hipY - 0.07, 0], wr * 1.1, wr * 1.28 + 0.012, top, 0.96, 0.8);
+    g.skirt(root, [0, hipY + 0.33, 0], hipY - 0.085, hemR + 0.01, (hemR + 0.01) * 0.7, top, 0.96);
     g.ell(spine, P(0, hipY + 0.085), [wr * 1.14, 0.018, wr * 0.9], 'trim', 0.8);
+    g.box(spine, P(0, hipY + 0.085, wr * 0.9), [0.03, 0.026, 0.012], 'trim', 1.15);
   }
-  if (outfit === 'coat') g.cap(root, [0, hipY + 0.08, 0], [0, kneeY + 0.03, 0], wr * 1.1, wr * 1.5 + 0.02, top, 0.95, 0.78);
+  if (machine) {
+    g.box(chest, P(0, hipY + trunk * 0.68, 0.058 + bulk * 0.058), [sw * 0.9, trunk * 0.2, 0.03], 'accent', 0.9);
+    g.ell(spine, P(0, hipY + 0.085), [wr * 1.1, 0.016, wr * 0.86], 'dark', 0.7);
+  }
+  if (outfit === 'coat') g.skirt(root, [0, hipY + 0.33, 0], kneeY - 0.012, hemR + 0.012, (hemR + 0.012) * 0.72, top, 0.95);
   if (outfit === 'robe') {
-    g.cap(root, [0, hipY + 0.08, 0], [0, ankY + 0.11, 0], wr * 1.08, wr * 1.5 + 0.05, top, 0.94, 0.82);
+    g.skirt(root, [0, hipY + 0.29, 0], ankY + 0.05, hemR + 0.045, (hemR + 0.045) * 0.84, top, 0.94);
     g.ell(spine, P(0, hipY + 0.085), [wr * 1.12, 0.014, wr * 0.88], 'trim', 0.85);
   }
-  if (outfit === 'work') g.box(spine, P(0, hipY + 0.02, wr * 0.82), [wr * 1.5, 0.3, 0.012], 'trim', 0.85);
+  if (outfit === 'work') {
+    // An apron from the chest to the hem, leaning out to lie on the front of the tunic.
+    const y1 = hipY + 0.17, y0 = hipY - 0.08, z1 = wr * 0.8, z0 = hemR * 0.7 + 0.004;
+    const a = Math.atan2(z0 - z1, y1 - y0);
+    g.segs.push({ shape: 'box', joint: spine, pos: sub([0, (y0 + y1) / 2, (z0 + z1) / 2], g.at[spine] as V3), quat: [Math.sin(-a / 2), 0, 0, Math.cos(a / 2)], size: [wr * 1.5, Math.hypot(y1 - y0, z0 - z1), 0.012], taper: 1, tone: 'trim', shade: 0.85 });
+  }
   if (outfit === 'armor' || d.on('armor')) g.ell(chest, P(0, hipY + trunk * 0.68, 0.012), [sw - 0.004, trunk * 0.26, 0.068 + bulk * 0.06], 'trim', 0.95);
   if (outfit === 'suit') g.ell(chest, P(0, nkY - 0.01), [0.075, 0.02, 0.075], 'trim', 0.85);
   if (d.on('pack') || outfit === 'suit') g.box(chest, P(0, hipY + trunk * 0.62, -(0.1 + bulk * 0.05)), [0.15, 0.2, 0.08], outfit === 'suit' ? 'trim' : 'cloth2', 0.8);
@@ -712,7 +807,8 @@ function winged(d: Dials, g: Rig, bird: boolean): void {
   }
   g.clearance = y0 - R * 1.1;
 
-  const nl = L(0.12, 1.7, neck);
+  // Most birds carry the head close on the shoulders; only the high end of the dial is a heron.
+  const nl = bird ? L(0.07, 1.7, neck * neck) : L(0.12, 1.7, neck);
   const up = bird ? 0.9 : 0.75;
   const hr = (bird ? L(0.1, 0.17, d.n('head', 0.5)) : L(0.1, 0.2, d.n('head', 0.5))) + R * 0.12;
   const n0: V3 = add(pf, [0, R * 0.45, R * 0.5]);
@@ -729,10 +825,11 @@ function winged(d: Dials, g: Rig, bird: boolean): void {
   const tpts: V3[] = [];
   const t0: V3 = add(ph, [0, R * 0.1, -R * 0.6]);
   for (let i = 0; i <= tn; i++) tpts.push([0, Math.max(R * 0.12, t0[1] - Math.sin(0.35) * tl * (i / tn) * (bird ? 0.2 : 1)), t0[2] - tl * (i / tn)]);
-  const tj = g.chain('tail', 'tail', root, tpts, R * (bird ? 0.5 : 0.6), R * (bird ? 0.3 : 0.07), 'body', 0.95, 0.82);
+  // A bird's tail is a thin wedge under the fan of feathers, not a limb.
+  const tj = g.chain('tail', 'tail', root, tpts, R * (bird ? 0.36 : 0.6), R * (bird ? 0.1 : 0.07), 'body', 0.95, 0.82);
   const tip = tpts[tn] as V3;
   const last = tj[tj.length - 1] ?? root;
-  if (bird) g.sheet(last, [t0, add(tip, [R * 1.1, 0, -R * 0.6]), add(tip, [0, 0, -R * 1.0]), add(tip, [-R * 1.1, 0, -R * 0.6])], 'accent', 0.9);
+  if (bird) g.sheet(last, [t0, add(tip, [R * 1.3, R * 0.05, -R * 0.6]), add(tip, [0, 0, -R * 1.0]), add(tip, [-R * 1.3, R * 0.05, -R * 0.6])], 'accent', 0.9);
   else if (d.on('spade', true)) g.sheet(last, [add(tip, [0, 0, R * 0.6]), add(tip, [R * 0.6, 0, -R * 0.2]), add(tip, [0, 0, -R * 1.2]), add(tip, [-R * 0.6, 0, -R * 0.2])], 'accent', 0.85);
   if (!bird && d.on('plates', true)) {
     for (let i = 0; i < 5; i++) {
@@ -748,7 +845,17 @@ function winged(d: Dials, g: Rig, bird: boolean): void {
     for (const s of SIDES) {
       const hip: V3 = [s * R * 0.6, top, z];
       const ankle: V3 = [s * R * 0.75, fr, z - (p === 1 ? legs * 0.08 : 0)];
-      g.leg(`leg${p}${s > 0 ? 'l' : 'r'}`, root, hip, add(mix(hip, ankle, 0.5), [0, 0, (p === 0 ? -1 : 1) * legs * 0.16]), ankle, r, four ? p : 0, s, ['body', bird ? 'accent' : 'body', bird ? 'accent' : 'dark'], bird ? 1.8 : 1.3);
+      const made = g.leg(`leg${p}${s > 0 ? 'l' : 'r'}`, root, hip, add(mix(hip, ankle, 0.5), [0, 0, (p === 0 ? -1 : 1) * legs * 0.16]), ankle, r, four ? p : 0, s, ['body', bird ? 'accent' : 'body', bird ? 'accent' : 'dark'], bird ? 0 : 1.3);
+      if (bird) {
+        // A feathered thigh above a bare shank, and a foot of three toes forward and one back.
+        g.ell(made.hip, add(hip, [0, -legs * 0.12, 0]), [R * 0.4, Math.min(legs * 0.3, R * 0.8), R * 0.5], 'body', 0.96);
+        for (const a of [-0.55, 0, 0.55, Math.PI]) {
+          const reach = fr * (a === Math.PI ? 1.6 : 3);
+          g.cone(made.foot, [ankle[0], fr * 0.55, ankle[2]], [ankle[0] + Math.sin(a + s * 0.15) * reach, fr * 0.12, ankle[2] + Math.cos(a) * reach], fr * 0.42, 'accent', 0.7);
+        }
+      } else {
+        g.ell(made.hip, add(hip, [-s * R * 0.06, -legs * 0.08, p === 0 ? 0 : R * 0.1]), [r[0] * 1.25, Math.min(legs * 0.32, R * 0.95), r[0] * (p === 0 ? 1.5 : 1.8)], 'body', 0.98);
+      }
     }
   }
 
@@ -845,7 +952,7 @@ function swimmer(d: Dials, g: Rig): void {
   for (let i = 0; i < N; i++) {
     const j = i === 0 ? root : g.joint(`spine${i}`, parent, [0, h, z(i)], 'spine', 0, i);
     const t = (i + 0.5) / N;
-    g.ell(j, [0, h, (z(i) + z(i + 1)) / 2], [w * prof(t * 0.92 + 0.06), h * prof(t * 0.92 + 0.06), 0.84 / N * 0.95], 'body', L(1, 0.9, t));
+    g.ell(j, [0, h, (z(i) + z(i + 1)) / 2], [w * prof(t * 0.92 + 0.06), h * prof(t * 0.92 + 0.06), 0.84 / N * 1.3], 'body', L(1, 0.9, t));
     if (i > 0) ids.push(j);
     parent = j;
   }
@@ -857,7 +964,8 @@ function swimmer(d: Dials, g: Rig): void {
   const eyes: BodyTone = d.on('glow_eyes') || d.on('glow') ? 'glow' : 'dark';
   for (const s of SIDES) g.ell(root, [s * w * 0.46, h * 1.12, 0.4], [0.012 + w * 0.05, 0.014 + h * 0.05, 0.016], eyes, 0.5);
   const tailJ = ids[ids.length - 1] ?? root;
-  const tz = z(N) + 0.03;
+  // The body sections overlap into one smooth form; the tail fin starts inside the last of them.
+  const tz = z(N) - 0.02;
   const cl = L(0.1, 0.24, d.n('tail', 0.5)), ch = cl * 1.05;
   g.fluke = d.n('fluke', 0) > 0.5 ? 1 : 0;
   const cau: V3[] = g.fluke > 0
@@ -867,6 +975,12 @@ function swimmer(d: Dials, g: Rig): void {
   const dor = d.n('dorsal', 0.5);
   const top = h + h * prof(0.4) * 0.92;
   if (dor > 0.05 && flat < 0.5) g.sheet(ids[0] ?? root, [[0, top, 0.12], [0, top + L(0.03, 0.22, dor), -0.08], [0, top - h * 0.06, -0.14]], 'accent', 0.88, 'fin');
+  if (flat < 0.5 && g.fluke === 0) {
+    // A second dorsal and an anal fin toward the tail, so the outline is a fish from the side and from below.
+    const half = h * prof(0.7) * 0.9, fin = L(0.02, 0.09, dor);
+    g.sheet(ids[2] ?? root, [[0, h - half, -0.1], [0, h - half - fin, -0.2], [0, h - half + h * 0.05, -0.24]], 'accent', 0.84, 'fin');
+    if (dor > 0.05) g.sheet(ids[2] ?? root, [[0, h + half, -0.14], [0, h + half + fin * 0.8, -0.24], [0, h + half - h * 0.05, -0.27]], 'accent', 0.86, 'fin');
+  }
   const pec = L(0.05, 0.28, d.n('pectoral', 0.4)) * (1 + flat * 2.2);
   for (const s of SIDES) {
     const p0: V3 = [s * w * 0.8, h * (flat > 0.5 ? 1 : 0.6), 0.2];
@@ -898,6 +1012,16 @@ function crawler(d: Dials, g: Rig): void {
   const eyes: BodyTone = d.on('glow_eyes') || d.on('glow') ? 'glow' : 'dark';
   g.head = g.joint('head', root, [0, y + bh * 0.2, 0.36], 'head');
   g.headHeight = bh;
+  g.ell(g.head, [0, y + bh * 0.05, 0.36], [bw * 0.5, bh * 0.62, 0.07], 'body', 0.92);
+  // Six legs make an insect, and an insect carries feelers; spiders and clawed things do not.
+  if (d.on('antennae', pairs === 3 && !d.on('claws'))) {
+    for (const s of SIDES) {
+      const a0: V3 = [s * bw * 0.22, y + bh * 0.5, 0.41];
+      const a1: V3 = add(a0, [s * bw * 0.35, bh * 0.9, 0.1]);
+      g.cap(g.head, a0, a1, 0.009, 0.007, 'dark', 0.8);
+      g.cap(g.head, a1, add(a1, [s * bw * 0.3, -bh * 0.2, 0.12]), 0.007, 0.004, 'dark', 0.75);
+    }
+  }
   for (const s of SIDES) {
     g.ell(g.head, [s * bw * 0.32, y + bh * 0.5, 0.37], [0.022, 0.022, 0.022], eyes, 0.5);
     g.ell(g.head, [s * bw * 0.12, y + bh * 0.62, 0.39], [0.015, 0.015, 0.015], eyes, 0.5);
@@ -1022,13 +1146,13 @@ function swarmUnit(d: Dials, g: Rig): void {
  * serpents and swimmers, and the larger of length and height otherwise, in metres. Deterministic.
  */
 export function buildBody(family: CreatureFamily, dials: BodyDials, size: number, seed: number): BodyPlan {
-  const d = new Dials(dials);
+  const d = new Dials(dials, seed);
   const g = new Rig();
   const rng = makeRng(seed, `body|${family}`);
   const s = Number.isFinite(size) ? size : 1;
   switch (family) {
     case 'quadruped': quadruped(d, g); return g.finish(family, s, 'max');
-    case 'biped': biped(d, g); return g.finish(family, s, 'height');
+    case 'biped': biped(d, g, rng); return g.finish(family, s, 'height');
     case 'winged': winged(d, g, false); return g.finish(family, s, 'length');
     case 'bird': winged(d, g, true); return g.finish(family, s, 'length');
     case 'serpent': serpent(d, g); return g.finish(family, s, 'length');
@@ -1039,7 +1163,7 @@ export function buildBody(family: CreatureFamily, dials: BodyDials, size: number
       if (d.count('legs', 2, 4, 2) >= 3) {
         quadruped(new Dials({ bulk: 0.9, neck: 0.3, head: 0.3, tail: 0.3, plates: 1, glow_eyes: 1, ...dials, legs: 0.75 }), g);
         g.still = d.n('still', 0);
-      } else biped(d, g, true);
+      } else biped(d, g, rng, true);
       return g.finish(family, clamp(s, 2, 60), 'height');
     case 'swarm': swarmUnit(d, g); return g.finish(family, s, 'length');
   }
@@ -1075,12 +1199,12 @@ export function bodyCatalogText(): string {
   return [
     'LIVING THINGS. Each creature is a body plan (family) reshaped by dials; dials are 0..1 unless options are listed, omitted dials take sensible defaults. size is metres. Colours stay natural and muted; glow is only for eyes, fire and lamps. Any family accepts pattern: plain|stripes|spots|scales|patches and glow_eyes: 0|1.',
     'quadruped (wolf, horse, elephant, lizard, boar, stag): legs (stubby..stilt), body (length), neck, head, snout, ears, tail, tailw (tail thickness), bulk, slope (0 rump high .. 1 shoulders high), sprawl (0 upright .. 1 belly-low reptile), horns: none|horns|antlers|tusks|horn|crown, frill, plates, mane, hump. size = larger of length and height.',
-    'biped (apes, trolls, robots, any upright folk): bulk, shoulders, hips, limbs (leg length), arms, head (0.5 = real human, 7.5 heads tall), posture (0 upright .. 1 stooped), hair, outfit: bare|tunic|coat|robe|armor|suit|work, hat: brim|cap|cone|helm, tool: none|staff|tool|blade|book|lamp, features 0|1: tail, horns, long_ears, snout, visor, antenna, wings, hood, cloak, armor, pack, mask. size = height.',
+    'biped (apes, trolls, robots, any upright folk): bulk, shoulders, hips, limbs (leg length), arms, head (0.5 = real human, 7.5 heads tall), posture (0 upright .. 1 stooped), hair, outfit: bare|tunic|coat|robe|armor|suit|work, hat: brim|cap|cone|helm, tool: none|staff|tool|blade|book|lamp, features 0|1: tail, horns, long_ears, snout, visor, antenna, wings, hood, cloak, armor, pack, mask, beard. size = height.',
     'winged (dragon, wyvern, giant bat, pterosaur, angel-thing): wingspan, feather (0 membrane .. 1 feathered), chord (wing depth), neck, tail, bulk, head, snout, legs, limbs: 2|4, crown (horn crown), frill, plates (back spines), spade (tail tip). size = length nose to tail.',
     'bird (crow, gull, heron, owl, vulture): wingspan, neck, legs, beak, tail, bulk, head, crest. size = length.',
     'serpent (snake, worm, eel, centipede, sea serpent): girth, head, snout, legs (0 none .. 1 ten pairs), humps (arching coils), hood, crest, horns, frill. size = length.',
     'swimmer (fish, shark, whale, ray): bulk, depth (tall body), flat (ray-like, wide wings), fluke (1 = whale tail, beats up and down), dorsal, pectoral, tail. size = length. Lives in water when the world has any.',
-    'crawler (spider, crab, beetle, scorpion): pairs (3..5 leg pairs), legs (reach), stance (belly height), bulk, wide, abdomen, shell, claws, stinger, tail. size = body length.',
+    'crawler (spider, crab, beetle, scorpion): pairs (3..5 leg pairs), legs (reach), stance (belly height), bulk, wide, abdomen, shell, claws, stinger, tail, antennae. size = body length.',
     'floater (jellyfish, drone, balloon beast, wisp, eye): shape: bell|orb|disc|bag, tentacles (0..10), length (tentacle length), eye, fins, glow, hover (height above ground). size = height.',
     'colossus (a vast slow walker or standing giant, size 15..40): legs: 2|4, bulk, shoulders, arms, head, posture, plates (back spires), glow (chest core), still (1 = stands like a statue). size = height.',
     'swarm (insects, bats, motes, scrap drones): units (6..60 per group), wings, long (0 round .. 1 slender), glow, hover (flying height). size = one unit, 0.05..0.6.',

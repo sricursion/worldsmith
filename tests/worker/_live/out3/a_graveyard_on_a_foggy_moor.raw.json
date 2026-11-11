@@ -1,0 +1,913 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a graveyard on a foggy moor",
+ "title": "The Drowned Churchyard",
+ "tagline": "The fog keeps what the moor buries.",
+ "theme": "medieval",
+ "era": "Victorian gothic",
+ "palette": {
+  "ground": "#4a4d3a",
+  "accent": "#5e3a34",
+  "sky": "overcast",
+  "fog": 0.75
+ },
+ "time": {
+  "startHour": 6,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "ruined_chapel",
+   "role": "church",
+   "label": "St Ewan's Chapel",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "chapel_ruin"
+  },
+  {
+   "id": "sexton_hut",
+   "role": "house",
+   "label": "Sexton's Hut",
+   "size": "small",
+   "keyBuilding": true,
+   "blueprint": "turf_hut"
+  },
+  {
+   "id": "lych_gate",
+   "role": "church",
+   "label": "Lych Gate",
+   "size": "small",
+   "blueprint": "lych_gate"
+  },
+  {
+   "id": "crypt",
+   "role": "undertaker",
+   "label": "The Old Crypt",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "crypt_mound"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "sexton_bram",
+   "name": "Bram",
+   "role": "gravedigger",
+   "persona": "Gruff, slow-spoken, wary of strangers. Keeps the dead in order and hates being asked why the order is breaking.",
+   "knowledge": [
+    "The graves open from below. The soil is heaped inside the pit, not beside it.",
+    "Peat-black prints lead from the opened graves to the crypt mound.",
+    "The hound only howls on nights a grave opens."
+   ],
+   "secrets": [
+    "Bram opened the first grave himself, to bury his brother's shroud beside his father, and something answered."
+   ],
+   "home": "sexton_hut",
+   "work": "plaza",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "plaza",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "sexton_hut",
+     "activity": "eat"
+    },
+    {
+     "hour": 14,
+     "place": "ruined_chapel",
+     "activity": "work"
+    },
+    {
+     "hour": 20,
+     "place": "sexton_hut",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "widow_marne",
+     "stance": "neutral"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": -0.3,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.8
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "widow_marne",
+   "name": "Marne",
+   "role": "grieving widow",
+   "persona": "Soft-voiced and unmoving as stone. Visits the chapel to keep a promise to a man who is not where she left him.",
+   "knowledge": [
+    "Her husband's grave was among the first found open, and the shroud was gone.",
+    "She hears knocking under the chapel floor before dawn.",
+    "Bram has not spoken to anyone since the second grave opened."
+   ],
+   "secrets": [
+    "Marne has been leaving food at the crypt door, and it is always gone by morning."
+   ],
+   "home": "sexton_hut",
+   "work": "ruined_chapel",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "ruined_chapel",
+     "activity": "pray"
+    },
+    {
+     "hour": 11,
+     "place": "plaza",
+     "activity": "wander"
+    },
+    {
+     "hour": 15,
+     "place": "ruined_chapel",
+     "activity": "pray"
+    },
+    {
+     "hour": 21,
+     "place": "sexton_hut",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "sexton_bram",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.2,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.2,
+     "flee": 0.2,
+     "investigate": 0.3,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.3,
+    "rate": 0.9
+   },
+   "mood": "grieving"
+  }
+ ],
+ "items": [
+  {
+   "id": "torn_shroud",
+   "name": "Torn Shroud",
+   "description": "Grave linen, ripped from within and stiff with black peat.",
+   "holder": "crypt"
+  },
+  {
+   "id": "grave_spade",
+   "name": "Bram's Spade",
+   "description": "Worn ash handle, fresh soil on the blade, a thumb-worn notch near the grip.",
+   "holder": "sexton_hut"
+  },
+  {
+   "id": "wight_bone_charm",
+   "name": "Bone Charm",
+   "description": "A finger bone on a cord, dropped on the lychway. Cold to hold.",
+   "holder": "lych_gate"
+  }
+ ],
+ "quest": {
+  "id": "drowned_churchyard",
+  "title": "What Walks the Moor",
+  "hook": "Fresh graves in St Ewan's churchyard keep opening overnight, and the sexton has gone silent. The villagers bar their doors by dusk. Someone with no kin buried here must learn what climbs out and where it goes.",
+  "giver": "widow_marne",
+  "steps": [
+   {
+    "id": "s1_talk",
+    "kind": "talk",
+    "target": "widow_marne",
+    "requires": [],
+    "objective": "Ask Marne about the opened graves",
+    "beat": "Marne says her husband's grave was emptied and the shroud taken. She asks you to find out why Bram will not speak."
+   },
+   {
+    "id": "s2_visit",
+    "kind": "visit",
+    "target": "lych_gate",
+    "requires": [
+     "s1_talk"
+    ],
+    "objective": "Search the lychway for tracks",
+    "beat": "Black peat prints cross the lychway toward the mound. Crows watch from the chapel gable, silent, and a bone charm lies in the mud."
+   },
+   {
+    "id": "s3_fetch",
+    "kind": "fetch",
+    "target": "wight_bone_charm",
+    "requires": [
+     "s2_visit"
+    ],
+    "objective": "Take the bone charm from the lych gate",
+    "beat": "The charm is a wight's token, left by something that wanted to be found. Grave moths drift thick around the crypt beyond.",
+    "item": "wight_bone_charm"
+   },
+   {
+    "id": "s4_talk",
+    "kind": "talk",
+    "target": "sexton_bram",
+    "requires": [
+     "s3_fetch"
+    ],
+    "objective": "Show Bram the charm and make him talk",
+    "beat": "Bram goes grey. He admits he opened a grave himself, and the wight has been digging out the rest of the dead since.",
+    "reveals": [
+     "sexton_bram:0"
+    ]
+   },
+   {
+    "id": "s5_visit",
+    "kind": "visit",
+    "target": "crypt",
+    "requires": [
+     "s4_talk"
+    ],
+    "objective": "Go to the half-sunk crypt door",
+    "beat": "The vault door stands ajar, peat smeared on the stone. Something inside is breathing, and moths pour from the dark.",
+    "reveals": [
+     "widow_marne:0"
+    ]
+   },
+   {
+    "id": "s6_choose",
+    "kind": "choose",
+    "target": "sexton_bram",
+    "requires": [
+     "s5_visit"
+    ],
+    "objective": "Decide the wight's fate",
+    "beat": "The wight is Bram's brother, drowned in the peat and dragged back by the shroud. Bram waits for your word.",
+    "choices": [
+     {
+      "label": "Bind the wight with the bone charm and reseal the crypt",
+      "unlocks": [
+       "s7_bind"
+      ]
+     },
+     {
+      "label": "Open the vault and let it walk the moor",
+      "unlocks": [
+       "s7_free"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s7_bind",
+    "kind": "confront",
+    "target": "sexton_bram",
+    "requires": [
+     "s6_choose"
+    ],
+    "objective": "Reseal the crypt with Bram",
+    "beat": "Bram sets the charm in the door and the knocking stops. The graves stay shut, and Marne's husband stays gone."
+   },
+   {
+    "id": "s7_free",
+    "kind": "confront",
+    "target": "widow_marne",
+    "requires": [
+     "s6_choose"
+    ],
+    "objective": "Open the vault for the wight",
+    "beat": "The wight walks into the fog toward the moor. Marne watches it go and the graves lie quiet, though the hound still howls."
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s7_bind",
+    "label": "The wight is sealed and the churchyard sleeps",
+    "tone": "good"
+   },
+   {
+    "stepId": "s7_free",
+    "label": "The wight walks free and the moor keeps it",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r_curfew",
+   "text": "Villagers keep indoors from dusk to dawn; only the sexton works nights.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 19,
+    "toHour": 5,
+    "exemptRoles": [
+     "gravedigger"
+    ]
+   },
+   "source": "world"
+  },
+  {
+   "id": "r_ban",
+   "text": "Nobody digs a new grave until the opened ones are explained.",
+   "effect": {
+    "type": "ban",
+    "what": "digging new graves",
+    "where": "ruined_chapel",
+    "enforcer": "sexton_bram"
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "barrow",
+  "shroud",
+  "sexton",
+  "peat",
+  "wight",
+  "lychway"
+ ],
+ "style": {
+  "name": "Drowned Churchyard",
+  "wall": "#6b6a64",
+  "wall2": "#4c4b47",
+  "roof": "#3d4146",
+  "trim": "#8a877d",
+  "accent": "#5e3a34",
+  "dark": "#1c1d1f",
+  "glass": "#262c31",
+  "glow": "#ffc27a",
+  "ground": "#4a4d3a",
+  "road": "#5a5446",
+  "variety": 0.2,
+  "foliage": "#4a5233",
+  "bark": "#3b332b",
+  "surfaces": {
+   "wall": "stone",
+   "wall2": "stone",
+   "roof": "slate",
+   "trim": "stone",
+   "ground": "moss",
+   "road": "mud",
+   "wear": 0.8,
+   "wet": 0.5
+  }
+ },
+ "site": {
+  "pattern": "scatter",
+  "wild": 0.55,
+  "paths": "track",
+  "spacing": 12
+ },
+ "mood": {
+  "weather": "fog",
+  "intensity": 0.7,
+  "grade": "cold_steel",
+  "haze": 0.8,
+  "ambience": [
+   "wind",
+   "birds",
+   "leaves"
+  ],
+  "music": "low cello drone"
+ },
+ "terrain": {
+  "relief": "rolling",
+  "ruggedness": 0.3,
+  "water": "pond",
+  "waterAmount": 0.08,
+  "horizon": "peat moor swallowed by fog",
+  "settled": 0.1
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "crows",
+   "name": "carrion crows",
+   "family": "bird",
+   "dials": {},
+   "size": 0.45,
+   "count": 8,
+   "behaviour": "perch",
+   "haunt": "ruined_chapel",
+   "body": "#1c1c1f",
+   "accent": "#3a3a40",
+   "glow": "#000000",
+   "note": "They watch you from every leaning headstone."
+  },
+  {
+   "id": "moor_hound",
+   "name": "black moor hound",
+   "family": "quadruped",
+   "dials": {
+    "legs": 0.6,
+    "snout": 0.7
+   },
+   "size": 1.5,
+   "count": 1,
+   "behaviour": "stalk",
+   "haunt": "wild",
+   "body": "#26262a",
+   "accent": "#44444a",
+   "glow": "#c84a2a",
+   "note": "Eyes glow ember-red somewhere in the fog."
+  },
+  {
+   "id": "moths",
+   "name": "grave moths",
+   "family": "swarm",
+   "dials": {
+    "units": 18,
+    "wings": 0.8
+   },
+   "size": 0.2,
+   "count": 18,
+   "behaviour": "roam",
+   "haunt": "crypt",
+   "body": "#b8b0a0",
+   "accent": "#8c8678",
+   "glow": "#000000",
+   "note": "Pale wings flutter around the crypt door."
+  }
+ ],
+ "folk": {
+  "name": "moor villagers",
+  "height": 1.7,
+  "bulk": 0.45,
+  "head": 1,
+  "features": [
+   "hood",
+   "cloak",
+   "hat"
+  ],
+  "skin": [
+   "#d8b9a0",
+   "#c49a7c",
+   "#e4cbb5"
+  ],
+  "cloth": [
+   "#4a4a45",
+   "#5c5346",
+   "#39403a"
+  ],
+  "trim": [
+   "#7a5c3a",
+   "#8c8c80"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "chapel_ruin",
+   "summary": "roofless stone chapel, bell gable 11 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.46,
+     "y": 0,
+     "w": 0.9,
+     "d": 0.06,
+     "h": 7,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.46,
+     "y": 7,
+     "w": 0.16,
+     "d": 0.06,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": -0.46,
+     "y": 7,
+     "w": 0.08,
+     "d": 0.07,
+     "h": 3,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": -0.46,
+     "y": 11,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.07,
+     "h": 5,
+     "rot": 90,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.35
+    },
+    {
+     "shape": "arch",
+     "x": 0.5,
+     "z": 0,
+     "y": 1,
+     "w": 0.04,
+     "d": 0.12,
+     "h": 3,
+     "rot": 90,
+     "tone": "glass",
+     "repeat": 3,
+     "gap": 0.28
+    }
+   ],
+   "doorX": 0,
+   "family": "ruin",
+   "dials": {
+    "decay": 0.6,
+    "storeys": 2,
+    "width": 0.85,
+    "standing": "gable",
+    "columns": 4,
+    "rubble": 0.7,
+    "overgrowth": 0.5
+   }
+  },
+  {
+   "id": "turf_hut",
+   "summary": "low turf-roofed stone hut, ridge 3.4 m",
+   "parts": [
+    {
+     "shape": "gable",
+     "x": 0,
+     "z": 0,
+     "y": 2.6,
+     "w": 1.1,
+     "d": 1.1,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.28,
+     "z": -0.1,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.15,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.18,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.04,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.4,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.3,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.08,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0.15,
+   "family": "hall",
+   "dials": {
+    "storeys": 1,
+    "roof": "gable",
+    "overhang": 0.12,
+    "front": "plain",
+    "rhythm": 1,
+    "chimney": 1,
+    "taper": 0
+   }
+  },
+  {
+   "id": "lych_gate",
+   "summary": "rotting oak lych gate, slate roof, ridge 4.4 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.2,
+     "y": 0.2,
+     "w": 0.9,
+     "d": 0.05,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.2,
+     "y": 0.2,
+     "w": 0.9,
+     "d": 0.05,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 3,
+     "w": 0.9,
+     "d": 0.5,
+     "h": 0.25,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.42,
+     "z": 0,
+     "y": 0,
+     "w": 0.04,
+     "d": 0.5,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0,
+     "z": 0.28,
+     "y": 2.6,
+     "w": 0.8,
+     "d": 0.1,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "canopy",
+   "dials": {
+    "posts": 4,
+    "roof": "gable",
+    "counter": 0
+   }
+  },
+  {
+   "id": "crypt_mound",
+   "summary": "half-sunk vault door in earth mound, 4 m high",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.42,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.1,
+     "h": 0.35,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.46,
+     "y": 0,
+     "w": 0.28,
+     "d": 0.06,
+     "h": 2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.4,
+     "d": 0.1,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "dome",
+     "x": 0.3,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.5,
+     "y": 0.1,
+     "w": 0.06,
+     "d": 0.04,
+     "h": 0.7,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "cave",
+   "dials": {
+    "mass": "mound",
+    "height": 4,
+    "width": 0.8,
+    "mouth": 0.35,
+    "mouthHeight": 0.55,
+    "frame": "arch",
+    "teeth": 0,
+    "glow": 0,
+    "spill": 0.4
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "gravestone",
+   "size": 1.4,
+   "parts": [],
+   "weight": 5,
+   "family": "boulder",
+   "dials": {
+    "height": 0.9,
+    "width": 0.5,
+    "angular": 0.2,
+    "scatter": 0.2,
+    "split": 0,
+    "moss": 0.7
+   }
+  },
+  {
+   "kind": "heather_clump",
+   "size": 1.5,
+   "parts": [],
+   "weight": 5,
+   "family": "shrub",
+   "dials": {
+    "form": "mound",
+    "height": 0.5,
+    "spread": 0.9,
+    "stems": 5,
+    "density": 0.6,
+    "berries": 0
+   }
+  },
+  {
+   "kind": "dead_yew",
+   "size": 6,
+   "parts": [],
+   "weight": 3,
+   "family": "conifer",
+   "dials": {
+    "height": 2.4,
+    "width": 0.6,
+    "whorls": 3,
+    "bare": 0.5,
+    "droop": 0.8,
+    "foliage": 0.3,
+    "cut": "round"
+   }
+  },
+  {
+   "kind": "fallen_bough",
+   "size": 2.5,
+   "parts": [],
+   "weight": 2,
+   "family": "deadwood",
+   "dials": {
+    "form": "log",
+    "size": 1.2,
+    "girth": 0.2,
+    "branches": 2,
+    "moss": 0.6
+   }
+  },
+  {
+   "kind": "bog_cotton",
+   "size": 1.2,
+   "parts": [],
+   "weight": 3,
+   "family": "grassclump",
+   "dials": {
+    "form": "reeds",
+    "height": 0.8,
+    "spread": 0.6,
+    "count": 8,
+    "lean": 0.3,
+    "heads": "plume"
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "weeping_angel",
+   "prompt": "A weathered stone grave angel on a plinth, head bowed, wings broken, lichen streaking the robes, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 3
+  }
+ ]
+}

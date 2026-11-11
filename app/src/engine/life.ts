@@ -28,7 +28,9 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { MoodSpec, StyleSpec, ThemeId } from '../world/spec';
 import type { Rng } from '../world/rng';
 
-export type FlyerKind = 'birds' | 'gulls' | 'drones' | 'none';
+export type FlyerKind = 'birds' | 'gulls' | 'drones' | 'fish' | 'none';
+/** Small things hanging in still air near the eye. Never set when the weather already fills the air. */
+export type MoteKind = 'pollen' | 'dust' | 'embers' | 'bubbles' | 'none';
 export type NightFlyerKind = 'bats' | 'drones' | 'none';
 export type DriftKind = 'leaves' | 'tumbleweed' | 'paper' | 'none';
 export type FlagKind = 'flag' | 'banner' | 'holo';
@@ -39,6 +41,7 @@ export interface LifePlan {
   nightFlyer: NightFlyerKind;
   insects: boolean;
   drift: DriftKind;
+  motes: MoteKind;
   flag: FlagKind;
   lights: FarLightKind;
   /** Mean wind speed in metres per second. */
@@ -69,6 +72,8 @@ export interface Life {
 const COAST = /sea|coast|harbo|port\b|dock|gull|wave|ocean|ship|pier|beach|island|cove|wharf|tide|surf|lagoon/;
 const FOREST = /forest|wood|grove|jungle|swamp|mushroom|garden|meadow|cricket|insect|frog|cicada|orchard|glade|marsh|fern/;
 const DESERT = /desert|dust|frontier|canyon|mesa|dune|badland|prairie|steppe|wasteland|arid/;
+const UNDERWATER = /underwater|undersea|sea ?floor|seabed|submerged|sunken|abyssal|atlantis|beneath the waves/;
+const FIERY = /lava|volcan|magma|forge|furnace|foundry|smelt|ember|infernal|brimstone|cinder/;
 
 /** Chooses what lives here from the theme, the style words, the ground and the weather. Pure. */
 export function planLife(theme: ThemeId, mood?: MoodSpec, style?: StyleSpec): LifePlan {
@@ -84,9 +89,17 @@ export function planLife(theme: ThemeId, mood?: MoodSpec, style?: StyleSpec): Li
 
   let flyer: FlyerKind = theme === 'scifi' ? 'drones' : coast ? 'gulls' : 'birds';
   if (weather === 'ash' || ground === 'regolith') flyer = theme === 'scifi' ? 'drones' : 'none';
-  const nightFlyer: NightFlyerKind = theme === 'scifi' ? 'drones' : cold || weather === 'storm' ? 'none' : 'bats';
+  const sunk = UNDERWATER.test(words);
+  if (sunk) flyer = 'fish';
+  const nightFlyer: NightFlyerKind = sunk ? 'none' : theme === 'scifi' ? 'drones' : cold || weather === 'storm' ? 'none' : 'bats';
+  // Motes are for air the weather leaves empty: with rain, snow, dust, ash, spores, embers or fireflies falling there is enough in it.
+  let motes: MoteKind = 'none';
+  if (sunk) motes = 'bubbles';
+  else if (weather === 'clear' || weather === 'fog' || weather === 'mist') {
+    motes = FIERY.test(words) || ground === 'ash' ? 'embers' : cold ? 'none' : forest ? 'pollen' : 'dust';
+  }
   let drift: DriftKind = 'leaves';
-  if (cold || weather === 'rain') drift = 'none';
+  if (cold || weather === 'rain' || sunk) drift = 'none';
   else if (theme === 'scifi' || theme === 'modern') drift = forest ? 'leaves' : 'paper';
   else if (!forest && (desert || theme === 'western')) drift = 'tumbleweed';
 
@@ -95,8 +108,9 @@ export function planLife(theme: ThemeId, mood?: MoodSpec, style?: StyleSpec): Li
   return {
     flyer,
     nightFlyer,
-    insects: forest && !cold && !wet && theme !== 'scifi',
+    insects: forest && !cold && !wet && !sunk && theme !== 'scifi',
     drift,
+    motes,
     flag: theme === 'medieval' ? 'banner' : theme === 'scifi' ? 'holo' : 'flag',
     lights: theme === 'scifi' ? 'craft' : theme === 'modern' ? 'traffic' : 'lantern',
     wind: scaled,
@@ -156,7 +170,7 @@ attribute vec4 aPath;  // centre x, centre z, radius x, radius z
 attribute vec4 aFly;   // height, angular speed, phase, half span
 attribute vec4 aVar;   // lateral offset, vertical offset, loop shape, seed
 attribute float aWing; // 0 at the body, 1 at the wingtip
-uniform float uTime, uVis, uFlap, uAmp, uGlide, uJitter, uWrap;
+uniform float uTime, uVis, uFlap, uAmp, uGlide, uJitter, uWrap, uMode;
 uniform vec3 uFocus;
 varying float vWing;
 varying float vSeed;
@@ -182,6 +196,8 @@ void main() {
   float tip = sin( ph - 0.9 ) * 0.45 * uAmp * glide;
   float size = aFly.w * uVis;
   vec3 world = c + size * ( r * position.x * cos( a ) + u * ( aWing * sin( a ) + aWing * aWing * tip ) + f * position.z );
+  // A fish is the same outline turned on edge: its length along the way it swims, a wave running down it to the tail.
+  if ( uMode > 1.5 ) world = c + size * ( f * position.x + u * position.z + r * sin( ph - position.x * 2.5 ) * 0.2 * uAmp );
   vWing = aWing;
   vSeed = seed;
   vec4 mvPosition = viewMatrix * vec4( world, 1.0 );
@@ -199,7 +215,7 @@ varying float vSeed;
 void main() {
   vec3 lit = 0.25 + 0.75 * uLight;
   vec3 col = mix( uColor, uColor2, smoothstep( 0.55, 0.95, vWing ) ) * lit;
-  if ( uMode > 0.5 ) {
+  if ( uMode > 0.5 && uMode < 1.5 ) {
     float blink = step( 0.86, fract( uTime * 0.9 + vSeed * 5.0 ) );
     col = uColor * lit + uColor2 * ( 0.4 + 3.0 * blink ) * ( 1.0 - smoothstep( 0.0, 0.3, vWing ) );
   }
@@ -350,6 +366,64 @@ void main() {
   ${TAIL_GLSL}
 }`;
 
+const MOTE_VERT = /* glsl */ `
+attribute vec3 aBase;
+attribute vec4 aSeed; // climb in metres per second, phase, size, tint
+uniform float uTime, uBox, uHeight;
+uniform vec3 uWind, uFocus;
+varying vec2 vUv;
+varying float vFade;
+varying float vSeed;
+#include <fog_pars_vertex>
+void main() {
+  float ph = aSeed.y * 6.283;
+  // Carried on a share of the wind, climbing or settling at its own rate, wandering in slow loops.
+  vec3 p = aBase + vec3( uWind.x * 0.12, aSeed.x, uWind.z * 0.12 ) * uTime;
+  p += 0.35 * vec3( sin( uTime * 0.31 + ph ), sin( uTime * 0.23 + ph * 1.7 ), cos( uTime * 0.27 + ph * 2.3 ) );
+  // The box of air they fill travels with the player; a mote leaving one side comes back in at the other.
+  vec3 box = vec3( uBox, uHeight, uBox );
+  vec3 mid = uFocus + vec3( 0.0, 0.5 * uHeight - 0.3, 0.0 );
+  vec3 d = mod( p - mid + 0.5 * box, box ) - 0.5 * box;
+  vec3 e = abs( d ) / ( 0.5 * box );
+  vec4 mvPosition = viewMatrix * vec4( mid + d, 1.0 );
+  vFade = ( 1.0 - smoothstep( 0.7, 1.0, max( e.x, e.z ) ) ) * ( 1.0 - smoothstep( 0.75, 1.0, e.y ) ) * smoothstep( 0.4, 1.5, -mvPosition.z );
+  // Held to about a pixel and a half so a far mote is a steady speck and not a flicker.
+  mvPosition.xy += position.xy * max( aSeed.z, -mvPosition.z * 0.0016 );
+  vUv = uv;
+  vSeed = aSeed.w;
+  gl_Position = projectionMatrix * mvPosition;
+  #include <fog_vertex>
+}`;
+
+const MOTE_FRAG = /* glsl */ `
+uniform vec3 uColor, uColor2, uLight;
+uniform float uMode, uTime, uNight;
+varying vec2 vUv;
+varying float vFade;
+varying float vSeed;
+#include <common>
+#include <fog_pars_fragment>
+void main() {
+  float r = length( vUv * 2.0 - 1.0 );
+  float alpha = ( 1.0 - smoothstep( 0.25, 1.0, r ) ) * vFade;
+  vec3 col = mix( uColor, uColor2, vSeed );
+  if ( uMode > 1.5 ) {
+    // Bubble: a bright rim around a nearly clear middle.
+    alpha *= 0.2 + 0.8 * smoothstep( 0.45, 0.8, r );
+    col *= 0.3 + 0.7 * uLight;
+  } else if ( uMode > 0.5 ) {
+    // Ember: lit from within, breathing as it burns.
+    col *= 1.6 + 1.2 * sin( uTime * ( 3.0 + 4.0 * vSeed ) + vSeed * 40.0 );
+  } else {
+    // Pollen or dust: seen because the light catches it, so nearly gone at night.
+    alpha *= 0.6 * ( 1.0 - 0.75 * uNight );
+    col *= 0.3 + 0.7 * uLight;
+  }
+  if ( alpha < 0.004 ) discard;
+  gl_FragColor = vec4( col, alpha );
+  ${TAIL_GLSL}
+}`;
+
 const LIGHT_VERT = /* glsl */ `
 attribute vec4 aPath;
 attribute vec4 aFly; // height, angular speed, phase, size
@@ -472,7 +546,8 @@ interface FlyerSpec {
   formation: boolean;
 }
 
-const FLYERS: Record<'birds' | 'gulls' | 'bats' | 'drones' | 'insects', FlyerSpec> = {
+const FLYERS: Record<'birds' | 'gulls' | 'bats' | 'drones' | 'insects' | 'fish', FlyerSpec> = {
+  fish: { height: [1.5, 7], speed: [1.4, 3], size: [0.22, 0.42], radius: [0.12, 0.4], flock: [12, 24], spread: 2.2, flap: 7, amp: 1, glide: 0, jitter: 0.03, wrap: 0, mode: 2, formation: false },
   birds: { height: [26, 55], speed: [7, 11], size: [0.55, 0.8], radius: [0.35, 0.75], flock: [7, 14], spread: 6, flap: 9, amp: 0.75, glide: 0.35, jitter: 0, wrap: 0, mode: 0, formation: true },
   gulls: { height: [16, 38], speed: [6, 9], size: [0.7, 0.95], radius: [0.3, 0.7], flock: [4, 8], spread: 9, flap: 6, amp: 0.6, glide: 1, jitter: 0, wrap: 0, mode: 0, formation: false },
   bats: { height: [6, 15], speed: [6, 10], size: [0.22, 0.32], radius: [0.15, 0.4], flock: [6, 12], spread: 5, flap: 26, amp: 0.9, glide: 0, jitter: 0.6, wrap: 0, mode: 0, formation: false },
@@ -541,10 +616,12 @@ function buildSmoke(points: readonly Vector3[], perSource: number, o: LifeOption
       put4(seed, i, (j + o.rng.range(0, 0.6)) / perSource, life, o.rng.range(0.8, 1.25), o.rng.range(-0.5, 0.5));
     }
   }
+  // A hearth gives dark smoke with a glow at its root; a machine vent gives pale steam and no fire.
+  const steam = o.theme === 'scifi';
   const uniforms: Uniforms = {
     uTime: shared.uTime, uWind: shared.uWind, uNight: shared.uNight, uLight: shared.uLight,
-    uSmokeDark: { value: new Color(0.1, 0.095, 0.09) }, uSmokeLight: { value: new Color(0.55, 0.55, 0.56) },
-    uEmber: { value: new Color(1.0, 0.42, 0.12) }, uDensity: { value: 0.6 },
+    uSmokeDark: { value: steam ? new Color(0.5, 0.52, 0.54) : new Color(0.1, 0.095, 0.09) }, uSmokeLight: { value: steam ? new Color(0.82, 0.84, 0.86) : new Color(0.55, 0.55, 0.56) },
+    uEmber: { value: steam ? new Color(0, 0, 0) : new Color(1.0, 0.42, 0.12) }, uDensity: { value: steam ? 0.42 : 0.6 },
   };
   const mesh = new Mesh(
     instanced(new PlaneGeometry(1, 1), count, { aOrigin: [origin, 3], aSeed: [seed, 4] }),
@@ -579,6 +656,41 @@ function buildDrift(kind: Exclude<DriftKind, 'none'>, scale: number, o: LifeOpti
   };
   const mesh = new Mesh(instanced(new PlaneGeometry(1, 1), count, { aBase: [base, 3], aSeed: [seed, 4] }), shader(DRIFT_VERT, DRIFT_FRAG, uniforms));
   mesh.name = `life_${kind}`;
+  return mesh;
+}
+
+/** Most motes ever drawn (full quality); two triangles each. */
+export const MOTE_CAP = 220;
+const MOTES: Record<Exclude<MoteKind, 'none'>, { mode: number; climb: [number, number]; size: [number, number] }> = {
+  pollen: { mode: 0, climb: [-0.04, 0.05], size: [0.03, 0.06] },
+  dust: { mode: 0, climb: [-0.02, 0.02], size: [0.02, 0.04] },
+  embers: { mode: 1, climb: [0.25, 0.7], size: [0.03, 0.07] },
+  bubbles: { mode: 2, climb: [0.3, 0.8], size: [0.04, 0.12] },
+};
+const MOTE_BOX = 28;
+const MOTE_HEIGHT = 6;
+
+function buildMotes(kind: Exclude<MoteKind, 'none'>, scale: number, o: LifeOptions, shared: Shared, colors: [Color, Color]): Mesh {
+  const k = MOTES[kind];
+  const count = Math.min(MOTE_CAP, Math.max(4, Math.round(MOTE_CAP * scale)));
+  const base = new Float32Array(count * 3);
+  const seed = new Float32Array(count * 4);
+  for (let i = 0; i < count; i++) {
+    base[i * 3] = o.rng.range(0, MOTE_BOX);
+    base[i * 3 + 1] = o.rng.range(0, MOTE_HEIGHT);
+    base[i * 3 + 2] = o.rng.range(0, MOTE_BOX);
+    put4(seed, i, o.rng.range(k.climb[0], k.climb[1]), o.rng.next(), o.rng.range(k.size[0], k.size[1]), o.rng.next());
+  }
+  const uniforms: Uniforms = {
+    uTime: shared.uTime, uWind: shared.uMeanWind, uFocus: shared.uFocus, uLight: shared.uLight, uNight: shared.uNight,
+    uBox: { value: MOTE_BOX }, uHeight: { value: MOTE_HEIGHT }, uMode: { value: k.mode }, uColor: { value: colors[0] }, uColor2: { value: colors[1] },
+  };
+  const mesh = new Mesh(
+    instanced(new PlaneGeometry(1, 1), count, { aBase: [base, 3], aSeed: [seed, 4] }),
+    shader(MOTE_VERT, MOTE_FRAG, uniforms, { transparent: true, depthWrite: false, ...(kind === 'embers' ? { blending: AdditiveBlending } : {}) }),
+  );
+  mesh.name = 'life_motes';
+  mesh.renderOrder = 2;
   return mesh;
 }
 
@@ -760,11 +872,11 @@ export function createLife(scene: Scene, opts: LifeOptions): Life {
   const parts: Part[] = [];
 
   if (plan.flyer !== 'none') {
-    const n = Math.round((plan.flyer === 'drones' ? 14 : plan.flyer === 'gulls' ? 30 : 64) * scale * plan.flockShare);
-    const colors: [Color, Color] = plan.flyer === 'gulls' ? [new Color(0.82, 0.83, 0.85), new Color(0.12, 0.12, 0.14)] : plan.flyer === 'drones' ? [new Color(0.07, 0.08, 0.1), glow.clone().multiplyScalar(1.5)] : [new Color(0.045, 0.04, 0.04), new Color(0.02, 0.02, 0.02)];
+    const n = Math.round((plan.flyer === 'drones' ? 14 : plan.flyer === 'gulls' ? 30 : plan.flyer === 'fish' ? 90 : 64) * scale * plan.flockShare);
+    const colors: [Color, Color] = plan.flyer === 'fish' ? [new Color(0.55, 0.6, 0.64).lerp(accent, 0.25), accent.clone()] : plan.flyer === 'gulls' ? [new Color(0.82, 0.83, 0.85), new Color(0.12, 0.12, 0.14)] : plan.flyer === 'drones' ? [new Color(0.07, 0.08, 0.1), glow.clone().multiplyScalar(1.5)] : [new Color(0.045, 0.04, 0.04), new Color(0.02, 0.02, 0.02)];
     if (n > 0) {
       const f = buildFlyers(plan.flyer, n, opts, shared, colors);
-      parts.push({ mesh: f.mesh, vis: plan.flyer === 'drones' ? undefined : { uniform: f.vis, day: 1, night: 0 } });
+      parts.push({ mesh: f.mesh, vis: plan.flyer === 'drones' || plan.flyer === 'fish' ? undefined : { uniform: f.vis, day: 1, night: 0 } });
     }
   }
   if (plan.nightFlyer === 'bats') {
@@ -801,6 +913,16 @@ export function createLife(scene: Scene, opts: LifeOptions): Life {
   }
   if (poles.length > 0) parts.push({ mesh: buildFlags(plan.flag, poles, opts, shared, plan.flag === 'holo' ? glow : accent, trim, windYaw) });
   parts.push({ mesh: buildLights(plan.lights, q === 0 ? 6 : q === 1 ? 10 : 14, opts, shared, glow.clone()) });
+  // Built last, so adding them leaves every other part of a seeded world exactly where it was.
+  if (plan.motes !== 'none') {
+    const ground = hexColor(style?.ground, 0x6b5a3c);
+    const colors: [Color, Color] =
+      plan.motes === 'embers' ? [new Color(1.0, 0.42, 0.1), new Color(1.0, 0.7, 0.25).lerp(glow, 0.2)]
+      : plan.motes === 'bubbles' ? [new Color(0.8, 0.92, 1.0), new Color(0.95, 0.98, 1.0)]
+      : plan.motes === 'pollen' ? [new Color(0.95, 0.9, 0.6), new Color(0.9, 0.95, 0.75)]
+      : [new Color(0.9, 0.86, 0.78).lerp(ground, 0.3), new Color(1, 0.97, 0.9)];
+    parts.push({ mesh: buildMotes(plan.motes, scale, opts, shared, colors) });
+  }
 
   for (const p of parts) {
     p.mesh.frustumCulled = false; // positions are computed in the vertex shader

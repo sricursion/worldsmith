@@ -150,4 +150,25 @@ describe('createCreatures', () => {
     expect(body.position.distanceTo(at)).toBeLessThan(1e-6);
     life.dispose();
   });
+
+  it('gives every member of a herd a body of its own, the same on every build', () => {
+    const shapes = (): string[] => {
+      const { scene, life } = world();
+      const out: string[] = [];
+      scene.traverse((o) => {
+        const m = o as THREE.SkinnedMesh;
+        if (m.isSkinnedMesh !== true || o.parent?.name !== 'body_quadruped' && o.parent?.parent?.name !== 'body_quadruped') return;
+        m.geometry.computeBoundingBox();
+        const b = m.geometry.boundingBox;
+        if (b !== null) out.push([b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z].map((v) => v.toFixed(4)).join(' '));
+      });
+      life.dispose();
+      return out;
+    };
+    const first = shapes();
+    expect(first.length).toBeGreaterThanOrEqual(6);
+    // Six deer: no two the same build.
+    expect(new Set(first).size).toBeGreaterThanOrEqual(Math.min(first.length, 10));
+    expect(shapes()).toEqual(first);
+  });
 });

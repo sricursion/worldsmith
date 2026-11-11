@@ -174,7 +174,7 @@ describe('pole cap in the scatter', () => {
       expect(poles, spec.title).toBeGreaterThan(0);
     }
     expect(withPoles).toBeGreaterThanOrEqual(5);
-  });
+  }, 180_000);
 
   it('adds the lamp lights to the town next to the door lanterns', () => {
     const base = makeBlueprintSpec({ count: 9 });

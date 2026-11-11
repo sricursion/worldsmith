@@ -64,6 +64,36 @@ export function fbm(x: number, z: number, seed: number, octaves = 4): number {
   return sum / norm;
 }
 
+/**
+ * How the shape of the land shades it, as a multiplier per channel written into `out`. `curv` is the
+ * curvature of the height in 1/m (positive in a hollow, negative on a crest) and `slope` its rise over run.
+ * Hollows hold the damp and read darker and a touch cooler; crests dry out and read lighter and warmer; steep
+ * faces lose their cover and darken. It only ever scales the ground's own colour, so any palette stays itself.
+ */
+export function reliefTint(curv: number, slope: number, out: [number, number, number]): void {
+  const hollow = clamp(curv * 9, -1, 1);
+  const k = (1 - 0.17 * hollow) * (1 - 0.14 * smoothstep(0.3, 0.9, slope));
+  const warm = -0.05 * hollow;
+  out[0] = k * (1 + warm);
+  out[1] = k;
+  out[2] = k * (1 - 1.2 * warm);
+}
+
+/**
+ * Patches with an edge to them, on top of the soft blotches: stretches a shade darker where the ground is
+ * barer or trodden, and smaller pale ones where it has dried out. A multiplier around 1, the same wherever it
+ * is asked, so the place's ground and the far ground agree along their seam.
+ */
+export function patchTint(x: number, z: number, seed: number): number {
+  return 1 - 0.13 * smoothstep(0.55, 0.61, fbm(x / 9 + 3, z / 9, seed + 83, 3)) + 0.09 * smoothstep(0.6, 0.65, fbm(x / 15, z / 15 + 5, seed + 89, 2));
+}
+
+/** Colour multiplier for ground standing `above` metres over a waterline: a dark damp bank, then a pale dry line. */
+export function bankTint(above: number): number {
+  if (!(above > 0)) return 1;
+  return mix(0.72, 1, smoothstep(0.05, 0.8, above)) * (1 + 0.09 * smoothstep(0.6, 0.9, above) * (1 - smoothstep(0.9, 1.5, above)));
+}
+
 // ---- Height field ------------------------------------------------------------------------------------------
 
 export type Landform = 'dunes' | 'hills' | 'craters' | 'drifts' | 'flats';
@@ -878,6 +908,7 @@ export function buildGroundGeometry(layout: TownLayout, field: TerrainField, opt
       uv[v * 2] = x; uv[v * 2 + 1] = z;
       let k = 0.83 + 0.2 * fbm(x / 31, z / 31, seed + 41, 3) + 0.14 * fbm(x / 6.5, z / 6.5, seed + 43, 2);
       const drift = fbm(x / 52, z / 52, seed + 47, 2) - 0.5;
+      if (outsideDistance(b, x, z) < 150) k *= patchTint(x, z, seed);
       if (outsideDistance(b, x, z) < 12) {
         let roadD = 1e9;
         for (const r of layout.roads) roadD = Math.min(roadD, distanceToRoad(r, x, z));
@@ -898,9 +929,37 @@ export function buildGroundGeometry(layout: TownLayout, field: TerrainField, opt
         // Out in the landscape: crests catch a little more light than the hollows between them.
         k *= 0.9 + 0.2 * smoothstep(0, 1, fbm(x / 70, z / 70, seed + 59, 2));
       }
+      // The bank just above a waterline is damp, with a paler dry line above that.
+      if (land && land.water.length > 0 && outsideDistance(b, x, z) < LAND_MARGIN) {
+        const level = land.waterLevelNear(x, z, 5);
+        // Half strength on the outer few metres, so a wide flat shore has no ruled line where the band ends.
+        if (level !== null) k *= mix(1, bankTint(y - level), land.waterLevelNear(x, z, 2.5) !== null ? 1 : 0.5);
+      }
       col[v * 3] = k * (1 + 0.07 * drift);
       col[v * 3 + 1] = k;
       col[v * 3 + 2] = k * (1 - 0.09 * drift);
+    }
+  }
+  // Shade by the shape of the land: damp dark hollows, pale dry crests, bare steep faces. Level ground is untouched.
+  const tint: [number, number, number] = [1, 1, 1];
+  for (let j = 1; j < nz - 1; j++) {
+    const dzl = (zs[j] as number) - (zs[j - 1] as number);
+    const dzh = (zs[j + 1] as number) - (zs[j] as number);
+    for (let i = 1; i < nx - 1; i++) {
+      const o = j * nx + i;
+      const y = pos[o * 3 + 1] as number;
+      const yw = pos[(o - 1) * 3 + 1] as number;
+      const ye = pos[(o + 1) * 3 + 1] as number;
+      const yn = pos[(o - nx) * 3 + 1] as number;
+      const ys = pos[(o + nx) * 3 + 1] as number;
+      if (yw === y && ye === y && yn === y && ys === y) continue;
+      const dxl = (xs[i] as number) - (xs[i - 1] as number);
+      const dxh = (xs[i + 1] as number) - (xs[i] as number);
+      const curv = (2 * ((ye - y) / dxh - (y - yw) / dxl)) / (dxl + dxh) + (2 * ((ys - y) / dzh - (y - yn) / dzl)) / (dzl + dzh);
+      reliefTint(curv, Math.hypot((ye - yw) / (dxl + dxh), (ys - yn) / (dzl + dzh)), tint);
+      col[o * 3] = (col[o * 3] as number) * tint[0];
+      col[o * 3 + 1] = (col[o * 3 + 1] as number) * tint[1];
+      col[o * 3 + 2] = (col[o * 3 + 2] as number) * tint[2];
     }
   }
   const idx = new Uint32Array((nx - 1) * (nz - 1) * 6);

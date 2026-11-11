@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { controlsHint, effectLabel, promptLabel, formatClock, normalizeHex, readableOn, splitSentencesForTypewriter, tailLines } from '../../app/src/ui/text';
+import { BUILD_STEPS, EXTRA_EXAMPLES, controlsParts, fallbackNotice, liveLine, mergeExamples, peekField, stepStates, writingNow, type BuildStage, controlsHint, effectLabel, promptLabel, formatClock, normalizeHex, readableOn, splitSentencesForTypewriter, tailLines } from '../../app/src/ui/text';
 
 describe('formatClock', () => {
   it('formats fractional hours', () => {
@@ -66,5 +66,50 @@ describe('touch labels', () => {
   it('picks the controls hint by pointer type', () => {
     expect(controlsHint(false)).toContain('WASD');
     expect(controlsHint(true)).toContain('tap the pill');
+  });
+});
+
+describe('landing examples', () => {
+  it('merges, trims and drops repeats up to the cap', () => {
+    expect(mergeExamples(['A', ' b ', ''], ['a', 'B', 'c', 'd'], 3)).toEqual(['A', 'b', 'c']);
+    expect(mergeExamples([], EXTRA_EXAMPLES, 6).length).toBe(EXTRA_EXAMPLES.length);
+  });
+});
+
+describe('build progress', () => {
+  it('makes the first stage that has not arrived the active one', () => {
+    expect(stepStates(new Set())).toEqual({ outline: 'active', look: 'waiting', land: 'waiting', story: 'waiting' });
+    expect(stepStates(new Set<BuildStage>(['outline', 'look']))).toEqual({ outline: 'done', look: 'done', land: 'active', story: 'waiting' });
+    expect(stepStates(new Set<BuildStage>(['outline', 'look', 'story']))).toEqual({ outline: 'done', look: 'done', land: 'active', story: 'done' });
+  });
+  it('lists every stage exactly once', () => {
+    expect(BUILD_STEPS.map((s) => s.id)).toEqual(['outline', 'look', 'land', 'story']);
+  });
+  it('reads finished string fields out of unfinished JSON', () => {
+    const partial = '{"title": "Salt \\"Harbour\\"", "tagline": "The tide keeps its own cou';
+    expect(peekField(partial, 'title')).toBe('Salt "Harbour"');
+    expect(peekField(partial, 'tagline')).toBeNull();
+    expect(peekField('', 'title')).toBeNull();
+  });
+  it('names the section being written from the last key opened', () => {
+    expect(writingNow('{"title":"X","buildings":[{"id":"a"}],"npcs":[{')).toBe('the people');
+    expect(writingNow('{"zzz":1')).toBeNull();
+  });
+  it('builds the live line from real counters only', () => {
+    expect(liveLine('', 0.4)).toBe('0 s');
+    expect(liveLine('x'.repeat(1200), 12.9)).toBe('1,200 characters so far · 12 s');
+    expect(liveLine('{"quest":{', 3)).toBe('Writing the quest · 10 characters so far · 3 s');
+    expect(liveLine('', 5)).not.toContain('%');
+  });
+});
+
+describe('failure and controls text', () => {
+  it('says plainly that a saved world is shown', () => {
+    expect(fallbackNotice('The forge could not be reached')).toBe('The forge could not be reached. This is a saved world, not one built from your prompt.');
+    expect(fallbackNotice('  ')).toMatch(/^The build failed\. /);
+  });
+  it('offers short key and action pairs for each pointer type', () => {
+    expect(controlsParts(false).map((p) => p.key)).toContain('WASD');
+    expect(controlsParts(true).every((p) => p.key !== 'WASD')).toBe(true);
   });
 });

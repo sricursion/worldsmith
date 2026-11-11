@@ -42,9 +42,9 @@ describe('skeleton catalogue', () => {
     expect([...groups].sort()).toEqual(['nature', 'object', 'structure']);
   });
 
-  it('catalogue text is at most 9500 characters and names every skeleton and dial', () => {
+  it('catalogue text is at most 13500 characters and names every skeleton and dial', () => {
     const text = skeletonCatalogText();
-    expect(text.length).toBeLessThanOrEqual(9500);
+    expect(text.length).toBeLessThanOrEqual(13500);
     for (const s of Object.values(SKELETONS)) {
       expect(text).toContain(`${s.id}:`);
       const line = text.split('\n').find((l) => l.startsWith(`${s.id}: `)) ?? '';

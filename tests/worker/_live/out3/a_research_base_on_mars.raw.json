@@ -1,0 +1,1092 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a research base on Mars",
+ "title": "Ares Station Kepler",
+ "tagline": "Six crew, one failing signal, no way home",
+ "theme": "scifi",
+ "era": "Near-future colony",
+ "palette": {
+  "ground": "#8c5c46",
+  "accent": "#a65a3a",
+  "sky": "dusk",
+  "fog": 0.3
+ },
+ "time": {
+  "startHour": 17.5,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "hab_one",
+   "role": "habitat",
+   "label": "Hab Alpha",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "hab_dome"
+  },
+  {
+   "id": "lab_dome",
+   "role": "lab",
+   "label": "Geology Lab",
+   "size": "medium",
+   "keyBuilding": true,
+   "blueprint": "regolith_lab"
+  },
+  {
+   "id": "reactor",
+   "role": "reactor",
+   "label": "Reactor Shed",
+   "size": "small",
+   "blueprint": "shielded_reactor"
+  },
+  {
+   "id": "comms_mast",
+   "role": "command",
+   "label": "Relay Mast",
+   "size": "small",
+   "keyBuilding": true,
+   "blueprint": "relay_mast"
+  },
+  {
+   "id": "rover_bay",
+   "role": "garage",
+   "label": "Rover Bay",
+   "size": "medium",
+   "blueprint": "rover_garage"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "okafor",
+   "name": "Dr. Okafor",
+   "role": "station commander",
+   "persona": "Clipped and tired, counts every sol out loud. Wants Earth back on the line before the crew stops believing in it.",
+   "knowledge": [
+    "The mast went dark three sols ago, mid-dustfall, with no distress ping.",
+    "Tran has refused to climb since the last storm.",
+    "Spare tether and a signal board are in Rover Bay, if Reyes will part with them."
+   ],
+   "secrets": [
+    "Okafor ordered the mast's heater power cut to save the reactor, and suspects that killed the relay."
+   ],
+   "home": "hab_one",
+   "work": "hab_one",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "hab_one",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "comms_mast",
+     "activity": "wander"
+    },
+    {
+     "hour": 17,
+     "place": "hab_one",
+     "activity": "eat"
+    },
+    {
+     "hour": 22,
+     "place": "hab_one",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tran",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.2,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 0.9,
+    "rate": 0.9
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "lindqvist",
+   "name": "Lindqvist",
+   "role": "geologist",
+   "persona": "Dry and curious, happier with rock than people. Talks in samples and strata, and holds a grudge about the power cuts.",
+   "knowledge": [
+    "Dustfall coats the mast base in static-charged regolith; it eats connectors.",
+    "The crater rim glints at dusk, and something metal sits out there.",
+    "A burnt-out signal board can be swapped for the spare in Rover Bay."
+   ],
+   "secrets": [
+    "Lindqvist saw sparks at the mast top the night it died, and told no one."
+   ],
+   "home": "lab_dome",
+   "work": "lab_dome",
+   "schedule": [
+    {
+     "hour": 7,
+     "place": "lab_dome",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "street",
+     "activity": "wander"
+    },
+    {
+     "hour": 18,
+     "place": "lab_dome",
+     "activity": "eat"
+    },
+    {
+     "hour": 23,
+     "place": "lab_dome",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "okafor",
+     "stance": "rival"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0.1,
+     "flee": 0,
+     "investigate": 0.5,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 1
+   },
+   "mood": "calm"
+  },
+  {
+   "id": "tran",
+   "name": "Tran",
+   "role": "comms engineer",
+   "persona": "Brittle and defensive, sleeps beside the dead console. Blames the mast, the dust, anyone but the climb.",
+   "knowledge": [
+    "The fault is at the mast top: a fried signal board.",
+    "A tether line must be clipped to the cage rungs, because the dust makes the lattice slick.",
+    "Earth's last message was a routine ping; nothing warned of this."
+   ],
+   "secrets": [
+    "Tran froze on the ladder during the storm and came down without repairing anything."
+   ],
+   "home": "comms_mast",
+   "work": "comms_mast",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "comms_mast",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "comms_mast",
+     "activity": "guard"
+    },
+    {
+     "hour": 18,
+     "place": "hab_one",
+     "activity": "eat"
+    },
+    {
+     "hour": 21,
+     "place": "comms_mast",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "okafor",
+     "stance": "suspicious"
+    }
+   ],
+   "appearance": {
+    "base": "rogue_hooded",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0.3,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.2
+    }
+   },
+   "voice": {
+    "pitch": 1.4,
+    "rate": 1.2
+   },
+   "mood": "afraid"
+  },
+  {
+   "id": "reyes",
+   "name": "Reyes",
+   "role": "rover mechanic",
+   "persona": "Blunt, greasy-handed, loyal to machines. Trades parts for favours and never gives anything away for free.",
+   "knowledge": [
+    "The spare signal board and tether are in the Rover Bay locker.",
+    "Rover 3 wandered off its patrol line toward the rim two sols back.",
+    "Drones circling the mast saw a scorch mark near the top."
+   ],
+   "secrets": [
+    "Reyes cannibalised the original signal board's backup for a rover repair and never logged it."
+   ],
+   "home": "rover_bay",
+   "work": "rover_bay",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "rover_bay",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "rover_bay",
+     "activity": "eat"
+    },
+    {
+     "hour": 15,
+     "place": "street",
+     "activity": "patrol"
+    },
+    {
+     "hour": 21,
+     "place": "rover_bay",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "tran",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0.1,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.8
+   },
+   "mood": "cheerful"
+  }
+ ],
+ "items": [
+  {
+   "id": "signal_board",
+   "name": "Spare Signal Board",
+   "description": "A sealed relay board in foam, the only one left.",
+   "holder": "rover_bay"
+  },
+  {
+   "id": "tether_line",
+   "name": "Climbing Tether",
+   "description": "Braided line with a locking carabiner, dust-stiff but sound.",
+   "holder": "reyes"
+  },
+  {
+   "id": "scorched_housing",
+   "name": "Scorched Housing",
+   "description": "A blackened connector housing the survey drones circled.",
+   "holder": "comms_mast"
+  }
+ ],
+ "quest": {
+  "id": "silent_mast",
+  "title": "The Silent Mast",
+  "hook": "Three sols ago the Relay Mast went dark and Kepler lost Earth. Dust is falling, power is rationed, and nobody on the crew will climb 24 metres of slick lattice. A stranger who can fetch the right board, clip in and repair it could end their isolation.",
+  "giver": "okafor",
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "talk",
+    "target": "okafor",
+    "requires": [],
+    "objective": "Hear the commander out at Hab Alpha.",
+    "beat": "Okafor lays out the dead mast and the dust, and asks you to restore the link."
+   },
+   {
+    "id": "s2",
+    "kind": "fetch",
+    "target": "signal_board",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Collect the spare signal board from Rover Bay.",
+    "beat": "Reyes grunts toward the locker; the board sits in foam beside the rover tools.",
+    "item": "signal_board",
+    "reveals": [
+     "reyes:0"
+    ]
+   },
+   {
+    "id": "s3",
+    "kind": "talk",
+    "target": "tran",
+    "requires": [
+     "s2"
+    ],
+    "objective": "Ask Tran what the climb demands.",
+    "beat": "Tran, pale under the dead console, admits the fault is at the top and the ladder beat them.",
+    "reveals": [
+     "tran:0"
+    ]
+   },
+   {
+    "id": "s4",
+    "kind": "visit",
+    "target": "lab_dome",
+    "requires": [
+     "s1"
+    ],
+    "objective": "Visit Lindqvist at the Geology Lab.",
+    "beat": "Lindqvist points out dust piled at the mast base and mentions the sparks seen that night.",
+    "reveals": [
+     "lindqvist:0"
+    ]
+   },
+   {
+    "id": "s5",
+    "kind": "choose",
+    "target": "okafor",
+    "requires": [
+     "s3",
+     "s4"
+    ],
+    "objective": "Decide how to handle the heater cut that killed the mast.",
+    "beat": "The mast heater was cut to spare the reactor, and everyone knows. Someone must answer for it.",
+    "choices": [
+     {
+      "label": "Hide the truth and just fix it",
+      "unlocks": [
+       "s6"
+      ]
+     },
+     {
+      "label": "Tell the crew Okafor's order caused it",
+      "unlocks": [
+       "s6"
+      ]
+     }
+    ],
+    "reveals": [
+     "okafor:0"
+    ]
+   },
+   {
+    "id": "s6",
+    "kind": "deliver",
+    "target": "tran",
+    "requires": [
+     "s5"
+    ],
+    "objective": "Climb the mast and install the signal board.",
+    "beat": "You clip in, climb through the dustfall, and seat the board. The console wakes.",
+    "item": "signal_board"
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6",
+    "label": "Kepler hears Earth again.",
+    "tone": "good"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "Nobody goes outside the pressure doors during dustfall without a tether.",
+   "effect": {
+    "type": "ban",
+    "what": "untethered_exit",
+    "where": "street",
+    "enforcer": "okafor"
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Non-essential power is cut after 22:00 to spare the reactor.",
+   "effect": {
+    "type": "curfew",
+    "fromHour": 22,
+    "toHour": 5,
+    "exemptRoles": [
+     "station commander",
+     "comms engineer"
+    ]
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "sol",
+  "regolith",
+  "airlock",
+  "dustfall",
+  "tether",
+  "Kepler"
+ ],
+ "style": {
+  "name": "Kepler Dustfall",
+  "wall": "#a8a39a",
+  "wall2": "#7c7770",
+  "roof": "#5a5652",
+  "trim": "#8f8a82",
+  "accent": "#a65a3a",
+  "dark": "#2a2623",
+  "glass": "#2b3540",
+  "glow": "#ffd9a0",
+  "ground": "#8c5c46",
+  "road": "#7a5240",
+  "variety": 0.15,
+  "foliage": "#6a6a48",
+  "bark": "#4a423a",
+  "surfaces": {
+   "wall": "hull_plate",
+   "wall2": "metal_panel",
+   "roof": "hull_plate",
+   "trim": "metal_panel",
+   "ground": "regolith",
+   "road": "regolith",
+   "wear": 0.6,
+   "wet": 0
+  }
+ },
+ "site": {
+  "pattern": "scatter",
+  "wild": 0.15,
+  "paths": "track",
+  "spacing": 12
+ },
+ "mood": {
+  "weather": "dust",
+  "intensity": 0.35,
+  "grade": "golden",
+  "haze": 0.6,
+  "ambience": [
+   "wind",
+   "machinery"
+  ],
+  "music": "low synth drone"
+ },
+ "terrain": {
+  "relief": "crater",
+  "ruggedness": 0.55,
+  "water": "none",
+  "waterAmount": 0,
+  "horizon": "rust-red crater rim in dust haze",
+  "settled": 0.15
+ },
+ "skyFeatures": [
+  {
+   "kind": "moon",
+   "size": 0.06,
+   "color": "#b9a58c"
+  },
+  {
+   "kind": "moon",
+   "size": 0.04,
+   "color": "#8f8577"
+  }
+ ],
+ "creatures": [
+  {
+   "id": "rovers",
+   "name": "survey rovers",
+   "family": "crawler",
+   "dials": {
+    "pairs": 3,
+    "stance": 0.3,
+    "bulk": 0.6
+   },
+   "size": 2.5,
+   "count": 3,
+   "behaviour": "patrol",
+   "haunt": "rover_bay",
+   "body": "#d9d4c7",
+   "accent": "#c46b3b",
+   "glow": "#000000",
+   "note": "Six-wheeled and dust-caked, tracing its survey route."
+  },
+  {
+   "id": "drones",
+   "name": "inspection drones",
+   "family": "floater",
+   "dials": {
+    "shape": "orb",
+    "tentacles": 0,
+    "hover": 0.6
+   },
+   "size": 0.6,
+   "count": 2,
+   "behaviour": "circle",
+   "haunt": "sky",
+   "body": "#c9c5bb",
+   "accent": "#5a5f66",
+   "glow": "#ffb347",
+   "note": "A hovering drone scans the habitat seams."
+  }
+ ],
+ "folk": {
+  "name": "station crew",
+  "height": 1.74,
+  "bulk": 0.4,
+  "head": 1,
+  "features": [
+   "visor",
+   "pack"
+  ],
+  "skin": [
+   "#c8a07e",
+   "#8a5e43",
+   "#e0b896"
+  ],
+  "cloth": [
+   "#d9d4c7",
+   "#b5a58a",
+   "#6f7a85"
+  ],
+  "trim": [
+   "#c46b3b",
+   "#2f3b4a"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "hab_dome",
+   "summary": "pressurised hab dome 8 m wide, 6 m high",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.22,
+     "d": 0.12,
+     "h": 2.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.16,
+     "d": 0.04,
+     "h": 2.1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 2.8,
+     "w": 0.05,
+     "d": 0.02,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3,
+     "z": 0.1,
+     "y": 5.5,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.35,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.14,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "dome",
+   "dials": {
+    "flatness": 0.35,
+    "drum": 1.5,
+    "oculus": 0.2,
+    "ribs": 4,
+    "pods": 2
+   }
+  },
+  {
+   "id": "regolith_lab",
+   "summary": "half-buried regolith lab module 10 m, 3.5 m high",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.42,
+     "y": 0,
+     "w": 0.7,
+     "d": 0.2,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.2,
+     "z": 0.5,
+     "y": 0.4,
+     "w": 0.05,
+     "d": 0.02,
+     "h": 0.8,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.2
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.3,
+     "z": -0.2,
+     "y": 3,
+     "w": 0.05,
+     "d": 0.05,
+     "h": 2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.35,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.2,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.5,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.4,
+     "h": 2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "cave",
+   "dials": {
+    "mass": "bunker",
+    "height": 3.5,
+    "width": 0.9,
+    "mouth": 0.3,
+    "mouthHeight": 0.55,
+    "frame": "beam",
+    "teeth": 0,
+    "glow": 0.2,
+    "spill": 0.2
+   }
+  },
+  {
+   "id": "shielded_reactor",
+   "summary": "fission unit under a regolith berm, 4.5 m high",
+   "parts": [
+    {
+     "shape": "wedge",
+     "x": -0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.3,
+     "d": 1.2,
+     "h": 3,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": 0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.3,
+     "d": 1.2,
+     "h": 3,
+     "rot": 180,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.2,
+     "z": 0.1,
+     "y": 4.2,
+     "w": 0.12,
+     "d": 0.12,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.06,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.48,
+     "y": 1.6,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "block",
+   "dials": {
+    "modules": 3,
+    "offset": 0.1,
+    "cantilever": 0.1
+   }
+  },
+  {
+   "id": "relay_mast",
+   "summary": "lattice relay mast 24 m tall with dishes",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.3,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 2.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.2,
+     "z": -0.2,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.3,
+     "z": 0.4,
+     "y": 2.2,
+     "w": 0.02,
+     "d": 0.02,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 22,
+     "w": 0.04,
+     "d": 0.04,
+     "h": 2.5,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "mast",
+   "dials": {
+    "height": 24,
+    "shaft": "lattice",
+    "arms": 3,
+    "armLength": 0.5,
+    "hang": "dishes",
+    "top": "light",
+    "stays": 4,
+    "base": "cabin"
+   }
+  },
+  {
+   "id": "rover_garage",
+   "summary": "arched pressurised rover garage 12 m, 5 m high",
+   "parts": [
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.04,
+     "h": 3.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 3.9,
+     "w": 0.5,
+     "d": 0.02,
+     "h": 0.2,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.5,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.08,
+     "d": 0.7,
+     "h": 0.6,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.2,
+     "z": 0.5,
+     "y": 0.4,
+     "w": 0.04,
+     "d": 0.02,
+     "h": 0.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.2
+    },
+    {
+     "shape": "cylinder",
+     "x": -0.35,
+     "z": -0.3,
+     "y": 3.2,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 2,
+     "gap": 0.3
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 1,
+    "roof": "barrel",
+    "overhang": 0.05,
+    "front": "plain",
+    "rhythm": 0,
+    "chimney": 0,
+    "taper": 0
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "basalt_boulder",
+   "size": 3,
+   "parts": [],
+   "weight": 5,
+   "family": "boulder",
+   "dials": {
+    "height": 0.8,
+    "width": 1,
+    "angular": 0.6,
+    "scatter": 0.5,
+    "split": 0.2,
+    "moss": 0
+   }
+  },
+  {
+   "kind": "rubble_field",
+   "size": 2.5,
+   "parts": [],
+   "weight": 4,
+   "family": "rock",
+   "dials": {
+    "form": "boulder",
+    "count": 5,
+    "height": 0.5,
+    "jagged": 0.7,
+    "flat": 0.3
+   }
+  },
+  {
+   "kind": "floodlight_mast",
+   "size": 3,
+   "parts": [],
+   "weight": 2,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 3.2,
+    "arms": 2
+   }
+  },
+  {
+   "kind": "supply_tank",
+   "size": 2,
+   "parts": [],
+   "weight": 2,
+   "family": "container",
+   "dials": {
+    "form": "tank",
+    "count": 2,
+    "height": 0.8
+   }
+  },
+  {
+   "kind": "cable_spool",
+   "size": 1.5,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.5,
+     "w": 0.9,
+     "d": 0.9,
+     "h": 0.15,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 1,
+   "family": "container",
+   "dials": {
+    "form": "urn",
+    "count": 1,
+    "height": 0.5
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "dead_rover",
+   "prompt": "Abandoned six-wheeled Mars survey rover half-buried in rust-red dust, faded white hull panels with one collapsed solar wing and a cracked camera mast, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 3
+  }
+ ]
+}

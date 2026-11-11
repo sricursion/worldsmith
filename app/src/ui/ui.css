@@ -248,10 +248,10 @@ canvas {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(560px, calc(100% - 2 * var(--tf-gutter)));
+  width: min(580px, calc(100% - 2 * var(--tf-gutter)));
   max-height: calc(100% - 2 * var(--tf-gutter));
   overflow-y: auto;
-  padding: 28px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -259,122 +259,217 @@ canvas {
 
 .tf-landing-title {
   font-family: var(--tf-font-display);
-  font-size: clamp(34px, 8vw, 48px);
+  font-size: clamp(32px, 8vw, 44px);
+  font-weight: 600;
   line-height: 1.05;
-  letter-spacing: 0.01em;
 }
 
-.tf-promise {
+.tf-ui .tf-promise {
   color: var(--tf-fg-dim);
-  font-size: 18px;
+  font-size: 17px;
+  margin-bottom: 6px;
 }
 
 .tf-prompt-input {
-  min-height: 88px;
+  min-height: 96px;
+  line-height: 1.4;
+}
+
+.tf-ui textarea:focus-visible,
+.tf-ui input[type='text']:focus-visible {
+  outline-offset: 0;
+  border-color: transparent;
 }
 
 .tf-landing-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
 }
 
-.tf-chips-label {
+.tf-landing-row .tf-hint {
+  flex: 1 1 auto;
+}
+
+.tf-landing-row .tf-count {
+  flex: none;
+}
+
+.tf-btn-build {
+  min-height: 44px;
+  padding: 10px 24px;
+  font-size: 15px;
+  border-radius: 10px;
+}
+
+.tf-ui .tf-chips-label {
   color: var(--tf-fg-dim);
   font-size: 13px;
-  margin-top: 4px;
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--tf-border);
 }
 
 .tf-chips {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
+/* Examples read as a plain list of lines, not as a wall of buttons. */
 .tf-chip {
   pointer-events: auto;
   appearance: none;
   font: inherit;
   font-size: 14px;
+  line-height: 1.4;
   text-align: left;
   color: var(--tf-fg);
-  background: var(--tf-field);
-  border: 1px solid var(--tf-border);
-  border-radius: 10px;
-  padding: 8px 12px;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  margin: 0 -10px;
+  padding: 8px 10px;
+  min-height: 40px;
   cursor: pointer;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .tf-chip:hover {
-  border-color: var(--accent);
+  background: var(--tf-field);
 }
 
-@media (min-width: 640px) {
-  .tf-chips {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-/* Compiling */
-.tf-compiling {
+/* Build wait */
+.tf-build {
   position: absolute;
-  top: var(--tf-gutter);
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  width: min(720px, calc(100% - 2 * var(--tf-gutter)));
-  padding: 12px 16px 14px;
+  transform: translate(-50%, -50%);
+  width: min(520px, calc(100% - 2 * var(--tf-gutter)));
+  max-height: calc(100% - 2 * var(--tf-gutter));
+  overflow-y: auto;
+  padding: 28px 32px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.tf-compiling-status {
+.tf-build-name {
+  font-family: var(--tf-font-display);
+  font-size: clamp(24px, 6vw, 30px);
+  font-weight: 600;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  animation: tf-rise 0.3s ease-out;
+}
+
+.tf-build-name-pending {
+  color: var(--tf-fg-dim);
+  font-weight: 400;
+  animation: none;
+}
+
+.tf-build-story {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Until the world has a line of its own, the player's prompt stands in for it. */
+.tf-build-story-prompt {
+  color: var(--tf-fg-dim);
+  font-style: italic;
+}
+
+.tf-ui .tf-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--tf-border);
+}
+
+.tf-step {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  align-items: start;
+  color: var(--tf-fg-dim);
+}
+
+.tf-step-mark {
+  width: 10px;
+  height: 10px;
+  margin: 6px 4px 0;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  opacity: 0.6;
+}
+
+.tf-step-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.tf-step-label {
   font-weight: 600;
 }
 
-.tf-stream {
-  margin: 0;
-  height: calc(4 * 1.4em + 16px);
-  overflow: hidden;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.35);
-  color: #c9e4c0;
-  font: 12px/1.4 var(--tf-mono);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+.tf-step-detail {
+  font-size: 13px;
 }
 
-.tf-progress {
-  height: 4px;
-  border-radius: 2px;
-  background: var(--tf-field);
-  overflow: hidden;
+.tf-step[data-state='active'] {
+  color: var(--tf-fg);
 }
 
-.tf-progress-fill {
-  display: block;
-  width: 35%;
-  height: 100%;
+.tf-step[data-state='active'] .tf-step-detail {
+  color: var(--tf-fg-dim);
+}
+
+.tf-step[data-state='active'] .tf-step-mark {
+  border-color: var(--accent);
   background: var(--accent);
-  border-radius: 2px;
-  animation: tf-slide 1.4s ease-in-out infinite;
+  opacity: 1;
+  animation: tf-pulse 1.2s ease-in-out infinite alternate;
 }
 
-@keyframes tf-slide {
+.tf-step[data-state='done'] .tf-step-label {
+  color: var(--tf-fg);
+}
+
+.tf-step[data-state='done'] .tf-step-detail {
+  display: none;
+}
+
+/* A finished step gets a tick drawn from two borders. */
+.tf-step[data-state='done'] .tf-step-mark {
+  width: 7px;
+  height: 12px;
+  margin: 3px 6px 0;
+  border: solid var(--accent);
+  border-width: 0 2px 2px 0;
+  border-radius: 0;
+  transform: rotate(45deg);
+  opacity: 1;
+}
+
+@keyframes tf-pulse {
   from {
-    transform: translateX(-100%);
+    opacity: 0.35;
   }
   to {
-    transform: translateX(300%);
+    opacity: 1;
   }
+}
+
+.tf-build-live {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  min-height: 1.45em;
 }
 
 /* HUD */
@@ -467,24 +562,65 @@ canvas {
   text-align: center;
 }
 
-.tf-controls-hint {
+.tf-hud-notes {
   grid-column: 1 / -1;
-  justify-self: center;
-  pointer-events: auto;
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px 6px 14px;
-  font-size: 13px;
-  color: var(--tf-fg-dim);
 }
 
-.tf-controls-hint[hidden] {
+.tf-hud-notes:not(:has(> :not([hidden]))) {
   display: none;
 }
 
+/* These two sit over the open scene, so they use the solid panel colour to stay readable on snow or night. */
+.tf-controls-hint,
+.tf-pending {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 6px 8px 6px 14px;
+  font-size: 14px;
+  color: var(--tf-fg);
+  background: var(--tf-bg-solid);
+  transition: opacity 0.6s ease-out;
+}
+
+.tf-pending {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.tf-controls-hint.tf-fading {
+  opacity: 0;
+}
+
+.tf-controls-text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+.tf-control {
+  white-space: nowrap;
+}
+
+.tf-control .tf-kbd {
+  margin: 0 2px 0 0;
+  opacity: 1;
+  font-weight: 600;
+}
+
+.tf-controls-hint .tf-close {
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+}
+
 .tf-count {
-  margin-left: auto;
   font-variant-numeric: tabular-nums;
 }
 
@@ -816,6 +952,40 @@ canvas {
   border-color: var(--tf-danger);
 }
 
+/* One lasting line: what went wrong, and a way to try again. */
+.tf-notice {
+  position: absolute;
+  top: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(640px, calc(100% - 2 * var(--tf-gutter)));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 14px;
+  background: var(--tf-bg-solid);
+  border-color: var(--tf-danger);
+  z-index: 2;
+}
+
+.tf-notice-text {
+  flex: 1 1 auto;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.tf-notice .tf-btn,
+.tf-notice .tf-close {
+  flex: none;
+}
+
+.tf-notice .tf-close {
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+}
+
 @keyframes tf-rise {
   from {
     opacity: 0;
@@ -859,8 +1029,29 @@ canvas {
     --tf-offset: 0px;
   }
 
-  .tf-landing {
-    padding: 20px;
+  .tf-landing,
+  .tf-build {
+    padding: 22px 20px;
+  }
+
+  .tf-landing-row .tf-hint {
+    flex-basis: 100%;
+  }
+
+  .tf-btn-build {
+    flex: 1 1 100%;
+    order: 3;
+  }
+
+  .tf-notice {
+    top: 96px;
+    width: calc(100% - 2 * var(--tf-gutter));
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .tf-notice-text {
+    flex-basis: 100%;
   }
 
   .tf-dialogue {

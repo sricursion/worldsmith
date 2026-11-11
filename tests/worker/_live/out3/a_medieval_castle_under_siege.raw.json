@@ -1,0 +1,1428 @@
+{
+ "version": 1,
+ "seed": 1715,
+ "prompt": "a medieval castle under siege",
+ "title": "The Siege of Greywatch",
+ "tagline": "The walls hold. The grain does not.",
+ "theme": "medieval",
+ "era": "Late medieval",
+ "palette": {
+  "ground": "#4a4636",
+  "accent": "#6b2f26",
+  "sky": "dusk",
+  "fog": 0.3
+ },
+ "time": {
+  "startHour": 18,
+  "minutesPerRealSecond": 4
+ },
+ "buildings": [
+  {
+   "id": "keep",
+   "role": "townhall",
+   "label": "Greywatch Keep",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "great_keep"
+  },
+  {
+   "id": "gatehouse",
+   "role": "jail",
+   "label": "Great Gatehouse",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "gate_towers"
+  },
+  {
+   "id": "north_tower",
+   "role": "command",
+   "label": "North Tower",
+   "size": "medium",
+   "blueprint": "round_watchtower"
+  },
+  {
+   "id": "curtain_wall",
+   "role": "warehouse",
+   "label": "Breached Wall",
+   "size": "large",
+   "keyBuilding": true,
+   "blueprint": "breached_curtain"
+  },
+  {
+   "id": "chapel",
+   "role": "church",
+   "label": "Castle Chapel",
+   "size": "medium",
+   "blueprint": "chapel_hall"
+  },
+  {
+   "id": "smithy",
+   "role": "blacksmith",
+   "label": "Garrison Forge",
+   "size": "small",
+   "blueprint": "open_forge"
+  },
+  {
+   "id": "granary",
+   "role": "warehouse",
+   "label": "Empty Granary",
+   "size": "medium",
+   "blueprint": "thatched_store"
+  },
+  {
+   "id": "barracks",
+   "role": "inn",
+   "label": "Barracks Hall",
+   "size": "medium",
+   "blueprint": "smoked_hall"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "sir_aldric",
+   "name": "Sir Aldric",
+   "role": "castellan",
+   "persona": "Gaunt and hoarse, he has not slept a full night in three weeks. He will spend any man's life before he spends his oath.",
+   "knowledge": [
+    "The grain will not last past the feast of Saint Martin.",
+    "The breach in the curtain wall was scorched, not battered. The enemy has a trebuchet and patience.",
+    "A relief column waits at Harrowmere, two days east through the wooded hills."
+   ],
+   "secrets": [
+    "He has already sent three riders. None returned, and he told no one."
+   ],
+   "home": "keep",
+   "work": "curtain_wall",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "curtain_wall",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "keep",
+     "activity": "eat"
+    },
+    {
+     "hour": 15,
+     "place": "curtain_wall",
+     "activity": "patrol"
+    },
+    {
+     "hour": 22,
+     "place": "keep",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "wat",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "knight",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.7,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": -0.2,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.4
+    }
+   },
+   "voice": {
+    "pitch": 0.7,
+    "rate": 0.85
+   },
+   "mood": "tense"
+  },
+  {
+   "id": "brenna",
+   "name": "Brenna",
+   "role": "smith",
+   "persona": "Broad and sooty, she talks while she hammers and trusts iron over lords. She wants her forge fed and her debts paid.",
+   "knowledge": [
+    "The portcullis chain is cracked and she has no iron to mend it.",
+    "A postern behind the chapel lets one person out unseen at dusk.",
+    "Her forge is nearly out of charcoal, so she melts scrap for arrowheads."
+   ],
+   "secrets": [
+    "She forged a false sally token and sold it to a deserter for ten groats."
+   ],
+   "home": "smithy",
+   "work": "smithy",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "smithy",
+     "activity": "work"
+    },
+    {
+     "hour": 13,
+     "place": "barracks",
+     "activity": "eat"
+    },
+    {
+     "hour": 15,
+     "place": "smithy",
+     "activity": "work"
+    },
+    {
+     "hour": 21,
+     "place": "barracks",
+     "activity": "drink"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "maud",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "barbarian",
+    "palette": 1
+   },
+   "temperament": {
+    "tau": 1,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.2,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.6
+    }
+   },
+   "voice": {
+    "pitch": 0.8,
+    "rate": 1.1
+   },
+   "mood": "angry"
+  },
+  {
+   "id": "father_osric",
+   "name": "Father Osric",
+   "role": "chaplain",
+   "persona": "Soft-voiced and cracked with fatigue, he buries the dead and hears the afraid. He believes mercy is the only supply that has not run low.",
+   "knowledge": [
+    "Eleven have died of wounds and fever since the siege began.",
+    "The garrison whispers that the castellan sold their last grain for a truce.",
+    "The chapel bell is rung for the dead, never for alarm."
+   ],
+   "secrets": [
+    "Maud confessed she has been hiding sacks of grain under the chapel floor."
+   ],
+   "home": "chapel",
+   "work": "chapel",
+   "schedule": [
+    {
+     "hour": 5,
+     "place": "chapel",
+     "activity": "pray"
+    },
+    {
+     "hour": 9,
+     "place": "barracks",
+     "activity": "wander"
+    },
+    {
+     "hour": 14,
+     "place": "chapel",
+     "activity": "work"
+    },
+    {
+     "hour": 20,
+     "place": "chapel",
+     "activity": "pray"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "maud",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "mage",
+    "palette": 2
+   },
+   "temperament": {
+    "tau": 1.3,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.5,
+     "idle": 0,
+     "flee": 0.1,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.1,
+    "rate": 0.8
+   },
+   "mood": "grieving"
+  },
+  {
+   "id": "wat",
+   "name": "Wat",
+   "role": "archer",
+   "persona": "Wiry and quick, he jokes to keep from counting arrows. He knows every murder-hole and the way the enemy pickets change.",
+   "knowledge": [
+    "The enemy lines are thinnest at the northern ford before dawn.",
+    "Smoke from the wooded hills means a relief signal fire, not a camp.",
+    "The hound will follow anyone carrying scraps of meat."
+   ],
+   "secrets": [
+    "He has been pocketing his own bread to feed the castle hound."
+   ],
+   "home": "north_tower",
+   "work": "curtain_wall",
+   "schedule": [
+    {
+     "hour": 4,
+     "place": "north_tower",
+     "activity": "patrol"
+    },
+    {
+     "hour": 10,
+     "place": "curtain_wall",
+     "activity": "work"
+    },
+    {
+     "hour": 17,
+     "place": "north_tower",
+     "activity": "guard"
+    },
+    {
+     "hour": 23,
+     "place": "north_tower",
+     "activity": "sleep"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "sir_aldric",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "ranger",
+    "palette": 3
+   },
+   "temperament": {
+    "tau": 1.2,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0.3,
+     "idle": 0,
+     "flee": 0,
+     "investigate": 0.4,
+     "follow_player": 0,
+     "work": 0
+    }
+   },
+   "voice": {
+    "pitch": 1.2,
+    "rate": 1.2
+   },
+   "mood": "cheerful"
+  },
+  {
+   "id": "maud",
+   "name": "Maud",
+   "role": "granary keeper",
+   "persona": "Stern and sharp-eyed, she counts every handful. She guards the empty granary as though it were still full.",
+   "knowledge": [
+    "Four sacks of grain remain, and she knows exactly where they are.",
+    "Rats have gotten into the thatch, and she has not seen one in a week because they are eaten.",
+    "The castellan's seal on the grain ledger is forged."
+   ],
+   "secrets": [
+    "She is skimming from the dwindling stores to keep the children fed."
+   ],
+   "home": "granary",
+   "work": "granary",
+   "schedule": [
+    {
+     "hour": 6,
+     "place": "granary",
+     "activity": "work"
+    },
+    {
+     "hour": 12,
+     "place": "barracks",
+     "activity": "eat"
+    },
+    {
+     "hour": 14,
+     "place": "granary",
+     "activity": "work"
+    },
+    {
+     "hour": 20,
+     "place": "granary",
+     "activity": "rest"
+    }
+   ],
+   "relationships": [
+    {
+     "npcId": "father_osric",
+     "stance": "friend"
+    }
+   ],
+   "appearance": {
+    "base": "rogue",
+    "palette": 0
+   },
+   "temperament": {
+    "tau": 0.8,
+    "bias": {
+     "continue": 0,
+     "go_to": 0,
+     "talk_to": 0,
+     "idle": 0,
+     "flee": 0.2,
+     "investigate": 0,
+     "follow_player": 0,
+     "work": 0.5
+    }
+   },
+   "voice": {
+    "pitch": 1,
+    "rate": 0.9
+   },
+   "mood": "afraid"
+  }
+ ],
+ "items": [
+  {
+   "id": "sally_token",
+   "name": "Sally Token",
+   "description": "A scratched iron disc. The postern guards pass whoever carries one.",
+   "holder": "brenna"
+  },
+  {
+   "id": "castellan_seal",
+   "name": "Castellan's Seal",
+   "description": "A wax-stamped ring that marks a plea for relief as Sir Aldric's own.",
+   "holder": "keep"
+  },
+  {
+   "id": "grain_sack",
+   "name": "Hidden Grain Sack",
+   "description": "A sack of barley under the chapel floor, saved against the worst day.",
+   "holder": "chapel"
+  },
+  {
+   "id": "hound_collar",
+   "name": "Hound's Old Collar",
+   "description": "A worn leather collar the castle hound shed. It smells of smoke and meat.",
+   "holder": "keep"
+  }
+ ],
+ "quest": {
+  "id": "relief_of_greywatch",
+  "title": "The Siege of Greywatch",
+  "hook": "Three weeks the garrison has held, and the granary is nearly bare. Sir Aldric needs someone no one will miss to slip through the enemy lines to the relief column at Harrowmere. You are a stranger with no banner and no oath, and that is your only worth here.",
+  "giver": "sir_aldric",
+  "steps": [
+   {
+    "id": "s1_talk",
+    "kind": "talk",
+    "target": "sir_aldric",
+    "requires": [],
+    "objective": "Hear the castellan's plea at the breached wall.",
+    "beat": "Aldric stands at the scorched breach and offers you a place at the postern if you will carry his seal east.",
+    "reveals": [
+     "sir_aldric:0"
+    ]
+   },
+   {
+    "id": "s2_fetch_seal",
+    "kind": "fetch",
+    "target": "castellan_seal",
+    "requires": [
+     "s1_talk"
+    ],
+    "objective": "Take the castellan's seal from the keep.",
+    "beat": "The seal sits on a table in the keep while the hound prowls the hall, ears flat.",
+    "item": "castellan_seal"
+   },
+   {
+    "id": "s3_fetch_token",
+    "kind": "fetch",
+    "target": "sally_token",
+    "requires": [
+     "s1_talk"
+    ],
+    "objective": "Get a sally token from Brenna.",
+    "beat": "Brenna hammers at the forge and will part with the token only for a favour or a price.",
+    "item": "sally_token"
+   },
+   {
+    "id": "s4_choose",
+    "kind": "choose",
+    "target": "father_osric",
+    "requires": [
+     "s2_fetch_seal",
+     "s3_fetch_token"
+    ],
+    "objective": "Decide how to leave the castle.",
+    "beat": "Osric and the postern both offer a way out, and each costs the garrison something.",
+    "choices": [
+     {
+      "label": "Take the hidden grain to Harrowmere as proof of the siege",
+      "unlocks": [
+       "s5a_fetch_grain"
+      ]
+     },
+     {
+      "label": "Slip out alone through the postern at dusk",
+      "unlocks": [
+       "s5b_visit"
+      ]
+     }
+    ],
+    "reveals": [
+     "father_osric:0"
+    ]
+   },
+   {
+    "id": "s5a_fetch_grain",
+    "kind": "fetch",
+    "target": "grain_sack",
+    "requires": [
+     "s4_choose"
+    ],
+    "objective": "Lift the hidden grain from under the chapel floor.",
+    "beat": "Maud's secret store rattles in the dark, and you take it knowing what she risked.",
+    "item": "grain_sack"
+   },
+   {
+    "id": "s5b_visit",
+    "kind": "visit",
+    "target": "north_tower",
+    "requires": [
+     "s4_choose"
+    ],
+    "objective": "Climb the North Tower and watch the enemy pickets.",
+    "beat": "Wat points out the northern ford where the lines thin before dawn, while the crows circle the smoke."
+   },
+   {
+    "id": "s6_deliver",
+    "kind": "deliver",
+    "target": "sir_aldric",
+    "requires": [
+     "s5a_fetch_grain"
+    ],
+    "objective": "Return the seal to Sir Aldric as proof you left and returned.",
+    "beat": "Aldric takes the seal and asks nothing more, for the grain you carried speaks for you.",
+    "item": "castellan_seal"
+   }
+  ],
+  "endings": [
+   {
+    "stepId": "s6_deliver",
+    "label": "The column marches and Greywatch breathes",
+    "tone": "good"
+   },
+   {
+    "stepId": "s5b_visit",
+    "label": "You vanish into the hills and no word returns",
+    "tone": "bitter"
+   }
+  ]
+ },
+ "rules": [
+  {
+   "id": "r1",
+   "text": "No fire may be lit on the walls after dark, lest archers be marked.",
+   "effect": {
+    "type": "ban",
+    "what": "open flame",
+    "where": "curtain_wall",
+    "enforcer": "wat"
+   },
+   "source": "world"
+  },
+  {
+   "id": "r2",
+   "text": "Grain is rationed and a groat will not buy a loaf.",
+   "effect": {
+    "type": "price",
+    "item": "grain_sack",
+    "multiplier": 4
+   },
+   "source": "world"
+  }
+ ],
+ "lexicon": [
+  "groat",
+  "trebuchet",
+  "sally",
+  "portcullis",
+  "liege",
+  "murder-hole"
+ ],
+ "style": {
+  "name": "Greywatch Dusk",
+  "wall": "#7a766e",
+  "wall2": "#5b5853",
+  "roof": "#3f4245",
+  "trim": "#8d8980",
+  "accent": "#6b2f26",
+  "dark": "#1f1c1b",
+  "glass": "#2a3036",
+  "glow": "#ff9a3c",
+  "ground": "#4a4636",
+  "road": "#5e5648",
+  "variety": 0.2,
+  "foliage": "#3f4a2f",
+  "bark": "#4a3d30",
+  "surfaces": {
+   "wall": "stone",
+   "wall2": "stone",
+   "roof": "slate",
+   "trim": "stone",
+   "ground": "dirt",
+   "road": "gravel",
+   "wear": 0.75,
+   "wet": 0.3
+  }
+ },
+ "site": {
+  "pattern": "ring",
+  "wild": 0.2,
+  "paths": "track",
+  "spacing": 7
+ },
+ "mood": {
+  "weather": "embers",
+  "intensity": 0.4,
+  "grade": "crimson",
+  "haze": 0.6,
+  "ambience": [
+   "fire",
+   "crowd",
+   "wind",
+   "birds"
+  ],
+  "music": "low war drums"
+ },
+ "terrain": {
+  "relief": "rolling",
+  "ruggedness": 0.4,
+  "water": "none",
+  "waterAmount": 0,
+  "horizon": "smoke over distant wooded hills",
+  "settled": 0.55
+ },
+ "skyFeatures": [],
+ "creatures": [
+  {
+   "id": "crows",
+   "name": "carrion crows",
+   "family": "bird",
+   "dials": {
+    "wingspan": 0.6
+   },
+   "size": 0.45,
+   "count": 8,
+   "behaviour": "circle",
+   "haunt": "sky",
+   "body": "#1c1a1a",
+   "accent": "#2a2626",
+   "glow": "#000000",
+   "note": "They circle the field below, patient and hungry."
+  },
+  {
+   "id": "warhorses",
+   "name": "stabled warhorses",
+   "family": "quadruped",
+   "dials": {
+    "bulk": 0.7,
+    "mane": 0.7
+   },
+   "size": 2.4,
+   "count": 3,
+   "behaviour": "guard",
+   "haunt": "barracks",
+   "body": "#5a3a28",
+   "accent": "#3a2418",
+   "glow": "#000000",
+   "note": "Restless, stamping at every distant thunder of rams."
+  },
+  {
+   "id": "hound",
+   "name": "castle hound",
+   "family": "quadruped",
+   "dials": {
+    "snout": 0.6
+   },
+   "size": 0.8,
+   "count": 1,
+   "behaviour": "stalk",
+   "haunt": "keep",
+   "body": "#7a6448",
+   "accent": "#5a4630",
+   "glow": "#000000",
+   "note": "A lean mastiff that shadows you through the courtyard."
+  }
+ ],
+ "folk": {
+  "name": "castle garrison",
+  "height": 1.74,
+  "bulk": 0.5,
+  "head": 1,
+  "features": [
+   "hood",
+   "armor",
+   "cloak"
+  ],
+  "skin": [
+   "#d9b48f",
+   "#b98c66",
+   "#8a6446"
+  ],
+  "cloth": [
+   "#5a4a3a",
+   "#6b3a2e",
+   "#3e4a56"
+  ],
+  "trim": [
+   "#a8a090",
+   "#7a5a30"
+  ]
+ },
+ "blueprints": [
+  {
+   "id": "great_keep",
+   "summary": "square stone keep with battlements, 28 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0,
+     "y": 24,
+     "w": 1.05,
+     "d": 1.05,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 25.6,
+     "w": 0.12,
+     "d": 0.06,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 8,
+     "gap": 0.13
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.5,
+     "y": 25.6,
+     "w": 0.12,
+     "d": 0.06,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 8,
+     "gap": 0.13
+    },
+    {
+     "shape": "box",
+     "x": 0.36,
+     "z": 0.2,
+     "y": 24,
+     "w": 0.28,
+     "d": 0.28,
+     "h": 4,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "arch",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.05,
+     "h": 4.5,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.18,
+     "z": 0.5,
+     "y": 9,
+     "w": 0.04,
+     "d": 0.03,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.3
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 15,
+     "w": 0.04,
+     "d": 0.03,
+     "h": 1.6,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 3,
+     "gap": 0.2
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 24,
+    "section": "square",
+    "taper": 0.08,
+    "bands": 2,
+    "top": "platform",
+    "flare": 0.12
+   }
+  },
+  {
+   "id": "gate_towers",
+   "summary": "twin-towered gate with portcullis, 18 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.1,
+     "y": 11,
+     "w": 0.9,
+     "d": 0.5,
+     "h": 5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.1,
+     "y": 16,
+     "w": 0.1,
+     "d": 0.3,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 7,
+     "gap": 0.13
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.04,
+     "h": 7,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.02,
+     "d": 0.05,
+     "h": 7,
+     "rot": 0,
+     "tone": "trim",
+     "repeat": 5,
+     "gap": 0.06
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.5,
+     "y": 13,
+     "w": 0.04,
+     "d": 0.03,
+     "h": 1.4,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "arch",
+   "dials": {
+    "span": 0.4,
+    "thickness": 0.22,
+    "lintel": "pointed",
+    "towers": 2
+   }
+  },
+  {
+   "id": "round_watchtower",
+   "summary": "round stone watchtower with arrow slits, 24 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 6,
+     "w": 0.03,
+     "d": 0.02,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 3,
+     "gap": 0.4
+    },
+    {
+     "shape": "box",
+     "x": 0.5,
+     "z": 0,
+     "y": 13,
+     "w": 0.02,
+     "d": 0.03,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 3,
+     "gap": 0.3
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0,
+     "y": 22,
+     "w": 1.1,
+     "d": 1.1,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.15,
+     "z": 0.35,
+     "y": 16,
+     "w": 0.03,
+     "d": 0.03,
+     "h": 1.1,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "tower",
+   "dials": {
+    "height": 22,
+    "section": "round",
+    "taper": 0.2,
+    "bands": 3,
+    "top": "cone",
+    "flare": 0.2
+   }
+  },
+  {
+   "id": "breached_curtain",
+   "summary": "crumbling curtain wall, scorched breach 10 m",
+   "parts": [
+    {
+     "shape": "wedge",
+     "x": 0.1,
+     "z": 0,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.5,
+     "h": 5,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.25,
+     "z": 0.1,
+     "y": 0,
+     "w": 0.14,
+     "d": 0.3,
+     "h": 3,
+     "rot": 15,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0,
+     "y": 8,
+     "w": 0.1,
+     "d": 0.4,
+     "h": 2,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0.05,
+     "z": 0.45,
+     "y": 0,
+     "w": 0.5,
+     "d": 0.1,
+     "h": 1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.35,
+     "z": 0.05,
+     "y": 0,
+     "w": 0.12,
+     "d": 0.5,
+     "h": 10,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "wall",
+   "dials": {
+    "height": 8,
+    "crenels": 8,
+    "posts": 0,
+    "ruin": 0.45
+   }
+  },
+  {
+   "id": "chapel_hall",
+   "summary": "stone chapel with bell turret, 14 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.3,
+     "y": 6.4,
+     "w": 0.2,
+     "d": 0.2,
+     "h": 5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cone",
+     "x": 0,
+     "z": -0.3,
+     "y": 11.4,
+     "w": 0.22,
+     "d": 0.22,
+     "h": 3.2,
+     "rot": 0,
+     "tone": "roof",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.06,
+     "h": 4,
+     "rot": 90,
+     "tone": "wall2",
+     "repeat": 4,
+     "gap": 0.3
+    },
+    {
+     "shape": "ring",
+     "x": 0,
+     "z": 0.5,
+     "y": 4.5,
+     "w": 0.14,
+     "d": 0.02,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glass",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.5,
+     "y": 2.2,
+     "w": 0.04,
+     "d": 0.03,
+     "h": 1,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 2,
+     "gap": 0.6
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "gable",
+    "overhang": 0.08,
+    "front": "plain",
+    "rhythm": 3,
+    "chimney": 0,
+    "taper": 0
+   }
+  },
+  {
+   "id": "open_forge",
+   "summary": "open-sided forge under timber roof, 5 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.2,
+     "y": 0,
+     "w": 0.3,
+     "d": 0.25,
+     "h": 1,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "cylinder",
+     "x": 0.3,
+     "z": -0.35,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 5.5,
+     "rot": 0,
+     "tone": "wall",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": -0.1,
+     "y": 1,
+     "w": 0.2,
+     "d": 0.15,
+     "h": 0.5,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.08,
+     "d": 0.08,
+     "h": 0.9,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "canopy",
+   "dials": {
+    "posts": 4,
+    "roof": "shed",
+    "counter": 0.2
+   }
+  },
+  {
+   "id": "thatched_store",
+   "summary": "long low stone storehouse, thatched roof, 7 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.2,
+     "d": 0.03,
+     "h": 2.2,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.06,
+     "d": 0.06,
+     "h": 1.6,
+     "rot": 90,
+     "tone": "wall2",
+     "repeat": 4,
+     "gap": 0.28
+    },
+    {
+     "shape": "box",
+     "x": 0.4,
+     "z": 0.2,
+     "y": 0,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 1,
+     "rot": 0,
+     "tone": "accent",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": -0.2,
+   "family": "hall",
+   "dials": {
+    "storeys": 1,
+    "roof": "gable",
+    "overhang": 0.2,
+    "front": "stoop",
+    "rhythm": 2,
+    "chimney": 0,
+    "taper": 0
+   }
+  },
+  {
+   "id": "smoked_hall",
+   "summary": "timber and stone barracks hall, 9 m",
+   "parts": [
+    {
+     "shape": "box",
+     "x": 0.2,
+     "z": 0.5,
+     "y": 5,
+     "w": 0.04,
+     "d": 0.03,
+     "h": 1.2,
+     "rot": 0,
+     "tone": "glow",
+     "repeat": 3,
+     "gap": 0.2
+    },
+    {
+     "shape": "box",
+     "x": 0,
+     "z": 0.5,
+     "y": 0,
+     "w": 0.8,
+     "d": 0.04,
+     "h": 0.3,
+     "rot": 0,
+     "tone": "wall2",
+     "repeat": 1,
+     "gap": 0
+    },
+    {
+     "shape": "wedge",
+     "x": -0.5,
+     "z": 0,
+     "y": 0,
+     "w": 0.08,
+     "d": 0.06,
+     "h": 3,
+     "rot": 90,
+     "tone": "wall2",
+     "repeat": 3,
+     "gap": 0.45
+    },
+    {
+     "shape": "box",
+     "x": -0.3,
+     "z": -0.2,
+     "y": 6,
+     "w": 0.1,
+     "d": 0.1,
+     "h": 1.8,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "doorX": 0,
+   "family": "hall",
+   "dials": {
+    "storeys": 2,
+    "roof": "hip",
+    "overhang": 0.15,
+    "front": "porch",
+    "rhythm": 4,
+    "chimney": 2,
+    "taper": 0
+   }
+  }
+ ],
+ "props": [
+  {
+   "kind": "scorched_oak",
+   "size": 8,
+   "parts": [],
+   "weight": 3,
+   "family": "broadleaf",
+   "dials": {
+    "height": 1.8,
+    "trunk": 0.3,
+    "girth": 0.2,
+    "limbs": 3,
+    "spread": 0.6,
+    "crown": "bare",
+    "buttress": 0.2,
+    "hang": 0,
+    "lean": 0.1
+   }
+  },
+  {
+   "kind": "bramble",
+   "size": 1.8,
+   "parts": [],
+   "weight": 5,
+   "family": "shrub",
+   "dials": {
+    "form": "tangle",
+    "height": 0.7,
+    "spread": 0.9,
+    "stems": 5,
+    "density": 0.5
+   }
+  },
+  {
+   "kind": "dry_grass",
+   "size": 1.2,
+   "parts": [],
+   "weight": 5,
+   "family": "grassclump",
+   "dials": {
+    "form": "blades",
+    "height": 0.6,
+    "spread": 0.7,
+    "count": 9,
+    "lean": 0.4,
+    "heads": "ear"
+   }
+  },
+  {
+   "kind": "iron_brazier",
+   "size": 2.5,
+   "parts": [
+    {
+     "shape": "cylinder",
+     "x": 0,
+     "z": 0,
+     "y": 0.5,
+     "w": 0.3,
+     "d": 0.3,
+     "h": 0.1,
+     "rot": 0,
+     "tone": "dark",
+     "repeat": 1,
+     "gap": 0
+    }
+   ],
+   "weight": 2,
+   "family": "pole",
+   "dials": {
+    "head": "lamp",
+    "height": 2.4,
+    "arms": 0
+   }
+  },
+  {
+   "kind": "siege_stakes",
+   "size": 1.8,
+   "parts": [],
+   "weight": 2,
+   "family": "container",
+   "dials": {
+    "form": "crate",
+    "count": 3,
+    "height": 0.6
+   }
+  },
+  {
+   "kind": "fallen_ash_log",
+   "size": 3,
+   "parts": [],
+   "weight": 2,
+   "family": "deadwood",
+   "dials": {
+    "form": "log",
+    "size": 1,
+    "girth": 0.3,
+    "branches": 2,
+    "moss": 0.3
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "trebuchet_wreck",
+   "prompt": "A collapsed timber trebuchet with a snapped throwing arm and scorched oak frame, iron-banded beams, charred rope, realistic proportions, weathered",
+   "place": "plaza",
+   "height": 9
+  }
+ ]
+}

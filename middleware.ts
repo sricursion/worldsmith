@@ -1,8 +1,9 @@
-// Site-wide password. When SITE_PASSWORD is set on the host, every page, asset and API call needs it
+// Password on the web page. When SITE_PASSWORD is set on the host, every page and asset needs it; the
+// API under /api is left alone.
 // (HTTP Basic: any user name, the password as given). When it is not set the site is open, which is
 // how it runs locally. The browser remembers the answer and sends it with the page's own requests.
 
-export const config = { matcher: '/(.*)' };
+export const config = { matcher: '/((?!api(?:/|$)).*)' };
 
 /** Compares two strings in time that does not depend on where they differ. */
 function same(a: string, b: string): boolean {

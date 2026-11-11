@@ -2,16 +2,19 @@
 // gathers against buildings (see dressTown below).
 // Sizes follow PROP_SIZES at scale 1; the world matrix (position, yaw, scale) is baked into the batch.
 import * as THREE from 'three';
-import { makeRng } from '../world/rng';
+import { hash32, makeRng } from '../world/rng';
 import type { Rng } from '../world/rng';
 import type { Blueprint, PropBlueprint, StyleSpec, SurfaceKind, SurfaceSet, ThemeId, WorldSpec } from '../world/spec';
 import { GeoBatch } from './batch';
 import type { MaterialCache } from './batch';
+import { blueprintBounds } from '../world/blueprints';
 import { addBlueprint, addPropParts, expandBlueprintParts } from './blueprint-mesh';
-import { GROWN_FOOTPRINTS, buildingAabb, distanceToRoad } from './layout';
+import { GROWN_FOOTPRINTS, buildingAabb, distanceToPolyline, distanceToRoad } from './layout';
 import type { PlacedBuilding, PlacedProp, TownLayout } from './layout';
 import { Part } from './procedural';
 import type { ProcEnv } from './procedural';
+import { bareAt, evenShares, growthAt, instanceLook, mixKind, spotUnit, varyBlueprint } from './variation';
+import type { InstanceForm, InstanceLook } from './variation';
 
 /** Props whose longest side is under this many metres are drawn but never block the navmesh. */
 export const VISUAL_ONLY_SIZE = 0.8;
@@ -232,54 +235,270 @@ function pickWeighted<T>(items: readonly T[], weights: readonly number[], rng: R
  * town has no other kind. A kept pole with a glowing part adds a light to `lights`, unless it glows too
  * high up to light the ground. Returns how many were placed per kind.
  */
+/**
+ * How a world wants its props mixed. With this given, the scatter gathers them into groves and thickets with
+ * bare ground between, lets each kind keep to its own stands, and (where the land is mostly wild) sees that
+ * no one kind takes over.
+ */
+export interface PropMix {
+  seed: number;
+  /** SiteSpec.wild and TerrainSpec.settled, 0..1. */
+  wild: number; settled: number;
+  /** False where nothing may be added (standing water). */
+  allow?: (x: number, z: number) => boolean;
+}
+
+/** Below this much settlement a place counts as wild: no kind may hold more than WILD_SHARE of it, and WILD_KINDS kinds must show. */
+export const WILD_SETTLED = 0.3;
+export const WILD_SHARE = 0.55;
+export const WILD_KINDS = 4;
+
+type ScatterLayout = Pick<TownLayout, 'roads' | 'buildings'> & Partial<Pick<TownLayout, 'trails' | 'clearings' | 'plaza' | 'spawn'>>;
+
+export interface PlannedProp {
+  x: number; z: number; rotY: number;
+  /** Final scale: the slot's own times the instance's. */
+  scale: number;
+  kind: PropBlueprint;
+  /** A pole that kept its place (see pickPoleSpots). */
+  pole: boolean;
+  /** Grown beside a slot to thicken a stand, not one of the layout's own slots. */
+  added: boolean;
+  look: InstanceLook;
+}
+
+/** From this share of grown form up (see grownShare), a prop kind is taken to be of the land and not made by someone. */
+export const NATURAL_SHARE = 0.4;
+
+/**
+ * How much of a prop kind, by volume, is grown or weathered form: balls, domes, cones and points, and anything
+ * set at an odd angle. Made things are boxes and drums standing square. By the time a world is built its
+ * props no longer say which skeleton they came from, so their shape is what there is to go on.
+ */
+export function grownShare(kind: Pick<PropBlueprint, 'parts'>): number {
+  let soft = 0;
+  let all = 0;
+  for (const p of expandBlueprintParts(kind.parts)) {
+    const vol = p.w * p.d * p.h;
+    const off = Math.abs(((p.rot % 90) + 90) % 90);
+    all += vol;
+    if (p.shape === 'sphere' || p.shape === 'dome' || p.shape === 'cone' || p.shape === 'pyramid' || Math.min(off, 90 - off) > 2) soft += vol;
+  }
+  return all > 0 ? soft / all : 0;
+}
+
+/** Whether a prop kind is of the land: grown form, and no light on it unless it is grown through and through (a lit crystal, not a lamp). */
+export function isNatural(kind: Pick<PropBlueprint, 'size' | 'parts'>): boolean {
+  const share = grownShare(kind);
+  return share >= NATURAL_SHARE && (share >= 0.95 || propProfile(kind).glowY === null);
+}
+
+/** How an instance of a kind is varied (see instanceLook). */
+export function formOf(kind: Pick<PropBlueprint, 'size' | 'parts'>): InstanceForm {
+  if (isTreeLike(kind)) return 'tree';
+  if (isNatural(kind)) return 'grown';
+  return isPole(propProfile(kind)) ? 'pole' : 'thing';
+}
+
+/** Whether a prop kind is a tall growing thing: it gets a tree's spread of sizes and a lean. */
+export function isTreeLike(kind: Pick<PropBlueprint, 'size' | 'parts'>): boolean {
+  const pr = propProfile(kind);
+  return pr.height >= 1.5 && pr.height > 1.2 * pr.width && isNatural(kind);
+}
+
+/**
+ * Decides what stands where: the pure half of scatterBlueprintProps. Without `mix` every slot takes a kind by
+ * weight, as it always did. With it, slots on bare patches away from streets and doors are left empty, thick
+ * patches gain smaller neighbours beside their slots (never more than were left out), and kinds are drawn by
+ * neighbourhood. Poles are capped either way.
+ */
+export function planPropScatter(
+  slots: readonly PlacedProp[], kinds: readonly PropBlueprint[], rng: Rng,
+  opts: { layout?: ScatterLayout; maxPoles?: number; poleSpacing?: number; mix?: PropMix } = {},
+): PlannedProp[] {
+  const usable = kinds.filter((k) => k.parts.length > 0);
+  if (usable.length === 0) return [];
+  const weight = (k: PropBlueprint): number => Math.min(5, Math.max(1, Number.isFinite(k.weight) ? k.weight : 1));
+  const mix = opts.mix;
+  const seed = mix?.seed ?? 0;
+  const unit = (v: number, d: number): number => (Number.isFinite(v) ? clampTo(v, 0, 1) : d);
+  const settled = mix ? unit(mix.settled, 0.7) : 1;
+  const strength = mix ? clampTo(1.25 * (1 - settled), 0, 1) : 0;
+  const wildPlace = mix !== undefined && settled < WILD_SETTLED;
+  const lay: ScatterLayout = opts.layout ?? { roads: [], buildings: [] };
+  // In a wild place the tall thin things of the land (snags, shards, cacti) are growth like any other, not street furniture.
+  const poles = new Set(usable.filter((k) => isPole(propProfile(k)) && !(wildPlace && isNatural(k))));
+
+  // Where: the layout's slots, thinned on bare ground and thickened in the stands.
+  interface Site { x: number; z: number; rotY: number; scale: number; parent: number }
+  let sites: Site[] = slots.map((s) => ({ x: s.x, z: s.z, rotY: s.rotY, scale: s.scale, parent: -1 }));
+  if (mix && strength > 0) {
+    const civil = (x: number, z: number): boolean =>
+      lay.roads.some((rd) => distanceToRoad(rd, x, z) < 4) || lay.buildings.some((b) => Math.hypot(x - b.door.x, z - b.door.z) < 5);
+    // A jungle floor is covered; a desert is mostly gaps: the wilder the growth, the smaller the bare patches.
+    const bare = strength * (1 - 0.6 * unit(mix.wild, 0.3));
+    const kept = sites.filter((s) => civil(s.x, s.z) || spotUnit(s.x, s.z, seed, 1) >= bare * bareAt(s.x, s.z, seed));
+    const boxes = lay.buildings.map((b) => buildingAabb(b));
+    const open = (x: number, z: number): boolean => {
+      if (mix.allow?.(x, z) === false) return false;
+      if (lay.roads.some((rd) => distanceToRoad(rd, x, z) < 1.5)) return false;
+      if (boxes.some((q) => x > q.minX - 1.2 && x < q.maxX + 1.2 && z > q.minZ - 1.2 && z < q.maxZ + 1.2)) return false;
+      if (lay.buildings.some((b) => Math.hypot(x - b.door.x, z - b.door.z) < 2.5)) return false;
+      if (lay.trails?.some((t) => distanceToPolyline(t.pts, x, z) < t.width / 2 + 1)) return false;
+      if (lay.clearings?.some((q) => Math.hypot(x - q.x, z - q.z) < q.r)) return false;
+      if (lay.plaza && Math.hypot(x - lay.plaza.x, z - lay.plaza.z) < lay.plaza.r + 1.5) return false;
+      return !lay.spawn || Math.hypot(x - lay.spawn.x, z - lay.spawn.z) > 2.5;
+    };
+    const lost = sites.length - kept.length;
+    const grown: Site[] = [];
+    kept.forEach((s, index) => {
+      if (grown.length >= lost || civil(s.x, s.z)) return;
+      const thick = growthAt(s.x, s.z, seed);
+      if (thick < 0.75 || spotUnit(s.x, s.z, seed, 2) >= strength * thick * 0.8) return;
+      const n = spotUnit(s.x, s.z, seed, 3) < 0.35 ? 2 : 1;
+      for (let k = 0; k < n && grown.length < lost; k++) {
+        const ang = spotUnit(s.x, s.z, seed, 4 + k) * Math.PI * 2;
+        const r = 1.1 + 1.5 * spotUnit(s.x, s.z, seed, 6 + k);
+        const x = s.x + Math.cos(ang) * r;
+        const z = s.z + Math.sin(ang) * r;
+        if (!open(x, z) || kept.some((q) => q !== s && Math.hypot(q.x - x, q.z - z) < 0.9)) continue;
+        grown.push({ x, z, rotY: spotUnit(x, z, seed, 8) * Math.PI * 2, scale: s.scale * (0.6 + 0.3 * spotUnit(x, z, seed, 9)), parent: index });
+      }
+    });
+    sites = kept.concat(grown);
+  }
+
+  // What: by weight, or by weight and neighbourhood. In a wild place the rare kinds are not allowed to vanish.
+  const top = usable.reduce((m, k) => Math.max(m, weight(k)), 1);
+  const weights = usable.map((k) => (wildPlace ? Math.max(weight(k), 0.25 * top) : weight(k)));
+  const picks: number[] = [];
+  sites.forEach((s) => {
+    if (!mix) {
+      const kind = pickWeighted(usable, weights, rng);
+      picks.push(kind ? usable.indexOf(kind) : -1);
+    } else if (s.parent >= 0 && rng.chance(0.75)) picks.push(picks[s.parent] ?? -1);
+    else picks.push(mixKind(weights, s.x, s.z, seed, strength, rng.next()));
+  });
+
+  // Poles: a kind is one or is not, judged at its own size; then the slots that drew one, and the few that keep it.
+  const isPoleKind = usable.map((k) => poles.has(k));
+  const poleSlots: number[] = [];
+  picks.forEach((k, i) => {
+    if (k >= 0 && isPoleKind[k] === true && (sites[i] as Site).parent < 0) poleSlots.push(i);
+  });
+  const keptPoles = new Set(
+    pickPoleSpots(poleSlots.map((i) => sites[i] as Site), lay, opts.maxPoles ?? MAX_POLES, opts.poleSpacing ?? POLE_SPACING).map((k) => poleSlots[k] as number),
+  );
+  const sturdy = usable.filter((k) => !poles.has(k));
+  const sturdyWeights = sturdy.map((k) => weights[usable.indexOf(k)] as number);
+  const sturdyIndex = sturdy.map((k) => usable.indexOf(k));
+  sites.forEach((s, i) => {
+    const k = picks[i] as number;
+    if (k < 0 || isPoleKind[k] !== true || keptPoles.has(i)) return;
+    if (sturdy.length === 0) picks[i] = -1;
+    else if (!mix) {
+      const kind = pickWeighted(sturdy, sturdyWeights, rng);
+      picks[i] = kind ? usable.indexOf(kind) : -1;
+    } else picks[i] = sturdyIndex[mixKind(sturdyWeights, s.x, s.z, seed + 1, strength, rng.next())] ?? -1;
+  });
+  if (wildPlace) {
+    evenShares(picks, sites, weights, { open: isPoleKind.map((p) => !p), locked: (i) => keptPoles.has(i), cap: WILD_SHARE, minKinds: WILD_KINDS, seed });
+  }
+
+  const form = usable.map((k): InstanceForm => (poles.has(k) ? 'pole' : formOf(k)));
+  // A place with one or two kinds to show has to get its variety out of them.
+  const spread = mix && usable.length - poles.size <= 2 ? 1.6 : 1;
+  const out: PlannedProp[] = [];
+  sites.forEach((s, i) => {
+    const k = picks[i] as number;
+    const kind = usable[k];
+    if (!kind) return;
+    const look = instanceLook(seed, s.x, s.z, form[k] ?? 'thing', spread);
+    out.push({ x: s.x, z: s.z, rotY: s.rotY, scale: s.scale * look.scale, kind, pole: keptPoles.has(i), added: s.parent >= 0, look });
+  });
+  return out;
+}
+
+/**
+ * Stands in front of a batch and gives everything added through it one instance's own shape and colour: a lean
+ * and a stretch about the foot of the prop, and a cast over its vertex colours. addPropParts hands over
+ * geometry already in world space, so the change is made to the geometry itself.
+ */
+class InstanceBatch extends GeoBatch {
+  private target: GeoBatch | null = null;
+  private readonly matrix = new THREE.Matrix4();
+  private shaped = false;
+  private r = 1;
+  private g = 1;
+  private b = 1;
+  private readonly a = new THREE.Matrix4();
+  private readonly e = new THREE.Euler();
+
+  aim(target: GeoBatch, x: number, z: number, look: InstanceLook): this {
+    this.target = target;
+    this.shaped = look.leanX !== 0 || look.leanZ !== 0 || look.height !== 1 || look.wide !== 1 || look.deep !== 1;
+    if (this.shaped) {
+      this.matrix.makeTranslation(x, 0, z)
+        .multiply(this.a.makeRotationFromEuler(this.e.set(look.leanX, 0, look.leanZ)))
+        .multiply(this.a.makeScale(look.wide, look.height, look.deep))
+        .multiply(this.a.makeTranslation(-x, 0, -z));
+    }
+    this.r = look.value * (1 + look.warm);
+    this.g = look.value;
+    this.b = look.value * (1 - look.warm);
+    return this;
+  }
+
+  override add(geo: THREE.BufferGeometry, material: THREE.Material, matrix?: THREE.Matrix4): void {
+    if (!this.target) return;
+    if (this.shaped) geo.applyMatrix4(this.matrix);
+    const col = geo.getAttribute('color');
+    if (col && (this.r !== 1 || this.g !== 1 || this.b !== 1)) {
+      for (let i = 0; i < col.count; i++) col.setXYZ(i, col.getX(i) * this.r, col.getY(i) * this.g, col.getZ(i) * this.b);
+    }
+    this.target.add(geo, material, matrix);
+  }
+}
+
+/**
+ * Scatters generated prop kinds over the layout's prop slots (see planPropScatter for what goes where). Every
+ * instance is its own size, stands at its own angle and carries its own cast of colour; tall growing things
+ * lean a little. Poles are capped (see pickPoleSpots, which needs `layout`): a slot that loses its pole takes
+ * another kind of prop, or stays empty when the town has no other kind. A kept pole with a glowing part adds a
+ * light to `lights`, unless it glows too high up to light the ground. Returns how many were placed per kind.
+ */
 export function scatterBlueprintProps(
   slots: readonly PlacedProp[], kinds: readonly PropBlueprint[], style: StyleSpec,
   env: {
     batch: GeoBatch; mats: MaterialCache; rng: Rng; visualBatch?: GeoBatch;
-    layout?: Pick<TownLayout, 'roads' | 'buildings'>; lights?: TownLight[];
+    layout?: ScatterLayout; lights?: TownLight[];
     /** Called with a slot's position before its prop is added, and with nulls after: lets the caller seat it on the land. */
     seat?: (x: number | null, z: number | null) => void;
     /** How many poles are kept and how far apart (defaults MAX_POLES, POLE_SPACING): a wilderness of snags and cacti keeps more. */
     maxPoles?: number; poleSpacing?: number;
+    /** Gathers the props into stands and mixes kinds by neighbourhood. Absent: every slot is filled by weight alone. */
+    mix?: PropMix;
   },
 ): Map<string, number> {
   const counts = new Map<string, number>();
-  const usable = kinds.filter((k) => k.parts.length > 0);
-  if (usable.length === 0) return counts;
-  const weight = (k: PropBlueprint): number => Math.min(5, Math.max(1, Number.isFinite(k.weight) ? k.weight : 1));
-  const weights = usable.map(weight);
-  const picks = slots.map(() => pickWeighted(usable, weights, env.rng));
-
-  // Poles: a kind is one or is not, judged at its own size; then the slots that drew one, and the few that keep it.
-  const poles = new Set(usable.filter((k) => isPole(propProfile(k))));
-  const poleSlots: number[] = [];
-  picks.forEach((kind, i) => {
-    if (kind && poles.has(kind)) poleSlots.push(i);
-  });
-  const keptPoles = new Set(
-    pickPoleSpots(poleSlots.map((i) => slots[i] as PlacedProp), env.layout ?? { roads: [], buildings: [] }, env.maxPoles ?? MAX_POLES, env.poleSpacing ?? POLE_SPACING)
-      .map((k) => poleSlots[k] as number),
-  );
-  const sturdy = usable.filter((k) => !poles.has(k));
-  const sturdyWeights = sturdy.map(weight);
-
-  slots.forEach((slot, i) => {
-    let kind = picks[i];
-    const pole = keptPoles.has(i);
-    if (!pole && kind !== undefined && poles.has(kind)) kind = sturdy.length > 0 ? pickWeighted(sturdy, sturdyWeights, env.rng) : undefined;
-    if (!kind) return;
-    const small = isVisualOnlyProp(kind.size * slot.scale);
+  const plan = planPropScatter(slots, kinds, env.rng, { layout: env.layout, maxPoles: env.maxPoles, poleSpacing: env.poleSpacing, mix: env.mix });
+  const own = new InstanceBatch();
+  for (const p of plan) {
+    const kind = p.kind;
+    // Whether a kind blocks the way is settled by the slot, as it always was: an instance that happens to be a
+    // big one of a small kind does not start carving the navmesh.
+    const small = isVisualOnlyProp((kind.size * p.scale) / p.look.scale);
     const target = small && env.visualBatch ? env.visualBatch : env.batch;
-    env.seat?.(slot.x, slot.z);
-    addPropParts(kind.parts, kind.size, style, slot, { batch: target, mats: env.mats, rng: env.rng });
+    env.seat?.(p.x, p.z);
+    addPropParts(kind.parts, kind.size, style, p, { batch: own.aim(target, p.x, p.z, p.look), mats: env.mats, rng: env.rng }, kind.nature ? { nature: kind.nature } : undefined);
     env.seat?.(null, null);
     counts.set(kind.kind, (counts.get(kind.kind) ?? 0) + 1);
-    const glowY = pole ? propProfile(kind, slot.scale).glowY : null;
+    const glowY = p.pole ? propProfile(kind, p.scale).glowY : null;
     // A beacon on a mast too tall for its light to reach the ground is left as a glow.
     if (glowY !== null && env.lights && lampRadius(glowY) >= glowY) {
-      env.lights.push({ pos: new THREE.Vector3(slot.x, glowY, slot.z), color: style.glow, radius: lampRadius(glowY) });
+      env.lights.push({ pos: new THREE.Vector3(p.x, glowY, p.z), color: style.glow, radius: lampRadius(glowY) });
     }
-  });
+  }
   return counts;
 }
 
@@ -501,7 +720,7 @@ export function dressTown(inp: DressInput): DressResult {
         placedAny = true;
         if (prop) {
           const scale = clampTo(0.8 / prop.size, 0.5, 1) * rng.range(0.9, 1.1);
-          addPropParts(prop.parts, prop.size, style, { x: p.x, z: p.z, rotY: b.rotY + yaw, scale }, { batch: isVisualOnlyProp(prop.size * scale) ? visualBatch : batch, mats, rng });
+          addPropParts(prop.parts, prop.size, style, { x: p.x, z: p.z, rotY: b.rotY + yaw, scale }, { batch: isVisualOnlyProp(prop.size * scale) ? visualBatch : batch, mats, rng }, prop.nature ? { nature: prop.nature } : undefined);
           prev = null;
           continue;
         }
@@ -668,6 +887,8 @@ export interface BackdropInput {
   quality: 0 | 1 | 2;
   /** Where the ring starts, metres past the bounds: outside what can be walked. */
   inner: number;
+  /** SurfaceSet.wear, 0..1: how far gone the far structures are. Default 0.3. */
+  wear?: number;
 }
 
 export interface Backdrop {
@@ -703,6 +924,36 @@ export function backdropKinds(props: readonly PropBlueprint[]): PropBlueprint[] 
     const pr = propProfile(k);
     return pr.height >= BACKDROP_MIN_HEIGHT && pr.width >= BACKDROP_MIN_WIDTH && pr.glowY === null;
   });
+}
+
+/**
+ * What stands in the middle distance, with the weight each kind is drawn at. The tall kinds, less any that
+ * someone made (a barrel or a vent stack at twice life size is not scenery). Where the land is
+ * wild, or the tall kinds are too few to tell apart, the lower things of the land too (rocks, scrub, mounds),
+ * so the ring is never one form repeated. No kind is weighted past WILD_SHARE of the whole when there are
+ * three or more.
+ */
+export function standKinds(props: readonly PropBlueprint[], settled: number): { kind: PropBlueprint; weight: number }[] {
+  const weight = (k: PropBlueprint): number => Math.min(5, Math.max(1, Number.isFinite(k.weight) ? k.weight : 1));
+  const tall = backdropKinds(props).filter((k) => grownShare(k) >= NATURAL_SHARE / 2);
+  const list = tall.map((kind) => ({ kind, weight: weight(kind) }));
+  if (settled < WILD_SETTLED || tall.length < 3) {
+    for (const k of props) {
+      if (k.parts.length === 0 || tall.includes(k) || !isNatural(k) || propProfile(k).height < 0.6) continue;
+      // Lower things stand further apart in the eye: they count for less, but they are there.
+      list.push({ kind: k, weight: weight(k) * (tall.length > 0 ? 0.6 : 1) });
+    }
+  }
+  if (list.length >= 3) {
+    const top = list.reduce((m, e) => Math.max(m, e.weight), 0);
+    for (const e of list) e.weight = Math.max(e.weight, 0.3 * top);
+    const total = list.reduce((n, e) => n + e.weight, 0);
+    for (const e of list) {
+      const rest = total - e.weight;
+      if (e.weight > WILD_SHARE * total) e.weight = (rest * WILD_SHARE) / (1 - WILD_SHARE);
+    }
+  }
+  return list;
 }
 
 /** How many plants and structures the ring holds at a quality, before the land's own dials thin them. */
@@ -749,18 +1000,24 @@ export function buildBackdrop(inp: BackdropInput): Backdrop {
   const quat = new THREE.Quaternion();
   const pos = new THREE.Vector3();
   const scl = new THREE.Vector3();
-  const up = new THREE.Vector3(0, 1, 0);
+  const euler = new THREE.Euler();
+  const tint = new THREE.Color();
+  /** Where one instance stands; `look` gives a plant its own height for its girth, its lean and its cast of colour. */
+  interface Spot { x: number; y: number; z: number; yaw: number; s: number; look?: InstanceLook }
   /** One model, many places: every mesh of the model becomes an instanced mesh. */
-  const place = (meshes: THREE.Mesh[], at: { x: number; y: number; z: number; yaw: number; s: number }[], name: string): void => {
+  const place = (meshes: THREE.Mesh[], at: Spot[], name: string): void => {
     for (const mesh of meshes) {
       geos.push(mesh.geometry);
       if (at.length === 0) continue;
       const im = new THREE.InstancedMesh(mesh.geometry, mesh.material, at.length);
       at.forEach((a, i) => {
-        m4.compose(pos.set(a.x, a.y, a.z), quat.setFromAxisAngle(up, a.yaw), scl.set(a.s, a.s, a.s));
+        const l = a.look;
+        m4.compose(pos.set(a.x, a.y, a.z), quat.setFromEuler(euler.set(l?.leanX ?? 0, a.yaw, l?.leanZ ?? 0, 'YXZ')), scl.set(a.s * (l?.wide ?? 1), a.s * (l?.height ?? 1), a.s * (l?.deep ?? 1)));
         im.setMatrixAt(i, m4);
+        if (l) im.setColorAt(i, tint.setRGB(l.value * (1 + l.warm), l.value, l.value * (1 - l.warm)));
       });
       im.instanceMatrix.needsUpdate = true;
+      if (im.instanceColor) im.instanceColor.needsUpdate = true;
       im.computeBoundingSphere();
       im.name = name;
       im.castShadow = false;
@@ -778,56 +1035,73 @@ export function buildBackdrop(inp: BackdropInput): Backdrop {
   const taken: { x: number; z: number; r: number }[] = [];
   if (budget.structures > 0 && inp.blueprints.length > 0) {
     const fp = GROWN_FOOTPRINTS.medium;
-    const per = new Map<number, { x: number; y: number; z: number; yaw: number; s: number }[]>();
+    // Every blueprint of the world takes its turn, each in a few versions of its own: nothing here is built
+    // twice the same way unless the world has more far structures than that.
+    const order = makeRng(inp.seed, 'backdrop-order').shuffle(inp.blueprints.map((_, i) => i));
+    const versions = Math.min(3, Math.max(1, Math.floor((inp.quality === 0 ? 6 : 12) / order.length)));
+    const models = order.flatMap((which) => {
+      const bp = inp.blueprints[which] as Blueprint;
+      return Array.from({ length: versions }, (_, v) => {
+        const varied = varyBlueprint(bp, hash32(`${inp.seed >>> 0}|far|${bp.id}|${v}`), { amount: 0.9, wear: inp.wear ?? 0.3, settled: inp.settled });
+        return { bp: varied, height: blueprintBounds(varied, fp).height, list: [] as Spot[] };
+      });
+    });
     for (let k = 0; k < budget.structures; k++) {
       const p = spot();
       if (!p) continue;
-      const s = 1.5 + 1.5 * Math.min(1, p.t * 0.8 + rng.range(0, 0.4));
+      const model = models[(structures % order.length) * versions + (Math.floor(structures / order.length) % versions)];
+      if (!model) continue;
+      // Towers tower and huts stay huts: what is already tall is drawn larger than life, what is low only a little.
+      const tall = clampTo((model.height - 4) / 10, 0, 1);
+      const s = (1.15 + 1.6 * tall + 0.45 * p.t) * rng.range(0.9, 1.15);
       const r = Math.hypot(fp.w, fp.d) * 0.5 * s + 2;
       if (taken.some((q) => Math.hypot(q.x - p.x, q.z - p.z) < q.r + r)) continue;
       taken.push({ x: p.x, z: p.z, r });
       solids.push(p.x, p.z, Math.min(fp.w, fp.d) * 0.5 * s);
-      const which = rng.int(0, inp.blueprints.length - 1);
-      const list = per.get(which) ?? [];
       // Sunk a little, so no base floats where the land falls away under a wide footprint.
-      list.push({ x: p.x, y: inp.heightAt(p.x, p.z) - 0.6 * s, z: p.z, yaw: rng.int(0, 3) * (Math.PI / 2) + rng.range(-0.15, 0.15), s });
-      per.set(which, list);
+      model.list.push({ x: p.x, y: inp.heightAt(p.x, p.z) - 0.6 * s, z: p.z, yaw: rng.int(0, 3) * (Math.PI / 2) + rng.range(-0.15, 0.15), s });
       structures++;
     }
-    for (const [which, list] of per) {
-      const bp = inp.blueprints[which] as Blueprint;
+    models.forEach((m, i) => {
+      if (m.list.length === 0) return;
       const model = new GeoBatch();
-      addBlueprint(bp, inp.style, { x: 0, z: 0, rotY: 0, w: fp.w, d: fp.d }, { batch: model, mats: inp.mats, rng }, { dress: false });
-      place(model.build(), list, `backdrop:${bp.id}`);
-    }
+      addBlueprint(m.bp, inp.style, { x: 0, z: 0, rotY: 0, w: fp.w, d: fp.d }, { batch: model, mats: inp.mats, rng }, { dress: false });
+      place(model.build(), m.list, `backdrop:${m.bp.id}:${i % versions}`);
+    });
   }
 
   let plants = 0;
-  const kinds = backdropKinds(inp.props);
+  const stands = standKinds(inp.props, inp.settled);
+  const kinds = stands.map((e) => e.kind);
   if (budget.plants > 0 && kinds.length > 0) {
     const models = kinds.map((k) => {
       const model = new GeoBatch();
       addPropParts(k.parts, k.size, inp.style, { x: 0, z: 0, rotY: 0, scale: 1 }, { batch: model, mats: inp.mats, rng });
       return model.build();
     });
-    const weights = kinds.map((k) => Math.min(5, Math.max(1, Number.isFinite(k.weight) ? k.weight : 1)));
+    const weights = stands.map((e) => e.weight);
     const mean = models.reduce((n, m, i) => n + trianglesOf(m) * (weights[i] as number), 0) / weights.reduce((a, c) => a + c, 0);
     const want = Math.min(budget.plants, Math.floor(Math.max(0, budget.triangles - triangles) / Math.max(1, mean)));
-    const lists = kinds.map((): { x: number; y: number; z: number; yaw: number; s: number }[] => []);
-    const index = kinds.map((_, i) => i);
+    const lists = kinds.map((): Spot[] => []);
     const feet = kinds.map((k) => propFoot(k));
+    const forms = kinds.map((k) => formOf(k));
+    const spread = kinds.length <= 2 ? 1.6 : 1;
+    // Stands with bare ground between, each stand mostly one kind: the wilder the land, the more so.
+    const strength = clampTo(1.25 * (1 - (Number.isFinite(inp.settled) ? inp.settled : 0.7)), 0.3, 1);
     for (let k = 0; k < want; k++) {
       const p = spot();
       if (!p) continue;
+      if (rng.next() < strength * bareAt(p.x, p.z, inp.seed)) continue;
       if (taken.some((q) => Math.hypot(q.x - p.x, q.z - p.z) < q.r * 0.7)) continue;
-      const i = pickWeighted(index, weights, rng) ?? 0;
+      const i = mixKind(weights, p.x, p.z, inp.seed, strength, rng.next());
+      const look = instanceLook(inp.seed, p.x, p.z, forms[i] ?? 'grown', spread);
       // Giants behind the giants: what stands further off stands taller.
-      const s = (1 + 1.3 * p.t) * rng.range(0.8, 1.3);
-      (lists[i] as { x: number; y: number; z: number; yaw: number; s: number }[]).push({ x: p.x, y: inp.heightAt(p.x, p.z) - 0.15 * s, z: p.z, yaw: rng.range(0, Math.PI * 2), s });
+      const s = (1 + 1.3 * p.t) * look.scale;
+      (lists[i] as Spot[]).push({ x: p.x, y: inp.heightAt(p.x, p.z) - 0.15 * s, z: p.z, yaw: rng.range(0, Math.PI * 2), s, look });
       solids.push(p.x, p.z, Math.min(2.5, Math.max(0.2, 0.5 * (feet[i] as number) * s)));
       plants++;
     }
-    models.forEach((meshes, i) => place(meshes, lists[i] as { x: number; y: number; z: number; yaw: number; s: number }[], `backdrop:${(kinds[i] as PropBlueprint).kind}`));
+    models.forEach((meshes, i) => place(meshes, lists[i] as Spot[], `backdrop:${(kinds[i] as PropBlueprint).kind}`));
   }
 
   let disposed = false;

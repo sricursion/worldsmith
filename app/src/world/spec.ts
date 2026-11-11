@@ -176,6 +176,11 @@ export interface PropBlueprint {
   parts: BlueprintPart[];      // 1..8
   /** Relative frequency when scattering, 1..5. */
   weight: number;
+  /**
+   * Set from the skeleton family: a plant takes bark and leaf colours and surfaces of its own, a mineral
+   * (rock, boulder, crystal) the local stone. Absent for made things, which take the building tones.
+   */
+  nature?: 'plant' | 'mineral';
 }
 
 /** How the place is laid out. Not every world is a street of houses. */
@@ -310,6 +315,9 @@ export interface StyleSpec {
   road: string;
   /** How much per-building colour drift the engine applies, 0..1. */
   variety: number;
+  /** Colour of living leaves and of bark or stems in this world. Absent: the engine derives them from the ground. */
+  foliage?: string;
+  bark?: string;
   /** What each tone is made of. Absent on old specs: the engine infers it from the style name and theme. */
   surfaces?: SurfaceSet;
 }

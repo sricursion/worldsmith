@@ -364,6 +364,10 @@ export function coerceStyle(raw: unknown, fallback: StyleSpec, air?: { prompt: s
     const v = hex(r[k], fallback[k]);
     out[k] = k === 'glow' ? v : mute(v, k === 'accent' ? ACCENT_SAT : SURFACE_SAT);
   }
+  for (const k of ['foliage', 'bark'] as const) {
+    const v = hex(r[k], '');
+    if (v !== '') out[k] = mute(v, SURFACE_SAT);
+  }
   const base = air ? mockSurfaces(air.prompt, air.theme, air.mood) : fallback.surfaces;
   const surfaces = coerceSurfaces(r.surfaces, base);
   const raining = air?.mood.weather === 'rain' || air?.mood.weather === 'storm';

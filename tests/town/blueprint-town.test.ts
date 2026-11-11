@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import type { LoadedKit } from '../../app/src/engine/assets';
-import { buildTown, landmarkAnchor } from '../../app/src/town/build';
+import { MAX_SETBACK, buildTown, landmarkAnchor } from '../../app/src/town/build';
 import { KITS } from '../../app/src/town/kits';
 import { buildingAabb, distanceToRoad, generateLayout } from '../../app/src/town/layout';
 import { STYLE, makeBlueprintSpec } from './helpers';
@@ -49,12 +49,15 @@ describe('blueprint towns', () => {
         expect((m.material as THREE.MeshStandardMaterial).vertexColors).toBe(true);
       }
       expect((terrain.material as THREE.MeshStandardMaterial).userData['baseHex']).toBe(STYLE.ground);
-      // every door sits 1 m outside the front on the street side, at most 0.4 of the frontage off centre
+      // every door sits 1 m outside the front on the street side, at most 0.4 of the frontage off centre;
+      // the building itself may stand back from its lot line by up to MAX_SETBACK and a degree or so off square
       for (const b of layout.buildings) {
         const d = town.doors.get(b.id) as THREE.Vector3;
         const front = new THREE.Vector3(-Math.sin(b.rotY), 0, -Math.cos(b.rotY));
-        expect(d.clone().sub(new THREE.Vector3(b.x, 0, b.z)).dot(front)).toBeCloseTo(b.d / 2 + 1, 4);
-        expect(Math.hypot(d.x - b.door.x, d.z - b.door.z)).toBeLessThanOrEqual(0.4 * b.w + 1e-6);
+        const out = d.clone().sub(new THREE.Vector3(b.x, 0, b.z)).dot(front);
+        expect(out).toBeLessThanOrEqual(b.d / 2 + 1 + 0.15);
+        expect(out).toBeGreaterThanOrEqual(b.d / 2 + 1 - MAX_SETBACK - 0.15);
+        expect(Math.hypot(d.x - b.door.x, d.z - b.door.z)).toBeLessThanOrEqual(0.4 * b.w + MAX_SETBACK + 0.15);
       }
       town.dispose();
       expect(scene.children).not.toContain(town.group);

@@ -147,6 +147,7 @@ function buildStyle(v: unknown): StyleSpec | undefined {
   if (!isRec(v)) return undefined;
   const out: StyleSpec = { ...NEUTRAL_STYLE, name: str(v['name'], NEUTRAL_STYLE.name), variety: clamp(num(v['variety'], 0.3), 0, 1) };
   for (const k of ['wall', 'wall2', 'roof', 'trim', 'accent', 'dark', 'glass', 'glow', 'ground', 'road'] as const) out[k] = hex(v[k], NEUTRAL_STYLE[k]);
+  for (const k of ['foliage', 'bark'] as const) if (hex(v[k], '') !== '') out[k] = hex(v[k], '');
   return out;
 }
 

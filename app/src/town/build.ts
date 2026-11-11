@@ -19,20 +19,21 @@
 import * as THREE from 'three';
 import type { LoadedKit } from '../engine/assets';
 import type { PlayerLand } from '../engine/player';
-import { makeRng } from '../world/rng';
+import { hash32, makeRng } from '../world/rng';
 import type { Blueprint, LandmarkSpec, StyleSpec, SurfaceSet, WorldSpec } from '../world/spec';
 import { GeoBatch, MaterialCache } from './batch';
 import { addBlueprint } from './blueprint-mesh';
 import { createEndless, patchFarFog } from './endless';
 import type { EndlessStats } from './endless';
 import { MAX_BUILDING_HEIGHT, PROP_SIZES } from './kits';
-import { buildingAabb, distanceToRoad, roadRect } from './layout';
+import { buildingAabb, distanceToPolyline, distanceToRoad, roadRect, waterInside } from './layout';
 import type { PlacedBuilding, Rect, TownLayout } from './layout';
 import { addProceduralBuilding } from './procedural';
 import type { ProcEnv } from './procedural';
 import { BACKDROP_REACH, MAX_POLES, POLE_SPACING, addProceduralProp, buildBackdrop, dressTown, isVisualOnlyProp, scatterBlueprintProps } from './props';
 import type { TownLight } from './props';
 import { buildScatter, buildScatterField } from './scatter';
+import { assignBlueprints, buildingSeed, silhouetteKey, varyBlueprint } from './variation';
 import { createSign, disposeSign } from './sign';
 import { groundMaterial, inferSurfaces, roadMaterial } from './surfaces';
 import {
@@ -367,7 +368,100 @@ function trailGeometry(trails: NonNullable<TownLayout['trails']>, heightAt: (x: 
   return g;
 }
 
-export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, scene: THREE.Scene, opts: BuildOptions = {}): TownObjects {
+/** Furthest a building is set back from its line, metres, and the settlement from which that begins and is full. */
+export const MAX_SETBACK = 1.5;
+const SETBACK_FROM = 0.3;
+const SETBACK_FULL = 0.6;
+/** Site patterns whose buildings stand to a line; the rest are turned a little more freely. */
+const LINED: ReadonlySet<string> = new Set(['street', 'grid', 'terraces', 'cliffside', 'ring']);
+
+/**
+ * Each building as it will actually be built: which blueprint, in its own version (see varyBlueprint), and
+ * where. No two buildings of a world come out with the same outline. In a settled place a building may stand
+ * back from its line by up to MAX_SETBACK; everywhere it is turned a degree or a few off square (the rest of
+ * the town reads footprints as axis-aligned, so never more). A move is kept only where the ground allows it:
+ * clear of the other buildings, roads, trails, water, clearings, the plaza, landmarks and the wander points.
+ * Prop slots do not hold a building in place (what is built must not depend on what is scattered): the caller
+ * leaves empty any slot a building has moved onto. Returns a layout with its own copies of the buildings, each door where that building's door now is.
+ */
+export function planBuildings(
+  layout: TownLayout, spec: WorldSpec, blueprints: readonly Blueprint[], vary: { amount: number; wear: number; settled: number },
+): { layout: TownLayout; built: Map<string, Blueprint> } {
+  const built = new Map<string, Blueprint>();
+  if (blueprints.length === 0) return { layout, built };
+  const byId = new Map(blueprints.map((b) => [b.id, b]));
+  const specOf = new Map(spec.buildings.map((b) => [b.id, b]));
+  const assigned = assignBlueprints(
+    layout.buildings.map((b) => ({ id: b.id, x: b.x, z: b.z, blueprint: specOf.get(b.id)?.blueprint, size: b.size, keyBuilding: specOf.get(b.id)?.keyBuilding })),
+    blueprints.map((b) => b.id), spec.seed,
+  );
+  const seen = new Set<string>();
+  layout.buildings.forEach((b, index) => {
+    const archetype = byId.get(assigned.get(b.id) ?? '') ?? blueprints[index % blueprints.length];
+    if (!archetype) return;
+    let bp = archetype;
+    for (let attempt = 0; attempt < 8; attempt++) {
+      bp = varyBlueprint(archetype, buildingSeed(spec.seed, b.id, attempt), vary);
+      const key = `${archetype.id}|${silhouetteKey(bp)}`;
+      if (!seen.has(key)) { seen.add(key); break; }
+    }
+    built.set(b.id, bp);
+  });
+
+  const lined = LINED.has(spec.site?.pattern ?? 'street');
+  const backMost = layout.benches ? 0 : MAX_SETBACK * clamp((vary.settled - SETBACK_FROM) / (SETBACK_FULL - SETBACK_FROM), 0, 1);
+  const turnMost = ((lined ? 1.5 : 6 * (1 - 0.5 * vary.settled)) * Math.PI) / 180;
+  const placed = layout.buildings.map((b) => ({ ...b, door: { ...b.door } }));
+  const marks = (spec.landmarks ?? []).map((lm) => landmarkAnchor(layout, spec, lm));
+  const bd = layout.bounds;
+  const fits = (c: PlacedBuilding, own: number): boolean => {
+    const r = buildingAabb(c);
+    const m = 0.75;
+    if (r.minX < bd.minX || r.maxX > bd.maxX || r.minZ < bd.minZ || r.maxZ > bd.maxZ) return false;
+    if (placed.some((o, j) => {
+      if (j === own) return false;
+      const q = buildingAabb(o);
+      return r.minX - m < q.maxX && r.maxX + m > q.minX && r.minZ - m < q.maxZ && r.maxZ + m > q.minZ;
+    })) return false;
+    const inBox = (x: number, z: number, pad: number): boolean => x > r.minX - pad && x < r.maxX + pad && z > r.minZ - pad && z < r.maxZ + pad;
+    if (layout.walkable.some((q) => inBox(q.x, q.z, 0.5))) return false;
+    if (inBox(layout.spawn.x, layout.spawn.z, 2) || marks.some((q) => inBox(q.x, q.z, LANDMARK_BUILDING_MARGIN + 0.3))) return false;
+    const pts: [number, number][] = [
+      [r.minX, r.minZ], [r.maxX, r.minZ], [r.minX, r.maxZ], [r.maxX, r.maxZ], [c.x, c.z],
+      [c.x, r.minZ], [c.x, r.maxZ], [r.minX, c.z], [r.maxX, c.z],
+    ];
+    for (const [x, z] of pts) {
+      if (layout.roads.some((rd) => distanceToRoad(rd, x, z) < 0.6)) return false;
+      if (layout.plaza.r > 0 && Math.hypot(x - layout.plaza.x, z - layout.plaza.z) < layout.plaza.r + 0.6) return false;
+      if (layout.trails?.some((t) => distanceToPolyline(t.pts, x, z) < t.width / 2 + 1.2)) return false;
+      if (layout.water?.some((w) => w.area.shape !== 'sheet' && waterInside(w, x, z) > -1.5)) return false;
+      if (layout.clearings?.some((q) => Math.hypot(x - q.x, z - q.z) < q.r)) return false;
+    }
+    return true;
+  };
+  placed.forEach((b, i) => {
+    const rng = makeRng(spec.seed, `site|${b.id}`);
+    const back = rng.chance(0.3) ? 0 : rng.range(0.2, 1) * backMost;
+    const turn = rng.range(-1, 1) * turnMost;
+    for (const [kb, kt] of [[1, 1], [0.5, 1], [0, 1], [1, 0], [0.5, 0]] as const) {
+      if (back * kb < 0.05 && Math.abs(turn * kt) < 1e-4) continue;
+      // The front looks along (-sin, -cos); back is the other way.
+      const c: PlacedBuilding = { ...b, x: b.x + Math.sin(b.rotY) * back * kb, z: b.z + Math.cos(b.rotY) * back * kb, rotY: b.rotY + turn * kt };
+      if (!fits(c, i)) continue;
+      placed[i] = c;
+      break;
+    }
+    // The door, 1 m out from the front, where this building's own blueprint has it.
+    const c = placed[i] as PlacedBuilding;
+    const bp = built.get(c.id);
+    const lx = bp ? clamp(Number.isFinite(bp.doorX) ? bp.doorX : 0, -0.4, 0.4) * c.w : 0;
+    const lz = c.d / 2 + 1;
+    c.door = { x: c.x - lx * Math.cos(c.rotY) - lz * Math.sin(c.rotY), z: c.z + lx * Math.sin(c.rotY) - lz * Math.cos(c.rotY) };
+  });
+  return { layout: { ...layout, buildings: placed }, built };
+}
+
+export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, scene: THREE.Scene, opts: BuildOptions = {}): TownObjects {
   const quality: Quality = opts.quality ?? 2;
   const rng = makeRng(spec.seed, 'build');
   const group = new THREE.Group();
@@ -384,15 +478,20 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   const style = spec.style;
   const blueprints: Blueprint[] = style && spec.blueprints ? spec.blueprints : [];
   const bpMode = !!style && blueprints.length > 0;
-  const bpById = new Map(blueprints.map((b) => [b.id, b]));
-  const specBuildings = new Map(spec.buildings.map((b) => [b.id, b]));
 
   // Ground: the collider is a flat plane; what is seen is the terrain, flat over the town and rolling beyond it.
   const groundHex = hexOr(style?.ground, hexOr(manifest.ground.color, hexOr(spec.palette.ground, '#7d8a5a')));
   const look = resolveStyle(spec, groundHex);
-  const given = look.surfaces ?? inferSurfaces(look, spec.theme, spec.mood);
+  const inferred = look.surfaces ?? inferSurfaces(look, spec.theme, spec.mood);
   const unit = (v: number): number => (Number.isFinite(v) ? clamp(v, 0, 1) : 0);
-  const surfaces: SurfaceSet = { ...given, wear: unit(given.wear), wet: unit(given.wet) };
+  const surfaces: SurfaceSet = { ...inferred, wear: unit(inferred.wear), wet: unit(inferred.wet) };
+  const wildness = unit(spec.site?.wild ?? 0.3);
+  const settledness = unit(spec.terrain?.settled ?? 0.7);
+  // Every building in its own version of its blueprint and on its own spot: from here on `layout` is the town as built.
+  // Even a style that asks for no variety gets some: two buildings are never one building twice.
+  const varyOpts = { amount: 0.35 + 0.65 * unit(look.variety), wear: surfaces.wear, settled: settledness };
+  const planned = style && bpMode ? planBuildings(given, spec, blueprints, varyOpts) : { layout: given, built: new Map<string, Blueprint>() };
+  const layout = planned.layout;
   const pathsMode = spec.site?.paths ?? 'road';
   const surfaceOpts = { quality, seed: spec.seed };
   const field = makeTerrainField(layout.bounds, surfaces.ground, spec.seed);
@@ -569,20 +668,19 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   };
   const maxH = MAX_BUILDING_HEIGHT;
   const heights = new Map<string, number>();
-  const builtFrom = new Map<string, Blueprint>();
-  layout.buildings.forEach((b, index) => {
+  const builtFrom = planned.built;
+  layout.buildings.forEach((b) => {
     const padY = hAt(b.x, b.z);
     doors.set(b.id, new THREE.Vector3(b.door.x, hAt(b.door.x, b.door.z), b.door.z));
     if (style && bpMode) {
-      // A building whose blueprint id is missing takes one of the town's archetypes by position, so the style stays whole.
-      const bp = bpById.get(specBuildings.get(b.id)?.blueprint ?? '') ?? blueprints[index % blueprints.length];
+      // A building whose blueprint id is missing was given one of the town's archetypes, so the style stays whole.
+      const bp = builtFrom.get(b.id);
       if (bp) {
         // On shaped land a foundation runs down into the ground, so no wall base shows daylight where the land dips beside it.
         const res = seated(b.x, b.z, () => addBlueprint(bp, style, b, { batch, mats, rng }, shaped ? { skirt: 0.6 } : undefined));
         res.door.y += hAt(res.door.x, res.door.z);
         doors.set(b.id, res.door);
         heights.set(b.id, res.height);
-        builtFrom.set(b.id, bp);
         placeSign(b, clamp(res.height * 0.6, 2.4, 4.2), -b.d / 2);
         return;
       }
@@ -611,10 +709,11 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
 
   // Props
   const propLights: TownLight[] = [];
-  const wildness = unit(spec.site?.wild ?? 0.3);
-  const settledness = unit(spec.terrain?.settled ?? 0.7);
-  // Nothing is planted in standing water.
-  const propSlots = shaped && land.water.length > 0 ? layout.props.filter((p) => land.waterDepthAt(p.x, p.z) < 0.12) : layout.props;
+  // Nothing is planted in standing water, nor where a building now stands after being set back or turned.
+  const lots = planned.built.size > 0 ? layout.buildings.map((b) => buildingAabb(b)) : [];
+  const built = (x: number, z: number): boolean => lots.some((r) => x > r.minX - 0.6 && x < r.maxX + 0.6 && z > r.minZ - 0.6 && z < r.maxZ + 0.6);
+  const dry = shaped && land.water.length > 0 ? layout.props.filter((p) => land.waterDepthAt(p.x, p.z) < 0.12) : layout.props;
+  const propSlots = lots.length > 0 ? dry.filter((p) => !built(p.x, p.z)) : dry;
   if (style && bpMode && spec.props?.length) {
     scatterBlueprintProps(propSlots, spec.props, style, {
       batch, mats, rng, visualBatch, layout, lights: propLights,
@@ -622,6 +721,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
       // Out in the wild the thin tall things are snags, cacti and reeds, not street furniture: more of them stay.
       maxPoles: shaped ? Math.round(MAX_POLES * (1 + 8 * wildness * (1 - settledness))) : undefined,
       poleSpacing: shaped ? POLE_SPACING * (1 - 0.7 * wildness * (1 - settledness)) : undefined,
+      mix: { seed: spec.seed, wild: wildness, settled: settledness, allow: shaped && land.water.length > 0 ? (x, z) => land.waterDepthAt(x, z) < 0.12 : undefined },
     });
     for (const l of propLights) l.pos.y += hAt(l.pos.x, l.pos.z);
   } else for (const p of propSlots) {
@@ -658,7 +758,8 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
     });
     ownMats.push(baseMat, glowMat);
     for (const lm of spec.landmarks) {
-      const a = landmarkAnchor(layout, spec, lm);
+      // Where the caller's own layout puts it (landmarkAnchor is public); planBuildings kept every building off that spot.
+      const a = landmarkAnchor(given, spec, lm);
       anchors.set(lm.id, a);
       const plinth = new THREE.Group();
       plinth.name = `plinth:${lm.id}`;
@@ -702,12 +803,15 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
   const backdrop = shaped && style
     ? buildBackdrop({
         layout, seed: spec.seed, style: look, wild: wildness, settled: settledness, props: spec.props ?? [], blueprints,
-        heightAt: land.heightAt, waterDepthAt: land.waterDepthAt, mats, quality, inner: WALK_MARGIN + 3,
+        heightAt: land.heightAt, waterDepthAt: land.waterDepthAt, mats, quality, inner: WALK_MARGIN + 3, wear: surfaces.wear,
       })
     : null;
   if (backdrop) group.add(backdrop.group);
 
-  // The land beyond: nothing of it is made until update() is first called.
+  // The land beyond: nothing of it is made until update() is first called. What is built out there is the world's
+  // own blueprints in an order of this world's own, each well away from the version that stands in town.
+  const farBlueprints = makeRng(spec.seed, 'far-blueprints').shuffle(blueprints.slice())
+    .map((bp) => varyBlueprint(bp, hash32(`${spec.seed >>> 0}|land|${bp.id}`), { amount: 0.9, wear: surfaces.wear, settled: settledness }));
   let surface: (x: number, z: number) => number = land.heightAt;
   const farScatter = buildScatterField({
     layout, ground: surfaces.ground, groundHex: look.ground, accents: [look.accent, look.glow, look.trim],
@@ -724,7 +828,7 @@ export function buildTown(layout: TownLayout, spec: WorldSpec, kit: LoadedKit, s
     tintWater: (kind, wl) => { if (kind === 'lava') wl.glowColour = `#${new THREE.Color(wl.glowColour).lerp(new THREE.Color(look.glow), 0.25).getHexString()}`; },
     scatter: farScatter.window,
     life: (spec.props?.length ?? 0) > 0 || blueprints.length > 0
-      ? { style: look, props: spec.props ?? [], blueprints, mats, wild: wildness, settled: settledness }
+      ? { style: look, props: spec.props ?? [], blueprints: farBlueprints, mats, wild: wildness, settled: settledness }
       : null,
     clear: backdrop ? BACKDROP_REACH : WALK_MARGIN + 6,
     solids: backdrop?.solids, budgetMs: opts.streamBudgetMs,

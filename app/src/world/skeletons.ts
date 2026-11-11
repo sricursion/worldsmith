@@ -6,16 +6,42 @@ import type { BlueprintPart } from './spec';
 import { makeRng } from './rng';
 import { hall, tower, spire, domeForm, tiers, tent } from './skeletons/structure-a';
 import { stilts, archway, hull, shell, block, wall, canopy } from './skeletons/structure-b';
-import { tree, rock } from './skeletons/nature';
-import { pole, container, furniture, blade, statue } from './skeletons/object';
+import { cliff, cave, ruin, bridge, stair, gantry } from './skeletons/structure-c';
+import { stack, mast, pit, colonnade, wreck, megastructure } from './skeletons/structure-d';
+import * as natureGroup from './skeletons/nature';
+import * as objectGroup from './skeletons/object';
 import type { DialSpec, Dials, Skeleton } from './skeletons/types';
+import { N, ruinParts } from './skeletons/util';
 
 export type { DialSpec, Skeleton };
 
+const isSkeleton = (v: unknown): v is Skeleton => {
+  if (typeof v !== 'object' || v === null) return false;
+  const s = v as Partial<Skeleton>;
+  return typeof s.id === 'string' && typeof s.build === 'function' && Array.isArray(s.dials) && Array.isArray(s.becomes);
+};
+
+/** Every skeleton a group file exports, whether one by one or as arrays, so a new one registers by being exported. */
+function exported(group: Record<string, unknown>, lead: string[]): Skeleton[] {
+  const found = Object.values(group).flatMap((v) => (Array.isArray(v) ? (v as unknown[]) : [v])).filter(isSkeleton);
+  const rank = (s: Skeleton): number => (lead.includes(s.id) ? lead.indexOf(s.id) : lead.length);
+  return found.sort((a, b) => rank(a) - rank(b));
+}
+
 export const SKELETONS: Record<string, Skeleton> = Object.fromEntries(
-  [hall, tower, spire, domeForm, tiers, tent, stilts, archway, hull, shell, block, wall, canopy, tree, rock, pole, container, furniture, blade, statue]
-    .map((s) => [s.id, s]),
+  [
+    hall, tower, spire, domeForm, tiers, tent, stilts, archway, hull, shell, block, wall, canopy,
+    cliff, cave, ruin, bridge, stair, gantry, stack, mast, pit, colonnade, wreck, megastructure,
+    ...exported(natureGroup, []),
+    ...exported(objectGroup, ['pole', 'container', 'furniture', 'blade', 'statue']),
+  ].map((s) => [s.id, s]),
 );
+
+/**
+ * The one dial every structure family takes on top of its own: how far the finished structure has fallen
+ * into ruin. See ruinParts.
+ */
+export const RUIN_DIAL: DialSpec = N('ruin', 0, 1, 0, '0 whole, 0.5 roofless and broken, 1 stubs and fallen blocks');
 
 /** Family names a model is likely to use that are folded into a canonical skeleton with preset dials. */
 const ALIASES: Record<string, { id: string; dials: Dials }> = {
@@ -26,6 +52,15 @@ const ALIASES: Record<string, { id: string; dials: Dials }> = {
   ship: { id: 'hull', dials: {} },
   mushroom: { id: 'shell', dials: {} },
   platform: { id: 'stilts', dials: {} },
+  ruins: { id: 'ruin', dials: {} },
+  crane: { id: 'gantry', dials: {} },
+  stairs: { id: 'stair', dials: {} },
+  columns: { id: 'colonnade', dials: {} },
+  pile: { id: 'stack', dials: {} },
+  crater: { id: 'pit', dials: {} },
+  outcrop: { id: 'cliff', dials: {} },
+  shipwreck: { id: 'wreck', dials: {} },
+  monolith: { id: 'megastructure', dials: { form: 'slab' } },
 };
 
 const clampNum = (n: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, n));
@@ -72,6 +107,17 @@ function sane(p: BlueprintPart): BlueprintPart {
   };
 }
 
+const MINERAL_FAMILIES = new Set(['rock', 'boulder', 'crystal']);
+
+/** Whether a prop of this family is a plant or a mineral; undefined for made things and unknown families. */
+export function skeletonNature(family: string | undefined): 'plant' | 'mineral' | undefined {
+  if (typeof family !== 'string') return undefined;
+  const key = family.trim().toLowerCase();
+  const sk = SKELETONS[key] ?? SKELETONS[ALIASES[key]?.id ?? ''];
+  if (!sk || sk.group !== 'nature') return undefined;
+  return MINERAL_FAMILIES.has(sk.id) ? 'mineral' : 'plant';
+}
+
 /**
  * Builds the parts of a skeleton. Unknown family gives []. Every dial is defaulted and clamped, so any
  * input (missing, out of range, wrong type) yields a valid part list. Never throws.
@@ -80,28 +126,69 @@ export function buildSkeleton(family: string | undefined, dials: Record<string, 
   try {
     if (typeof family !== 'string') return [];
     const key = family.trim().toLowerCase();
-    const alias = ALIASES[key];
+    // A registered family always wins over an alias of the same name.
+    const alias = SKELETONS[key] ? undefined : ALIASES[key];
     const sk = SKELETONS[alias ? alias.id : key];
     if (!sk) return [];
     const given: Record<string, unknown> = { ...(alias?.dials ?? {}) };
     if (dials && typeof dials === 'object') for (const [k, v] of Object.entries(dials)) if (!(alias && k in alias.dials)) given[k] = v;
     const resolved: Dials = {};
     for (const spec of sk.dials) resolved[spec.name] = resolveDial(spec, given[spec.name]);
-    const rng = makeRng(Number.isFinite(seed) ? seed : 0, sk.id);
-    return sk.build(resolved, rng).slice(0, 28).map(sane);
+    const base = Number.isFinite(seed) ? seed : 0;
+    const parts = sk.build(resolved, makeRng(base, sk.id)).slice(0, 28).map(sane);
+    const worn = sk.group === 'structure' ? resolveDial(RUIN_DIAL, given[RUIN_DIAL.name]) : 0;
+    if (typeof worn !== 'number' || worn <= 0.04) return parts;
+    return ruinParts(parts, worn, makeRng(base, `${sk.id}|ruin`)).slice(0, 28).map(sane);
   } catch {
     return [];
   }
 }
 
-const fmt = (n: number): string => String(Math.round(n * 100) / 100);
+/** A figure to two places, without the leading zero of a fraction. */
+const fmt = (n: number): string => String(Math.round(n * 100) / 100).replace(/^(-?)0\./, '$1.');
 
-function dialText(d: DialSpec): string {
-  if (d.kind === 'choice') return `${d.name} ${(d.choices ?? []).join('|')} (${d.meaning})`;
-  return `${d.name} ${fmt(d.min ?? 0)}-${fmt(d.max ?? 1)} (${d.meaning})`;
+/**
+ * The gloss of a dial, cut to its first clause. A gloss of up to three words that repeats the dial's own name
+ * ("cap width" for cap, "glowing buds" for glow) tells the model nothing the name does not, and is dropped unless it gives a unit.
+ */
+function glossOf(d: DialSpec): string {
+  const first = (d.meaning.split(/[;:]/)[0] ?? '').trim().replace(/metres/g, 'm');
+  const words = first.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 0);
+  const name = d.name.toLowerCase();
+  const stem = name.length > 3 && name.endsWith('s') ? name.slice(0, -1) : name;
+  const echo = (w: string): boolean => w.length > 2 && (w.startsWith(stem) || name.startsWith(w));
+  const unit = words.some((w) => w === 'm' || w === 'units');
+  if (words.length === 0 || (words.length <= 3 && !unit && words.some(echo))) return '';
+  return first;
 }
 
-/** Compact catalogue for the compile model's prompt. */
+/**
+ * One dial: its name, its range unless that is the usual 0-1, and a short gloss (in brackets where it starts
+ * with a figure, so it cannot be read as the range). Choice names speak for themselves and carry no gloss.
+ */
+function dialText(d: DialSpec): string {
+  if (d.kind === 'choice') return `${d.name} ${(d.choices ?? []).join('|')}`;
+  const lo = d.min ?? 0;
+  const hi = d.max ?? 1;
+  const range = lo === 0 && hi === 1 ? '' : ` ${fmt(lo)}${lo < 0 ? ' to ' : '-'}${fmt(hi)}`;
+  const g = glossOf(d);
+  return `${d.name}${range}${g === '' ? '' : /^[0-9>]/.test(g) ? ` (${g})` : ` ${g}`}`;
+}
+
+/** Three things a family becomes, or two when their names run long. */
+function examples(s: Skeleton): string {
+  const three = s.becomes.slice(0, 3).join(', ');
+  return three.length <= 32 ? three : s.becomes.slice(0, 2).join(', ');
+}
+
+/** The first clause of a summary: the bones, without the list of options the dials already spell out. */
+function brief(summary: string): string {
+  const sentence = (summary.split(/[.:;]/)[0] ?? summary).trim();
+  const clause = (sentence.split(',')[0] ?? sentence).trim();
+  return clause.split(' ').length >= 3 ? clause : sentence;
+}
+
+/** Compact catalogue for the compile model's prompt: one line per family, one entry per dial. */
 export function skeletonCatalogText(): string {
   const groups: [Skeleton['group'], string][] = [
     ['structure', 'structure, for blueprints'],
@@ -110,12 +197,14 @@ export function skeletonCatalogText(): string {
   ];
   const lines: string[] = [
     'Tones: wall wall2 roof trim accent dark glass glow. Props: heights in footprint units; leaves, crystal accent/glow; trunk, stone wall2.',
+    'Per line: family: what it is (things it becomes) dials. A dial with no range runs 0-1; m is metres.',
+    `Every structure family also takes ${RUIN_DIAL.name} (${RUIN_DIAL.meaning}): anything can stand as its own ruin.`,
   ];
   for (const [g, title] of groups) {
     lines.push(`== ${title} ==`);
     for (const s of Object.values(SKELETONS)) {
       if (s.group !== g) continue;
-      lines.push(`${s.id}: ${s.summary} becomes: ${s.becomes.slice(0, 5).join(', ')}. dials: ${s.dials.map(dialText).join('; ')}`);
+      lines.push(`${s.id}: ${brief(s.summary)} (${examples(s)}) ${s.dials.map(dialText).join('; ')}`);
     }
   }
   return lines.join('\n');

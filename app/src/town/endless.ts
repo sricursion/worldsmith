@@ -721,7 +721,7 @@ export function createEndless(inp: EndlessInput): Endless {
         const pr = propProfile(k);
         if (pr.glowY !== null || pr.height < 0.6) continue;
         const model = new GeoBatch();
-        addPropParts(k.parts, k.size, life.style, { x: 0, z: 0, rotY: 0, scale: 1 }, { batch: model, mats: life.mats, rng: rng0 });
+        addPropParts(k.parts, k.size, life.style, { x: 0, z: 0, rotY: 0, scale: 1 }, { batch: model, mats: life.mats, rng: rng0 }, k.nature ? { nature: k.nature } : undefined);
         const meshes = model.build();
         for (const m of meshes) geos.push(m.geometry);
         if (meshes.length === 0) continue;

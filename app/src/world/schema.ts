@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { SPEC_VERSION } from './spec';
 import { repairBlueprint } from './blueprints';
 import { hash32 } from './rng';
-import { buildSkeleton } from './skeletons';
+import { buildSkeleton, skeletonNature } from './skeletons';
 import type {
   Blueprint, BlueprintPart, BuildingRole, BuildingSpec, CreatureBehaviour, CreatureFamily, CreatureSpec, FolkSpec, GradeKind,
   LandmarkSpec, MoodSpec, NpcActionId, NpcSpec, PartShape, PartTone, PropBlueprint, QuestStep, ReliefKind, RuleEffect, RuleSpec,
@@ -123,7 +123,7 @@ const BlueprintS = z.object({
   id: z.string(), family: z.string().optional(), dials: DialsS.optional(), summary: z.string(), parts: z.array(PartS), doorX: z.number(),
 });
 const PropS = z.object({
-  family: z.string().optional(), dials: DialsS.optional(), kind: z.string(), size: z.number(), parts: z.array(PartS), weight: z.number(),
+  family: z.string().optional(), dials: DialsS.optional(), kind: z.string(), size: z.number(), parts: z.array(PartS), weight: z.number(), nature: z.enum(['plant', 'mineral']).optional(),
 });
 const SiteS = z.object({
   pattern: z.enum(SITE_PATTERNS as [SitePattern, ...SitePattern[]]),
@@ -159,6 +159,8 @@ const MoodSpecS = z.object({
 });
 const StyleS = z.object({
   name: z.string(),
+  foliage: z.string().optional(),
+  bark: z.string().optional(),
   wall: z.string(),
   wall2: z.string(),
   roof: z.string(),
@@ -801,6 +803,10 @@ function fixStyle(s: StyleSpec): StyleSpec {
     out[k] = hexOr(s[k], NEUTRAL_STYLE[k]);
   }
   if (s.surfaces) out.surfaces = coerceSurfaces(s.surfaces);
+  for (const k of ['foliage', 'bark'] as const) {
+    const v = s[k];
+    if (typeof v === 'string' && hexOr(v, '') !== '') out[k] = hexOr(v, '');
+  }
   return out;
 }
 
@@ -855,7 +861,7 @@ function fixProps(input: PropBlueprint[], seed: number, industrial: boolean): Pr
   const out: PropBlueprint[] = [];
   src.forEach((p, i) => {
     const bones = p.family ? buildSkeleton(p.family, p.dials, hash32(`${seed}|${p.kind}`)) : [];
-    const parts = [...bones, ...p.parts].slice(0, bones.length > 0 ? 28 : 8).map(fixPart);
+    const parts = [...bones, ...p.parts].slice(0, 28).map(fixPart);
     if (parts.length === 0) return;
     let size = clamp(p.size, 0.3, PROP_SIZE_MAX);
     if (p.family?.trim().toLowerCase() === 'pole') {
@@ -864,11 +870,13 @@ function fixProps(input: PropBlueprint[], seed: number, industrial: boolean): Pr
       const dial = clamp(Number.isFinite(raw) ? raw : 2.2, 1, POLE_DIAL_MAX);
       size = clamp(Math.min(size, (industrial ? POLE_MAX_INDUSTRIAL_M : POLE_MAX_M) / dial), 0.3, PROP_SIZE_MAX);
     }
+    const nature = p.nature === 'plant' || p.nature === 'mineral' ? p.nature : skeletonNature(p.family);
     out.push({
       kind: ids[i] as string,
       size,
       parts,
       weight: clamp(p.weight, 1, 5),
+      ...(nature ? { nature } : {}),
     });
   });
   return out;

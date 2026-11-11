@@ -11,6 +11,7 @@ export interface DialSpec {
   max?: number;
   choices?: string[];
   default: number | string;
+  /** The text before the first ';' goes into the model's catalogue; anything after it is for readers of the code. */
   meaning: string;
 }
 

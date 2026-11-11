@@ -174,20 +174,20 @@ describe('normalizeSpec architecture', () => {
     expect(validateSpec(n).ok).toBe(true);
   });
 
-  it('caps counts: 8 blueprints, 28 parts, 6 props with 8 parts, 2 landmarks', () => {
+  it('caps counts: 8 blueprints, 28 parts, 6 props with 28 parts, 2 landmarks', () => {
     const s = clone(FIXTURES.medieval);
     const first = s.blueprints![0]!;
     while (s.blueprints!.length < 12) s.blueprints!.push({ ...structuredClone(first), id: `extra_${s.blueprints!.length}` });
     while (first.parts.length < 40) first.parts.push({ ...first.parts[0]! });
     const prop = s.props![0]!;
     while (s.props!.length < 9) s.props!.push({ ...structuredClone(prop), kind: `prop ${s.props!.length}` });
-    while (prop.parts.length < 12) prop.parts.push({ ...prop.parts[0]! });
+    while (prop.parts.length < 40) prop.parts.push({ ...prop.parts[0]! });
     s.landmarks!.push({ ...s.landmarks![0]!, id: 'second' }, { ...s.landmarks![0]!, id: 'third' });
     const n = normalizeSpec(s);
     expect(n.blueprints).toHaveLength(8);
     expect(n.blueprints![0]!.parts).toHaveLength(28);
     expect(n.props).toHaveLength(6);
-    expect(n.props![0]!.parts).toHaveLength(8);
+    expect(n.props![0]!.parts).toHaveLength(28);
     expect(new Set(n.props!.map((p) => p.kind)).size).toBe(6);
     expect(n.landmarks).toHaveLength(2);
   });

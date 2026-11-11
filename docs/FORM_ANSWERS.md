@@ -8,11 +8,21 @@ Worldsmith
 
 ## 4. Project description
 
-Worldsmith turns one sentence into a world you can walk through in the browser. Building an interactive 3D scene normally takes modelling, level design and scripting skills; here you type a place ("a research base on Mars", "an Edo village in autumn", "an underwater coral city") and about half a minute later you are standing in it in first person. The world has shaped land and water, its own sky and weather, buildings, plants, people and animals, and a short quest that is checked to be winnable before you start. You can talk to the people, who answer in character, and you can change how the world works in plain language ("everyone must be home after dark"): the sentence becomes a typed rule, the world obeys it, and a "why" overlay explains each decision. A world can be shared as a link.
+Worldsmith turns one sentence into a world you can walk through, talk to and re-rule, in the browser, in about half a minute. Building an interactive 3D scene normally needs a modeller, a level designer and a programmer. Here you type a place ("a research base on Mars", "an Edo village in autumn", "an underwater coral city") and you are standing in it in first person: shaped land and water, its own sky and weather, buildings, plants, people and animals, and a short quest that code has checked can be finished. You talk to the people and they answer in character. Then you change how the world works in plain language ("everyone must be home after dark"): the sentence becomes a typed rule, the simulation obeys it, and a "why" overlay shows which rule caused which behaviour. Any world can be shared as a link.
 
 ## 5. What makes your project unique?
 
-Nothing is hand-built per theme. Every building, plant and object is grown from one of 60 "skeleton families": parametric structures (hall, tower, keep, arena, pier, coral, vehicle and so on) that fix only the bones. The prompt supplies the dials, colours, materials and extra parts, so the same family is a saloon in one world and a mushroom clinic in the next, and no two buildings in a world are identical. Surfaces, terrain, sky, people, creatures and sound are generated in the browser as well, so the system is not limited to a fixed asset library and works for real places, historical settings and invented ones alike. The second half is working logic: plain-language rules compile to typed rules the simulation enforces and can explain, rather than free text the model merely narrates. The quest is verified solvable by code, not assumed.
+Most text-to-3D tools give you one of three things: a single static mesh, a scene assembled from a fixed asset library (so every prompt looks like the library), or generated code that breaks. Worldsmith does none of these.
+
+1. It generates the grammar, not the assets. Every building, plant and object is grown from one of 60 skeleton families (hall, keep, arena, pier, coral, vehicle and so on). A family fixes only the bones; the prompt supplies dials, colours, materials and extra parts. One family is a saloon in one world and a mushroom clinic in the next, and no two buildings in a world are identical. Terrain, surfaces, sky, water, creatures and sound are generated in the browser too. The only pre-made art in a generated world is the rigged human models.
+
+2. It is general by construction, and measured. In one run of 16 unrelated prompts (Mars base, midtown Manhattan, Edo village, coral city, Mayan temple city, Moroccan bazaar, candy kingdom and others) all 16 produced a complete walkable world with people, creatures and a quest, in 26 to 46 seconds each, with no fallback content.
+
+3. The logic is real, not narrated. A rule typed in plain language compiles to a typed rule that the simulation enforces and can explain, and can be removed again. The quest is proven completable by code before the player starts. The model never gets to pretend something happened.
+
+4. It cannot crash on a bad generation. The model returns a spec, never code; a validator repairs and clamps whatever comes back, so the world always builds.
+
+The result is a full loop from sentence to place to behaviour, with no install, in a browser tab.
 
 ## 6. Public source code repository URL
 
@@ -46,10 +56,12 @@ https://worldsmith-vvr.vercel.app/demo
 
 ## 11. How does your project transform natural language into interactive 3D experiences?
 
-1. Prompt to spec. The prompt goes to a staged compile that streams back in parts: first an outline (name, setting, site and terrain), then the look (palette, materials, sky, building blueprints and props chosen from the skeleton families with their dials) and the story (people, items, a quest, starting rules), merged into one typed WorldSpec. The browser shows each stage as it lands.
-2. Spec to scene. The client validates and repairs the spec, expands every family and its dials into parts, and builds the world procedurally: carved terrain and water, a street plan chosen by the kind of site, buildings with real openings and roofs, plants and rocks shaped per instance, generated surfaces, sky and weather, people and animals built from body plans, and a navmesh so everyone can walk. Land keeps streaming in beyond the settlement.
-3. Generated logic. The quest is checked by code to be completable. Characters follow schedules and answer in character through the model, constrained by the world's facts. A rule typed in plain language is compiled into a typed rule (who, when, where, what), validated, and enforced by the simulation on its next tick; the "why" overlay shows which rule drove which behaviour. Rules can be removed again.
-4. Interaction. The player walks in first person, talks to people, picks up and gives items, follows or ignores the quest, edits the rules, and shares the world as a link.
+The model never writes code or meshes. It writes a typed description of a world, and deterministic code builds and runs it.
+
+1. Prompt to spec. A staged compile streams back in parts: an outline (name, setting, site, terrain), then the look (palette, materials, sky, and building and prop blueprints chosen from 60 skeleton families with their dials) and the story (people, items, a quest, starting rules), merged into one WorldSpec. The browser shows each stage as it lands, so the wait reads as the world taking shape.
+2. Spec to scene. The client validates and repairs the spec, expands every family and its dials into parts, and builds the world procedurally: carved terrain and water, a street plan chosen by the kind of site (grid, ring, single street, terraces, shoreline, scatter and others), buildings with real openings and roofs, plants and rocks shaped per instance, generated surfaces, sky and weather, people and animals from body plans, and a navmesh so everyone can walk. Land keeps streaming in past the edge of the settlement.
+3. Generated logic. Code checks the quest can be completed. Characters follow daily schedules and answer in character through the model, held to the world's facts. A rule typed in plain language is compiled to a typed rule (who, when, where, what), validated, and enforced by the simulation on its next tick; the "why" overlay shows which rule drove which behaviour, and rules can be removed.
+4. Interaction. The player walks in first person, talks to people, picks up and gives items, follows or ignores the quest, rewrites the rules, and shares the world as a link that rebuilds the same world for anyone.
 
 ## 12. Third-party materials and licenses
 

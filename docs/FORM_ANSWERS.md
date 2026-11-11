@@ -8,7 +8,13 @@ Worldsmith
 
 ## 4. Project description
 
-Worldsmith turns one sentence into a world you can walk through, talk to and re-rule, in the browser, in about half a minute. Building an interactive 3D scene normally needs a modeller, a level designer and a programmer. Here you type a place ("a research base on Mars", "an Edo village in autumn", "an underwater coral city") and you are standing in it in first person: shaped land and water, its own sky and weather, buildings, plants, people and animals, and a short quest that code has checked can be finished. You talk to the people and they answer in character. Then you change how the world works in plain language ("everyone must be home after dark"): the sentence becomes a typed rule, the simulation obeys it, and a "why" overlay shows which rule caused which behaviour. Any world can be shared as a link.
+Worldsmith turns one sentence into a world you can walk through, talk to and re-rule, in a browser tab, in about half a minute.
+
+The problem: an interactive 3D scene still takes a modeller, a level designer and a programmer, and days of work. That shuts out most of the people who have a world in their head: writers, teachers, game masters, designers testing an idea, anyone building for a virtual world without a studio behind them. Tools that generate a single 3D object do not solve it, because an object is not a place and has no behaviour.
+
+What it does: type a place ("a research base on Mars", "an Edo village in autumn", "an underwater coral city") and you are standing in it in first person. The world has shaped land and water, its own sky and weather, buildings, plants, people and animals, and a short quest that code has checked can be finished. You talk to the people and they answer in character. Then you change how the world works in plain language ("everyone must be home after dark"): the sentence becomes a typed rule, the simulation obeys it, and a "why" overlay shows which rule caused which behaviour. Any world can be shared as a link.
+
+Scene and logic both come from plain language, with nothing to install and nothing to learn.
 
 ## 5. What makes your project unique?
 

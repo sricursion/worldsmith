@@ -9,13 +9,22 @@ export const CLEF_MODEL = '@cf/cloudflare/clef-flash';
 
 type Question = TickRequest['questions'][number];
 
-/** Request body. Field names follow the System One docs as remembered; confirm against the live API. */
+/** The key a question or an option travels under; answers come back under the same keys. */
+const qKey = (i: number): string => `q${i}`;
+const oKey = (i: number): string => `o${i}`;
+
+/**
+ * Request body for System One: the state to judge, and a map of named questions. A choice question carries
+ * its options as `criteria`, a map of option key to description.
+ */
 export function buildTypesafeBody(req: TickRequest): object {
-  return {
-    model: JEV_MODEL,
-    context: req.stateSummary,
-    questions: req.questions.map((q) => ({ type: 'choice', question: q.question, options: q.options })),
-  };
+  const questions: Record<string, object> = {};
+  req.questions.forEach((q, i) => {
+    const criteria: Record<string, string> = {};
+    q.options.forEach((o, j) => { criteria[oKey(j)] = o; });
+    questions[qKey(i)] = { type: 'choice', instructions: q.question, criteria };
+  });
+  return { model: JEV_MODEL, state: req.stateSummary, questions };
 }
 
 function normalize(weights: number[]): number[] | null {
@@ -71,10 +80,8 @@ function vectorFromItem(item: unknown, options: string[]): number[] | null {
 }
 
 /**
- * Defensive parser for the System One response.
- * CONFIRM AGAINST A REAL RESPONSE: the exact shape is not verified. Two likely shapes are handled:
- *   A) an array (top level, or under results/questions/predictions) of { probabilities: number[] }
- *   B) { answers: [{ distribution: number[] | {option: p} | [{option, probability}] }] }
+ * Reads a System One response: { answers: { q0: { probabilities: { o0: p, o1: p } } } }, keyed as the request
+ * was. An array of answers in question order is read too (the fallback model replies that way).
  * Returns one normalised vector per question, or null if any question cannot be read.
  */
 export function parseTypesafe(raw: unknown, questions: Question[]): number[][] | null {
@@ -82,12 +89,18 @@ export function parseTypesafe(raw: unknown, questions: Question[]): number[][] |
   if (isRecord(raw)) {
     items = raw.answers ?? raw.results ?? raw.questions ?? raw.predictions ?? (isRecord(raw.data) ? raw.data.answers : undefined);
   }
+  if (isRecord(items)) {
+    const keyed = items;
+    items = questions.map((_, i) => keyed[qKey(i)]);
+  }
   if (!Array.isArray(items) || items.length !== questions.length) return null;
   const out: number[][] = [];
   for (let i = 0; i < questions.length; i++) {
     const q = questions[i];
     if (!q) return null;
-    const v = vectorFromItem(items[i], q.options);
+    const item: unknown = items[i];
+    const keys = q.options.map((_, j) => oKey(j));
+    const v = vectorFromItem(item, q.options) ?? vectorFromItem(item, keys);
     if (!v) return null;
     out.push(v);
   }
@@ -107,14 +120,18 @@ async function callJev(env: Env, req: TickRequest, dev: boolean): Promise<number
       body: JSON.stringify(buildTypesafeBody(req)),
       signal: AbortSignal.timeout(JEV_TIMEOUT_MS),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      if (dev) console.warn('[tick] System One refused the request:', res.status, (await res.text()).slice(0, 300));
+      return null;
+    }
     const raw = (await res.json()) as unknown;
     if (dev && !warnedShape) {
       warnedShape = true;
       console.warn('[tick] raw System One response shape (confirm parser):', JSON.stringify(raw).slice(0, 800));
     }
     return parseTypesafe(raw, req.questions);
-  } catch {
+  } catch (err) {
+    if (dev) console.warn('[tick] System One call failed:', err instanceof Error ? err.message : String(err));
     return null;
   }
 }

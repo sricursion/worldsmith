@@ -167,9 +167,21 @@ describe('TypeSafe parser', () => {
     expect(parseTypesafe([{ probabilities: [1, 1, 1] }], qs)).toBeNull();
   });
   it('builds a choice question per NPC and a mock vector summing to 1 with first = 0.5', () => {
-    const body = buildTypesafeBody({ sessionId: 's', stateSummary: 'sum', questions: qs }) as { model: string; questions: unknown[] };
+    const body = buildTypesafeBody({ sessionId: 's', stateSummary: 'sum', questions: qs }) as { model: string; state: string; questions: Record<string, { type: string; instructions: string; criteria: Record<string, string> }> };
     expect(body.model).toBe('jev-1.14.0');
-    expect(body.questions).toHaveLength(2);
+    expect(body.state).toBe('sum');
+    expect(Object.keys(body.questions)).toEqual(['q0', 'q1']);
+    expect(body.questions['q0']?.type).toBe('choice');
+    expect(Object.values(body.questions['q0']?.criteria ?? {})).toEqual(qs[0]?.options);
+    // The reply is keyed the way the request was.
+    const n = qs[0]?.options.length ?? 0;
+    const probabilities = Object.fromEntries(Array.from({ length: n }, (_, j) => [`o${j}`, j === 0 ? 0.9 : 0.1 / Math.max(1, n - 1)]));
+    const m = qs[1]?.options.length ?? 0;
+    const second = Object.fromEntries(Array.from({ length: m }, (_, j) => [`o${j}`, 1 / m]));
+    const read = parseTypesafe({ model: 'jev-1.14.0', answers: { q0: { type: 'choice', choice: 'o0', probabilities }, q1: { type: 'choice', probabilities: second } } }, qs);
+    expect(read?.[0]?.[0]).toBeCloseTo(0.9, 6);
+    expect(read?.[1]).toHaveLength(m);
+    expect(parseTypesafe({ answers: { q0: { probabilities } } }, qs)).toBeNull();
     for (const p of mockProbs({ sessionId: 's', stateSummary: 'x', questions: qs })) {
       expect(p[0]).toBe(0.5);
       expect(p.reduce((a, b) => a + b, 0)).toBeCloseTo(1, 10);

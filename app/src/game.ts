@@ -123,7 +123,7 @@ export class Game {
 
   constructor(private readonly deps: GameDeps) {
     this.sky = createSky(deps.viewport.scene, deps.viewport.renderer);
-    this.speech = createSpeech();
+    this.speech = createSpeech({ sessionId: this.sessionId });
     this.atmosphere = createAtmosphere(deps.viewport, this.sky);
     this.audio = createAudio(undefined, { quality: deps.viewport.getQuality?.() ?? 2 });
     this.applySound(deps.ui.getSound());
@@ -755,7 +755,7 @@ export class Game {
       b.talking = false;
       b.talkUntil = t && this.speech.enabled ? t.elapsed + Math.min(8, Math.max(1, words.length * 0.06)) : 0;
     }
-    if (words !== '') this.speech.speak(words, n.spec.voice, n.spec.name);
+    if (words !== '') this.speech.speak(words, n.spec.voice, n.spec.name, { id: n.spec.id, role: n.spec.role, persona: n.spec.persona });
   }
 
   private offerItemActions(n: NpcRuntime, h: DialogueHandle): void {

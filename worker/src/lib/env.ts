@@ -11,6 +11,11 @@ export interface Env {
   BUDGET_SESSION_TOKENS?: string;
   BUDGET_IP_TOKENS?: string;
   BUDGET_GLOBAL_TOKENS?: string;
+  /** ElevenLabs text-to-speech key. Without it /api/npc/voice answers 404 voice_off. */
+  ELEVENLABS_API_KEY?: string;
+  /** Daily and per-session character caps for NPC voice; strings. Defaults live in routes/voice.ts. */
+  VOICE_DAILY_CHARS?: string;
+  VOICE_SESSION_CHARS?: string;
   MOCK?: string;
   TOWNS?: KVNamespace;
   AI?: Ai;

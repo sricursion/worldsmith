@@ -6,6 +6,7 @@ import { errorJson, json, originAllowed, preflight, withCors } from './lib/http'
 import { handleCompile } from './routes/compile';
 import { handleLandmarkFile, handleLandmarkStart, handleLandmarkStatus } from './routes/landmark';
 import { handleNpcSay } from './routes/npc';
+import { handleNpcVoice } from './routes/voice';
 import { handleRulesPatch } from './routes/rules';
 import { handleLoad, handleShare } from './routes/share';
 import { handleTick } from './routes/tick';
@@ -14,9 +15,10 @@ async function route(req: Request, env: Env, ctx: ExecutionContext, url: URL): P
   const path = url.pathname;
   const post = req.method === 'POST';
 
-  if (path === '/api/health' && req.method === 'GET') return json({ ok: true, mock: isMock(env) });
+  if (path === '/api/health' && req.method === 'GET') return json({ ok: true, mock: isMock(env), voices: Boolean(env.ELEVENLABS_API_KEY) && !isMock(env) });
   if (path === '/api/compile' && post) return handleCompile(req, env, ctx);
   if (path === '/api/npc/say' && post) return handleNpcSay(req, env, ctx);
+  if (path === '/api/npc/voice' && post) return handleNpcVoice(req, env);
   if (path === '/api/tick' && post) return handleTick(req, env, url);
   if (path === '/api/rules/patch' && post) return handleRulesPatch(req, env);
   if (path === '/api/share' && post) return handleShare(req, env);

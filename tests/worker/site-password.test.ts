@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import middleware, { demoResponse, passwordFrom } from '../../middleware';
+import middleware, { DEMO_VIDEO, demoResponse, embedOf, passwordFrom } from '../../middleware';
 
 const basic = (user: string, pass: string): string => `Basic ${btoa(`${user}:${pass}`)}`;
 const req = (auth?: string): Request => new Request('https://example.test/', auth ? { headers: { authorization: auth } } : {});
@@ -27,16 +27,28 @@ describe('site password', () => {
     expect(passwordFrom('Basic %%%')).toBeNull();
   });
 
-  it('forwards /demo to the video without asking for the password', () => {
+  it('shows the video at /demo, embedded, without asking for the password', async () => {
     process.env['SITE_PASSWORD'] = 'open sesame';
-    const waiting = middleware(new Request('https://example.test/demo'));
-    expect(waiting?.status).toBe(200);
-    process.env['DEMO_VIDEO_URL'] = 'https://video.example/watch?v=abc';
-    const sent = middleware(new Request('https://example.test/demo/'));
-    expect(sent?.status).toBe(302);
-    expect(sent?.headers.get('location')).toBe('https://video.example/watch?v=abc');
+    const page = middleware(new Request('https://example.test/demo'));
+    expect(page?.status).toBe(200);
+    expect(page?.headers.get('location')).toBeNull();
+    expect(await page?.text()).toContain('<iframe class="player" src="https://drive.google.com/file/d/');
+    process.env['DEMO_VIDEO_URL'] = 'https://www.youtube.com/watch?v=abc123XYZ_-';
+    const yt = middleware(new Request('https://example.test/demo/'));
+    expect(yt?.status).toBe(200);
+    expect(await yt?.text()).toContain('src="https://www.youtube.com/embed/abc123XYZ_-"');
     expect(middleware(new Request('https://example.test/demonstration'))?.status).toBe(401);
-    expect(demoResponse('javascript:alert(1)').status).toBe(200);
-    expect(demoResponse('not a url').status).toBe(200);
+  });
+
+  it('turns share addresses into embeds and refuses anything that is not https', async () => {
+    expect(embedOf('https://drive.google.com/file/d/1AbC_d-9/view?usp=sharing')).toEqual({ src: 'https://drive.google.com/file/d/1AbC_d-9/preview', kind: 'frame' });
+    expect(embedOf('https://youtu.be/abc123XYZ_-')?.src).toBe('https://www.youtube.com/embed/abc123XYZ_-');
+    expect(embedOf('https://cdn.example/film.mp4')).toEqual({ src: 'https://cdn.example/film.mp4', kind: 'file' });
+    expect(embedOf('javascript:alert(1)')).toBeNull();
+    expect(embedOf('not a url')).toBeNull();
+    expect(embedOf(DEMO_VIDEO)?.src).toMatch(/\/preview$/);
+    // A bad address on the host falls back to the built-in video, and markup in an address is not passed through.
+    expect(await demoResponse('javascript:alert(1)').text()).toContain('drive.google.com/file/d/');
+    expect(await demoResponse('https://x.example/a"><script>alert(1)</script>.mp4').text()).not.toContain('<script>alert');
   });
 });

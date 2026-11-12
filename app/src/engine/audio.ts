@@ -2,26 +2,49 @@
 // impulse responses, footsteps, rain drops, plucked strings and insects are all computed in the
 // browser. The rig is inert until unlock() runs inside a user gesture, and every method is a
 // no-op where there is no AudioContext, so callers never need to check.
+//
+// A scene is a set of continuous beds plus irregular one-shot events (a bell, a gull, a door).
+// Which ones depends on the weather, the ambience words and what the world itself is; how each
+// sounds depends on the world's seed; how loud each is depends on the hour and where the player stands.
 
+import { makeRng } from '../world/rng';
 import type { MoodSpec, SurfaceKind, ThemeId } from '../world/spec';
 import { createBed, type Bed, type BedState } from './audio/beds';
 import { renderImpulse } from './audio/dsp';
+import { EventScheduler } from './audio/events';
+import type { Place, WorldSound } from './audio/identity';
 import {
   FADE_SECONDS, createFader, createKit, fadeTo, filterNode, gainNode,
   type Fader, type Kit, type Quality,
 } from './audio/kit';
 import {
-  StepClock, bedKey, dayPhase, indoorStepFamily, musicPlan, roomFor, sceneMix, stepFamily,
-  type BedMix, type DayPhase, type SceneOpts,
+  StepClock, bedCharacter, bedKey, dayPhase, indoorStepFamily, musicPlan, placeGain, roomFor, sceneMix, stepFamily, trimMix,
+  type BedId, type BedMix, type DayPhase, type SceneOpts,
 } from './audio/mapping';
 import { createMusic, type Music } from './audio/music';
 import { createFeet, playBlip, playUi, type Feet, type UiKind } from './audio/sfx';
+import type { EventKind } from './audio/vocab';
+import { eventTune, playEvent } from './audio/voices';
+
+export { placeOf, soundProfile, type Land, type Place, type WorldSound } from './audio/identity';
+
+/** What update() is told each frame. */
+export interface AudioFrame {
+  speed: number;
+  running: boolean;
+  hour: number;
+  indoors?: boolean;
+  nearNpcCount?: number;
+  /** Where the player stands relative to water, the settlement and high ground; the mix follows it. */
+  place?: Place;
+}
 
 export interface AudioRig {
   /** Call from a user gesture; creates or resumes the AudioContext. */
   unlock(): void;
-  setScene(opts: { mood?: MoodSpec; theme: ThemeId; groundKind?: SurfaceKind; sitePattern?: string; hour: number }): void;
-  update(dt: number, s: { speed: number; running: boolean; hour: number; indoors?: boolean; nearNpcCount?: number }): void;
+  /** `world` is the spec boiled down by soundProfile(): it gives the place its own layers and its seed. */
+  setScene(opts: { mood?: MoodSpec; theme: ThemeId; groundKind?: SurfaceKind; sitePattern?: string; hour: number; world?: WorldSound }): void;
+  update(dt: number, s: AudioFrame): void;
   footstep(): void;
   ui(kind: 'open' | 'close' | 'confirm' | 'quest' | 'error' | 'reveal'): void;
   /** A short soft syllable-like blip per streamed word of NPC speech. `pitch` is a multiplier around 1, or hertz when above 8. */
@@ -46,6 +69,11 @@ export interface AudioOptions {
 const AUDIO_SEED = 0x51f15e;
 const AMBIENCE_LEVEL = 0.8;
 const MUSIC_LEVEL = 0.3;
+/** Textured beds mixed at once, by quality; each is a handful of looping sources. */
+const BED_CAP = [5, 7, 10] as const;
+/** How often events happen relative to a full-quality machine. */
+const EVENT_RATE = [0.6, 0.85, 1] as const;
+const PLACE_SECONDS = 0.4;
 
 function defaultFactory(): AudioContext | null {
   const g = globalThis as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext };
@@ -54,16 +82,22 @@ function defaultFactory(): AudioContext | null {
 }
 
 interface Slot {
+  id: BedId;
   key: string;
   bed: Bed;
   fader: Fader;
+  /** Follows the player's position; sits between the fader and the ambience bus. */
+  place: GainNode;
+  placeLevel: number;
+  /** Handles of the event sources this bed registered with the scheduler. */
+  sources: number[];
   /** Context time at which a faded-out slot is torn down; 0 while it is in the mix. */
   killAt: number;
 }
 
 interface Core {
   setScene(opts: SceneOpts): void;
-  update(dt: number, s: { speed: number; running: boolean; hour: number; indoors?: boolean; nearNpcCount?: number }): void;
+  update(dt: number, s: AudioFrame): void;
   footstep(): void;
   ui(kind: UiKind): void;
   voiceBlip(pitch: number): void;
@@ -156,6 +190,22 @@ function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number, bgL
   let duckUntil = 0;
   let lastBlip = -1;
 
+  // One-shot events. The scheduler and the tuning belong to the world: a new seed starts both afresh.
+  let seed = 0;
+  let scheduler = new EventScheduler(makeRng(seed, 'events'), kit.voices, { rate: EVENT_RATE[quality] });
+  let emitters = new Map<number, AudioNode>();
+  let tunes = new Map<EventKind, number>();
+  let place: Place | undefined;
+  let placeAt = 0;
+
+  const silence = (slot: Slot): void => {
+    for (const h of slot.sources) {
+      scheduler.remove(h);
+      emitters.delete(h);
+    }
+    slot.sources = [];
+  };
+
   const duck = (amount: number): void => {
     const now = ctx.currentTime;
     duckGain.gain.setTargetAtTime(1 - 0.7 * Math.min(1, Math.max(0, amount)), now, 0.04);
@@ -184,33 +234,63 @@ function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number, bgL
   const applyMix = (now: number): void => {
     if (!scene) return;
     phase = dayPhase(scene.hour);
-    const want: BedMix[] = sceneMix(scene);
+    const want: BedMix[] = trimMix(sceneMix(scene), BED_CAP[quality]);
+    const keyOf = (b: BedMix): string => `${seed}:${bedKey(b)}`;
     for (const slot of slots) {
-      const target = want.find((b) => bedKey(b) === slot.key);
+      const target = want.find((b) => keyOf(b) === slot.key);
       if (target) {
         if (slot.killAt !== 0 || Math.abs(slot.fader.to - target.level) > 0.01) fadeTo(slot.fader, target.level, now);
+        if (slot.killAt !== 0) for (const e of target.events ?? []) {
+          const h = scheduler.add(e, now);
+          emitters.set(h, slot.fader.node);
+          slot.sources.push(h);
+        }
         slot.killAt = 0;
       } else if (slot.killAt === 0) {
         fadeTo(slot.fader, 0, now);
         slot.killAt = now + FADE_SECONDS + 0.1;
+        // A bed on its way out starts nothing new; what is already sounding fades with it.
+        silence(slot);
       }
     }
     for (const b of want) {
-      const key = bedKey(b);
+      const key = keyOf(b);
       if (slots.some((s) => s.key === key)) continue;
       const fader = createFader(ctx, 0);
-      fader.node.connect(ambIn);
-      const bed = createBed(kit, b, fader.node);
+      const placeLevel = placeGain(b.id, place);
+      const follow = gainNode(ctx, placeLevel);
+      fader.node.connect(follow);
+      follow.connect(ambIn);
+      const bed = createBed(kit, b, fader.node, bedCharacter(seed, b.id));
       fadeTo(fader, b.level, now);
-      slots.push({ key, bed, fader, killAt: 0 });
+      const sources: number[] = [];
+      for (const e of b.events ?? []) {
+        const h = scheduler.add(e, now);
+        emitters.set(h, fader.node);
+        sources.push(h);
+      }
+      slots.push({ id: b.id, key, bed, fader, place: follow, placeLevel, sources, killAt: 0 });
+    }
+  };
+
+  /** Moves each bed towards the level its place in the world gives it; cheap, and only a few times a second. */
+  const followPlace = (now: number): void => {
+    for (const slot of slots) {
+      if (slot.killAt !== 0) continue;
+      const level = placeGain(slot.id, place);
+      if (Math.abs(level - slot.placeLevel) < 0.02) continue;
+      slot.placeLevel = level;
+      slot.place.gain.setTargetAtTime(level, now, 0.8);
     }
   };
 
   const applyMusic = (now: number): void => {
     if (!scene) return;
-    const plan = musicPlan(scene.mood, scene.theme);
+    const plan = musicPlan(scene.mood, scene.theme, scene.world?.seed);
     const key = plan ? JSON.stringify(plan) : '';
     if ((music?.key ?? '') === key) return;
+    // Plucked notes are cached per pitch; a new piece is in a new key, so the old ones can go.
+    kit.evict((k) => k.startsWith('pluck:'));
     if (music) {
       fadeTo(music.fader, 0, now);
       oldMusic.push({ engine: music.engine, fader: music.fader, killAt: now + FADE_SECONDS + 0.1 });
@@ -231,6 +311,7 @@ function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number, bgL
         if (s.killAt === 0 || now < s.killAt) return true;
         s.bed.dispose();
         s.fader.node.disconnect();
+        s.place.disconnect();
         return false;
       });
     }
@@ -262,6 +343,16 @@ function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number, bgL
   return {
     setScene(opts) {
       scene = { ...opts };
+      const next = opts.world?.seed ?? 0;
+      if (next !== seed) {
+        // Another world: its own run of events, its own tuning, and no loops left over from the last one.
+        seed = next;
+        for (const slot of slots) slot.sources = [];
+        scheduler = new EventScheduler(makeRng(seed, 'events'), kit.voices, { rate: EVENT_RATE[quality] });
+        emitters = new Map();
+        tunes = new Map();
+        kit.evict((k) => k.includes('@') && !k.endsWith(`@${seed}`));
+      }
       const w = opts.mood?.weather;
       wet = opts.mood && (w === 'rain' || w === 'storm') ? Math.min(1, Math.max(0, opts.mood.intensity)) : 0;
       const now = ctx.currentTime;
@@ -288,6 +379,21 @@ function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number, bgL
       bedState.nearNpc = s.nearNpcCount ?? 0;
       bedState.indoors = inside;
       for (const slot of slots) if (slot.killAt === 0) slot.bed.tick(now, bedState);
+      place = s.place;
+      if (now >= placeAt) {
+        placeAt = now + PLACE_SECONDS;
+        followPlace(now);
+      }
+      for (const f of scheduler.due(now, phase)) {
+        const out = emitters.get(f.source);
+        if (!out) continue;
+        let tune = tunes.get(f.kind);
+        if (tune === undefined) {
+          tune = eventTune(seed, f.kind);
+          tunes.set(f.kind, tune);
+        }
+        playEvent(kit, out, f, tune);
+      }
       if (music) music.engine.tick(now);
       if (ducked && now >= duckUntil) {
         duckGain.gain.setTargetAtTime(1, now, 0.5);
@@ -326,8 +432,10 @@ function buildCore(ctx: AudioContext, quality: Quality, masterLevel: number, bgL
       for (const s of slots) {
         s.bed.dispose();
         s.fader.node.disconnect();
+        s.place.disconnect();
       }
       slots = [];
+      emitters.clear();
       for (const m of oldMusic) {
         m.engine.dispose();
         m.fader.node.disconnect();

@@ -290,3 +290,51 @@ export function renderSplash(sr: number, rng: Rng): Float32Array {
   normalisePeak(out, 0.7);
   return out;
 }
+
+/**
+ * Cicadas in the heat: each insect is a high carrier chopped by its own fast rattle, swelling
+ * over several seconds and breaking off. Every swell starts and ends in silence inside the loop.
+ */
+export function renderCicadas(sr: number, seconds: number, count: number, rng: Rng): [Float32Array, Float32Array] {
+  const n = Math.round(seconds * sr);
+  const [l, r] = stereo(n);
+  for (let c = 0; c < count; c++) {
+    const fc = rng.range(3800, 6800);
+    const rattle = rng.range(90, 220);
+    const swells = rng.int(1, 3);
+    const span = Math.floor(n / swells);
+    const level = rng.range(0.35, 1);
+    const [gl, gr] = panGains(rng.range(-1, 1));
+    for (let s = 0; s < swells; s++) {
+      const len = Math.floor(span * rng.range(0.55, 0.95));
+      const start = s * span + rng.int(0, span - len);
+      const crest = rng.range(0.6, 0.85);
+      for (let k = 0; k < len; k++) {
+        const x = k / len;
+        const env = x < crest ? Math.sin((Math.PI / 2) * (x / crest)) ** 2 : Math.cos((Math.PI / 2) * ((x - crest) / (1 - crest))) ** 2;
+        const t = k / sr;
+        const chop = 0.5 + 0.5 * Math.sin(TAU * rattle * t);
+        const v = Math.sin(TAU * fc * t + 1.2 * Math.sin(TAU * rattle * 0.5 * t)) * chop * chop * env * level;
+        const i = (start + k) % n;
+        l[i] = (l[i] ?? 0) + v * gl;
+        r[i] = (r[i] ?? 0) + v * gr;
+      }
+    }
+  }
+  normaliseRms([l, r], 0.045);
+  return [l, r];
+}
+
+/** Running water over stones: a dense scatter of tiny rising blips, the voice of a brook over its hiss. */
+export function renderBabble(sr: number, seconds: number, perSec: number, rng: Rng): [Float32Array, Float32Array] {
+  const n = Math.round(seconds * sr);
+  const [l, r] = stereo(n);
+  const blips = Math.round(seconds * perSec);
+  for (let b = 0; b < blips; b++) {
+    const f = 350 * Math.pow(2, rng.range(0, 2.8));
+    const o = { f, fEnd: f * rng.range(1.15, 1.6), tau: rng.range(0.004, 0.02), amp: 0.05 + Math.pow(rng.next(), 3), wrap: true };
+    addPing(rng.chance(0.5) ? l : r, rng.int(0, n - 1), sr, o);
+  }
+  normaliseRms([l, r], 0.06);
+  return [l, r];
+}

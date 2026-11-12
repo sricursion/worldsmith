@@ -85,6 +85,10 @@ export interface EndlessInput {
   solids?: Float32Array;
   /** Milliseconds of making per update. Default 4. */
   budgetMs?: number;
+  /** Colours the far ground where something is laid on it (the streets of a city): multiplies `rgb` for a ground cell of size `cell` at a point. */
+  paint?: (x: number, z: number, cell: number, rgb: [number, number, number]) => void;
+  /** True where the place's own fabric stands: nothing wild grows there and no lone place of interest is set. */
+  built?: (x: number, z: number) => boolean;
 }
 
 export interface EndlessStats {
@@ -394,6 +398,7 @@ export function createEndless(inp: EndlessInput): Endless {
         if (shore > -5 && sea) k *= 1 + (bankTint(y - sea.level) - 1) * smoothstep(-5, -2, shore);
         const h0 = hs[c] as number;
         reliefTint(((hs[c + 1] as number) + (hs[c - 1] as number) + (hs[c + W] as number) + (hs[c - W] as number) - 4 * h0) / (s * s), Math.hypot(hx, hz), tint);
+        if (inp.paint && !sunk) inp.paint(x, z, s, tint);
         ca[v * 3] = k * (1 + 0.07 * drift) * tint[0]; ca[v * 3 + 1] = k * tint[1]; ca[v * 3 + 2] = k * (1 - 0.09 * drift) * tint[2];
         if (da && sea) {
           const d = sunk ? -1 : shore > -1.5 ? clamp(sea.level - y, -0.5, 40) : -1;
@@ -791,7 +796,7 @@ export function createEndless(inp: EndlessInput): Endless {
           let s = rng.range(0.8, 1.3) * (k.tall && rng.chance(0.15) ? 1.5 : 1);
           const yaw = rng.range(0, Math.PI * 2);
           const u = rng.next();
-          if (far(x, z) < inp.clear) continue;
+          if (far(x, z) < inp.clear || inp.built?.(x, z)) continue;
           const grove = fbm(x / 85, z / 85, seed + 211, 3);
           const stand = k.tall
             ? smoothstep(0.42, 0.6, grove)
@@ -890,7 +895,7 @@ export function createEndless(inp: EndlessInput): Endless {
             x = (px + rng.range(0.15, 0.85)) * PLACE_CELL;
             z = (pz + rng.range(0.15, 0.85)) * PLACE_CELL;
             const h = surfaceAt(x, z);
-            found = far(x, z) > keepOut && !wetAt(x, z) && !wetAt(x + 6, z) && !wetAt(x - 6, z) && !wetAt(x, z + 6) && !wetAt(x, z - 6)
+            found = far(x, z) > keepOut && !inp.built?.(x, z) && !wetAt(x, z) && !wetAt(x + 6, z) && !wetAt(x - 6, z) && !wetAt(x, z + 6) && !wetAt(x, z - 6)
               && Math.abs(surfaceAt(x + 5, z) - h) < 2.5 && Math.abs(surfaceAt(x - 5, z) - h) < 2.5
               && Math.abs(surfaceAt(x, z + 5) - h) < 2.5 && Math.abs(surfaceAt(x, z - 5) - h) < 2.5;
           }

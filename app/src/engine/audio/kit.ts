@@ -3,6 +3,7 @@
 
 import { makeRng, type Rng } from '../../world/rng';
 import { fillNoise, type NoiseColor } from './dsp';
+import { VOICE_CAP, VoicePool } from './events';
 
 export type Quality = 0 | 1 | 2;
 
@@ -17,8 +18,12 @@ export interface Kit {
   noise(color: NoiseColor): AudioBuffer;
   /** A rendered buffer cached by key; `render` returns one Float32Array per channel. */
   buffer(key: string, render: (sr: number, rng: Rng) => readonly Float32Array[]): AudioBuffer;
+  /** Drops the cached buffers whose key the test accepts, e.g. the loops rendered for a world that has been left. */
+  evict(test: (key: string) => boolean): void;
   /** Drops every cached buffer. */
   clear(): void;
+  /** The ceiling on one-shot voices sounding at once, shared by the beds and the events. */
+  readonly voices: VoicePool;
 }
 
 const NOISE_SECONDS = 6;
@@ -51,9 +56,13 @@ export function createKit(ctx: AudioContext, quality: Quality, seed: number): Ki
       cache.set(key, buf);
       return buf;
     },
+    evict(test) {
+      for (const key of [...cache.keys()]) if (test(key)) cache.delete(key);
+    },
     clear() {
       cache.clear();
     },
+    voices: new VoicePool(VOICE_CAP[quality]),
   };
   return kit;
 }

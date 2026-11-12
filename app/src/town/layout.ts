@@ -10,7 +10,10 @@
 import PoissonDiskSampling from 'poisson-disk-sampling';
 import { makeRng } from '../world/rng';
 import type { Rng } from '../world/rng';
+import { scaleProfile } from '../world/scale';
 import type { BuildingRole, BuildingSize, BuildingSpec, SitePattern, SiteSpec, TerrainSpec, ThemeId, WaterKind, WorldSpec } from '../world/spec';
+import { fabricKinds, planFabric } from './fabric';
+import type { FabricGrid, FabricLot } from './fabric';
 
 export interface PlacedBuilding {
   id: string; role: BuildingRole; size: BuildingSize;
@@ -33,6 +36,11 @@ export interface TownLayout {
   clearings?: { x: number; z: number; r: number }[];
   /** Level benches a cliffside site steps up: flat between s0 and s1 along (nx, nz), `level` steps above the first. */
   benches?: { nx: number; nz: number; steps: { s0: number; s1: number; level: number }[] };
+  /**
+   * What stands around the named structures when the spec gives the place a scale (see fabric.ts): the lots
+   * built with the place itself, and the street lattice the rest of a town or city is made on as it is walked.
+   */
+  fabric?: { lots: FabricLot[]; grid: FabricGrid | null };
 }
 /** A footpath. 'path' is the one drawn route of a path site; 'trail' is a faint worn line. */
 export interface Trail { pts: { x: number; z: number }[]; width: number; kind: 'trail' | 'path' }
@@ -161,7 +169,8 @@ const rectOf = (x: number, z: number): Rect => ({ minX: x, maxX: x, minZ: z, max
 
 function streetPlan(spec: WorldSpec, ordered: BuildingSpec[], o: { mainW: number; crossW: number; gap: number; setback?: number; jitter?: number; single?: boolean }): Plan {
   const { mainW, crossW, gap } = o;
-  const setback = o.setback ?? SETBACK;
+  // Never inside the margin kept clear along a street: a front that close fits nowhere, and the lot is lost.
+  const setback = Math.max(o.setback ?? SETBACK, ROAD_MARGIN + 0.1);
   const jitter = o.jitter ?? 1.5;
   const rng = makeRng(spec.seed, 'layout');
   const count = ordered.length;
@@ -1287,8 +1296,28 @@ export function generateLayout(spec: WorldSpec): TownLayout {
       || water.some((w) => w.area.shape !== 'sheet' && waterInside(w, x, z) > -1.5)
       || clearings.some((q) => Math.hypot(x - q.x, z - q.z) < q.r)
     : undefined;
-  const props = scatterWild(spec, site.wild, band && !wilderness, placed, routes, plaza, spawn, bounds, foot, avoid);
-  const layout: TownLayout = { buildings: placed, roads: site.paths === 'none' ? [] : routes, props, plaza, spawn, bounds, walkable };
+  // The scale of the place: more houses round a hamlet, streets of blocks round a city. Nothing for a spec without one.
+  const profile = scaleProfile(spec);
+  const fabric = profile ? planFabric(spec, profile, fabricKinds(spec, profile), {
+    boxes, doors: placed.map((b) => b.door), roads: routes, plaza, spawn, bounds, avoid,
+  }) : null;
+  let drawn = site.paths === 'none' ? [] : routes;
+  let stood = placed;
+  if (fabric) {
+    bounds = fabric.grid ? fabric.bounds : union(bounds, fabric.bounds);
+    drawn = [...drawn, ...fabric.roads, ...fabric.stubs];
+    for (const r of fabric.roads) walkAlong(r, walkable);
+    // Scatter keeps off the fabric as it does off the named buildings.
+    stood = [...placed, ...fabric.lots.map((l) => ({ ...l, id: '', role: 'house' as BuildingRole, size: 'medium' as BuildingSize }))];
+  }
+  const props = scatterWild(spec, site.wild, band && !wilderness, stood, fabric ? [...routes, ...fabric.roads] : routes, plaza, spawn, bounds, fabric?.grid ? bounds : foot, avoid);
+  if (fabric) {
+    const rng = makeRng(spec.seed, 'clutter');
+    const kinds = PROP_KINDS[spec.theme];
+    for (const c of fabric.clutter) props.push({ kind: weightedKind(kinds, rng), x: c.x, z: c.z, rotY: c.rotY, scale: rng.range(0.85, 1.15) });
+  }
+  const layout: TownLayout = { buildings: placed, roads: drawn, props, plaza, spawn, bounds, walkable };
+  if (fabric) layout.fabric = { lots: fabric.lots, grid: fabric.grid };
   if (trails.length > 0) layout.trails = trails;
   if (water.length > 0) layout.water = water;
   if (clearings.length > 0) layout.clearings = clearings;

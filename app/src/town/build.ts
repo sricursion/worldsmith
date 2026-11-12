@@ -20,11 +20,17 @@ import * as THREE from 'three';
 import type { LoadedKit } from '../engine/assets';
 import type { PlayerLand } from '../engine/player';
 import { hash32, makeRng } from '../world/rng';
+import { scaleProfile } from '../world/scale';
+import type { ScaleProfile } from '../world/scale';
 import type { Blueprint, LandmarkSpec, StyleSpec, SurfaceSet, WorldSpec } from '../world/spec';
 import { GeoBatch, MaterialCache } from './batch';
 import { addBlueprint } from './blueprint-mesh';
 import { createEndless, patchFarFog } from './endless';
 import type { EndlessStats } from './endless';
+import { MAX_FABRIC_HEIGHT, fabricKinds, lotRect, saidHeight, stretchTo } from './fabric';
+import type { FabricGrid } from './fabric';
+import { addInnerFabric, createFabricStream } from './fabric-mesh';
+import type { FabricStats } from './fabric-mesh';
 import { MAX_BUILDING_HEIGHT, PROP_SIZES } from './kits';
 import { buildingAabb, distanceToPolyline, distanceToRoad, roadRect, waterInside } from './layout';
 import type { PlacedBuilding, Rect, TownLayout } from './layout';
@@ -99,6 +105,12 @@ export interface TownObjects {
   roam?: PlayerLand;
   /** How the endless land stands: tiles drawn and held, pool sizes. For the debug overlay and for tests. */
   endlessStats?(): EndlessStats;
+  /**
+   * The scale the place was built at, when its spec gives one: the profile, the street lattice of a town or
+   * city (null for a hamlet or village), how many lots were built with the place, and what of the city beyond
+   * is drawn now.
+   */
+  fabric?: { profile: ScaleProfile; grid: FabricGrid | null; inner: number; stats(): FabricStats | null };
   dispose(): void;
 }
 
@@ -269,7 +281,7 @@ const LANDMARK_BUILDING_MARGIN = 1.5;
  */
 export function landmarkAnchor(layout: TownLayout, spec: WorldSpec, lm: LandmarkSpec): { x: number; z: number; rotY: number } {
   void spec;
-  const boxes: Rect[] = layout.buildings.map((b) => buildingAabb(b));
+  const boxes: Rect[] = [...layout.buildings.map((b) => buildingAabb(b)), ...(layout.fabric?.lots ?? []).map((l) => lotRect(l))];
   const free = (x: number, z: number): boolean => {
     if (layout.roads.some((r) => distanceToRoad(r, x, z) < LANDMARK_ROAD_MARGIN)) return false;
     const m = LANDMARK_BUILDING_MARGIN;
@@ -414,10 +426,12 @@ export function planBuildings(
   const placed = layout.buildings.map((b) => ({ ...b, door: { ...b.door } }));
   const marks = (spec.landmarks ?? []).map((lm) => landmarkAnchor(layout, spec, lm));
   const bd = layout.bounds;
+  const filled = (layout.fabric?.lots ?? []).map((l) => lotRect(l));
   const fits = (c: PlacedBuilding, own: number): boolean => {
     const r = buildingAabb(c);
     const m = 0.75;
     if (r.minX < bd.minX || r.maxX > bd.maxX || r.minZ < bd.minZ || r.maxZ > bd.maxZ) return false;
+    if (filled.some((q) => r.minX - m < q.maxX && r.maxX + m > q.minX && r.minZ - m < q.maxZ && r.maxZ + m > q.minZ)) return false;
     if (placed.some((o, j) => {
       if (j === own) return false;
       const q = buildingAabb(o);
@@ -492,10 +506,23 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
   const varyOpts = { amount: 0.35 + 0.65 * unit(look.variety), wear: surfaces.wear, settled: settledness };
   const planned = style && bpMode ? planBuildings(given, spec, blueprints, varyOpts) : { layout: given, built: new Map<string, Blueprint>() };
   const layout = planned.layout;
+  // The scale of the place (absent on old specs, which are built as they always were).
+  const profile = scaleProfile(spec);
+  const kinds = profile && style && given.fabric ? fabricKinds(spec, profile) : [];
+  const grid = kinds.length > 0 ? given.fabric?.grid ?? null : null;
+  // A town or city goes on past the place as streets of blocks, so the walkable place ends at its ring street.
+  const walkMargin = grid ? 4 : WALK_MARGIN;
+  if (profile && profile.level >= 4) {
+    // A tower with its height in its summary, and parts that stopped where a dial tops out, is drawn up to it.
+    for (const [id, bp] of planned.built) {
+      const said = saidHeight(bp, Math.max(profile.high * 1.25, 40));
+      if (said !== null) planned.built.set(id, { ...bp, parts: stretchTo(bp.parts, said) });
+    }
+  }
   const pathsMode = spec.site?.paths ?? 'road';
   const surfaceOpts = { quality, seed: spec.seed };
   const field = makeTerrainField(layout.bounds, surfaces.ground, spec.seed);
-  const land = makeLand(layout, spec.terrain, surfaces.ground, spec.seed);
+  const land = makeLand(layout, spec.terrain, surfaces.ground, spec.seed, grid && profile ? { far: profile.level >= 5 ? 0.3 : 0.6 } : undefined);
   const shaped = land.shaped;
   const hAt = shaped ? land.heightAt : (): number => 0;
   const seat: { y: number | null } = { y: null };
@@ -508,7 +535,7 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
   // Small props render but are not in `statics`, so dense undergrowth does not carve the navmesh.
   const visualBatch = shaped ? new LandBatch(hAt, seat) : new GeoBatch();
   const env: ProcEnv = { batch, mats, theme: spec.theme };
-  const colliderGeo = buildWalkGeometry(land, WALK_MARGIN, GROUND_SIZE);
+  const colliderGeo = buildWalkGeometry(land, walkMargin, GROUND_SIZE);
   const ground = new THREE.Mesh(colliderGeo, COLLIDER_MATERIAL);
   ground.name = 'ground';
   ground.visible = false;
@@ -518,7 +545,7 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
   let walkMesh = ground;
   if (!shaped) {
     const lb = layout.bounds;
-    const walkGeo = new THREE.PlaneGeometry(lb.maxX - lb.minX + 2 * WALK_MARGIN, lb.maxZ - lb.minZ + 2 * WALK_MARGIN).rotateX(-Math.PI / 2);
+    const walkGeo = new THREE.PlaneGeometry(lb.maxX - lb.minX + 2 * walkMargin, lb.maxZ - lb.minZ + 2 * walkMargin).rotateX(-Math.PI / 2);
     walkGeo.translate((lb.minX + lb.maxX) / 2, 0, (lb.minZ + lb.maxZ) / 2);
     walkMesh = new THREE.Mesh(walkGeo, COLLIDER_MATERIAL);
     walkMesh.name = 'walk';
@@ -565,7 +592,7 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
   // What the terrain says the distance is made of comes first; the rest of the world's words fill in.
   const horizonWords = spec.terrain?.horizon ? `${spec.terrain.horizon} ` : '';
   const horizonKind = horizonKindFor(`${horizonWords}${spec.prompt} ${spec.title} ${spec.era} ${look.name}`, surfaces.ground, spec.theme, horizonWords);
-  const forms = horizonForms(field, horizonKind, quality);
+  const forms = horizonForms(field, horizonKind, quality, horizonKind === 'towers' && profile && profile.level >= 5 ? (profile.level >= 6 ? 1.8 : 1.3) : 1);
   if (shaped) for (const f of forms) f.y = Math.min(land.heightAt(f.x, f.z), f.y + 30) - 4;
   const horizon = buildHorizonGeometry(forms, horizonPalette(look, horizonKind, surfaces.ground), quality);
   // The ring is carried with the walker once the land is endless: its meshes and the fog they take are kept for that.
@@ -667,7 +694,9 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
     signMeshes.push(sign);
     signs.set(b.id, sign);
   };
-  const maxH = MAX_BUILDING_HEIGHT;
+  // Kit buildings are held to a height for their size; a place built tall may be taller in proportion.
+  const tallBy = profile ? Math.max(1, profile.high / 14) : 1;
+  const maxH = { small: MAX_BUILDING_HEIGHT.small * tallBy, medium: MAX_BUILDING_HEIGHT.medium * tallBy, large: MAX_BUILDING_HEIGHT.large * tallBy };
   const heights = new Map<string, number>();
   const builtFrom = planned.built;
   layout.buildings.forEach((b) => {
@@ -678,7 +707,7 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
       const bp = builtFrom.get(b.id);
       if (bp) {
         // On shaped land a foundation runs down into the ground, so no wall base shows daylight where the land dips beside it.
-        const res = seated(b.x, b.z, () => addBlueprint(bp, style, b, { batch, mats, rng }, shaped ? { skirt: 0.6 } : undefined));
+        const res = seated(b.x, b.z, () => addBlueprint(bp, style, b, { batch, mats, rng }, profile ? { skirt: shaped ? 0.6 : 0, maxHeight: MAX_FABRIC_HEIGHT + 40 } : shaped ? { skirt: 0.6 } : undefined));
         res.door.y += hAt(res.door.x, res.door.z);
         doors.set(b.id, res.door);
         heights.set(b.id, res.height);
@@ -708,10 +737,14 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
     }
   });
 
+  // The fabric built with the place: more houses round a hamlet, the street walls of a city centre.
+  const innerLots = kinds.length > 0 && style ? layout.fabric?.lots ?? [] : [];
+  const innerRects = style ? addInnerFabric(innerLots, kinds, style, { batch, mats, rng, visualBatch }, seated, { skirt: shaped ? 1.2 : 0 }) : [];
+
   // Props
   const propLights: TownLight[] = [];
   // Nothing is planted in standing water, nor where a building now stands after being set back or turned.
-  const lots = planned.built.size > 0 ? layout.buildings.map((b) => buildingAabb(b)) : [];
+  const lots = planned.built.size > 0 ? [...layout.buildings.map((b) => buildingAabb(b)), ...innerRects] : innerRects;
   const built = (x: number, z: number): boolean => lots.some((r) => x > r.minX - 0.6 && x < r.maxX + 0.6 && z > r.minZ - 0.6 && z < r.maxZ + 0.6);
   const dry = shaped && land.water.length > 0 ? layout.props.filter((p) => land.waterDepthAt(p.x, p.z) < 0.12) : layout.props;
   const propSlots = lots.length > 0 ? dry.filter((p) => !built(p.x, p.z)) : dry;
@@ -801,10 +834,10 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
   });
   group.add(scatter.group);
   // The middle distance: the world's own trees and structures, larger than life, past where anyone can walk.
-  const backdrop = shaped && style
+  const backdrop = shaped && style && !grid
     ? buildBackdrop({
         layout, seed: spec.seed, style: look, wild: wildness, settled: settledness, props: spec.props ?? [], blueprints,
-        heightAt: land.heightAt, waterDepthAt: land.waterDepthAt, mats, quality, inner: WALK_MARGIN + 3, wear: surfaces.wear,
+        heightAt: land.heightAt, waterDepthAt: land.waterDepthAt, mats, quality, inner: walkMargin + 3, wear: surfaces.wear,
       })
     : null;
   if (backdrop) group.add(backdrop.group);
@@ -822,6 +855,14 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
   farScatter.group.visible = false;
   group.add(farScatter.group);
   const radii = horizonRadii(layout.bounds);
+  // The town or city beyond the place, block by block around the walker. Nothing of it is made until update().
+  const stream = grid && profile && style
+    ? createFabricStream({
+        grid, kinds, profile, seed: spec.seed, style: look, mats, quality, props: spec.props ?? [], groundHex: look.ground, roadHex: look.road,
+        surfaceAt: (x, z) => surface(x, z), waterDepthAt: land.waterDepthAt,
+      })
+    : null;
+  if (stream) group.add(stream.group);
   const endless = createEndless({
     land, seed: spec.seed, quality, terrain: terrainMesh, groundMaterial: groundMat, groundHex: look.ground,
     horizon: { meshes: horizonMeshes, inner: radii.inner, outer: radii.outer, baseY: forms.reduce((n, f) => n + f.y, 0) / Math.max(1, forms.length), fog: horizonFog },
@@ -831,8 +872,9 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
     life: (spec.props?.length ?? 0) > 0 || blueprints.length > 0
       ? { style: look, props: spec.props ?? [], blueprints: farBlueprints, mats, wild: wildness, settled: settledness }
       : null,
-    clear: backdrop ? BACKDROP_REACH : WALK_MARGIN + 6,
+    clear: backdrop ? BACKDROP_REACH : walkMargin + 6,
     solids: backdrop?.solids, budgetMs: opts.streamBudgetMs,
+    paint: stream ? stream.paint : undefined, built: stream ? stream.built : undefined,
   });
   surface = endless.surfaceAt;
   group.add(endless.group);
@@ -841,8 +883,8 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
     heightAt: endless.surfaceAt,
     waterDepthAt: land.waterDepthAt,
     // The navmesh reaches WALK_MARGIN past the bounds; a little inside its edge the land takes over.
-    coreBounds: { minX: lb.minX - (WALK_MARGIN - 3), maxX: lb.maxX + (WALK_MARGIN - 3), minZ: lb.minZ - (WALK_MARGIN - 3), maxZ: lb.maxZ + (WALK_MARGIN - 3) },
-    pushOut: endless.pushOut,
+    coreBounds: { minX: lb.minX - (walkMargin - 3), maxX: lb.maxX + (walkMargin - 3), minZ: lb.minZ - (walkMargin - 3), maxZ: lb.maxZ + (walkMargin - 3) },
+    pushOut: stream ? (p) => { endless.pushOut(p); stream.pushOut(p); } : endless.pushOut,
   };
 
   const merged = batch.build();
@@ -864,8 +906,10 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
       if (disposed) return;
       farScatter.group.visible = true;
       endless.update(focus, dt);
+      stream?.update(focus);
     },
     endlessStats: () => endless.stats(),
+    ...(profile ? { fabric: { profile, grid, inner: innerLots.length, stats: () => (stream ? stream.stats() : null) } } : {}),
     placeLandmark(id: string, object: THREE.Object3D, heightMetres: number): void {
       const a = anchors.get(id);
       if (!a || disposed) return;
@@ -920,6 +964,7 @@ export function buildTown(given: TownLayout, spec: WorldSpec, kit: LoadedKit, sc
       placedModels.clear();
       plinths.clear();
       scatter.dispose();
+      stream?.dispose();
       endless.dispose();
       farScatter.dispose();
       water?.dispose();

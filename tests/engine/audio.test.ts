@@ -6,6 +6,11 @@ import {
   RUN_STEP_HZ, StepClock, WALK_STEP_HZ, bedsForWord, dayPhase, indoorStepFamily, musicPlan, roomFor,
   sceneMix, scaleNote, stepFamily, stepRate,
 } from '../../app/src/engine/audio/mapping';
+import { EVENTS, EVENT_KINDS } from '../../app/src/engine/audio/events';
+import type { WorldSound } from '../../app/src/engine/audio/identity';
+import { createKit } from '../../app/src/engine/audio/kit';
+import { VOCABULARY } from '../../app/src/engine/audio/vocab';
+import { playEvent } from '../../app/src/engine/audio/voices';
 import { makeRng } from '../../app/src/world/rng';
 import type { MoodSpec } from '../../app/src/world/spec';
 
@@ -176,8 +181,8 @@ describe('scene changes', () => {
     expect(cross.every((e) => e.duration === 2)).toBe(true);
     expect(loops.every((n) => n.stopped === null)).toBe(true);
     run(rig, fake, 2.5, idle);
-    // Everything but the murmur bed, which both scenes share, has been stopped.
-    expect(loops.filter((n) => n.stopped !== null).length).toBe(loops.length - 1);
+    // The two scenes share no bed, so every loop of the first has been stopped.
+    expect(loops.filter((n) => n.stopped !== null).length).toBe(loops.length);
   });
 
   it('leaves the mix alone when the same scene is set again', () => {
@@ -215,10 +220,26 @@ describe('scene changes', () => {
     run(rig, fake, 20, idle);
     expect(fake.shots(10).length).toBe(0);
     rig.setScene({ theme: 'western', hour: 12, mood: mood({ music: 'busy bright guitar' }) });
-    run(rig, fake, 30, idle);
+    run(rig, fake, 8, idle);
     const plucks = fake.shots(10);
     expect(plucks.length).toBeGreaterThan(5);
     expect(plucks.some((n) => (n.started ?? 0) > fake.currentTime + 1)).toBe(true);
+  });
+
+  it('plays music in phrases with long silences between them', () => {
+    const fake = new FakeContext();
+    const rig = rigWith(fake);
+    rig.unlock();
+    rig.setScene({ theme: 'western', hour: 12, mood: mood({ music: 'bright guitar' }) });
+    run(rig, fake, 180, idle);
+    const starts = fake.shots(10).map((n) => n.started ?? 0).sort((a, b) => a - b);
+    expect(starts.length).toBeGreaterThan(20);
+    const bar = 240 / (musicPlan(mood({ music: 'bright guitar' }), 'western')?.bpm ?? 60);
+    let longest = 0;
+    for (let i = 1; i < starts.length; i++) longest = Math.max(longest, (starts[i] ?? 0) - (starts[i - 1] ?? 0));
+    // At least one silence of three whole bars, and the music comes back after it.
+    expect(longest).toBeGreaterThan(bar * 3);
+    expect(starts[starts.length - 1] ?? 0).toBeGreaterThan(120);
   });
 
   it('ducks the music under speech and lets it back up', () => {
@@ -247,6 +268,122 @@ describe('scene changes', () => {
     rig.footstep();
     rig.update(0.016, idle);
     expect(fake.nodes.length).toBe(count);
+  });
+});
+
+describe('beds, events and the world they belong to', () => {
+  const world = (seed: number, text = 'a harbour town with a forge and a market'): WorldSound =>
+    ({ seed, text, creatures: [{ name: 'herring gulls', family: 'bird', count: 6 }], people: 6, settled: 0.7, water: 'shore', waterAmount: 0.3 });
+  const allEvents = (fake: FakeContext): ParamEvent[] =>
+    fake.nodes.flatMap((n) => Object.values(n).filter((v): v is FakeParam => v instanceof FakeParam)).flatMap((p) => p.events);
+
+  it('builds every bed in the vocabulary and runs it without a bad number', () => {
+    for (const quality of [0, 2] as const) {
+      const fake = new FakeContext();
+      const rig = createAudio(() => fake as unknown as AudioContext, { quality });
+      rig.unlock();
+      for (const { word } of VOCABULARY) {
+        rig.setScene({ theme: 'medieval', hour: 13, mood: mood({ ambience: [word] }), world: world(11) });
+        run(rig, fake, 4, idle);
+      }
+      rig.setScene({ theme: 'scifi', hour: 23, mood: mood({ ambience: ['qwerty'] }), world: world(12, 'a reef city of coral') });
+      run(rig, fake, 4, idle);
+      for (const e of allEvents(fake)) {
+        expect(Number.isFinite(e.value) && Number.isFinite(e.time) && Number.isFinite(e.last)).toBe(true);
+        expect(e.time).toBeGreaterThanOrEqual(0);
+      }
+      // Beds left behind are torn down: most of what ever looped has been stopped.
+      const loops = fake.nodes.filter((n) => n.kind === 'source' && n.loop === true && n.started !== null);
+      expect(loops.filter((n) => n.stopped !== null).length).toBeGreaterThan(loops.length * 0.6);
+      rig.dispose();
+    }
+  });
+
+  it('plays every kind of event as a short graph that ramps in, ends on time and stays quiet', () => {
+    for (const kind of EVENT_KINDS) {
+      const fake = new FakeContext();
+      const kit = createKit(fake as unknown as AudioContext, 2, 5);
+      const out = fake.createGain();
+      const at = 10;
+      for (const far of [0, 1]) {
+        playEvent(kit, out as unknown as AudioNode, { source: 1, kind, at, pitch: 1.1, level: 1, pan: -0.4, far, seconds: EVENTS[kind].seconds }, 0.9);
+      }
+      const sources = fake.nodes.filter((n) => n.started !== null);
+      expect(sources.length, kind).toBeGreaterThan(0);
+      for (const n of sources) {
+        expect(n.started ?? 0, kind).toBeGreaterThan(at);
+        expect(n.stopped ?? Infinity, kind).toBeLessThanOrEqual(at + EVENTS[kind].seconds + 0.06);
+        expect(n.stopped ?? 0, kind).toBeGreaterThan(n.started ?? 0);
+      }
+      // Envelope gains start from silence and never ask for more than a modest level.
+      const envelopes = fake.params('gain', 'gain').filter((p) => p.events.some((e) => e.kind === 'linear'));
+      expect(envelopes.length, kind).toBeGreaterThan(0);
+      for (const p of envelopes) {
+        expect(p.events[0]?.kind, kind).toBe('set');
+        expect(p.events[0]?.value, kind).toBe(0);
+        for (const e of p.events) expect(Math.abs(e.value), kind).toBeLessThanOrEqual(0.3);
+      }
+      for (const p of fake.params('osc', 'frequency')) for (const e of p.events) expect(e.value, kind).toBeGreaterThan(0);
+    }
+  });
+
+  it('sounds one-shot events over the beds as time passes, and stops them with the scene', () => {
+    const fake = new FakeContext();
+    const rig = rigWith(fake);
+    rig.unlock();
+    rig.setScene({ theme: 'medieval', hour: 13, mood: mood({ ambience: ['market', 'forge', 'gulls'] }), world: world(21) });
+    run(rig, fake, 10, idle);
+    const early = fake.nodes.filter((n) => n.kind === 'pan').length;
+    run(rig, fake, 240, { ...idle, hour: 13 });
+    const pans = fake.nodes.filter((n) => n.kind === 'pan').length - early;
+    // Four minutes of a busy harbour: a few dozen events, not hundreds.
+    expect(pans).toBeGreaterThan(15);
+    expect(pans).toBeLessThan(160);
+    const shots = fake.nodes.filter((n) => n.kind === 'osc' && (n.started ?? 0) > 10 && n.stopped !== null);
+    expect(shots.length).toBeGreaterThan(15);
+    for (const n of shots) expect((n.stopped ?? 0) - (n.started ?? 0)).toBeLessThan(15);
+    rig.dispose();
+    const count = fake.nodes.length;
+    fake.currentTime += 60;
+    rig.update(0.016, idle);
+    expect(fake.nodes.length).toBe(count);
+  });
+
+  it('builds a different graph for a different seed and the same graph for the same one', () => {
+    const colours = (seed: number): number[] => {
+      const fake = new FakeContext();
+      const rig = rigWith(fake);
+      rig.unlock();
+      rig.setScene({ theme: 'medieval', hour: 13, mood: mood({ ambience: ['wind', 'stream', 'machinery', 'vents'] }), world: world(seed) });
+      return fake.params('filter', 'frequency').map((p) => p.value);
+    };
+    const a = colours(1);
+    const b = colours(2);
+    expect(a).toEqual(colours(1));
+    expect(a.length).toBe(b.length);
+    const moved = a.filter((f, i) => Math.abs(Math.log2(f / (b[i] ?? f))) > 0.04).length;
+    expect(moved).toBeGreaterThan(a.length * 0.5);
+  });
+
+  it('rebuilds the beds for a new world and follows the player to the water', () => {
+    const fake = new FakeContext();
+    const rig = rigWith(fake);
+    rig.unlock();
+    const scene = { theme: 'medieval' as const, hour: 13, mood: mood({ ambience: ['stream', 'crowd'] }) };
+    const here = { ...idle, hour: 13, place: { water: 1, settled: 1, high: 0 } };
+    rig.setScene({ ...scene, world: world(1) });
+    run(rig, fake, 3, here);
+    const t = fake.currentTime;
+    rig.setScene({ ...scene, world: world(2) });
+    expect(fake.fades(t).some((e) => e.value > 0 && e.last === 0)).toBe(true);
+    expect(fake.fades(t).some((e) => e.value === 0 && e.last > 0)).toBe(true);
+    run(rig, fake, 4, here);
+    const before = fake.currentTime;
+    run(rig, fake, 2, { ...idle, hour: 13, place: { water: 0, settled: 0, high: 0 } });
+    const moves = fake.params('gain', 'gain').flatMap((p) => p.events).filter((e) => e.kind === 'target' && e.time > before && e.duration === 0.8);
+    // Away from the water and the town, the stream and the voices drop back; both glide rather than jump.
+    expect(moves.some((e) => Math.abs(e.value - 0.2) < 1e-9)).toBe(true);
+    expect(moves.some((e) => Math.abs(e.value - 0.45) < 1e-9)).toBe(true);
   });
 });
 
@@ -356,7 +493,9 @@ describe('footsteps', () => {
 });
 
 describe('scene mapping', () => {
-  const ids = (m: ReturnType<typeof sceneMix>): string[] => m.map((b) => b.id).sort();
+  // The textured beds; the three life buses that carry one-shot events are checked separately.
+  const ids = (m: ReturnType<typeof sceneMix>): string[] => m.filter((b) => !b.events).map((b) => b.id).sort();
+  const kinds = (m: ReturnType<typeof sceneMix>): string[] => m.flatMap((b) => b.events ?? []).map((e) => e.kind).sort();
 
   it('maps free ambience words to beds', () => {
     expect(bedsForWord('distant_crowd')).toEqual(['murmur']);
@@ -364,7 +503,9 @@ describe('scene mapping', () => {
     expect(bedsForWord('rainfall')).toContain('rain');
     expect(bedsForWord('train')).not.toContain('rain');
     expect(bedsForWord('season')).not.toContain('water');
-    expect(bedsForWord('waves lapping')).toEqual(['water']);
+    expect(bedsForWord('lapping water')).toEqual(['water']);
+    expect(bedsForWord('breaking waves')).toEqual(['surf']);
+    expect(bedsForWord('crowd')).not.toContain('wildlife');
     expect(bedsForWord('campfire')).toEqual(['fire']);
     expect(bedsForWord('machine hum')).toEqual(['hum']);
     expect(bedsForWord('howling wind')).toEqual(['wind']);
@@ -376,7 +517,8 @@ describe('scene mapping', () => {
 
   it('builds the mix from weather, words, theme and hour', () => {
     const storm = sceneMix({ theme: 'scifi', hour: 23, mood: mood({ weather: 'storm', intensity: 0.9, ambience: ['neon buzz'] }) });
-    expect(ids(storm)).toEqual(['hum', 'murmur', 'rain', 'thunder', 'wind']);
+    expect(ids(storm)).toEqual(['buzz', 'murmur', 'rain', 'thunder', 'wind']);
+    expect(kinds(storm)).toContain('spark');
     expect(storm.find((b) => b.id === 'rain')?.variant).toBe(2);
 
     const day = ids(sceneMix({ theme: 'medieval', hour: 12 }));
@@ -389,11 +531,15 @@ describe('scene mapping', () => {
     expect(ids(sceneMix({ theme: 'scifi', hour: 12 }))).toContain('hum');
     expect(ids(sceneMix({ theme: 'western', hour: 12 }))).toContain('desert');
     expect(ids(sceneMix({ theme: 'medieval', hour: 12, mood: mood({ weather: 'snow', intensity: 0.5 }) }))).toEqual(expect.arrayContaining(['snow', 'wind']));
-    expect(ids(sceneMix({ theme: 'modern', hour: 12, groundKind: 'sand', mood: mood({ ambience: ['harbour', 'gulls'] }) }))).toEqual(['birds', 'murmur', 'water']);
+    const quay = sceneMix({ theme: 'modern', hour: 12, groundKind: 'sand', mood: mood({ ambience: ['harbour', 'gulls'] }) });
+    expect(ids(quay)).toEqual(['murmur', 'water']);
+    expect(kinds(quay)).toEqual(expect.arrayContaining(['gull', 'creak']));
+    expect(quay.some((b) => b.id === 'shorelife')).toBe(true);
     // Unknown words fall back to the theme default rather than silence.
     expect(ids(sceneMix({ theme: 'scifi', hour: 12, mood: mood({ ambience: ['qwerty'] }) }))).toContain('hum');
     for (const b of storm) expect(b.level).toBeGreaterThan(0);
     for (const b of storm) expect(b.level).toBeLessThanOrEqual(1);
+    expect(dayPhase(6)).toBe('dawn');
     expect(dayPhase(12)).toBe('day');
     expect(dayPhase(19)).toBe('dusk');
     expect(dayPhase(2)).toBe('night');

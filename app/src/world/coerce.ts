@@ -4,6 +4,7 @@ import {
   validateSpec, WorldSpecSchema, normalizeSpec, slugify, coerceMood, coerceTerrain, coerceSkyFeatures, coerceCreatures, coerceFolk,
   SITE_PATTERNS, WILD_PATTERNS,
 } from './schema';
+import { scaleFields } from './scale';
 import type {
   BuildingRole, BuildingSpec, CharacterBase, NpcSpec, SiteSpec, StyleSpec, ThemeId, WorldSpec,
 } from './spec';
@@ -161,6 +162,7 @@ function buildSite(v: unknown): SiteSpec | undefined {
     wild: clamp(num(v['wild'], open ? 0.7 : 0.3), 0, 1),
     paths: pick(v['paths'], ['road', 'track', 'none'] as const) ?? (open ? 'track' : 'road'),
     spacing: clamp(num(v['spacing'], open ? 12 : 8), 2, 14),
+    ...scaleFields(v),
   };
 }
 

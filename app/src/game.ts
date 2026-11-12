@@ -11,10 +11,11 @@ import { verifyQuest, repairQuest } from './world/verify';
 import { createState, applyEvent, type WorldEvent } from './world/state';
 import { generateLayout, type TownLayout } from './town/layout';
 import { buildTown, type TownObjects } from './town/build';
+import { createCrowd } from './town/crowd';
 import type { Viewport } from './engine/renderer';
 import { createSky, addPracticalLight, type SkyRig } from './engine/sky';
 import { createAtmosphere, type Atmosphere } from './engine/atmosphere';
-import { createAudio, type AudioRig } from './engine/audio';
+import { createAudio, placeOf, soundProfile, type AudioRig, type Land } from './engine/audio';
 import { createLife } from './engine/life';
 import { setSurfaceDefaults, setWindowGlow } from './town/surfaces';
 import { warmTownSurfaces } from './town/blueprint-mesh';
@@ -111,6 +112,8 @@ export class Game {
   private readonly speech: Speech;
   private readonly atmosphere: Atmosphere;
   private readonly audio: AudioRig;
+  /** The land as the sound mix reads it: where the water and the middle of the place are, and how high the ground goes. */
+  private audioLand: Land | null = null;
   private town: Town | null = null;
   private kit: LoadedKit | null = null;
   private compiling: AbortController | null = null;
@@ -122,7 +125,7 @@ export class Game {
     this.sky = createSky(deps.viewport.scene, deps.viewport.renderer);
     this.speech = createSpeech();
     this.atmosphere = createAtmosphere(deps.viewport, this.sky);
-    this.audio = createAudio();
+    this.audio = createAudio(undefined, { quality: deps.viewport.getQuality?.() ?? 2 });
     this.applySound(deps.ui.getSound());
     const unlock = (): void => this.audio.unlock();
     window.addEventListener('pointerdown', unlock, { once: true });
@@ -374,7 +377,21 @@ export class Game {
       }
 
       const lightRemovers = (objects.lights ?? []).map((l) => addPracticalLight(l.pos, l.color, l.radius));
-      const life = createLife(viewport.scene, { theme: spec.theme, mood: spec.mood, style: spec.style, bounds: layout.bounds, smoke: objects.smoke, rng: makeRng(spec.seed, 'life') });
+      const ambient = createLife(viewport.scene, { theme: spec.theme, mood: spec.mood, style: spec.style, bounds: layout.bounds, smoke: objects.smoke, rng: makeRng(spec.seed, 'life') });
+      // The background crowd, sized by the scale of the place, lives and dies with the ambient life.
+      const crowd = objects.fabric
+        ? createCrowd({
+            profile: objects.fabric.profile, folk: spec.folk, seed: spec.seed, quality, walkable: layout.walkable, grid: objects.fabric.grid,
+            heightAt: (x, z) => objects.heightAt(x, z), waterDepthAt: (x, z) => objects.waterDepthAt(x, z),
+          })
+        : null;
+      if (crowd) viewport.scene.add(crowd.group);
+      const life = crowd
+        ? {
+            update(dt: number, focus: THREE.Vector3, hour: number): void { ambient.update(dt, focus, hour); crowd.update(dt, focus); },
+            dispose(): void { ambient.dispose(); viewport.scene.remove(crowd.group); crowd.dispose(); },
+          }
+        : ambient;
       const land = objects;
       const creatures = (spec.creatures?.length ?? 0) > 0
         ? createCreatures(viewport.scene, {
@@ -412,7 +429,18 @@ export class Game {
     this.atmosphere.setMood(spec.mood, spec.style, spec.site?.pattern);
     const grade = this.atmosphere.getMood?.().grade;
     if (grade) viewport.setGrade?.(grade);
-    this.audio.setScene({ mood: this.atmosphere.getMood?.() ?? spec.mood, theme: spec.theme, groundKind: spec.style?.surfaces?.ground, sitePattern: spec.site?.pattern, hour: this.town.state.hour });
+    const { layout, objects } = this.town;
+    let lo = Infinity;
+    let hi = -Infinity;
+    for (let i = 0; i <= 6; i++) {
+      for (let j = 0; j <= 6; j++) {
+        const y = objects.heightAt(layout.bounds.minX + ((layout.bounds.maxX - layout.bounds.minX) * i) / 6, layout.bounds.minZ + ((layout.bounds.maxZ - layout.bounds.minZ) * j) / 6);
+        lo = Math.min(lo, y);
+        hi = Math.max(hi, y);
+      }
+    }
+    this.audioLand = { plaza: layout.plaza, bounds: layout.bounds, water: objects.waterBodies, lo, hi };
+    this.audio.setScene({ mood: this.atmosphere.getMood?.() ?? spec.mood, theme: spec.theme, groundKind: spec.style?.surfaces?.ground, sitePattern: spec.site?.pattern, hour: this.town.state.hour, world: soundProfile(spec) });
     this.audio.ui('reveal');
     void this.forgeLandmarks(this.town);
     document.documentElement.style.setProperty('--accent', spec.palette.accent);
@@ -487,7 +515,11 @@ export class Game {
     setWindowGlow(h < 6 || h > 18.5 ? 1 : h > 17 ? (h - 17) / 1.5 : h < 7.5 ? (7.5 - h) / 1.5 : 0.08);
     let nearNpcs = 0;
     for (const n of t.npcs.values()) if (n.agent.position().distanceTo(t.player.position) < 14) nearNpcs++;
-    this.audio.update(dt, { speed: t.player.speed ?? 0, running: t.player.running ?? false, hour: h, nearNpcCount: nearNpcs });
+    const at = t.player.position;
+    this.audio.update(dt, {
+      speed: t.player.speed ?? 0, running: t.player.running ?? false, hour: h, nearNpcCount: nearNpcs,
+      place: this.audioLand ? placeOf(at.x, at.y, at.z, this.audioLand) : undefined,
+    });
     t.nav.update(dt);
 
     for (const n of t.npcs.values()) {

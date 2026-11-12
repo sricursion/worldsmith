@@ -558,7 +558,7 @@ export function buildScatter(inp: ScatterInput): ScatterSet {
   const wantFlowers = Math.round(rest * mixOf.flowers);
   const wantStones = Math.round(rest * mixOf.stones);
   const wantDebris = Math.round(rest * mixOf.debris);
-  const wantTufts = rest - wantFlowers - wantStones - wantDebris;
+  const wantTufts = Math.max(0, rest - wantFlowers - wantStones - wantDebris);
   const tuftBase = tuftColour(inp.ground, inp.groundHex);
   const ground = new THREE.Color(inp.groundHex);
 

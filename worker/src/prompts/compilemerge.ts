@@ -7,6 +7,7 @@ import type {
   SkyFeature, SkyPreset, StyleSpec, TerrainSpec, ThemeId, WorldSpec,
 } from '../../../app/src/world/spec';
 import { SPEC_VERSION } from '../../../app/src/world/spec';
+import { scaleFields, scaleFromSettled } from '../../../app/src/world/scale';
 import {
   coerceCreatures, coerceFolk, coerceMood, coerceSkyFeatures, coerceSurfaces, coerceTerrain, HAUNT_WORDS, PROP_SIZE_MAX,
   SITE_PATTERNS, WILD_PATTERNS,
@@ -191,7 +192,7 @@ export interface Outline {
  * The layout. When the model names no usable pattern it follows the land: barely settled ground is wilderness
  * (a shoreline when the water is a shore), anything else a street.
  */
-export function coerceSite(raw: unknown, terrain?: TerrainSpec): SiteSpec {
+export function coerceSite(raw: unknown, terrain?: TerrainSpec, structures = 1): SiteSpec {
   const r = rec(raw);
   const byLand: SitePattern = terrain && terrain.settled < 0.3 ? (terrain.water === 'shore' ? 'shoreline' : 'wild') : 'street';
   const pattern = oneOf(typeof r.pattern === 'string' ? r.pattern.trim().toLowerCase() : r.pattern, PATTERNS, byLand);
@@ -201,6 +202,9 @@ export function coerceSite(raw: unknown, terrain?: TerrainSpec): SiteSpec {
     wild: clamp(num(r.wild, open ? 0.7 : 0.3), 0, 1),
     paths: oneOf(r.paths, PATHS, open || pattern === 'scatter' ? 'track' : 'road'),
     spacing: clamp(num(r.spacing, open ? 12 : 7), 2, 14),
+    // Every compiled world carries a scale: the model's, or the one its land implies.
+    scale: scaleFromSettled(terrain ? terrain.settled : 0.7, structures),
+    ...scaleFields(r),
   };
 }
 
@@ -301,7 +305,7 @@ export function coerceOutline(raw: unknown, fallbackTheme: ThemeId, prompt = '')
   const creatures = Array.isArray(r.creatures) ? coerceCreatures(r.creatures) : guess.creatures;
   return {
     title: str(r.title, 'Untitled place'), tagline: str(r.tagline), era: str(r.era, 'an unnamed age'),
-    theme, site: coerceSite(r.site, terrain), ...coerceAir(r, theme, prompt),
+    theme, site: coerceSite(r.site, terrain, buildings.length), ...coerceAir(r, theme, prompt),
     terrain,
     skyFeatures: Array.isArray(sky) ? coerceSkyFeatures(sky) : guess.skyFeatures,
     creatures: settleCreatures(creatures, bIds, terrain).map((c) => ({ ...c, body: mute(c.body, HIDE_SAT), accent: mute(c.accent, HIDE_SAT) })),

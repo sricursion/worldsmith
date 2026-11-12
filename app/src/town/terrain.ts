@@ -395,8 +395,10 @@ function flatLand(layout: TownLayout, ground: SurfaceKind, seed: number): Land {
   };
 }
 
-export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, ground: SurfaceKind, seed: number): Land {
+export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, ground: SurfaceKind, seed: number, opts: { far?: number } = {}): Land {
   if (!terrain) return flatLand(layout, ground, seed);
+  // How much of the far relief is kept (1 unless told): a city that runs on past the place stands on calmer ground.
+  const farKeep = clamp(opts.far ?? 1, 0, 1);
   const b = layout.bounds;
   const cx = (b.minX + b.maxX) / 2;
   const cz = (b.minZ + b.maxZ) / 2;
@@ -405,7 +407,7 @@ export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, g
   const rug = unit(terrain.ruggedness, 0.3);
   const settled = unit(terrain.settled, 0.7);
   const aIn = 0.5 + 5.5 * rug;
-  const aOut = 10 + 30 * rug;
+  const aOut = aIn + (10 + 30 * rug - aIn) * farKeep;
   const alongX = b.maxX - b.minX >= b.maxZ - b.minZ;
   const frame: ReliefFrame = {
     kind: terrain.relief, seed: seed | 0, cx, cz, reach, alongX, cross: (alongX ? b.maxZ - b.minZ : b.maxX - b.minX) / 2,
@@ -415,7 +417,8 @@ export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, g
   const sunk = !!sheetBody || (layout.water ?? []).some((w) => w.area.shape === 'outside' || w.area.shape === 'half');
 
   // Calm ground: near anything built.
-  const rects = layout.buildings.map((bd) => buildingAabb(bd));
+  const footed = [...layout.buildings, ...(layout.fabric?.lots ?? [])];
+  const rects = footed.map((bd) => buildingAabb(bd));
   const roadRects = layout.roads.map((r) => roadRect(r));
   const discs = [...(layout.plaza.r > 0 ? [layout.plaza] : []), ...(layout.clearings ?? [])];
   const calm1 = 15 + 14 * settled;
@@ -457,7 +460,7 @@ export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, g
     const c = calmAt(x, z);
     let h = reliefLow + reliefDetail * (1 - 0.85 * c) * (benches ? 0.4 : 1);
     // Land that is not ringed by water climbs with distance, so the far ground stands above eye level.
-    if (!sunk) h += 9 * (levelOff(Math.max(0, e - 30)) / 160) ** 1.4;
+    if (!sunk) h += 9 * farKeep * (levelOff(Math.max(0, e - 30)) / 160) ** 1.4;
     if (sheetBody && c > 0) h = mix(h, Math.max(h, sheetLevel + 0.5), c);
     // Benches belong to the place: beyond it they sink back into the land instead of running on as ruled lines.
     return h + benchAt(x, z) * (1 - 0.85 * smoothstep(14, 80, e));
@@ -533,7 +536,7 @@ export function makeLand(layout: TownLayout, terrain: TerrainSpec | undefined, g
   };
   for (const q of discs) addPad(null, q.x, q.z, q.r);
   if (discs.length === 0) addPad(null, layout.spawn.x, layout.spawn.z, 1.5);
-  layout.buildings.forEach((bd, i) => addPad(rects[i] as Rect, bd.x, bd.z, 0));
+  footed.forEach((bd, i) => addPad(rects[i] as Rect, bd.x, bd.z, 0));
 
   // Routes, in order: each is graded over the land as it stands with the ones before it.
   const routes: RouteLayer[] = [];
@@ -1024,14 +1027,15 @@ export function horizonRadii(bounds: Rect): { inner: number; outer: number } {
 /** How far a form's geometry can reach from its centre, in multiples of its radius (profile, wobble, clustering). */
 const FOOTPRINT: Record<HorizonKind, number> = { mesas: 1.75, mountains: 1.4, trees: 1.85, mushrooms: 1.05, towers: 2.3, spires: 2.7 };
 
-export function horizonForms(field: TerrainField, kind: HorizonKind, quality: Quality): HorizonForm[] {
+export function horizonForms(field: TerrainField, kind: HorizonKind, quality: Quality, boost = 1): HorizonForm[] {
   const rng = makeRng(field.seed, 'horizon');
   const b = field.bounds;
   const cx = (b.minX + b.maxX) / 2;
   const cz = (b.minZ + b.maxZ) / 2;
   const { inner, outer } = horizonRadii(b);
   const slim = kind === 'trees' || kind === 'mushrooms' || kind === 'spires' || kind === 'towers';
-  const count = (quality === 0 ? 12 : quality === 1 ? 18 : 24) + (slim ? 10 : 0);
+  // `boost` above 1 is a great city's skyline: more towers, and taller.
+  const count = Math.round(((quality === 0 ? 12 : quality === 1 ? 18 : 24) + (slim ? 10 : 0)) * Math.min(2, Math.max(1, boost)));
   const forms: HorizonForm[] = [];
   for (let i = 0; i < count; i++) {
     const ang = ((i + rng.range(-0.38, 0.38)) / count) * Math.PI * 2;
@@ -1046,7 +1050,7 @@ export function horizonForms(field: TerrainField, kind: HorizonKind, quality: Qu
       case 'mountains': radius = rng.range(80, 140) * big; height = rng.range(90, 170) * big; break;
       case 'trees': radius = rng.range(16, 26) * big; height = rng.range(55, 95) * big; break;
       case 'mushrooms': radius = rng.range(18, 34) * big; height = rng.range(45, 90) * big; break;
-      case 'towers': radius = rng.range(14, 30) * big; height = rng.range(70, 190) * big; break;
+      case 'towers': radius = rng.range(14, 30) * big; height = rng.range(70, 190) * big * Math.max(1, boost) ** 0.5; break;
       default: radius = rng.range(9, 22) * big; height = rng.range(45, 120) * big;
     }
     const x = cx + Math.cos(ang) * dist;

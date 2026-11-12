@@ -186,6 +186,9 @@ export interface PropBlueprint {
 /** How the place is laid out. Not every world is a street of houses. */
 export type SitePattern = 'street' | 'ring' | 'scatter' | 'grid' | 'terraces' | 'wild' | 'path' | 'shoreline' | 'cliffside';
 
+/** How big the place is, from one keeper on a rock to a city without end. */
+export type SiteScale = 'lone' | 'outpost' | 'hamlet' | 'village' | 'town' | 'city' | 'metropolis';
+
 export interface SiteSpec {
   pattern: SitePattern;        // street: main road and cross streets; ring: around a centre; scatter: a camp or grove with paths; grid: city blocks; terraces: rows stepping back
   /** 0..1: how much of the open ground is filled with scattered props (trees, rocks, crystals). A forest is 0.9, a plaza city 0.1. */
@@ -194,6 +197,17 @@ export interface SiteSpec {
   paths: 'road' | 'track' | 'none';
   /** Typical spacing between structures in metres, 2..14. */
   spacing: number;
+  /**
+   * How big the place is. The named structures are the few that matter; the scale says how much stands around
+   * them (see world/scale.ts). Absent on old specs, which are built from their named structures alone.
+   */
+  scale?: SiteScale;
+  /** 0..1: how crowded the streets are with people and clutter. An overpopulated city is 1, a sleepy one 0.3. */
+  density?: number;
+  /** Typical building height in metres: most stand near the first figure, the tallest reach the second. */
+  heights?: [number, number];
+  /** 0..1: how much of the place is broken: war, quake, long neglect. */
+  damage?: number;
 }
 
 /** What a surface is made of. The engine generates the texture, normal and roughness maps for each in the browser. */

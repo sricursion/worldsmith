@@ -4,10 +4,11 @@ import { SPEC_VERSION } from './spec';
 import { repairBlueprint } from './blueprints';
 import { hash32 } from './rng';
 import { buildSkeleton, skeletonNature } from './skeletons';
+import { SITE_SCALES, scaleFields } from './scale';
 import type {
   Blueprint, BlueprintPart, BuildingRole, BuildingSpec, CreatureBehaviour, CreatureFamily, CreatureSpec, FolkSpec, GradeKind,
   LandmarkSpec, MoodSpec, NpcActionId, NpcSpec, PartShape, PartTone, PropBlueprint, QuestStep, ReliefKind, RuleEffect, RuleSpec,
-  ScheduleEntry, SitePattern, SiteSpec, SkyFeature, StyleSpec, SurfaceKind, SurfaceSet, TerrainSpec, WaterKind, WeatherKind,
+  ScheduleEntry, SitePattern, SiteScale, SiteSpec, SkyFeature, StyleSpec, SurfaceKind, SurfaceSet, TerrainSpec, WaterKind, WeatherKind,
   WorldSpec,
 } from './spec';
 
@@ -130,6 +131,10 @@ const SiteS = z.object({
   wild: z.number(),
   paths: z.enum(SITE_PATHS as [SiteSpec['paths'], ...SiteSpec['paths'][]]),
   spacing: z.number(),
+  scale: z.enum(SITE_SCALES as [SiteScale, ...SiteScale[]]).optional(),
+  density: z.number().optional(),
+  heights: z.tuple([z.number(), z.number()]).optional(),
+  damage: z.number().optional(),
 });
 export const SURFACE_KINDS: readonly SurfaceKind[] = [
   'timber', 'planks', 'log', 'plaster', 'adobe', 'brick', 'stone', 'cobble', 'concrete',
@@ -534,7 +539,10 @@ function lenient(raw: unknown): unknown {
     const site = raw.site;
     const pattern = SITE_PATTERNS.includes(site.pattern as SitePattern) ? site.pattern : 'street';
     const paths = SITE_PATHS.includes(site.paths as SiteSpec['paths']) ? site.paths : 'road';
-    out.site = { ...site, pattern, paths };
+    // The scale fields are optional: one that is misspelt or out of range is dropped or clamped, never a reason to refuse the world.
+    const rest: Record<string, unknown> = { ...site };
+    for (const k of ['scale', 'density', 'heights', 'damage']) delete rest[k];
+    out.site = { ...rest, pattern, paths, ...scaleFields(site) };
   }
   if (raw.mood !== undefined) {
     if (isObj(raw.mood)) out.mood = coerceMood(raw.mood);
@@ -927,6 +935,7 @@ function fixSite(s: SiteSpec): SiteSpec {
     wild: clamp(s.wild, 0, 1),
     paths: SITE_PATHS.includes(s.paths) ? s.paths : 'road',
     spacing: clamp(s.spacing, 2, 14),
+    ...scaleFields(s as unknown as Record<string, unknown>),
   };
 }
 

@@ -75,6 +75,11 @@ export interface BlueprintOptions {
    * slope or a pad: the downhill side then shows wall instead of a gap. Default 0.
    */
   skirt?: number;
+  /**
+   * Tallest a part may stand or sit, metres. Default 30, the most a blueprint is authored at; the fabric of a
+   * city passes more for buildings it has drawn up (see fabric.ts).
+   */
+  maxHeight?: number;
 }
 
 const DEG = Math.PI / 180;
@@ -125,7 +130,7 @@ type Palette = Record<PartTone | 'accentSmall' | 'glowBig' | 'glassBig' | 'base'
 
 /** A style after groundedPalette, which also remembers the accent as the model gave it. */
 interface GroundedStyle extends StyleSpec { accentRaw?: string }
-interface Look { surfaces: SurfaceSet; quality: Quality; seed: number; style: GroundedStyle; nature?: 'plant' | 'mineral' }
+interface Look { surfaces: SurfaceSet; quality: Quality; seed: number; style: GroundedStyle; nature?: 'plant' | 'mineral'; cap?: number }
 
 /** A part's biggest face, m2, above which an accent is a painted wall, and above which a glow is a lit panel and not a lamp. */
 const SMALL_FACE = 2;
@@ -759,8 +764,8 @@ function emit(
   let top = 0;
   const finish = finisher(batch, base, look, uOff);
   const sizes = parts.map((p) => ({
-    pw: clamp(p.w, 0.002, 1.4) * fw, pd: clamp(p.d, 0.002, 1.4) * fd, ph: clamp(p.h, 0.02, 30) * hScale,
-    py: clamp(p.y, 0, 30) * hScale, px: clamp(p.x, -0.7, 0.7) * fw, pz: clamp(p.z, -0.7, 0.7) * fd,
+    pw: clamp(p.w, 0.002, 1.4) * fw, pd: clamp(p.d, 0.002, 1.4) * fd, ph: clamp(p.h, 0.02, look.cap ?? 30) * hScale,
+    py: clamp(p.y, 0, look.cap ?? 30) * hScale, px: clamp(p.x, -0.7, 0.7) * fw, pz: clamp(p.z, -0.7, 0.7) * fd,
   }));
   // Every part as a box in this frame, for the shade one casts on another. A roof laid as a slab reaches past its part.
   const solids: (Solid | null)[] = parts.map((p, i) => {
@@ -920,6 +925,7 @@ function lookFor(style: StyleSpec, opts: BlueprintOptions | undefined): Look {
     seed: opts?.seed ?? 0,
     style: { ...groundedPalette(style, surfaces), accentRaw: style.accent },
     ...(opts?.nature ? { nature: opts.nature } : {}),
+    ...(opts?.maxHeight !== undefined && opts.maxHeight > 30 ? { cap: Math.min(400, opts.maxHeight) } : {}),
   };
 }
 

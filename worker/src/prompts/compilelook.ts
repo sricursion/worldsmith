@@ -134,5 +134,10 @@ export function lookUserMessage(prompt: string, seed: number, outline: Outline):
     : settled
       ? `a blueprint for every structure form (at least two of them MUST stand 14 m or taller: use tower, spire, tiers or block with the height or module dial raised to match, even for sheds, cranes, stacks and masts; check this before you answer)`
       : `a blueprint for each of the ${n} point${n === 1 ? '' : 's'} of interest, natural where the form is natural`;
-  return `${outlineBrief(outline)}\n\nSeed: ${seed}\nPlayer prompt: ${prompt}\nDesign the look now, in grounded realism: a muted, material-true style with surfaces that fit this land and its weather, ${structures}, 3 to 6 props at real sizes that are this land's own cover (at least one is a tree or plant family prop whenever the place has any greenery at all, such as a village, a coast, a yard or a garden), 0 to 2 landmarks.`;
+  // A big place is filled out by the engine from these blueprints and props, so they must suit being repeated along streets.
+  const scale = outline.site.scale;
+  const built = scale === 'town' || scale === 'city' || scale === 'metropolis'
+    ? ` The engine repeats your blueprints, varied, along every street of this ${scale}: make most of them ordinary buildings of the place (housing, shops, workshops, towers), each a different height within the Scale line's range. Where a form is taller than a dial allows, build it to the dial's top and end its summary with the true height ("glass office spire, 120 m"): the engine raises it to that. Props are what fills crowded streets here (stalls, carts, crates, barricades, wrecks, lamps, rubble where there is damage), with at most one plant.`
+    : '';
+  return `${outlineBrief(outline)}\n\nSeed: ${seed}\nPlayer prompt: ${prompt}\nDesign the look now, in grounded realism: a muted, material-true style with surfaces that fit this land and its weather, ${structures}, 3 to 6 props at real sizes that are this land's own cover (at least one is a tree or plant family prop whenever the place has any greenery at all, such as a village, a coast, a yard or a garden), 0 to 2 landmarks.${built}`;
 }

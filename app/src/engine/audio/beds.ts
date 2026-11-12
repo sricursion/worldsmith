@@ -2,9 +2,11 @@
 // (gusts, syllables, waves, thunder, bird song) is driven from tick() with parameter automation
 // or short one-shot voices, so a bed costs nothing per frame beyond a few comparisons.
 
-import type { BedMix } from './mapping';
+import { makeRng } from '../../world/rng';
+import type { BedChar, BedMix } from './mapping';
 import { Rack, chain, filterNode, gainNode, oneShot, oscNode, panNode, type Kit } from './kit';
 import { renderCrickets, renderFireCrackle, renderFrogs, renderRainPatter, renderRoofDrum } from './loops';
+import { createTexture } from './textures';
 
 export interface BedState {
   nearNpc: number;
@@ -18,8 +20,13 @@ export interface Bed {
 
 const BAND = [0.25, 0.55, 0.9] as const;
 
+/** Loops are re-pitched by playing them faster or slower; kept inside a range where they still sound like themselves. */
+function loopRate(c: BedChar): number {
+  return Math.min(1.25, Math.max(0.8, c.pitch));
+}
+
 /** Two decorrelated copies of a noise loop, each through its own chain, panned left and right. */
-function wide(
+export function wide(
   kit: Kit, rack: Rack, color: 'white' | 'pink' | 'brown', width: number, dest: AudioNode,
   shape: (side: number) => BiquadFilterNode[],
 ): BiquadFilterNode[][] {
@@ -35,7 +42,7 @@ function wide(
   return sides;
 }
 
-function rainBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
+function rainBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode, c: BedChar): Bed {
   const { ctx, rng } = kit;
   const rack = new Rack();
   const amount = BAND[variant];
@@ -43,19 +50,19 @@ function rainBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
   // High: the hiss of drops in the air and on far surfaces.
   const hissBase = 0.15 + 0.3 * amount;
   const hiss = rack.add(gainNode(ctx, hissBase));
-  wide(kit, rack, 'white', 0.8, hiss, () => [filterNode(ctx, 'highpass', 2400, 0.5), filterNode(ctx, 'lowpass', 8500, 0.5)]);
+  wide(kit, rack, 'white', 0.8, hiss, () => [filterNode(ctx, 'highpass', 2400 * c.colour, 0.5), filterNode(ctx, 'lowpass', 8500 * Math.min(1.2, c.colour), 0.5)]);
   hiss.connect(out);
 
   // The wash that fills the middle of the spectrum between hiss and drum.
   const wash = rack.add(gainNode(ctx, 0.12 + 0.3 * amount));
-  chain(rack.loop(ctx, kit.noise('pink'), 1.3), rack.add(filterNode(ctx, 'bandpass', 900, 0.6)), wash, out);
+  chain(rack.loop(ctx, kit.noise('pink'), 1.3), rack.add(filterNode(ctx, 'bandpass', 900 * c.colour, 0.6)), wash, out);
 
   // Mid: individual drops, pre-rendered as a stereo loop.
   // Kept far down and very dense: single audible drops read as ticking, so this layer only adds grain to the wash.
   const patterBase = 0.05 + 0.05 * amount;
   const patter = rack.add(gainNode(ctx, patterBase));
   const drops = ([260, 420, 640] as const)[variant];
-  chain(rack.loop(ctx, kit.buffer(`rain-patter:${variant}`, (sr, r) => renderRainPatter(sr, 6.5, drops, r))), patter, out);
+  chain(rack.loop(ctx, kit.buffer(`rain-patter:${variant}`, (sr, r) => renderRainPatter(sr, 6.5, drops, r)), 0, loopRate(c)), patter, out);
 
   // Low: drumming on roofs; louder than everything else once the listener is under one.
   const drumBase = 0.1 + 0.14 * amount;
@@ -63,7 +70,7 @@ function rainBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
   const hits = ([6, 14, 26] as const)[variant];
   chain(
     rack.loop(ctx, kit.buffer(`roof-drum:${variant}`, (sr, r) => renderRoofDrum(sr, 7.3, hits, r))),
-    rack.add(filterNode(ctx, 'lowpass', 420, 0.7)), drum, out,
+    rack.add(filterNode(ctx, 'lowpass', 420 * c.colour, 0.7)), drum, out,
   );
 
   let nextSheet = 0;
@@ -73,7 +80,7 @@ function rainBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
       if (now >= nextSheet) {
         // Rain arrives in sheets: let the hiss breathe by a few dB.
         hiss.gain.setTargetAtTime(hissBase * rng.range(0.7, 1.25), now, 1.2);
-        nextSheet = now + rng.range(2, 5);
+        nextSheet = now + rng.range(2, 5) / c.rate;
       }
       if (st.indoors !== indoors) {
         indoors = st.indoors;
@@ -85,7 +92,7 @@ function rainBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
   };
 }
 
-function thunderBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
+function thunderBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode, c: BedChar): Bed {
   const { ctx, rng } = kit;
   const send = gainNode(ctx, 0.5);
   send.connect(kit.reverbIn);
@@ -146,8 +153,9 @@ function thunderBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
     tick(now) {
       if (next < 0) next = now + rng.range(4, 14);
       if (now < next) return;
+      kit.voices.take(now, now + 9);
       strike(now + 0.05);
-      next = now + rng.range(12, 40);
+      next = now + rng.range(12, 40) / c.rate;
     },
     dispose() {
       send.disconnect();
@@ -155,13 +163,13 @@ function thunderBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
   };
 }
 
-function windBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
+function windBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode, c: BedChar): Bed {
   const { ctx, rng } = kit;
   const rack = new Rack();
   const amount = BAND[variant];
   const base = 0.2 + 0.5 * amount;
   const body = rack.add(gainNode(ctx, base * 0.4));
-  const bands = wide(kit, rack, 'pink', 0.6, body, () => [filterNode(ctx, 'bandpass', 420, 0.9)]);
+  const bands = wide(kit, rack, 'pink', 0.6, body, () => [filterNode(ctx, 'bandpass', 420 * c.colour, 0.9)]);
   body.connect(out);
   const low = rack.add(gainNode(ctx, 0.25 * amount));
   chain(rack.loop(ctx, kit.noise('brown'), 0.7), rack.add(filterNode(ctx, 'lowpass', 180, 0.7)), low, out);
@@ -184,27 +192,27 @@ function windBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
       const tc = rng.range(0.8, 1.8);
       body.gain.setTargetAtTime(base * (0.3 + 1.0 * gust), now, tc);
       low.gain.setTargetAtTime(0.25 * amount * (0.4 + gust), now, tc);
-      const f = 280 + 720 * gust * (0.5 + 0.5 * amount);
+      const f = (280 + 720 * gust * (0.5 + 0.5 * amount)) * c.colour;
       for (const side of bands) side[0]?.frequency.setTargetAtTime(f * rng.range(0.92, 1.08), now, tc);
       if (whistle) {
-        const wf = 700 + 900 * gust;
+        const wf = (700 + 900 * gust) * c.pitch;
         whistle.f1.frequency.setTargetAtTime(wf, now, tc * 0.7);
         whistle.f2.frequency.setTargetAtTime(wf, now, tc * 0.7);
         whistle.g.gain.setTargetAtTime(gust > 0.5 ? 5 * (gust - 0.5) : 0, now, tc * 0.6);
       }
-      next = now + rng.range(1.2, 3.5);
+      next = now + rng.range(1.2, 3.5) / c.rate;
     },
     dispose: () => rack.dispose(),
   };
 }
 
 /** Snowfall: the world goes soft. A low, close hush and the faintest high sparkle of flakes landing. */
-function snowBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
+function snowBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode, c: BedChar): Bed {
   const { ctx, rng } = kit;
   const rack = new Rack();
   const base = 0.35 + 0.25 * BAND[variant];
   const hush = rack.add(gainNode(ctx, base));
-  wide(kit, rack, 'pink', 0.5, hush, () => [filterNode(ctx, 'lowpass', 650, 0.5)]);
+  wide(kit, rack, 'pink', 0.5, hush, () => [filterNode(ctx, 'lowpass', 650 * c.colour, 0.5)]);
   hush.connect(out);
   chain(rack.loop(ctx, kit.noise('white'), 1.9), rack.add(filterNode(ctx, 'highpass', 6500, 0.5)), rack.add(gainNode(ctx, 0.02)), out);
   let next = 0;
@@ -219,13 +227,13 @@ function snowBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
 }
 
 /** Dry wind: thinner and higher than wet-country wind, with sand hissing along the ground in the gusts. */
-function desertBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
+function desertBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode, c: BedChar): Bed {
   const { ctx, rng } = kit;
   const rack = new Rack();
   const amount = BAND[variant];
   const base = 0.14 + 0.3 * amount;
   const body = rack.add(gainNode(ctx, base * 0.5));
-  const bands = wide(kit, rack, 'white', 0.6, body, () => [filterNode(ctx, 'bandpass', 1500, 0.7)]);
+  const bands = wide(kit, rack, 'white', 0.6, body, () => [filterNode(ctx, 'bandpass', 1500 * c.colour, 0.7)]);
   body.connect(out);
   const sand = rack.add(gainNode(ctx, 0));
   chain(rack.loop(ctx, kit.noise('white'), 4.2), rack.add(filterNode(ctx, 'highpass', 5500, 0.6)), sand, out);
@@ -238,17 +246,17 @@ function desertBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
       const gust = Math.pow(rng.next(), 1.3);
       const tc = rng.range(0.9, 2.2);
       body.gain.setTargetAtTime(base * (0.25 + gust), now, tc);
-      for (const side of bands) side[0]?.frequency.setTargetAtTime(rng.range(0.9, 1.1) * (900 + 1700 * gust), now, tc);
+      for (const side of bands) side[0]?.frequency.setTargetAtTime(rng.range(0.9, 1.1) * (900 + 1700 * gust) * c.colour, now, tc);
       sand.gain.setTargetAtTime((0.02 + 0.1 * amount) * gust * gust, now, tc * 0.6);
-      next = now + rng.range(1.5, 4.5);
+      next = now + rng.range(1.5, 4.5) / c.rate;
     },
     dispose: () => rack.dispose(),
   };
 }
 
-function loopBed(kit: Kit, buffer: AudioBuffer, level: number, out: AudioNode): Bed {
+export function loopBed(kit: Kit, buffer: AudioBuffer, level: number, out: AudioNode, rate = 1): Bed {
   const rack = new Rack();
-  chain(rack.loop(kit.ctx, buffer, kit.rng.range(0, buffer.duration * 0.9)), rack.add(gainNode(kit.ctx, level)), out);
+  chain(rack.loop(kit.ctx, buffer, kit.rng.range(0, buffer.duration * 0.9), rate), rack.add(gainNode(kit.ctx, level)), out);
   return { tick() {}, dispose: () => rack.dispose() };
 }
 
@@ -265,25 +273,30 @@ interface Species {
   fmDepth: number;
 }
 
-/** Sparse day birds: each call is one FM voice whose pitch and level are automated note by note. */
-function birdsBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
+/**
+ * Sparse day birds: each call is one FM voice whose pitch and level are automated note by note.
+ * The species are drawn from the world's seed, so each world has its own birds.
+ */
+function birdsBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode, c: BedChar): Bed {
   const { ctx, rng } = kit;
   const send = gainNode(ctx, 0.35);
   send.connect(kit.reverbIn);
   const species: Species[] = [];
-  for (let i = 0; i < 5; i++) {
+  const local = makeRng(c.seed, 'bird-species');
+  const kinds = Math.min(7, Math.max(3, Math.round(5 * c.density)));
+  for (let i = 0; i < kinds; i++) {
     species.push({
-      base: rng.range(1900, 4400),
-      notes: rng.int(2, 6),
-      dur: rng.range(0.05, 0.15),
-      gap: rng.range(0.03, 0.1),
-      sweep: rng.pick([0.72, 0.85, 1.2, 1.45, 1.0]),
-      walk: rng.pick([0.9, 1, 1, 1.08, 1.15]),
-      fmRate: rng.range(18, 46),
-      fmDepth: rng.chance(0.5) ? rng.range(80, 320) : 0,
+      base: local.range(1900, 4400) * c.pitch,
+      notes: local.int(2, 6),
+      dur: local.range(0.05, 0.15),
+      gap: local.range(0.03, 0.1),
+      sweep: local.pick([0.72, 0.85, 1.2, 1.45, 1.0]),
+      walk: local.pick([0.9, 1, 1, 1.08, 1.15]),
+      fmRate: local.range(18, 46),
+      fmDepth: local.chance(0.5) ? local.range(80, 320) : 0,
     });
   }
-  const pace = ([1.6, 1, 0.6] as const)[variant];
+  const pace = ([1.6, 1, 0.6] as const)[variant] / c.rate;
   let next = -1;
 
   const sing = (t: number, sp: Species): void => {
@@ -313,8 +326,8 @@ function birdsBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
         car.frequency.setValueAtTime(f, at);
         car.frequency.exponentialRampToValueAtTime(f * sp.sweep, at + dur);
         env.gain.setValueAtTime(0, at);
-        env.gain.linearRampToValueAtTime(0.05 * near, at + Math.min(0.012, dur * 0.3));
-        env.gain.linearRampToValueAtTime(0.03 * near, at + dur * 0.7);
+        env.gain.linearRampToValueAtTime(0.085 * near, at + Math.min(0.012, dur * 0.3));
+        env.gain.linearRampToValueAtTime(0.05 * near, at + dur * 0.7);
         env.gain.linearRampToValueAtTime(0, at + dur);
         at += dur + sp.gap;
         f *= sp.walk;
@@ -329,7 +342,8 @@ function birdsBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
     tick(now) {
       if (next < 0) next = now + rng.range(1, 5);
       if (now < next) return;
-      sing(now + 0.03, rng.pick(species));
+      // A song holds a voice for a couple of seconds; when every voice is busy the bird waits its turn.
+      if (kit.voices.take(now, now + 2.5)) sing(now + 0.03, rng.pick(species));
       // Birds answer each other: a short gap sometimes, a long silence usually.
       next = now + (rng.chance(0.3) ? rng.range(0.6, 1.6) : rng.range(3, 10)) * pace;
     },
@@ -356,21 +370,21 @@ interface Talker {
  * into syllables and phrases, then dulled and smeared so no word can ever be made out.
  * Variant 0 is heard only near NPCs; variant 1 keeps a crowd in the background.
  */
-function murmurBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
+function murmurBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode, c: BedChar): Bed {
   const { ctx, rng } = kit;
   const rack = new Rack();
   const floor = variant === 0 ? 0 : 0.35;
   const crowd = rack.add(gainNode(ctx, floor));
-  const dull = rack.add(filterNode(ctx, 'lowpass', 1700, 0.5));
+  const dull = rack.add(filterNode(ctx, 'lowpass', 1700 * c.colour, 0.5));
   chain(dull, crowd, out);
   chain(crowd, rack.add(gainNode(ctx, 0.5)), kit.reverbIn);
   // Room tone under the voices.
   chain(rack.loop(ctx, kit.noise('pink'), 3.3), rack.add(filterNode(ctx, 'bandpass', 700, 0.8)), rack.add(gainNode(ctx, 0.05)), dull);
 
   const talkers: Talker[] = [];
-  const count = kit.quality === 0 ? 2 : variant === 2 ? 5 : 3;
+  const count = kit.quality === 0 ? 2 : variant === 2 ? 5 : c.density > 1.15 ? 4 : 3;
   for (let i = 0; i < count; i++) {
-    const pitch = rng.range(95, 230);
+    const pitch = rng.range(95, 230) * Math.sqrt(c.pitch);
     const osc = rack.run(oscNode(ctx, 'sawtooth', pitch));
     const f1 = rack.add(filterNode(ctx, 'bandpass', 500, 5));
     const f2 = rack.add(filterNode(ctx, 'bandpass', 1500, 7));
@@ -396,7 +410,7 @@ function murmurBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
         if (v.left <= 0) {
           // A new phrase after a pause, at a new speaking level.
           v.left = rng.int(3, 9);
-          v.next = now + rng.range(0.5, 3.5);
+          v.next = now + rng.range(0.5, 3.5) / c.rate;
           continue;
         }
         v.left -= 1;
@@ -405,7 +419,7 @@ function murmurBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
         v.osc.frequency.setTargetAtTime(v.pitch * rng.range(0.86, 1.22), now, 0.04);
         v.f1.frequency.setTargetAtTime(vowel[0] * rng.range(0.9, 1.1), now, 0.03);
         v.f2.frequency.setTargetAtTime(vowel[1] * rng.range(0.9, 1.1), now, 0.03);
-        v.amp.gain.setTargetAtTime(rng.range(0.1, 0.22), now, 0.03);
+        v.amp.gain.setTargetAtTime(rng.range(0.15, 0.3), now, 0.03);
         v.amp.gain.setTargetAtTime(0, now + len * 0.65, 0.05);
         v.next = now + len + rng.range(0.01, 0.07);
       }
@@ -415,23 +429,23 @@ function murmurBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
 }
 
 /** Machinery: detuned saws beating slowly through a low-pass, air handling above it, and now and then a servo or a status ping far off. */
-function humBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
+function humBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode, c: BedChar): Bed {
   const { ctx, rng } = kit;
   const rack = new Rack();
   const send = rack.add(gainNode(ctx, 0.6));
   send.connect(kit.reverbIn);
-  const lp = rack.add(filterNode(ctx, 'lowpass', 230, 2));
-  const body = rack.add(gainNode(ctx, 0.1 + 0.06 * variant));
+  const lp = rack.add(filterNode(ctx, 'lowpass', 230 * c.colour, 2));
+  const body = rack.add(gainNode(ctx, 0.17 + 0.06 * variant));
   chain(lp, body, out);
   for (const [f, g] of [[55, 0.5], [55.31, 0.5], [109.6, 0.22], [82.7, 0.12]] as const) {
     if (kit.quality === 0 && f === 82.7) continue;
-    chain(rack.run(oscNode(ctx, 'sawtooth', f)), rack.add(gainNode(ctx, g)), lp);
+    chain(rack.run(oscNode(ctx, 'sawtooth', f * c.pitch)), rack.add(gainNode(ctx, g)), lp);
   }
   // A very slow sweep of the cutoff keeps the tone from sitting still.
   const sweep = rack.add(gainNode(ctx, 60));
-  chain(rack.run(oscNode(ctx, 'sine', 0.05)), sweep);
+  chain(rack.run(oscNode(ctx, 'sine', 0.05 * c.rate)), sweep);
   sweep.connect(lp.frequency);
-  chain(rack.loop(ctx, kit.noise('pink'), 0.4), rack.add(filterNode(ctx, 'bandpass', 320, 0.8)), rack.add(gainNode(ctx, 0.1)), out);
+  chain(rack.loop(ctx, kit.noise('pink'), 0.4), rack.add(filterNode(ctx, 'bandpass', 320 * c.colour, 0.8)), rack.add(gainNode(ctx, 0.1)), out);
 
   let next = -1;
   const ping = (t: number): void => {
@@ -440,7 +454,7 @@ function humBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
     chain(env, pan, out);
     pan.connect(send);
     if (rng.chance(0.55)) {
-      const f = rng.pick([1318.5, 1568, 1760, 2093, 2637]);
+      const f = rng.pick([1318.5, 1568, 1760, 2093, 2637]) * c.pitch;
       const o = oscNode(ctx, 'sine', f);
       o.connect(env);
       const count = rng.int(1, 2);
@@ -472,19 +486,19 @@ function humBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
     tick(now) {
       if (next < 0) next = now + rng.range(3, 10);
       if (now < next) return;
-      ping(now + 0.03);
-      next = now + rng.range(6, 20);
+      if (kit.voices.take(now, now + 1.2)) ping(now + 0.03);
+      next = now + rng.range(6, 20) / c.rate;
     },
     dispose: () => rack.dispose(),
   };
 }
 
-function leavesBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
+function leavesBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode, c: BedChar): Bed {
   const { ctx, rng } = kit;
   const rack = new Rack();
   const base = 0.1 + 0.08 * variant;
   const g = rack.add(gainNode(ctx, base * 0.3));
-  wide(kit, rack, 'white', 0.85, g, () => [filterNode(ctx, 'highpass', 2200, 0.5), filterNode(ctx, 'lowpass', 7500, 0.4)]);
+  wide(kit, rack, 'white', 0.85, g, () => [filterNode(ctx, 'highpass', 2200 * c.colour, 0.5), filterNode(ctx, 'lowpass', 7500 * Math.min(1.2, c.colour), 0.4)]);
   g.connect(out);
   let next = 0;
   return {
@@ -493,46 +507,51 @@ function leavesBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
       // Leaves answer every small movement of air, so they move faster than the wind bed does.
       const stir = rng.next();
       g.gain.setTargetAtTime(base * (0.12 + stir * stir), now, rng.range(0.25, 0.6));
-      next = now + rng.range(0.5, 1.8);
+      next = now + rng.range(0.5, 1.8) / c.rate;
     },
     dispose: () => rack.dispose(),
   };
 }
 
-/** Water lapping at a shore or quay: each wave swells, brightens as it breaks, and drains away in foam. */
-function waterBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
+/**
+ * Water at an edge: each wave swells, brightens as it breaks, and drains away in foam. Lapping at
+ * a quay it is small and quick; as surf the waves are long, heavy and far apart over a low roar.
+ */
+function waterBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode, c: BedChar, surf: boolean): Bed {
   const { ctx, rng } = kit;
   const rack = new Rack();
-  const size = 0.7 + 0.3 * variant;
+  const size = (0.7 + 0.3 * variant) * (surf ? 1.25 : 1);
+  const slow = (surf ? 1.9 : 1) / c.rate;
   const lp = rack.add(filterNode(ctx, 'lowpass', 350, 0.6));
+  if (surf) chain(rack.loop(ctx, kit.noise('brown'), 1.4), rack.add(filterNode(ctx, 'lowpass', 160 * c.colour, 0.7)), rack.add(gainNode(ctx, 0.3)), out);
   const swell = rack.add(gainNode(ctx, 0.05));
   chain(rack.loop(ctx, kit.noise('pink'), 2.9), lp, swell, out);
   const foam = rack.add(gainNode(ctx, 0.003));
-  chain(rack.loop(ctx, kit.noise('white'), 0.9), rack.add(filterNode(ctx, 'bandpass', 3200, 0.5)), foam, out);
+  chain(rack.loop(ctx, kit.noise('white'), 0.9), rack.add(filterNode(ctx, 'bandpass', 3200 * c.colour, 0.5)), foam, out);
   let next = 0;
   return {
     tick(now) {
       if (now < next) return;
       const amp = rng.range(0.5, 1) * size;
-      swell.gain.setTargetAtTime(0.3 * amp, now, 0.55);
-      swell.gain.setTargetAtTime(0.05, now + 1.6, 0.9);
-      lp.frequency.setTargetAtTime(900 + 900 * amp, now, 0.5);
-      lp.frequency.setTargetAtTime(330, now + 1.6, 1);
-      foam.gain.setTargetAtTime(0.06 * amp, now + 1.2, 0.25);
-      foam.gain.setTargetAtTime(0.003, now + 1.9, 0.8);
-      next = now + rng.range(3.8, 7);
+      swell.gain.setTargetAtTime(0.3 * amp, now, 0.55 * slow);
+      swell.gain.setTargetAtTime(0.05, now + 1.6 * slow, 0.9 * slow);
+      lp.frequency.setTargetAtTime((900 + 900 * amp) * c.colour, now, 0.5 * slow);
+      lp.frequency.setTargetAtTime(330, now + 1.6 * slow, slow);
+      foam.gain.setTargetAtTime((surf ? 0.11 : 0.06) * amp, now + 1.2 * slow, 0.25 * slow);
+      foam.gain.setTargetAtTime(0.003, now + 1.9 * slow, 0.8 * slow);
+      next = now + rng.range(3.8, 7) * slow;
     },
     dispose: () => rack.dispose(),
   };
 }
 
-function fireBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
+function fireBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode, c: BedChar): Bed {
   const { ctx } = kit;
   const rack = new Rack();
-  chain(rack.loop(ctx, kit.buffer('fire-crackle', (sr, r) => renderFireCrackle(sr, 5.9, r))), rack.add(gainNode(ctx, 0.8)), out);
+  chain(rack.loop(ctx, kit.buffer('fire-crackle', (sr, r) => renderFireCrackle(sr, 5.9, r)), kit.rng.range(0, 5), loopRate(c)), rack.add(gainNode(ctx, 0.8)), out);
   // The roar of the flame body, fluttering at two rates that never line up.
   const roar = rack.add(gainNode(ctx, 0.2 + 0.08 * variant));
-  chain(rack.loop(ctx, kit.noise('brown'), 1.1), rack.add(filterNode(ctx, 'lowpass', 330, 0.7)), roar, out);
+  chain(rack.loop(ctx, kit.noise('brown'), 1.1), rack.add(filterNode(ctx, 'lowpass', 330 * c.colour, 0.7)), roar, out);
   for (const hz of [7.3, 4.1]) {
     const depth = rack.add(gainNode(ctx, 0.05));
     chain(rack.run(oscNode(ctx, 'sine', hz)), depth);
@@ -541,28 +560,37 @@ function fireBed(kit: Kit, variant: 0 | 1 | 2, out: AudioNode): Bed {
   return { tick() {}, dispose: () => rack.dispose() };
 }
 
-/** Builds the graph for one bed and connects it to `out`. */
-export function createBed(kit: Kit, mix: BedMix, out: AudioNode): Bed {
+const SILENT: Bed = { tick() {}, dispose() {} };
+
+/**
+ * Builds the graph for one bed and connects it to `out`. `c` is the character the bed takes in
+ * this world. The three life buses have no graph of their own: the rig plays their events into `out`.
+ */
+export function createBed(kit: Kit, mix: BedMix, out: AudioNode, c: BedChar): Bed {
   const v = mix.variant;
   switch (mix.id) {
-    case 'rain': return rainBed(kit, v, out);
-    case 'thunder': return thunderBed(kit, v, out);
-    case 'wind': return windBed(kit, v, out);
-    case 'snow': return snowBed(kit, v, out);
-    case 'desert': return desertBed(kit, v, out);
+    case 'rain': return rainBed(kit, v, out, c);
+    case 'thunder': return thunderBed(kit, v, out, c);
+    case 'wind': return windBed(kit, v, out, c);
+    case 'snow': return snowBed(kit, v, out, c);
+    case 'desert': return desertBed(kit, v, out, c);
     case 'crickets': {
-      const count = ([3, 6, 9] as const)[v];
-      return loopBed(kit, kit.buffer(`crickets:${v}`, (sr, r) => renderCrickets(sr, 9.1, count, r)), 0.7, out);
+      // The insects themselves are rendered per world: how many, how they are pitched, when each rests.
+      const count = Math.max(2, Math.round(([3, 6, 9] as const)[v] * c.density));
+      return loopBed(kit, kit.buffer(`crickets:${v}@${c.seed}`, (sr, r) => renderCrickets(sr, 9.1, count, r)), 0.9, out, loopRate(c));
     }
     case 'frogs': {
-      const count = ([2, 3, 5] as const)[v];
-      return loopBed(kit, kit.buffer(`frogs:${v}`, (sr, r) => renderFrogs(sr, 13.3, count, r)), 0.7, out);
+      const count = Math.max(2, Math.round(([2, 3, 5] as const)[v] * c.density));
+      return loopBed(kit, kit.buffer(`frogs:${v}@${c.seed}`, (sr, r) => renderFrogs(sr, 13.3, count, r)), 0.8, out, loopRate(c));
     }
-    case 'birds': return birdsBed(kit, v, out);
-    case 'murmur': return murmurBed(kit, v, out);
-    case 'hum': return humBed(kit, v, out);
-    case 'leaves': return leavesBed(kit, v, out);
-    case 'water': return waterBed(kit, v, out);
-    case 'fire': return fireBed(kit, v, out);
+    case 'birds': return birdsBed(kit, v, out, c);
+    case 'murmur': return murmurBed(kit, v, out, c);
+    case 'hum': return humBed(kit, v, out, c);
+    case 'leaves': return leavesBed(kit, v, out, c);
+    case 'water': return waterBed(kit, v, out, c, false);
+    case 'surf': return waterBed(kit, v, out, c, true);
+    case 'fire': return fireBed(kit, v, out, c);
+    case 'wildlife': case 'townlife': case 'shorelife': return SILENT;
+    default: return createTexture(kit, mix.id, v, out, c);
   }
 }

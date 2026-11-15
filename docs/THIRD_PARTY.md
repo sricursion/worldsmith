@@ -53,6 +53,7 @@ Runtime, bundled into the browser app:
 - `recast-navigation` 0.43.1 and `@recast-navigation/three` 0.43.1, MIT. Navmesh and crowd (`app/src/engine/nav.ts`). The WebAssembly build of Recast Navigation ships inline.
 - `zod` 4.3.6, MIT. Spec schema (`app/src/world/schema.ts`); also bundled into the Worker.
 - `fflate` 0.8.3, MIT. Share-link compression (`app/src/share.ts`).
+- `@vercel/analytics` 2.0.1, MIT. Page-view counts on the hosted site (`app/src/main.ts`).
 - `poisson-disk-sampling` 2.3.1, MIT. Prop and lot placement (`app/src/town/layout.ts`).
 
 Development only:

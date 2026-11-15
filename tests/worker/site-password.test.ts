@@ -40,6 +40,14 @@ describe('site password', () => {
     expect(middleware(new Request('https://example.test/demonstration'))?.status).toBe(401);
   });
 
+  it('lets the page-view counter load without the password, on the app and on the demo page', async () => {
+    process.env['SITE_PASSWORD'] = 'open sesame';
+    expect(middleware(new Request('https://example.test/_vercel/insights/script.js'))).toBeUndefined();
+    expect(middleware(new Request('https://example.test/_vercel/insights/view', { method: 'POST' }))).toBeUndefined();
+    expect(middleware(new Request('https://example.test/_vercelish'))?.status).toBe(401);
+    expect(await middleware(new Request('https://example.test/demo'))?.text()).toContain('src="/_vercel/insights/script.js"');
+  });
+
   it('turns share addresses into embeds and refuses anything that is not https', async () => {
     expect(embedOf('https://drive.google.com/file/d/1AbC_d-9/view?usp=sharing')).toEqual({ src: 'https://drive.google.com/file/d/1AbC_d-9/preview', kind: 'frame' });
     expect(embedOf('https://youtu.be/abc123XYZ_-')?.src).toBe('https://www.youtube.com/embed/abc123XYZ_-');

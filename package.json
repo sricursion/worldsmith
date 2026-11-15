@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@recast-navigation/three": "0.43.1",
+    "@vercel/analytics": "2.0.1",
     "fflate": "0.8.3",
     "poisson-disk-sampling": "2.3.1",
     "recast-navigation": "0.43.1",

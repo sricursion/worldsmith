@@ -108,7 +108,7 @@ Scene, characters and behaviour all come from plain language, and the same path 
 Complete attribution file: https://github.com/sricursion/worldsmith/blob/main/docs/THIRD_PARTY.md
 
 Libraries (npm)
-- three, three-mesh-bvh, recast-navigation, @recast-navigation/three, zod, fflate, poisson-disk-sampling: MIT.
+- three, three-mesh-bvh, recast-navigation, @recast-navigation/three, zod, fflate, poisson-disk-sampling, @vercel/analytics: MIT.
 - Development only: TypeScript (Apache-2.0), Vite (MIT), vitest (MIT), wrangler (MIT or Apache-2.0), glTF-Transform (MIT).
 
 3D assets (all CC0 1.0, public domain)

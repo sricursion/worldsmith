@@ -5,8 +5,11 @@ import { createInput } from './engine/input';
 import { createUI } from './ui/ui';
 import { createApi } from './net/api';
 import { Game } from './game';
+import { inject } from '@vercel/analytics';
 
 function boot(): void {
+  // Page-view counts for the hosted site. A share link carries a whole world after the #, which is not reported.
+  inject({ beforeSend: (event) => ({ ...event, url: event.url.split('#')[0] ?? event.url }) });
   const canvas = document.getElementById('scene') as HTMLCanvasElement | null;
   const root = document.getElementById('ui');
   if (!canvas || !root) throw new Error('missing #scene or #ui');

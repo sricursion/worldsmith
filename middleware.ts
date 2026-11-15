@@ -1,9 +1,10 @@
 // Password on the web page. When SITE_PASSWORD is set on the host, every page and asset needs it; the
-// API under /api is left alone, and so is /demo, which shows the demo video.
+// API under /api is left alone, and so are /demo, which shows the demo video, and the host's own
+// /_vercel paths, which serve the page-view counter.
 // (HTTP Basic: any user name, the password as given). When it is not set the site is open, which is
 // how it runs locally. The browser remembers the answer and sends it with the page's own requests.
 
-export const config = { matcher: '/((?!api(?:/|$)).*)' };
+export const config = { matcher: '/((?!api(?:/|$)|_vercel/).*)' };
 
 /** Compares two strings in time that does not depend on where they differ. */
 function same(a: string, b: string): boolean {
@@ -64,19 +65,22 @@ export function demoResponse(target: string | undefined): Response {
     'header{display:flex;gap:16px;align-items:baseline;justify-content:space-between;padding:12px 20px;flex-wrap:wrap}h1{font:400 22px Georgia,serif;margin:0}' +
     'a{color:#e8a33d}main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:0 12px 12px}' +
     '.player{width:min(100%,calc((100vh - 76px) * 16 / 9));aspect-ratio:16/9;border:0;background:#000}</style>';
+  // The host's page-view counter, the same script the app loads.
+  const count = '<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script>';
   const top = '<header><h1>Worldsmith demo video</h1><a href="/">Open the live demo</a></header>';
   const player = !embed
     ? '<p>The video is being uploaded and will play here shortly.</p>'
     : embed.kind === 'file'
       ? `<video class="player" src="${esc(embed.src)}" controls playsinline></video>`
       : `<iframe class="player" src="${esc(embed.src)}" title="Worldsmith demo video" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-  return new Response(`${head}<body>${top}<main>${player}</main></body></html>`, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+  return new Response(`${head}${count}<body>${top}<main>${player}</main></body></html>`, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
 
 export default function middleware(request: Request): Response | undefined {
   const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
   const path = new URL(request.url).pathname.replace(/\/+$/, '');
   if (path === '/demo') return demoResponse(env['DEMO_VIDEO_URL']);
+  if (path.startsWith('/_vercel/')) return undefined;
   const want = env['SITE_PASSWORD'];
   if (!want) return undefined;
   const got = passwordFrom(request.headers.get('authorization'));

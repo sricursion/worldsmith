@@ -62,13 +62,26 @@ describe('site password', () => {
 });
 
 describe('prompts page', () => {
-  afterEach(() => { delete process.env['SITE_PASSWORD']; });
+  afterEach(() => { delete process.env['SITE_PASSWORD']; delete process.env['PROMPTS_PASSWORD']; });
   const store = { KV_REST_API_URL: 'https://redis.example', KV_REST_API_READ_ONLY_TOKEN: 'ro' };
+  const at = (auth?: string): Request => new Request('https://example.test/prompts', auth ? { headers: { authorization: auth } } : {});
 
-  it('is not served without a site password, and needs the password when one is set', async () => {
-    expect((await middleware(new Request('https://example.test/prompts')))?.status).toBe(404);
+  it('is not served without its own password, even when the site has one', async () => {
     process.env['SITE_PASSWORD'] = 'open sesame';
-    expect((await middleware(new Request('https://example.test/prompts')))?.status).toBe(401);
+    expect((await middleware(at()))?.status).toBe(404);
+    expect((await middleware(at(basic('', 'open sesame'))))?.status).toBe(404);
+  });
+
+  it('takes only its own password, not the site password', async () => {
+    process.env['SITE_PASSWORD'] = 'open sesame';
+    process.env['PROMPTS_PASSWORD'] = 'owner only';
+    const denied = await middleware(at(basic('judge', 'open sesame')));
+    expect(denied?.status).toBe(401);
+    expect(denied?.headers.get('www-authenticate')).toContain('realm="Worldsmith prompts"');
+    expect((await middleware(at()))?.status).toBe(401);
+    expect((await middleware(at(basic('', 'owner only'))))?.status).toBe(200);
+    // and the prompts password does not open the site
+    expect(middleware(new Request('https://example.test/', { headers: { authorization: basic('', 'owner only') } }))?.status).toBe(401);
   });
 
   it('lists entries newest first, escaped, from the read-only token', async () => {

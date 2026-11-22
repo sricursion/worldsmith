@@ -1,7 +1,7 @@
 // Password on the web page. When SITE_PASSWORD is set on the host, every page and asset needs it; the
 // API under /api is left alone, and so are /demo, which shows the demo video, and the host's own
-// /_vercel paths, which serve the page-view counter. /prompts lists what visitors typed; it needs the
-// password and is not served at all when no password is set.
+// /_vercel paths, which serve the page-view counter. /prompts lists what visitors typed; it has its own
+// password, PROMPTS_PASSWORD, separate from the site's, and is not served at all when that is not set.
 // (HTTP Basic: any user name, the password as given). When it is not set the site is open, which is
 // how it runs locally. The browser remembers the answer and sends it with the page's own requests.
 
@@ -131,12 +131,21 @@ export default function middleware(request: Request): Response | Promise<Respons
   const path = new URL(request.url).pathname.replace(/\/+$/, '');
   if (path === '/demo') return demoResponse(env['DEMO_VIDEO_URL']);
   if (path.startsWith('/_vercel/')) return undefined;
-  const want = env['SITE_PASSWORD'];
-  if (!want) return path === '/prompts' ? new Response('Not found.', { status: 404 }) : undefined;
   const got = passwordFrom(request.headers.get('authorization'));
-  if (got !== null && same(got, want)) return path === '/prompts' ? promptsResponse(env) : undefined;
+  if (path === '/prompts') {
+    const owner = env['PROMPTS_PASSWORD'];
+    if (!owner) return new Response('Not found.', { status: 404 });
+    return got !== null && same(got, owner) ? promptsResponse(env) : askFor('Worldsmith prompts');
+  }
+  const want = env['SITE_PASSWORD'];
+  if (!want) return undefined;
+  if (got !== null && same(got, want)) return undefined;
+  return askFor('Worldsmith');
+}
+
+function askFor(realm: string): Response {
   return new Response('Password required.', {
     status: 401,
-    headers: { 'WWW-Authenticate': 'Basic realm="Worldsmith", charset="UTF-8"', 'Cache-Control': 'no-store' },
+    headers: { 'WWW-Authenticate': `Basic realm="${realm}", charset="UTF-8"`, 'Cache-Control': 'no-store' },
   });
 }

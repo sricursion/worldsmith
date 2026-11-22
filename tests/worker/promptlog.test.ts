@@ -31,3 +31,13 @@ describe('prompt log', () => {
     await expect(logPrompt({ KV_REST_API_URL: 'https://r.example', KV_REST_API_TOKEN: 't' }, promptEntry('talk', 'hi'))).resolves.toBeUndefined();
   });
 });
+
+describe('middleware stays self-contained', () => {
+  it('imports nothing, since the host runs it unbundled, and uses the same store key', async () => {
+    const { readFileSync } = await import('node:fs');
+    const src = readFileSync(new URL('../../middleware.ts', import.meta.url), 'utf8');
+    expect(src).not.toMatch(/^\s*import\s/m);
+    const mw = await import('../../middleware');
+    expect(mw.PROMPT_KEY).toBe(PROMPT_KEY);
+  });
+});

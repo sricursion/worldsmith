@@ -5,8 +5,6 @@
 // (HTTP Basic: any user name, the password as given). When it is not set the site is open, which is
 // how it runs locally. The browser remembers the answer and sends it with the page's own requests.
 
-import { PROMPT_KEY, type PromptEntry } from './worker/src/lib/promptlog';
-
 export const config = { matcher: '/((?!api(?:/|$)|_vercel/).*)' };
 
 /** Compares two strings in time that does not depend on where they differ. */
@@ -78,6 +76,10 @@ export function demoResponse(target: string | undefined): Response {
       : `<iframe class="player" src="${esc(embed.src)}" title="Worldsmith demo video" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
   return new Response(`${head}${count}<body>${top}<main>${player}</main></body></html>`, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
+
+// The host runs this file on its own, unbundled, so it imports nothing; these match worker/src/lib/promptlog.ts.
+export const PROMPT_KEY = 'worldsmith:prompts';
+interface PromptEntry { t: string; kind: string; text: string; session?: string; to?: string }
 
 const KIND: Record<string, string> = { world: 'World', rule: 'Rule', talk: 'Said' };
 

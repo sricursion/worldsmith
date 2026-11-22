@@ -1118,3 +1118,9 @@ canvas {
     transition-duration: 0.001ms !important;
   }
 }
+
+.tf-saved {
+  margin: 6px 0 0;
+  font-size: 12px;
+  opacity: 0.75;
+}

@@ -1,8 +1,11 @@
 // Password on the web page. When SITE_PASSWORD is set on the host, every page and asset needs it; the
 // API under /api is left alone, and so are /demo, which shows the demo video, and the host's own
-// /_vercel paths, which serve the page-view counter.
+// /_vercel paths, which serve the page-view counter. /prompts lists what visitors typed; it needs the
+// password and is not served at all when no password is set.
 // (HTTP Basic: any user name, the password as given). When it is not set the site is open, which is
 // how it runs locally. The browser remembers the answer and sends it with the page's own requests.
+
+import { PROMPT_KEY, type PromptEntry } from './worker/src/lib/promptlog';
 
 export const config = { matcher: '/((?!api(?:/|$)|_vercel/).*)' };
 
@@ -76,15 +79,60 @@ export function demoResponse(target: string | undefined): Response {
   return new Response(`${head}${count}<body>${top}<main>${player}</main></body></html>`, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
 
-export default function middleware(request: Request): Response | undefined {
+const KIND: Record<string, string> = { world: 'World', rule: 'Rule', talk: 'Said' };
+
+/** /prompts: the newest prompts visitors typed, read from the host's Redis store. */
+export async function promptsResponse(env: Record<string, string | undefined>, fetcher: typeof fetch = fetch): Promise<Response> {
+  const url = env['KV_REST_API_URL'];
+  const token = env['KV_REST_API_READ_ONLY_TOKEN'] ?? env['KV_REST_API_TOKEN'];
+  let rows: PromptEntry[] = [];
+  let note = '';
+  if (!url || !token) note = 'No store is connected, so nothing has been recorded.';
+  else {
+    try {
+      const res = await fetcher(`${url.replace(/\/+$/, '')}/lrange/${encodeURIComponent(PROMPT_KEY)}/0/999`, { headers: { authorization: `Bearer ${token}` } });
+      const body = (await res.json()) as { result?: unknown };
+      const list = Array.isArray(body.result) ? body.result : [];
+      rows = list.flatMap((raw) => {
+        try {
+          const e = JSON.parse(String(raw)) as PromptEntry;
+          return typeof e.text === 'string' && typeof e.t === 'string' ? [e] : [];
+        } catch {
+          return [];
+        }
+      });
+      if (!res.ok) note = `The store answered ${res.status}.`;
+    } catch {
+      note = 'The store could not be reached.';
+    }
+  }
+  const counts = { world: 0, rule: 0, talk: 0 } as Record<string, number>;
+  for (const r of rows) counts[r.kind] = (counts[r.kind] ?? 0) + 1;
+  const summary = `${rows.length} shown, newest first: ${counts['world']} worlds, ${counts['rule']} rules, ${counts['talk']} lines said to characters.`;
+  const body = rows.map((r) =>
+    `<tr class="k-${esc(r.kind)}"><td><time datetime="${esc(r.t)}">${esc(r.t.slice(0, 16).replace('T', ' '))} UTC</time></td>` +
+    `<td>${esc(KIND[r.kind] ?? r.kind)}${r.to ? `<span class="to">to ${esc(r.to)}</span>` : ''}</td><td class="text">${esc(r.text)}</td><td class="s">${esc(r.session ?? '')}</td></tr>`).join('');
+  const html = '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Worldsmith prompts</title>' +
+    '<style>body{margin:0;background:#0b0d12;color:#f2e9d8;font:15px/1.45 system-ui,sans-serif;padding:16px max(16px,env(safe-area-inset-right))}' +
+    'h1{font:400 24px Georgia,serif;margin:0 0 4px}p{margin:0 0 14px;color:#b9ae9c}.wrap{overflow-x:auto}' +
+    'table{border-collapse:collapse;width:100%;min-width:640px}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #262a33}' +
+    'th{font-weight:600;color:#b9ae9c;font-size:13px}td:first-child{white-space:nowrap;color:#b9ae9c}.text{white-space:pre-wrap;word-break:break-word;width:60%}' +
+    '.k-world td:nth-child(2){color:#e8a33d}.to{display:block;color:#8d8577;font-size:13px}.s{color:#6f685d;font-family:ui-monospace,monospace;font-size:12px}</style>' +
+    `<body><h1>Prompts</h1><p>${esc(note || summary)} The tag on the right groups one visit.</p>` +
+    `<div class="wrap"><table><thead><tr><th>When</th><th>Kind</th><th>Text</th><th>Visit</th></tr></thead><tbody>${body}</tbody></table></div>` +
+    '<script>for(const t of document.querySelectorAll("time")){const d=new Date(t.dateTime);if(!isNaN(d))t.textContent=d.toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"})}</script></body></html>';
+  return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
+}
+
+export default function middleware(request: Request): Response | Promise<Response> | undefined {
   const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
   const path = new URL(request.url).pathname.replace(/\/+$/, '');
   if (path === '/demo') return demoResponse(env['DEMO_VIDEO_URL']);
   if (path.startsWith('/_vercel/')) return undefined;
   const want = env['SITE_PASSWORD'];
-  if (!want) return undefined;
+  if (!want) return path === '/prompts' ? new Response('Not found.', { status: 404 }) : undefined;
   const got = passwordFrom(request.headers.get('authorization'));
-  if (got !== null && same(got, want)) return undefined;
+  if (got !== null && same(got, want)) return path === '/prompts' ? promptsResponse(env) : undefined;
   return new Response('Password required.', {
     status: 401,
     headers: { 'WWW-Authenticate': 'Basic realm="Worldsmith", charset="UTF-8"', 'Cache-Control': 'no-store' },

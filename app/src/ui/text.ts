@@ -108,6 +108,7 @@ export const LANDING = {
   keysDesktop: 'Enter builds · Shift+Enter for a new line',
   keysTouch: 'Any place, any era, in your own words',
   examples: 'Or start from one of these',
+  saved: 'Prompts, rules and what you say to characters are saved so the tool can be improved.',
 } as const;
 
 /** Prompts offered next to whatever the game supplies, so the list covers more than four genres. */

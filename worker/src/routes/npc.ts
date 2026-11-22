@@ -8,6 +8,7 @@ import type { Env } from '../lib/env';
 import { isMock } from '../lib/env';
 import { budgetScope, chargeBudget, guardBudget, guardEarly, type BudgetScope } from '../lib/guard';
 import { errorJson, isRecord, readJson, sleep } from '../lib/http';
+import { logPrompt, promptEntry } from '../lib/promptlog';
 import { createSse, readSseFrames, type SseWriter } from '../lib/sse';
 import { validateNpcSay } from '../lib/validate';
 import { mockNpcLine, npcSystemBlocks, npcSystemText, npcUserMessage } from '../prompts/npc';
@@ -130,6 +131,7 @@ export async function handleNpcSay(request: Request, env: Env, ctx: ExecutionCon
   const v = validateNpcSay(body.value);
   if (!v.ok) return errorJson(400, v.error, 'bad_request');
 
+  ctx.waitUntil(logPrompt(env, promptEntry('talk', v.value.playerText, v.value.sessionId, v.value.npc.name)));
   const scope = budgetScope(request, v.value.sessionId);
   const gate = await guardBudget(env, scope);
   if (!gate.ok) return gate.res;

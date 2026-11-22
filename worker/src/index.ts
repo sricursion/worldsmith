@@ -20,7 +20,7 @@ async function route(req: Request, env: Env, ctx: ExecutionContext, url: URL): P
   if (path === '/api/npc/say' && post) return handleNpcSay(req, env, ctx);
   if (path === '/api/npc/voice' && post) return handleNpcVoice(req, env);
   if (path === '/api/tick' && post) return handleTick(req, env, url);
-  if (path === '/api/rules/patch' && post) return handleRulesPatch(req, env);
+  if (path === '/api/rules/patch' && post) return handleRulesPatch(req, env, ctx);
   if (path === '/api/share' && post) return handleShare(req, env);
   if (path === '/api/landmark' && post) return handleLandmarkStart(req, env);
   const lmFile = /^\/api\/landmark\/file\/([^/]+)$/.exec(path);

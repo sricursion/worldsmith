@@ -60,7 +60,8 @@ export function createLanding(layer: HTMLElement): LandingView {
   row.append(hint, count, build);
   const chipsLabel = el('p', 'tf-chips-label', LANDING.examples);
   const chips = el('div', 'tf-chips');
-  card.append(title, promise, label, input, row, chipsLabel, chips);
+  const saved = el('p', 'tf-hint tf-saved', LANDING.saved);
+  card.append(title, promise, label, input, row, saved, chipsLabel, chips);
 
   const panel = el('section', 'tf-build tf-panel');
   panel.hidden = true;

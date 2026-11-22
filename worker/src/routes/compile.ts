@@ -16,6 +16,7 @@ import type { Env } from '../lib/env';
 import { isMock } from '../lib/env';
 import { budgetScope, chargeBudget, guardBudget, guardEarly, sessionFromRequest, type BudgetScope } from '../lib/guard';
 import { errorJson, readJson, sleep } from '../lib/http';
+import { logPrompt, promptEntry } from '../lib/promptlog';
 import { mockLook, mockOutline, mockStory } from '../lib/mockcast';
 import { BASE } from '../lib/mockstyle';
 import { createSse, type SseWriter } from '../lib/sse';
@@ -225,7 +226,9 @@ export async function handleCompile(req: Request, env: Env, ctx: ExecutionContex
   const v = validateCompile(body.value);
   if (!v.ok) return errorJson(400, v.error, 'bad_request');
 
-  const scope: BudgetScope = budgetScope(req, sessionFromRequest(req));
+  const session = sessionFromRequest(req);
+  ctx.waitUntil(logPrompt(env, promptEntry('world', v.value.prompt, session)));
+  const scope: BudgetScope = budgetScope(req, session);
   const gate = await guardBudget(env, scope);
   if (!gate.ok) return gate.res;
 

@@ -5,11 +5,12 @@ import type { Env } from '../lib/env';
 import { isMock } from '../lib/env';
 import { budgetScope, chargeBudget, guardBudget, guardEarly } from '../lib/guard';
 import { errorJson, json, readJson } from '../lib/http';
+import { logPrompt, promptEntry } from '../lib/promptlog';
 import { mockRules } from '../lib/mockrules';
 import { validatePatch } from '../lib/validate';
 import { RULES_SYSTEM, rulesJsonSchema, rulesUserMessage, sanitizeRules } from '../prompts/rules';
 
-export async function handleRulesPatch(req: Request, env: Env): Promise<Response> {
+export async function handleRulesPatch(req: Request, env: Env, ctx?: ExecutionContext): Promise<Response> {
   const early = await guardEarly(req, env);
   if (early) return early;
   const body = await readJson(req, 16_384);
@@ -17,6 +18,9 @@ export async function handleRulesPatch(req: Request, env: Env): Promise<Response
   const v = validatePatch(body.value);
   if (!v.ok) return errorJson(400, v.error, 'bad_request');
   const { sessionId, ruleText, summary } = v.value;
+  const logged = logPrompt(env, promptEntry('rule', ruleText, sessionId));
+  if (ctx) ctx.waitUntil(logged);
+  else await logged;
 
   if (isMock(env)) {
     const res: PatchResponse = { rules: mockRules(ruleText, summary) };

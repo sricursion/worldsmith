@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import middleware, { DEMO_VIDEO, demoResponse, embedOf, passwordFrom } from '../../middleware';
+import middleware, { DEMO_VIDEO, demoResponse, embedOf, passwordFrom, promptsResponse } from '../../middleware';
 
 const basic = (user: string, pass: string): string => `Basic ${btoa(`${user}:${pass}`)}`;
 const req = (auth?: string): Request => new Request('https://example.test/', auth ? { headers: { authorization: auth } } : {});
@@ -58,5 +58,43 @@ describe('site password', () => {
     // A bad address on the host falls back to the built-in video, and markup in an address is not passed through.
     expect(await demoResponse('javascript:alert(1)').text()).toContain('drive.google.com/file/d/');
     expect(await demoResponse('https://x.example/a"><script>alert(1)</script>.mp4').text()).not.toContain('<script>alert');
+  });
+});
+
+describe('prompts page', () => {
+  afterEach(() => { delete process.env['SITE_PASSWORD']; });
+  const store = { KV_REST_API_URL: 'https://redis.example', KV_REST_API_READ_ONLY_TOKEN: 'ro' };
+
+  it('is not served without a site password, and needs the password when one is set', async () => {
+    expect((await middleware(new Request('https://example.test/prompts')))?.status).toBe(404);
+    process.env['SITE_PASSWORD'] = 'open sesame';
+    expect((await middleware(new Request('https://example.test/prompts')))?.status).toBe(401);
+  });
+
+  it('lists entries newest first, escaped, from the read-only token', async () => {
+    let seen = '';
+    let auth = '';
+    const fake = (async (u: string, init?: RequestInit) => {
+      seen = u;
+      auth = new Headers(init?.headers).get('authorization') ?? '';
+      const rows = [
+        JSON.stringify({ t: '2026-11-22T10:00:00.000Z', kind: 'world', text: 'a city <script>x</script>', session: 'abcd1234' }),
+        JSON.stringify({ t: '2026-11-22T09:00:00.000Z', kind: 'talk', text: 'hello', to: 'Mara' }),
+        'not json',
+      ];
+      return new Response(JSON.stringify({ result: rows }), { status: 200 });
+    }) as typeof fetch;
+    const html = await (await promptsResponse(store, fake)).text();
+    expect(seen).toBe('https://redis.example/lrange/worldsmith%3Aprompts/0/999');
+    expect(auth).toBe('Bearer ro');
+    expect(html).toContain('2 shown');
+    expect(html).toContain('1 worlds');
+    expect(html).not.toContain('<script>x');
+    expect(html).toContain('to Mara');
+    expect(html.indexOf('a city')).toBeLessThan(html.indexOf('hello'));
+  });
+
+  it('says so when no store is connected', async () => {
+    expect(await (await promptsResponse({})).text()).toContain('No store is connected');
   });
 });

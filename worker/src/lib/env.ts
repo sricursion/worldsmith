@@ -16,6 +16,9 @@ export interface Env {
   /** Daily and per-session character caps for NPC voice; strings. Defaults live in routes/voice.ts. */
   VOICE_DAILY_CHARS?: string;
   VOICE_SESSION_CHARS?: string;
+  /** Upstash Redis REST address and token (set by the host's store); prompts are kept there when present. */
+  KV_REST_API_URL?: string;
+  KV_REST_API_TOKEN?: string;
   MOCK?: string;
   TOWNS?: KVNamespace;
   AI?: Ai;
